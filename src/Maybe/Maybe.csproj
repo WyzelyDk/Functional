@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0;net10.0;net11.0</TargetFrameworks>
+    <Description>A struct-based, allocation-free Maybe type for .NET with a safe default (none), explicit absence instead of null, and complete Task and ValueTask railway extensions. No dependencies outside the BCL.</Description>
+    <PackageTags>maybe;option;optional;null-handling;railway-oriented-programming;functional;struct;async;valuetask;analyzers</PackageTags>
+    <IsTrimmable>true</IsTrimmable>
+    <RootNamespace>$(ProductPrefix)</RootNamespace>
+    <MinVerTagPrefix>maybe-v</MinVerTagPrefix>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Threading.Tasks.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Maybe.Analyzers\Maybe.Analyzers.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Maybe.Analyzers.CodeFixes\Maybe.Analyzers.CodeFixes.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\Maybe.Analyzers\bin\$(Configuration)\netstandard2.0\$(ProductPrefix).Maybe.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+</Project>
