@@ -119,7 +119,7 @@ The library is judged by how it feels to use, not only by what it can do.
   class to opt in. CI runs on Linux only: the libraries make no operating-system calls and the tests normalise line endings and paths.
 - **The umbrella project overrides the naming rule.** `src/Functional` and `test/Functional.Tests` set `AssemblyName` and `RootNamespace`
   themselves, because the product prefix plus the folder name would give `Wyzely.Functional.Functional`. The package is plain
-  `Wyzely.Functional`, tagged `functional-v`, and holds only what lies between the other packages (`MaybeResultExtensions`).
+  `Wyzely.Functional`, and holds only what lies between the other packages (`MaybeResultExtensions`).
 - **No line is wider than 160 characters.** `LineWidthTests` in `test/Shared.Tests` checks every C# file. Break a long line where a person
   would: one argument per line, a long string as `+`-joined pieces, a long documentation element as an opening tag, wrapped text and a closing
   tag. Do not force the limit where it makes no sense: a method name, for example that of a generated test, stays in one piece (the test
@@ -208,9 +208,9 @@ dotnet pack src/Result -c Release
 - **Trunk-based.** `main` is always releasable; work happens in short-lived feature branches and reaches `main` only through a pull request.
 - **A pull request must build without errors or warnings and pass every test** on every target framework. CI (`.github/workflows/ci.yml`)
   enforces this; make it pass locally first (see Commands). Do not weaken a workflow, a rule or a test to make a check pass.
-- **A package is released by a tag on `main`** named `<prefix><version>` (`result-v1.2.3`), where the prefix is the project's `MinVerTagPrefix`.
-  Never create, move or delete a release tag unless asked, and never publish by hand. Details: `docs/releasing.md`.
-- **A new packable project needs its own unique `MinVerTagPrefix`** (`name-v`); CI validates this.
+- **The packages are released together, with one version, by a tag on `main`** named `v<version>` (`v1.2.3`); MinVer gives every packable project that
+  version. Never create, move or delete a release tag unless asked, and never publish by hand. Details: `docs/releasing.md`.
+- **A packable project must not set its own `MinVerTagPrefix`:** all packages share the prefix `v` from `Directory.Build.props`; CI validates this.
 - **Documentation-only changes skip the build.** CI always starts, but `.github/scripts/Test-CodeChanged.ps1` decides whether anything other than
   documentation changed; when not, only the link check runs. A file that is not on that list counts as code. Markdown files that are build
   inputs (`AnalyzerReleases.*.md`) are code. If you add a kind of file that cannot affect the build, add it to the list and to its test.

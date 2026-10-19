@@ -1,19 +1,22 @@
 <#
 .SYNOPSIS
-    Finds the NuGet package that a release tag belongs to, or checks that every package can be released unambiguously.
+    Turns a release tag into the list of NuGet packages to publish, or checks that every package can be released with one tag.
 
 .DESCRIPTION
-    Every package in this repository is released by its own tag, for example `result-v1.2.3`. The prefix of that tag (`result-v`) is the
-    MinVerTagPrefix of the package's project, so the project file is the single source of truth: nothing has to be kept in sync by hand.
+    All packages in this repository are released together, with the same version, by one tag: `v1.2.3` releases every packable project under
+    src/ as version 1.2.3. The projects therefore share the tag prefix `v` (set once in Directory.Build.props) and must not set one of their own.
 
-    -Tag       Resolves a tag to its project, package id and version, and checks that the tag is a valid release tag.
-    -Validate  Checks that every packable project has its own, well-formed tag prefix (run in CI, so a new package cannot be added in a
-               way that makes a release ambiguous).
+    -Tag       Checks that the tag is a valid release tag and returns the version and the packages, in the order in which they must be
+               pushed: a package comes after the packages that it references, so that a consumer never sees a package whose dependencies
+               are missing.
+    -Validate  Checks that every packable project uses the shared tag prefix (run in CI, so that a new package cannot be added in a way that
+               would be released separately or not at all).
 
-    When the GITHUB_OUTPUT environment variable is set (in GitHub Actions), the result of -Tag is also written to it.
+    When the GITHUB_OUTPUT environment variable is set (in GitHub Actions), the result of -Tag is also written to it. The packages and the
+    projects are comma-separated lists.
 
 .EXAMPLE
-    ./Resolve-Package.ps1 -Tag result-v1.2.3-preview.1
+    ./Resolve-Package.ps1 -Tag v1.2.3-preview.1
 
 .EXAMPLE
     ./Resolve-Package.ps1 -Validate
@@ -30,53 +33,70 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..' '..')).Path
-$prefixPattern = '^[a-z0-9]+(-[a-z0-9]+)*-v$'
+$releasePrefix = 'v'
 $versionPattern = '^\d+\.\d+\.\d+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$'
 
 function Get-PackableProject {
     foreach ($file in Get-ChildItem -Path (Join-Path $root 'src') -Recurse -Filter '*.csproj') {
-        $properties = (dotnet msbuild $file.FullName -getProperty:IsPackable -getProperty:PackageId -getProperty:MinVerTagPrefix | Out-String | ConvertFrom-Json).Properties
+        $evaluated = dotnet msbuild $file.FullName -getProperty:IsPackable -getProperty:PackageId -getProperty:MinVerTagPrefix -getItem:ProjectReference | Out-String | ConvertFrom-Json
 
         if ($LASTEXITCODE -ne 0) {
             throw "Could not evaluate $($file.FullName)."
         }
 
-        if ($properties.IsPackable -eq 'true') {
+        if ($evaluated.Properties.IsPackable -eq 'true') {
+            $references = @()
+
+            if ($evaluated.Items.PSObject.Properties.Name -contains 'ProjectReference') {
+                $references = @($evaluated.Items.ProjectReference | ForEach-Object { [System.IO.Path]::GetFullPath($_.FullPath) })
+            }
+
             [pscustomobject]@{
-                Path      = [System.IO.Path]::GetRelativePath($root, $file.FullName).Replace('\', '/')
-                PackageId = $properties.PackageId
-                Prefix    = $properties.MinVerTagPrefix
+                Path       = [System.IO.Path]::GetRelativePath($root, $file.FullName).Replace('\', '/')
+                FullPath   = [System.IO.Path]::GetFullPath($file.FullName)
+                PackageId  = $evaluated.Properties.PackageId
+                Prefix     = $evaluated.Properties.MinVerTagPrefix
+                References = $references
             }
         }
     }
 }
 
-function Assert-ValidPrefix($projects) {
+function Assert-SharedPrefix($projects) {
     $problems = @()
 
-    foreach ($project in $projects) {
-        if ($project.Prefix -notmatch $prefixPattern) {
-            $problems += "$($project.PackageId): the MinVerTagPrefix '$($project.Prefix)' must look like 'name-v' (lower case, ending in '-v')."
-        }
-    }
-
-    foreach ($group in $projects | Group-Object Prefix | Where-Object Count -gt 1) {
-        $problems += "The tag prefix '$($group.Name)' is used by more than one package: $(($group.Group.PackageId) -join ', ')."
-    }
-
-    foreach ($a in $projects) {
-        foreach ($b in $projects | Where-Object { $_.PackageId -ne $a.PackageId }) {
-            if ($b.Prefix.StartsWith($a.Prefix)) {
-                $problems += "The tag prefix '$($a.Prefix)' ($($a.PackageId)) is the start of '$($b.Prefix)' ($($b.PackageId)); a tag could belong to either."
-            }
-        }
+    foreach ($project in $projects | Where-Object { $_.Prefix -ne $releasePrefix }) {
+        $problems += "$($project.PackageId): the MinVerTagPrefix is '$($project.Prefix)', but all packages are released together with the tag prefix '$releasePrefix'. Remove the MinVerTagPrefix from the project (Directory.Build.props sets it)."
     }
 
     if ($problems.Count -gt 0) {
         $problems | ForEach-Object { Write-Error $_ -ErrorAction Continue }
 
-        throw 'The packable projects do not have unambiguous tag prefixes.'
+        throw 'The packable projects do not share one tag prefix.'
     }
+}
+
+# A package after the packages it references; packages that do not depend on each other come in alphabetical order.
+function Get-PushOrder($projects) {
+    $remaining = [System.Collections.Generic.List[object]]::new()
+    $projects | Sort-Object { $_.PackageId } | ForEach-Object { $remaining.Add($_) }
+    $ordered = [System.Collections.Generic.List[object]]::new()
+
+    while ($remaining.Count -gt 0) {
+        $next = $remaining | Where-Object {
+            $project = $_
+            -not ($remaining | Where-Object { $_.FullPath -ne $project.FullPath -and $project.References -contains $_.FullPath })
+        } | Select-Object -First 1
+
+        if ($null -eq $next) {
+            throw "The packable projects reference each other in a cycle: $(($remaining | ForEach-Object { $_.PackageId }) -join ', ')."
+        }
+
+        $ordered.Add($next)
+        [void]$remaining.Remove($next)
+    }
+
+    return $ordered
 }
 
 $projects = @(Get-PackableProject)
@@ -85,34 +105,32 @@ if ($projects.Count -eq 0) {
     throw 'No packable project was found under src/.'
 }
 
-Assert-ValidPrefix $projects
+Assert-SharedPrefix $projects
 
 if ($Validate) {
-    $projects | ForEach-Object { Write-Host "$($_.PackageId): tags look like '$($_.Prefix)<version>'" }
+    Write-Host "All packages are released together by a tag that looks like '$($releasePrefix)<version>': $(($projects | ForEach-Object { $_.PackageId } | Sort-Object) -join ', ')"
 
     return
 }
 
-$candidates = @($projects | Where-Object { $Tag.StartsWith($_.Prefix) })
-
-if ($candidates.Count -eq 0) {
-    throw "The tag '$Tag' does not start with the tag prefix of any package: $(($projects | ForEach-Object { $_.Prefix }) -join ', ')."
+if (-not $Tag.StartsWith($releasePrefix)) {
+    throw "The tag '$Tag' must start with '$releasePrefix' (all packages are released together by one tag)."
 }
 
-$project = $candidates[0]
-$version = $Tag.Substring($project.Prefix.Length)
+$version = $Tag.Substring($releasePrefix.Length)
 
 if ($version -notmatch $versionPattern) {
-    throw "The tag '$Tag' must be '$($project.Prefix)' followed by a version such as 1.2.3 or 1.2.3-preview.1, not '$version'."
+    throw "The tag '$Tag' must be '$releasePrefix' followed by a version such as 1.2.3 or 1.2.3-preview.1, not '$version'."
 }
+
+$ordered = @(Get-PushOrder $projects)
 
 $result = [ordered]@{
     tag        = $Tag
-    prefix     = $project.Prefix
-    project    = $project.Path
-    packageId  = $project.PackageId
     version    = $version
     prerelease = ($version.Contains('-')).ToString().ToLowerInvariant()
+    packageIds = ($ordered | ForEach-Object { $_.PackageId }) -join ','
+    projects   = ($ordered | ForEach-Object { $_.Path }) -join ','
 }
 
 $result.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key)=$($_.Value)" }

@@ -31,6 +31,7 @@
   </Folder>
   <Folder Name="/.github/scripts/">
     <File Path=".github/scripts/Resolve-Package.ps1" />
+    <File Path=".github/scripts/Resolve-Package.Tests.ps1" />
     <File Path=".github/scripts/Test-CodeChanged.ps1" />
     <File Path=".github/scripts/Test-CodeChanged.Tests.ps1" />
     <File Path=".github/scripts/Test-MarkdownLinks.ps1" />

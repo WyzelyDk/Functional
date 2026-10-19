@@ -6,7 +6,6 @@
     <PackageTags>result;error-handling;railway-oriented-programming;functional;struct;async;valuetask;analyzers</PackageTags>
     <IsTrimmable>true</IsTrimmable>
     <RootNamespace>$(ProductPrefix)</RootNamespace>
-    <MinVerTagPrefix>result-v</MinVerTagPrefix>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">

@@ -105,10 +105,15 @@ jobs:
         with:
           global-json-file: global.json
 
-      # Every packable project must have its own, unambiguous tag prefix, or a release tag could not say which package it means.
+      # All packages are released together by one tag, so no packable project may set a tag prefix of its own.
       - name: Check the release tag prefixes
         shell: pwsh
         run: ./.github/scripts/Resolve-Package.ps1 -Validate
+
+      # The tag decides which packages are published, and in which order, so the resolution is tested.
+      - name: Test the release tag resolution
+        shell: pwsh
+        run: ./.github/scripts/Resolve-Package.Tests.ps1
 
       # The change detection decides what is verified at all, so it is tested.
       - name: Test the change detection

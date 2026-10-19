@@ -225,7 +225,7 @@ there ([Result](docs/result/why.md), [Maybe](docs/maybe/why.md)).
 - The **root namespace is `Wyzely.Functional`** for every package; the **package ID adds the capability** (`Wyzely.Functional.Result`),
   and the package that includes the others is plain `Wyzely.Functional`. One `using Wyzely.Functional;` gives you everything you installed.
 - Packages are **independent**; only `Wyzely.Functional` references the others, to add what connects them.
-- Each package is **versioned by its own tag prefix**, for example `result-v1.2.0`.
+- All packages are **released together**, with the same version, by one tag, for example `v1.2.0`.
 
 ## Contributing
 
