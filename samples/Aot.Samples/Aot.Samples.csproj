@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Publishes all three libraries as a Native AOT app and runs it (CI does exactly that), so that "AOT compatible" is something that is run,
+    not something that is claimed. The trim and AOT analyzers also run on every build of this project, because PublishAot is on.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>$(ProductPrefix).AotSamples</RootNamespace>
+    <PublishAot>true</PublishAot>
+    <PublishDocumentationFile>false</PublishDocumentationFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Functional\Functional.csproj" />
+  </ItemGroup>
+
+</Project>
