@@ -84,7 +84,7 @@ jobs:
           cache-dependency-path: .github/mkdocs/requirements.txt
 
       - name: Install MkDocs
-        run: pip install -r .github/mkdocs/requirements.txt
+        run: pip install --require-hashes --only-binary :all: -r .github/mkdocs/requirements.txt
 
       - name: Build the documentation site (no warnings)
         run: mkdocs build --strict --site-dir "$RUNNER_TEMP/site"
@@ -172,7 +172,7 @@ jobs:
       # Each test project and target framework writes TestResults/<guid>.cobertura.xml; ReportGenerator merges them. The summary needs
       # no account, no token and no permissions, so it also works for pull requests from forks.
       - name: Merge the coverage reports
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.11
+        uses: danielpalme/ReportGenerator-GitHub-Action@d3ebf1f760f7d8ab92cc44d9bcfee7ad73722a31 # 5.5.11
         with:
           reports: '**/TestResults/*.cobertura.xml'
           targetdir: ${{ runner.temp }}/coveragereport
@@ -202,7 +202,7 @@ jobs:
       - name: Build the website
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          pip install -r .github/mkdocs/requirements.txt
+          pip install --require-hashes --only-binary :all: -r .github/mkdocs/requirements.txt
           mkdocs build --strict --site-dir "$RUNNER_TEMP/site"
           cp -r "$RUNNER_TEMP/coveragereport" "$RUNNER_TEMP/site/coverage"
 
