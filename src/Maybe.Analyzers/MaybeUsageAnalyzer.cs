@@ -14,8 +14,7 @@ namespace Wyzely.Functional.MaybeAnalyzers;
 public sealed class MaybeUsageAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc />
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Rules.UncheckedAccess);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rules.UncheckedAccess];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)

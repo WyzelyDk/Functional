@@ -18,7 +18,7 @@ public sealed class UnusedResultCodeFixProvider : CodeFixProvider
     private const string Title = "Discard the result explicitly";
 
     /// <inheritdoc />
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create("WYZ0101");
+    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ["WYZ0101"];
 
     /// <inheritdoc />
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
