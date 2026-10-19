@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0;net11.0</TargetFrameworks>
+    <!-- The tests of the umbrella package are named after it: Wyzely.Functional.Tests. -->
+    <AssemblyName>$(ProductPrefix).Tests</AssemblyName>
+    <RootNamespace>$(ProductPrefix).Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Functional\Functional.csproj" />
+  </ItemGroup>
+
+</Project>
