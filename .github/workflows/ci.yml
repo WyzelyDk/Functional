@@ -84,7 +84,8 @@ jobs:
           cache-dependency-path: .github/mkdocs/requirements.txt
 
       - name: Install MkDocs
-        run: pip install --require-hashes --only-binary :all: -r .github/mkdocs/requirements.txt
+        run: |
+          pip install --require-hashes --only-binary :all: -r .github/mkdocs/requirements.txt
 
       - name: Build the documentation site (no warnings)
         run: mkdocs build --strict --site-dir "$RUNNER_TEMP/site"
