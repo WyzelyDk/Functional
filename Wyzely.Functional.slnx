@@ -1,0 +1,123 @@
+<Solution>
+  <Folder Name="/root/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="AGENTS.md" />
+    <File Path="CLAUDE.md" />
+    <File Path="CODE_OF_CONDUCT.md" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="LICENSE" />
+    <File Path="mkdocs.yml" />
+    <File Path="README.md" />
+    <File Path="dotnet-tools.json" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+  </Folder>
+  <Folder Name="/.github/">
+    <File Path=".github/dependabot.yml" />
+    <File Path=".github/PULL_REQUEST_TEMPLATE.md" />
+  </Folder>
+  <Folder Name="/.github/mkdocs/">
+    <File Path=".github/mkdocs/hooks.py" />
+    <File Path=".github/mkdocs/requirements.txt" />
+  </Folder>
+  <Folder Name="/.github/rulesets/">
+    <File Path=".github/rulesets/main.json" />
+    <File Path=".github/rulesets/release-tags.json" />
+  </Folder>
+  <Folder Name="/.github/scripts/">
+    <File Path=".github/scripts/Resolve-Package.ps1" />
+    <File Path=".github/scripts/Test-CodeChanged.ps1" />
+    <File Path=".github/scripts/Test-CodeChanged.Tests.ps1" />
+    <File Path=".github/scripts/Test-MarkdownLinks.ps1" />
+  </Folder>
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/publish.yml" />
+  </Folder>
+  <Folder Name="/assets/">
+    <File Path="assets/icon.png" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/Maybe.Benchmarks/Maybe.Benchmarks.csproj" />
+    <Project Path="benchmarks/Result.Benchmarks/Result.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/docs/">
+    <File Path="docs/analyzers.md" />
+    <File Path="docs/index.md" />
+    <File Path="docs/releasing.md" />
+  </Folder>
+  <Folder Name="/docs/functional/">
+    <File Path="docs/functional/getting-started.md" />
+    <File Path="docs/functional/interop.md" />
+    <File Path="docs/functional/why.md" />
+  </Folder>
+  <Folder Name="/docs/maybe/">
+    <File Path="docs/maybe/async.md" />
+    <File Path="docs/maybe/collections.md" />
+    <File Path="docs/maybe/comparison.md" />
+    <File Path="docs/maybe/configuration.md" />
+    <File Path="docs/maybe/contributing.md" />
+    <File Path="docs/maybe/design-decisions.md" />
+    <File Path="docs/maybe/getting-started.md" />
+    <File Path="docs/maybe/performance.md" />
+    <File Path="docs/maybe/safety-and-analyzers.md" />
+    <File Path="docs/maybe/scope.md" />
+    <File Path="docs/maybe/the-railway.md" />
+    <File Path="docs/maybe/unions.md" />
+    <File Path="docs/maybe/why.md" />
+  </Folder>
+  <Folder Name="/docs/maybe/analyzers/">
+    <File Path="docs/maybe/analyzers/WYZ0201.md" />
+  </Folder>
+  <Folder Name="/docs/result/">
+    <File Path="docs/result/async.md" />
+    <File Path="docs/result/comparison.md" />
+    <File Path="docs/result/configuration.md" />
+    <File Path="docs/result/contributing.md" />
+    <File Path="docs/result/design-decisions.md" />
+    <File Path="docs/result/errors.md" />
+    <File Path="docs/result/getting-started.md" />
+    <File Path="docs/result/many-results.md" />
+    <File Path="docs/result/performance.md" />
+    <File Path="docs/result/safety-and-analyzers.md" />
+    <File Path="docs/result/scope.md" />
+    <File Path="docs/result/the-railway.md" />
+    <File Path="docs/result/unions.md" />
+    <File Path="docs/result/why.md" />
+  </Folder>
+  <Folder Name="/docs/result/analyzers/">
+    <File Path="docs/result/analyzers/WYZ0101.md" />
+    <File Path="docs/result/analyzers/WYZ0102.md" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Aot.Samples/Aot.Samples.csproj" />
+    <Project Path="samples/Functional.Samples/Functional.Samples.csproj" />
+    <Project Path="samples/Maybe.Samples/Maybe.Samples.csproj" />
+    <Project Path="samples/Result.Samples/Result.Samples.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Functional/Functional.csproj" />
+    <Project Path="src/Maybe.Analyzers.CodeFixes/Maybe.Analyzers.CodeFixes.csproj" />
+    <Project Path="src/Maybe.Analyzers/Maybe.Analyzers.csproj" />
+    <Project Path="src/Maybe.CodeGeneration/Maybe.CodeGeneration.csproj" />
+    <Project Path="src/Maybe/Maybe.csproj" />
+    <Project Path="src/Result.Analyzers.CodeFixes/Result.Analyzers.CodeFixes.csproj" />
+    <Project Path="src/Result.Analyzers/Result.Analyzers.csproj" />
+    <Project Path="src/Result.CodeGeneration/Result.CodeGeneration.csproj" />
+    <Project Path="src/Result/Result.csproj" />
+    <Project Path="src/Shared/Shared.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Functional.Tests/Functional.Tests.csproj" />
+    <Project Path="test/Maybe.Analyzers.Tests/Maybe.Analyzers.Tests.csproj" />
+    <Project Path="test/Maybe.Tests/Maybe.Tests.csproj" />
+    <Project Path="test/Result.Analyzers.Tests/Result.Analyzers.Tests.csproj" />
+    <Project Path="test/Result.Tests/Result.Tests.csproj" />
+    <Project Path="test/Samples.Tests/Samples.Tests.csproj" />
+    <Project Path="test/Shared.Tests/Shared.Tests.csproj" />
+  </Folder>
+</Solution>
