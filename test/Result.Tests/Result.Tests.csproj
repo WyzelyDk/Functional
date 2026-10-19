@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- A namespace Wyzely.Functional.Result.* would clash with the type Wyzely.Functional.Result. -->
+    <RootNamespace>$(ProductPrefix).ResultTests</RootNamespace>
+    <TargetFrameworks>net8.0;net10.0;net11.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Result\Result.csproj" />
+    <ProjectReference Include="..\..\src\Result.CodeGeneration\Result.CodeGeneration.csproj" />
+  </ItemGroup>
+
+</Project>
