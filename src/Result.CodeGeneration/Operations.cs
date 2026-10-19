@@ -13,7 +13,7 @@ internal static class Operations
 {
     private const string TDoc = "The type of the value of the receiver result.";
     private const string ReceiverFailed = "returns_the_error_without_running_the_delegate_when_the_receiver_failed";
-    private const string ReceiverSucceeded = "returns_the_receiver_without_running_the_delegate_when_the_receiver_succeeded";
+    private const string ReceiverSucceeded = "returns_the_receiver_without_running_the_delegate_when_the_receiver_succeeded";
     private const string FailureOfInt = "Result.Failure<int>(error)";
     private const string AssertSameErrorOutcomeGetError = "Assert.Same(error, outcome.GetError());";
     private const string VarLogNewListString = "var log = new List<string>();";
