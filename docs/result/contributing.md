@@ -60,5 +60,5 @@ docs/result/                                          the documentation pages an
 
 ## Pull requests and releases
 
-Every pull request must build without errors or warnings and pass all tests; CI checks both. How CI works, how a package is released with a
+Every pull request must build without errors or warnings and pass all tests; CI checks both. How CI works, how the packages are released with one
 tag, and the one-time GitHub and nuget.org setup are in [CI and releasing](../releasing.md).

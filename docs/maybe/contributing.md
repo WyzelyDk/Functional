@@ -69,6 +69,5 @@ docs/functional/               the documentation of the umbrella package
 
 ## Pull requests and releases
 
-Every pull request must build without errors or warnings and pass all tests; CI checks both. `Maybe` is released with a tag that starts with
-`maybe-v` and the umbrella package with one that starts with `functional-v`. How CI works, how a package is released with a tag, and the
+Every pull request must build without errors or warnings and pass all tests; CI checks both. All packages are released together, with the same version, by one tag: `v` and the version (for example `v1.2.0`). How CI works, how the packages are released with a tag, and the
 one-time GitHub and nuget.org setup are in [CI and releasing](../releasing.md).

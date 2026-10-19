@@ -1,15 +1,14 @@
 # CI and releasing
 
-For maintainers. It describes how pull requests are checked, how a package gets to nuget.org, how that works with several packages in one
-repository, and what to set up once on GitHub and nuget.org. The GitHub organization is `WyzelyDk` and the repository is `Functional`; the solution (`Wyzely.Functional.slnx`), the root namespace and the
+For maintainers. It describes how pull requests are checked, how the packages get to nuget.org (all together, with one tag and one version), and what to set up once on GitHub and nuget.org. The GitHub organization is `WyzelyDk` and the repository is `Functional`; the solution (`Wyzely.Functional.slnx`), the root namespace and the
 package IDs (`Wyzely.Functional`, `Wyzely.Functional.Result` and so on) carry the product name.
 
 ## The model in one paragraph
 
 Development is trunk-based: `main` is always releasable, work happens in short-lived branches, and nothing reaches `main` except through
-a pull request that **builds without errors or warnings and passes every test**. A package is released by pushing a **tag on `main`**; the
-tag names the package and, through [MinVer](https://github.com/adamralph/minver), its version. A workflow builds and tests that commit again,
-packs exactly that package, and publishes it to nuget.org without any stored password.
+a pull request that **builds without errors or warnings and passes every test**. The packages are always released together: pushing a **tag on `main`**
+(`v1.2.3`) gives every package that version, through [MinVer](https://github.com/adamralph/minver). A workflow builds and tests that commit again,
+packs all packages, and publishes them to nuget.org without any stored password.
 
 ## Pull requests: `.github/workflows/ci.yml`
 
@@ -17,7 +16,7 @@ packs exactly that package, and publishes it to nuget.org without any stored pas
 |---|---|---|
 | `changes` | always | Whether anything **other than documentation** changed (see below). A push to `main` always counts as code. |
 | `docs` | always | Every relative link in the Markdown files points at something that exists, and the documentation site builds with `mkdocs build --strict` (no warning). |
-| `validate` | when code changed | Every packable project has its own, well-formed release tag prefix; the change detection passes its own tests; the workflows pass `actionlint`. |
+| `validate` | when code changed | Every packable project uses the shared release tag prefix, the tag resolution and the change detection pass their own tests, and the workflows pass `actionlint`. |
 | `build-and-test` (Ubuntu, SDK 11) | when code changed | A clean Release build with `-warnaserror`, then every test project on every target framework it has (net8.0, net10.0, net11.0), and a pack smoke test. |
 | `sonarcloud` (Ubuntu) | when code changed | The SonarCloud analysis: the scanner wraps a build and the tests with coverage, and the job fails when the quality gate fails (see [SonarCloud](#sonarcloud)). |
 | `aot` (Ubuntu) | when code changed | Publishes all three libraries as a Native AOT app (no trim or AOT warning allowed) and runs the binary. |
@@ -93,18 +92,17 @@ python -m venv .venv
 
 ### Tags
 
-Every package has its own tag prefix, the `MinVerTagPrefix` of its project. Today:
+All packages are released together, by one tag: `v` and the version. Every packable project under `src/` gets that version from MinVer, so
+the packages always have the same version. Today they are `Wyzely.Functional.Maybe`, `Wyzely.Functional.Result` and `Wyzely.Functional`
+(the umbrella package).
 
-| Package | Tag | Example |
-|---|---|---|
-| `Wyzely.Functional.Result` | `result-v<version>` | `result-v1.2.3`, `result-v1.3.0-preview.1` |
-| `Wyzely.Functional.Maybe` | `maybe-v<version>` | `maybe-v1.2.3` |
-| `Wyzely.Functional` (the umbrella) | `functional-v<version>` | `functional-v1.2.3` |
+| Tag | Releases |
+|---|---|
+| `v1.2.3` | all three packages, version 1.2.3 |
+| `v1.3.0-preview.1` | all three packages, version 1.3.0-preview.1 (a prerelease) |
 
-A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org and on GitHub. MinVer ignores tags with other prefixes, so
-releasing one package never changes the version of another (this was verified: `maybe-v2.0.0` and `v9.9.9` on the same commit did not
-affect the version of the Result package). A commit after the tag `result-v1.2.3` builds as `1.2.4-preview.0.1`.
-
+A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org and on GitHub. A commit after the tag `v1.2.3` builds as
+`1.2.4-preview.0.1`.
 ### How to release
 
 1. Merge the pull requests that belong in the release; wait for `CI` to be green on `main`.
@@ -113,16 +111,17 @@ affect the version of the Result package). A commit after the tag `result-v1.2.3
    ```shell
    git switch main
    git pull
-   git tag result-v0.1.0
-   git push origin result-v0.1.0
+   git tag v0.1.0
+   git push origin v0.1.0
    ```
 
 3. In GitHub, open the *Publish* run and **approve the deployment** to the `nuget` environment.
-4. The workflow builds, tests, packs, publishes the package and its symbols, and creates a GitHub release whose notes list the pull
-   requests since the **previous release of the same package**. nuget.org takes a few minutes to index the new version.
+4. The workflow builds, tests and packs all packages, publishes them and their symbols one after the other (a package after the
+   packages it references), and creates one GitHub release whose notes list the pull requests since the previous release. nuget.org takes a few
+   minutes to index the new versions.
 
-The workflow refuses to publish when the tag is not a well-formed release tag of exactly one package, when the tagged commit is not on
-`main`, when the tests fail, or when the package that MinVer produced does not carry the version in the tag.
+The workflow refuses to publish when the tag is not a well-formed release tag (`v` and a version), when the tagged commit is not on
+`main`, when the tests fail, or when a package that MinVer produced does not carry the version in the tag.
 
 ### SonarCloud
 
@@ -151,26 +150,25 @@ build inputs of the release-tracking analyzers: a rule that is in neither file f
   be a version number, and it is not compared with the version of the package. Keep the headings of later releases in ascending order.
 - A rule added after that goes into `Unshipped` (a table under `### New Rules`) while it is unreleased. When its release is made, move the
   table into `Shipped` under a new `## Release <version>` heading and leave `Unshipped` with only its header.
-- `Result` and `Maybe` are released by separate tags, so each project moves its own entries.
+- All packages are released by the same tag, so both projects move their entries under the same `## Release <version>` heading.
 
 **Never move or reuse a tag.** nuget.org versions are immutable. If a release is wrong, publish the next version and *unlist* the bad one
 on nuget.org (a published version cannot be deleted).
 
 ### Several packages
 
-- **One tag, one package.** The tag prefix is the only link between a tag and a package, and it lives in the project file. The script
-  `.github/scripts/Resolve-Package.ps1` finds the package by asking MSBuild, so no list has to be kept in sync, and CI fails if two
-  packages share a prefix or one prefix is the start of another.
-- **To add a package:** give its project a unique `<MinVerTagPrefix>name-v</MinVerTagPrefix>`, keep `IsPackable` on, add a package
-  README, and nothing else: the workflows pick it up. The trusted publishing policy (below) covers `Wyzely.Functional*`.
-- **Release order matters for dependencies.** A package that references another (the umbrella `Wyzely.Functional` references
-  `Result` and `Maybe`) records the referenced package's version *at build time*. If `Result` has commits after its last tag, that version
-  is something like `1.2.4-preview.0.5`, which does not exist on nuget.org, and the dependent package would be uninstallable. So: tag
-  and publish the referenced packages first, and only build the dependent package from a commit where each package it references is exactly on
-  its own tag. When the first such package exists, extend the publish workflow with a check that every dependency in the package's
-  nuspec exists on nuget.org before pushing.
-- **Independent versions.** Packages are versioned separately; a change to `Result` does not force a release of `Maybe`.
-
+- **One tag, all packages, one version.** Every packable project under `src/` is released by the same tag and gets the same version. The
+  projects must not set a `MinVerTagPrefix` of their own: `Directory.Build.props` sets `v` for all. The script
+  `.github/scripts/Resolve-Package.ps1` finds the packable projects by asking MSBuild, so no list has to be kept in sync, and CI fails if a
+  project sets its own prefix. The script has its own tests, `Resolve-Package.Tests.ps1`.
+- **To add a package:** keep `IsPackable` on and add a package README, and nothing else: the workflows pick it up, and the package is
+  released with the next tag, with the same version as the others. The trusted publishing policy (below) covers `Wyzely.Functional*`.
+- **The push order follows the references.** The umbrella `Wyzely.Functional` references `Result` and `Maybe`. All three have the version of
+  the tag, so the versions that the umbrella needs exist. The script puts a package after the packages it references, and the workflow pushes
+  them in that order, so that nobody sees a package whose dependencies are missing. A package that is already on nuget.org is skipped, so a
+  run that stopped halfway can be repeated.
+- **Every release publishes every package,** even one that did not change. A single package cannot be released alone; that would need
+  separate tag prefixes again.
 ## Troubleshooting
 
 | Symptom | Likely cause |
@@ -178,9 +176,9 @@ on nuget.org (a published version cannot be deleted).
 | `CI` stays "Expected, waiting for status" on a pull request | The pull request does not contain the workflow files, or the workflow did not start (look at the Actions tab). The ruleset requires the check by its name, `CI`. |
 | A pull request waits for `CI` forever | A required check name that does not exist, or a workflow skipped by a path filter. Require only `CI`. |
 | *Publish* fails at "The tag must be on main" | The tag was created on a branch. Merge first, then tag `main`. |
-| *Publish* fails at "The package must carry the version of the tag" | MinVer saw other commits after the tag or a different tag prefix; tag the commit that was built. |
-| *Publish* waits and never runs | The `nuget` environment needs a reviewer to approve, or its tag rule does not allow `*-v*`. |
+| *Publish* fails at "Every package must carry the version of the tag" | MinVer saw other commits after the tag, or a project sets its own tag prefix; tag the commit that was built. |
+| *Publish* waits and never runs | The `nuget` environment needs a reviewer to approve, or its tag rule does not allow `v*`. |
 | NuGet login fails | The trusted publishing policy does not match exactly (owner, repository, `publish.yml`, `nuget`), or `NUGET_USER` is an email address instead of the profile name. |
 | The `docs` job fails at "Build the documentation site" | A new page is not in `nav` in `mkdocs.yml`, or a link points at a heading that does not exist; the log names the page. |
 | `pages` fails at "Deploy to GitHub Pages" | Pages is not set to *GitHub Actions* (Settings -> Pages), or the `github-pages` environment does not allow `main`. |
-| Versions look like `0.0.0-preview.0` | The clone was shallow (use `fetch-depth: 0`) or no tag with that package's prefix is reachable. |
+| Versions look like `0.0.0-preview.0` | The clone was shallow (use `fetch-depth: 0`) or no `v` tag is reachable. |
