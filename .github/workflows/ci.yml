@@ -289,6 +289,8 @@ jobs:
           /d:sonar.cs.cobertura.reportsPaths="**/TestResults/*.cobertura.xml"
           /d:sonar.coverage.exclusions="samples/**,benchmarks/**,src/*.CodeGeneration/**,src/Shared/CodeGeneration/**,src/*.Analyzers/**,src/*.Analyzers.CodeFixes/**,.github/**"
           /d:sonar.cpd.exclusions="benchmarks/**,src/*.CodeGeneration/**"
+          /d:sonar.exclusions="assets/**"
+          /d:sonar.python.version=3.13
           /d:sonar.qualitygate.wait=true
 
       # Warnings are not errors here: the scanner adds the rules of the SonarCloud profile, which the pinned analyzer may not know.
