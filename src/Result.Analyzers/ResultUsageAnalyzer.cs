@@ -13,8 +13,7 @@ namespace Wyzely.Functional.ResultAnalyzers;
 public sealed class ResultUsageAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc />
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Rules.UnusedResult, Rules.UncheckedAccess);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rules.UnusedResult, Rules.UncheckedAccess];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
