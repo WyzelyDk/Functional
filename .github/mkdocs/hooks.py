@@ -41,7 +41,7 @@ def _rewrite(target: str, page_dir: str, docs_dir: str, repo_root: str, repo_url
     return f"{repo_url.rstrip('/')}/{kind}/{BRANCH}/{in_repo}{hash_sign}{anchor}"
 
 
-def on_page_markdown(markdown, page, config, files):
+def on_page_markdown(markdown, page, config, **_):
     repo_root = os.path.dirname(os.path.abspath(config.config_file_path))
     docs_dir = posixpath.normpath(os.path.relpath(config.docs_dir, repo_root).replace(os.sep, "/"))
     page_dir = posixpath.dirname(page.file.src_uri)
