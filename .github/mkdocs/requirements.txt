@@ -1,0 +1,8 @@
+# The tools that build the documentation site (mkdocs.yml). Pinned, so that a new release cannot break the site unannounced; update them
+# on purpose.
+#
+# Material for MkDocs is in maintenance mode (its authors develop the successor, Zensical, which reads the same mkdocs.yml); it still
+# receives fixes. Revisit when that changes. Stay on MkDocs 1.x: according to the Material team, MkDocs 2.0 removes the plugin and theme
+# systems that Material (and the hook in this folder) rely on.
+mkdocs==1.6.1
+mkdocs-material==9.7.7
