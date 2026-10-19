@@ -53,7 +53,7 @@ $buildInputs = @(
     '(^|/)AnalyzerReleases\.(Shipped|Unshipped)\.md$'
 )
 
-function Write-Answer([bool] $code, [string] $reason) {
+function Show-Answer([bool] $code, [string] $reason) {
     Write-Host "code=$($code.ToString().ToLowerInvariant())  ($reason)"
 
     if ($env:GITHUB_OUTPUT) {
@@ -78,7 +78,7 @@ function Test-IsDocumentation([string] $path) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Base) -or $Base -match '^0+$') {
-    Write-Answer $true 'there is no base commit to compare with'
+    Show-Answer $true 'there is no base commit to compare with'
 
     return
 }
@@ -86,7 +86,7 @@ if ([string]::IsNullOrWhiteSpace($Base) -or $Base -match '^0+$') {
 git cat-file -e "$Base^{commit}" 2>$null
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Answer $true "the base commit '$Base' is not available"
+    Show-Answer $true "the base commit '$Base' is not available"
 
     return
 }
@@ -95,17 +95,17 @@ if ($LASTEXITCODE -ne 0) {
 $files = @(git diff --name-only --no-renames $Base $Head)
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Answer $true 'the changed files could not be listed'
+    Show-Answer $true 'the changed files could not be listed'
 
     return
 }
 
 foreach ($file in $files) {
     if (-not (Test-IsDocumentation $file)) {
-        Write-Answer $true "'$file' is not documentation"
+        Show-Answer $true "'$file' is not documentation"
 
         return
     }
 }
 
-Write-Answer $false "$($files.Count) changed file(s), all documentation"
+Show-Answer $false "$($files.Count) changed file(s), all documentation"
