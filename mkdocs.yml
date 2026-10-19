@@ -1,0 +1,102 @@
+# The documentation site, published to GitHub Pages by .github/workflows/ci.yml after a push to main (with the coverage report under
+# /coverage/).
+#
+# The pages under docs/ stay plain Markdown that reads well on GitHub; this file only adds a navigation and a theme. Links from a page to
+# a file outside docs/ (a package README, a sample) are rewritten to GitHub by .github/mkdocs/hooks.py, so they work on both.
+#
+# Build locally (Python 3):
+#   python -m venv .venv
+#   .venv/bin/pip install -r .github/mkdocs/requirements.txt        (Windows: .venv\Scripts\pip ...)
+#   .venv/bin/mkdocs serve                                           then open http://127.0.0.1:8000/
+site_name: 'Wyzely: Functional'
+site_description: Fast, fluent, dependency-free functional building blocks for .NET.
+site_url: https://wyzelydk.github.io/Functional/
+repo_url: https://github.com/WyzelyDk/Functional
+repo_name: WyzelyDk/Functional
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+site_dir: site
+
+# A warning (a broken link, a missing anchor, a page that is not in the nav) fails the build in CI, which runs `mkdocs build --strict`.
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+hooks:
+  - .github/mkdocs/hooks.py
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.action.edit
+    - search.highlight
+  palette:
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Result:
+      - Getting started: result/getting-started.md
+      - The railway: result/the-railway.md
+      - Async: result/async.md
+      - Errors in depth: result/errors.md
+      - Many results: result/many-results.md
+      - Configuration: result/configuration.md
+      - Safety and analyzers: result/safety-and-analyzers.md
+      - C# 15 unions: result/unions.md
+      - Why another Result library?: result/why.md
+      - How it compares: result/comparison.md
+      - Design decisions and roadmap: result/design-decisions.md
+      - Scope: result/scope.md
+      - Performance: result/performance.md
+      - Analyzer rules:
+          - WYZ0101: result/analyzers/WYZ0101.md
+          - WYZ0102: result/analyzers/WYZ0102.md
+  - Maybe:
+      - Getting started: maybe/getting-started.md
+      - The railway: maybe/the-railway.md
+      - Async: maybe/async.md
+      - Collections: maybe/collections.md
+      - Configuration: maybe/configuration.md
+      - Safety and analyzers: maybe/safety-and-analyzers.md
+      - C# 15 unions: maybe/unions.md
+      - Why another Maybe type?: maybe/why.md
+      - How it compares: maybe/comparison.md
+      - Design decisions: maybe/design-decisions.md
+      - Scope: maybe/scope.md
+      - Performance: maybe/performance.md
+      - Analyzer rules:
+          - WYZ0201: maybe/analyzers/WYZ0201.md
+  - Functional:
+      - Getting started: functional/getting-started.md
+      - 'Interop: ToResult and ToMaybe': functional/interop.md
+      - Why an umbrella package?: functional/why.md
+  - Analyzer rule IDs: analyzers.md
+  - Contributing:
+      - Building Result: result/contributing.md
+      - Building Maybe: maybe/contributing.md
+      - CI and releasing: releasing.md
+  - Coverage report: https://wyzelydk.github.io/Functional/coverage/
