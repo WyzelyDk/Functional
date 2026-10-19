@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0;net11.0</TargetFrameworks>
+    <!-- A namespace Wyzely.Functional.Maybe.* would clash with the type Wyzely.Functional.Maybe, so the tests use Wyzely.Functional.MaybeTests. -->
+    <RootNamespace>$(ProductPrefix).MaybeTests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Maybe\Maybe.csproj" />
+    <ProjectReference Include="..\..\src\Maybe.CodeGeneration\Maybe.CodeGeneration.csproj" />
+  </ItemGroup>
+
+</Project>
