@@ -277,7 +277,8 @@ jobs:
         run: dotnet tool restore
 
       # Coverage is the Cobertura files that the tests write (TestResults/<guid>.cobertura.xml). Samples, benchmarks, the generator tools and
-      # the analyzers are not measured by the tests' coverage, so they are excluded instead of counting as uncovered.
+      # the analyzers are not measured by the tests' coverage, so they are excluded instead of counting as uncovered. The same goes for the scripts and the
+      # documentation hook in .github/. The benchmarks (one scenario per compared library) and the generator tools are left out of the duplication check.
       - name: Begin the analysis
         if: steps.token.outputs.available == 'true'
         run: >
@@ -286,7 +287,8 @@ jobs:
           /o:"wyzelydk"
           /d:sonar.token="$SONAR_TOKEN"
           /d:sonar.cs.cobertura.reportsPaths="**/TestResults/*.cobertura.xml"
-          /d:sonar.coverage.exclusions="samples/**,benchmarks/**,src/*.CodeGeneration/**,src/Shared/CodeGeneration/**,src/*.Analyzers/**,src/*.Analyzers.CodeFixes/**"
+          /d:sonar.coverage.exclusions="samples/**,benchmarks/**,src/*.CodeGeneration/**,src/Shared/CodeGeneration/**,src/*.Analyzers/**,src/*.Analyzers.CodeFixes/**,.github/**"
+          /d:sonar.cpd.exclusions="benchmarks/**,src/*.CodeGeneration/**"
           /d:sonar.qualitygate.wait=true
 
       # Warnings are not errors here: the scanner adds the rules of the SonarCloud profile, which the pinned analyzer may not know.
