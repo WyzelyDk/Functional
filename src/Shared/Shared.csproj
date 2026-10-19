@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The code that Result, Maybe and the umbrella share, as a real project: for the IDE (navigation, find usages) and for the tests in
+    test/Shared.Tests. Nothing references this project and it is not packable. The libraries do not use its assembly: Directory.Build.props
+    compiles the files of src/Shared/Internal into each of them as internal source, so a consumer of a package can never reach this code,
+    and no shared assembly has to ship. It targets every framework the libraries do, so that every #if branch is compiled.
+    The generator engine (CodeGeneration) is included too, on the frameworks it can target, for the IDE and for the tests; the two generator projects
+    still link its source themselves (as internal source, like the libraries do with Internal), so nothing references this project.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0;net10.0</TargetFrameworks>
+    <RootNamespace>$(ProductPrefix)</RootNamespace>
+    <!-- Only the files listed below: the code that the libraries share, and the generator engine on the frameworks that can compile it. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Internal\*.cs" />
+
+    <!-- The libraries get the same global using from Directory.Build.props. -->
+    <Using Include="$(ProductPrefix).Internal" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+    <!-- The generator engine targets net8.0, so the netstandard2.0 build leaves it out. -->
+    <Compile Include="CodeGeneration\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <!-- Not compiled here, but listed: the IDE shows the project as its first target framework (netstandard2.0), and the files would be missing from it. -->
+    <None Include="CodeGeneration\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Threading.Tasks.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+  </ItemGroup>
+
+</Project>
