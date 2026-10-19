@@ -113,8 +113,8 @@ affect the version of the Result package). A commit after the tag `result-v1.2.3
    ```shell
    git switch main
    git pull
-   git tag result-v0.1.0-preview.1
-   git push origin result-v0.1.0-preview.1
+   git tag result-v0.1.0
+   git push origin result-v0.1.0
    ```
 
 3. In GitHub, open the *Publish* run and **approve the deployment** to the `nuget` environment.
@@ -147,9 +147,8 @@ The `sonarcloud` job is part of the gate, so a pull request cannot be merged whi
 `src/Result.Analyzers` and `src/Maybe.Analyzers` each have an `AnalyzerReleases.Shipped.md` and an `AnalyzerReleases.Unshipped.md`. They are
 build inputs of the release-tracking analyzers: a rule that is in neither file fails the build (`RS2000`).
 
-- The rules of the first release are already in `Shipped`, under the heading `## Release 0.1.0`. That heading is only a label: it has to
-  be a version number, and it is not compared with the version of the package. Change it when the first version is decided, and keep the
-  headings of later releases in ascending order.
+- The rules of the first release (0.1.0) are in `Shipped`, under the heading `## Release 0.1.0`. That heading is only a label: it has to
+  be a version number, and it is not compared with the version of the package. Keep the headings of later releases in ascending order.
 - A rule added after that goes into `Unshipped` (a table under `### New Rules`) while it is unreleased. When its release is made, move the
   table into `Shipped` under a new `## Release <version>` heading and leave `Unshipped` with only its header.
 - `Result` and `Maybe` are released by separate tags, so each project moves its own entries.
