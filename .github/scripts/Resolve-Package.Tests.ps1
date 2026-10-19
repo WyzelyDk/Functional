@@ -63,7 +63,7 @@ function Invoke-Resolve([string] $root, [string[]] $arguments) {
     return @{ Code = $code; Values = $values }
 }
 
-function Assert-Case([string] $name, [bool] $condition, [string] $detail) {
+function Show-CaseResult([string] $name, [bool] $condition, [string] $detail) {
     if ($condition) {
         Write-Host "ok      $name"
     }
@@ -81,45 +81,45 @@ try {
         @{ Id = 'Delta.Tool'; Packable = $false; Prefix = 'tool-v' })
 
     $release = Invoke-Resolve $good @('-Tag', 'v0.1.0')
-    Assert-Case 'a release tag resolves' ($release.Code -eq 0) "exit code $($release.Code)"
-    Assert-Case 'the version is the tag without the prefix' ($release.Values['version'] -eq '0.1.0') "got '$($release.Values['version'])'"
-    Assert-Case 'a version without a hyphen is not a prerelease' ($release.Values['prerelease'] -eq 'false') "got '$($release.Values['prerelease'])'"
-    Assert-Case 'the tag is passed on' ($release.Values['tag'] -eq 'v0.1.0') "got '$($release.Values['tag'])'"
-    Assert-Case 'every packable project is released, a package after the packages it references' ($release.Values['packageIds'] -eq 'Beta.Core,Gamma.Extras,Alpha.Umbrella') "got '$($release.Values['packageIds'])'"
-    Assert-Case 'the projects come in the same order' ($release.Values['projects'] -eq 'src/Beta.Core/Beta.Core.csproj,src/Gamma.Extras/Gamma.Extras.csproj,src/Alpha.Umbrella/Alpha.Umbrella.csproj') "got '$($release.Values['projects'])'"
+    Show-CaseResult 'a release tag resolves' ($release.Code -eq 0) "exit code $($release.Code)"
+    Show-CaseResult 'the version is the tag without the prefix' ($release.Values['version'] -eq '0.1.0') "got '$($release.Values['version'])'"
+    Show-CaseResult 'a version without a hyphen is not a prerelease' ($release.Values['prerelease'] -eq 'false') "got '$($release.Values['prerelease'])'"
+    Show-CaseResult 'the tag is passed on' ($release.Values['tag'] -eq 'v0.1.0') "got '$($release.Values['tag'])'"
+    Show-CaseResult 'every packable project is released, a package after the packages it references' ($release.Values['packageIds'] -eq 'Beta.Core,Gamma.Extras,Alpha.Umbrella') "got '$($release.Values['packageIds'])'"
+    Show-CaseResult 'the projects come in the same order' ($release.Values['projects'] -eq 'src/Beta.Core/Beta.Core.csproj,src/Gamma.Extras/Gamma.Extras.csproj,src/Alpha.Umbrella/Alpha.Umbrella.csproj') "got '$($release.Values['projects'])'"
 
     $preview = Invoke-Resolve $good @('-Tag', 'v1.2.3-preview.1')
-    Assert-Case 'a version with a hyphen is a prerelease' ($preview.Code -eq 0 -and $preview.Values['prerelease'] -eq 'true' -and $preview.Values['version'] -eq '1.2.3-preview.1') "exit code $($preview.Code), got '$($preview.Values['version'])' / '$($preview.Values['prerelease'])'"
+    Show-CaseResult 'a version with a hyphen is a prerelease' ($preview.Code -eq 0 -and $preview.Values['prerelease'] -eq 'true' -and $preview.Values['version'] -eq '1.2.3-preview.1') "exit code $($preview.Code), got '$($preview.Values['version'])' / '$($preview.Values['prerelease'])'"
 
     foreach ($tag in 'result-v0.1.0', 'v0.1', 'v1.2.3.4', '0.1.0', 'V0.1.0', 'v', 'vx.y.z') {
         $rejected = Invoke-Resolve $good @('-Tag', $tag)
-        Assert-Case "the tag '$tag' is rejected" ($rejected.Code -ne 0) 'the script accepted it'
+        Show-CaseResult "the tag '$tag' is rejected" ($rejected.Code -ne 0) 'the script accepted it'
     }
 
     $valid = Invoke-Resolve $good @('-Validate')
-    Assert-Case 'validation passes when no package has a prefix of its own' ($valid.Code -eq 0) "exit code $($valid.Code)"
+    Show-CaseResult 'validation passes when no package has a prefix of its own' ($valid.Code -eq 0) "exit code $($valid.Code)"
 
     $own = New-Fixture 'own-prefix' @(
         @{ Id = 'Beta.Core'; Packable = $true },
         @{ Id = 'Gamma.Extras'; Packable = $true; Prefix = 'extras-v' })
 
     $ownValidation = Invoke-Resolve $own @('-Validate')
-    Assert-Case 'validation fails when a package has a tag prefix of its own' ($ownValidation.Code -ne 0) 'the script accepted it'
+    Show-CaseResult 'validation fails when a package has a tag prefix of its own' ($ownValidation.Code -ne 0) 'the script accepted it'
 
     $ownRelease = Invoke-Resolve $own @('-Tag', 'v0.1.0')
-    Assert-Case 'a release is refused when a package has a tag prefix of its own' ($ownRelease.Code -ne 0) 'the script accepted it'
+    Show-CaseResult 'a release is refused when a package has a tag prefix of its own' ($ownRelease.Code -ne 0) 'the script accepted it'
 
     $none = New-Fixture 'none' @(@{ Id = 'Delta.Tool'; Packable = $false })
     $noneValidation = Invoke-Resolve $none @('-Validate')
-    Assert-Case 'validation fails when there is nothing to release' ($noneValidation.Code -ne 0) 'the script accepted it'
+    Show-CaseResult 'validation fails when there is nothing to release' ($noneValidation.Code -ne 0) 'the script accepted it'
 
     $real = Invoke-Resolve $realRoot @('-Tag', 'v0.1.0')
     $realIds = @(($real.Values['packageIds'] -split ',') | Where-Object { $_ })
-    Assert-Case 'this repository releases its three packages with one tag' ($real.Code -eq 0 -and $realIds.Count -eq 3) "exit code $($real.Code), packages: $($real.Values['packageIds'])"
-    Assert-Case 'the umbrella package is pushed last' ($realIds.Count -gt 0 -and $realIds[-1] -eq 'Wyzely.Functional') "packages: $($real.Values['packageIds'])"
+    Show-CaseResult 'this repository releases its three packages with one tag' ($real.Code -eq 0 -and $realIds.Count -eq 3) "exit code $($real.Code), packages: $($real.Values['packageIds'])"
+    Show-CaseResult 'the umbrella package is pushed last' ($realIds.Count -gt 0 -and $realIds[-1] -eq 'Wyzely.Functional') "packages: $($real.Values['packageIds'])"
 
     $realValidation = Invoke-Resolve $realRoot @('-Validate')
-    Assert-Case 'this repository passes the validation' ($realValidation.Code -eq 0) "exit code $($realValidation.Code)"
+    Show-CaseResult 'this repository passes the validation' ($realValidation.Code -eq 0) "exit code $($realValidation.Code)"
 }
 finally {
     Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
