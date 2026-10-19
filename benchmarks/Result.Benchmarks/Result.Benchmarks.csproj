@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Not under Wyzely.Functional: there, Result and Error would mean our types instead of those of the libraries that are compared. -->
+    <RootNamespace>Wyzely.Benchmarks</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="Ardalis.Result" />
+    <PackageReference Include="Funcky" />
+    <PackageReference Include="LanguageExt.Core" />
+    <PackageReference Include="OneOf" />
+    <PackageReference Include="Optional" />
+    <PackageReference Include="CSharpFunctionalExtensions" />
+    <PackageReference Include="ErrorOr" />
+    <PackageReference Include="FluentResults" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Result\Result.csproj" />
+  </ItemGroup>
+
+</Project>
