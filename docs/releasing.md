@@ -77,7 +77,8 @@ so a broken anchor or a page missing from the navigation fails the pull request,
 - **The pages stay plain Markdown for GitHub.** A link from a page to a file outside `docs/` (a package README, a sample) is rewritten to the
   file on GitHub by `.github/mkdocs/hooks.py` when the site is built; the source is not changed. A new page must be added to `nav` in
   `mkdocs.yml`, or the strict build fails.
-- **The tools are pinned** in `.github/mkdocs/requirements.txt`; update them on purpose (see the comment in that file).
+- **The tools are pinned and locked:** the two packages that we depend on in `.github/mkdocs/requirements.in`, everything that is installed (with hashes) in
+  `.github/mkdocs/requirements.txt`. Update them on purpose and regenerate the second file (see the comment in it).
 - **One-time setup:** Settings -> Pages -> Source: *GitHub Actions*.
 
 To preview the site locally (Python 3):

@@ -22,6 +22,7 @@
   </Folder>
   <Folder Name="/.github/mkdocs/">
     <File Path=".github/mkdocs/hooks.py" />
+    <File Path=".github/mkdocs/requirements.in" />
     <File Path=".github/mkdocs/requirements.txt" />
   </Folder>
   <Folder Name="/.github/rulesets/">
