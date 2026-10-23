@@ -11,6 +11,8 @@
 //    you want a cancellation to be a failure explicitly.
 //  - The way an exception becomes an Error (the ExceptionMapper) is a setting with a sensible default,
 //    Error.FromException, and can be replaced for the whole application or for a single call.
+//  - A handler whose parameter names an exception type, (FormatException exception) => ..., catches only that kind (and what
+//    derives from it), optionally narrowed by a `when:` condition. Naming the type is the decision, so ShouldCatch does not apply.
 //  - Going the other way, ThrowIfFailure() leaves the railway as an exception for code that expects one.
 //
 // This example changes the process-wide ResultConfiguration for a moment and ALWAYS resets it afterwards.
@@ -36,6 +38,33 @@ public static class ExceptionsExample
         await output.WriteLineAsync(
             "Try with your own mapping: " +
             quantity.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})"));
+
+        // One kind of exception, named by the parameter of the handler: the value and the exception type are both inferred.
+        var narrow = Result.Try(
+            () => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture),
+            (FormatException exception) => Error.Validation("'{Text}' is not a number.").WithDetail("Text", "abc").WithException(exception));
+        await output.WriteLineAsync(
+            "Try for one kind of exception: " +
+            narrow.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})"));
+
+        // Another kind of exception keeps travelling.
+        try
+        {
+            _ = Result.Try(
+                () => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture),
+                (InvalidOperationException exception) => Error.FromException(exception));
+        }
+        catch (FormatException)
+        {
+            await output.WriteLineAsync("Another kind of exception keeps travelling: FormatException");
+        }
+
+        // Naming the type is also how a cancellation is caught on purpose; `when` keeps a cancellation by the caller out of it.
+        var timedOut = Result.Try(
+            ThrowCancelled,
+            (OperationCanceledException exception) => Error.Timeout("The request timed out.").WithException(exception),
+            when: _ => !CancellationToken.None.IsCancellationRequested);
+        await output.WriteLineAsync($"A named cancellation is caught: kind {ErrorOf(timedOut)?.Kind}");
 
         // An action that returns nothing gives an untyped Result.
         var untyped = Result.Try(Console.Out.Flush);

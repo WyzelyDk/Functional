@@ -23,7 +23,7 @@ ResultConfiguration.Configure(options =>
 | `CancelledMessage` | `The operation was cancelled.` | `Error.Cancelled()` without a message |
 | `RedactedValue` | `***` | the value of a sensitive detail in redacted output |
 | `ExceptionMapper` | `Error.FromException` | `Result.Try` and `Result.FromException` when you pass no handler |
-| `ShouldCatch` | everything except `OperationCanceledException` | which exceptions `Result.Try` turns into failures |
+| `ShouldCatch` | everything except `OperationCanceledException` | which exceptions `Result.Try` turns into failures (not the form of `Try` that names an exception type) |
 | `DefaultMaxDegreeOfParallelism` | `-1` (no limit) | the parallel helpers when the caller passes no limit |
 | `ContinueOnCapturedContext` | `false` | whether the library's awaits continue on the captured synchronization context |
 

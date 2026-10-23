@@ -103,6 +103,33 @@ public sealed class ReadmeExamplesTests
             () => Assert.IsType<FormatException>(result.GetError().Exception));
     }
 
+    // docs/result/getting-started.md
+    [Fact]
+    internal async Task The_typed_try_example_catches_one_kind_of_exception_and_narrows_it_with_a_condition()
+    {
+        using var source = new CancellationTokenSource();
+        var cancellationToken = source.Token;
+
+        var order = Result.Try(
+            () => System.Text.Json.JsonSerializer.Deserialize<Order>("not json"),
+            (System.Text.Json.JsonException exception) => Error.FromException(exception, "The order is not valid JSON."));
+
+        var response = await Result.Try(
+            static async () =>
+            {
+                await Task.Yield();
+
+                throw new OperationCanceledException();
+            },
+            (OperationCanceledException exception) => Error.Timeout("The request timed out.").WithException(exception),
+            when: _ => !cancellationToken.IsCancellationRequested);
+
+        Assert.Multiple(
+            () => Assert.Equal("The order is not valid JSON.", order.GetError().Message),
+            () => Assert.IsType<System.Text.Json.JsonException>(order.GetError().Exception),
+            () => Assert.Equal(ErrorKind.Timeout, response.GetError().Kind));
+    }
+
     [Fact]
     internal void The_linq_example_chains_independent_lookups()
     {
