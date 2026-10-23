@@ -78,6 +78,20 @@ public sealed class PerformanceTests
     }
 
     [Fact]
+    internal void EnsureNotNull_and_SuccessIfNotNull_allocate_nothing_on_the_success_path()
+    {
+        RunNullChecks(10);
+
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var sum = RunNullChecks(1_000);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+        Assert.Multiple(
+            () => Assert.Equal(0, allocated),
+            () => Assert.True(sum > 0));
+    }
+
+    [Fact]
     internal void Creating_and_inspecting_results_allocates_nothing()
     {
         Inspect(10);
@@ -87,6 +101,22 @@ public sealed class PerformanceTests
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
         Assert.Equal(0, allocated);
+    }
+
+    private static long RunNullChecks(int iterations)
+    {
+        long sum = 0;
+
+        for (var index = 1; index <= iterations; index++)
+        {
+            var number = Result.Success<int?>(index).EnsureNotNull(Rejected);
+            var text = Result.Success<string?>("abc").EnsureNotNull(static () => Rejected);
+            var created = Result.SuccessIfNotNull((int?)index, Rejected);
+
+            sum += number.GetValue() + text.GetValue().Length + created.GetValue();
+        }
+
+        return sum;
     }
 
     private static long RunSuccessfulChain(int iterations)
@@ -109,6 +139,9 @@ public sealed class PerformanceTests
                 .BindTry(static value => Result.Success(value))
                 .TapTry(static _ => { })
                 .TapIfTry(true, static _ => { })
+                .Tap(static () => { })
+                .EnsureNot(static value => value < 0, Rejected)
+                .EnsureNot(static value => value < 0, "Negative.")
                 .Bind(static value => Result.Success(value * 2))
                 .Tap(static _ => { })
                 .Ensure(static value => Result.SuccessIf(value > 0, Rejected))

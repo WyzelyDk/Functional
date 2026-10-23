@@ -31,11 +31,14 @@ public sealed class GeneratedFilesTests
             .Select(operation => operation.Name)
             .Append("Zip")
             .Concat(ConditionalFactoryEmitter.Folders)
+            .Append(NotNullFactoryEmitter.Folder)
             .ToHashSet(StringComparer.Ordinal);
         var zipFiles = (GeneratorSettings.MaxZipArity - 1) * 2;
 
         Assert.Multiple(
-            () => Assert.Equal(Operations.All.Sum(operation => operation.Variants.Count) + zipFiles + ConditionalFactoryEmitter.FileCount, files.Length),
+            () => Assert.Equal(
+                Operations.All.Sum(operation => operation.Variants.Count) + zipFiles + ConditionalFactoryEmitter.FileCount + NotNullFactoryEmitter.FileCount,
+                files.Length),
             () => Assert.All(files, file => Assert.Contains(Path.GetFileName(Path.GetDirectoryName(file))!, operationNames)),
             () => Assert.All(files, file => Assert.Single(File.ReadAllLines(file), line => line.StartsWith("    public static ", StringComparison.Ordinal))));
     }

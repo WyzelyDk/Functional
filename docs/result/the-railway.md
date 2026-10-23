@@ -8,10 +8,12 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 |---|---|---|
 | `Map(f)` | success | transforms the value |
 | `Bind(f)` | success | chains an operation that returns a `Result`/`Result<U>` |
-| `Tap(f)` | success | runs a side effect, returns the result unchanged |
+| `Tap(f)` | success | runs a side effect, returns the result unchanged; the side effect may also take no value |
 | `TapError(f)` | failure | runs a side effect with the error |
 | `MapError(f)` | failure | replaces the error, for example to add context |
 | `Ensure(predicate, error)` | success | turns the success into a failure when the predicate is false; the error can also be a plain message, or a function of the value that creates the error (or the message) only when the predicate is false; on an untyped result the condition takes no value |
+| `EnsureNot(predicate, error)` | success | the mirror of `Ensure`: turns the success into a failure when the predicate is true |
+| `EnsureNotNull(error)` | success | fails when the value is `null`, and turns a `Result<T?>` into a `Result<T>` (for a reference type and for a nullable value type) |
 | `Ensure(f)` | success | validates with an operation that returns a `Result` (or a typed result, whose value is ignored), keeping the original value; the operation may also take no parameter |
 | `MapIf(condition, f)`, `BindIf`, `TapIf`, `EnsureIf` | success | the same step, run only when the condition holds; the condition is a `bool`, a function, or a function of the value, and `MapIf` and `BindIf` keep the type of the value |
 | `TapErrorIf(condition, f)` | failure | `TapError`, run only when the condition holds; the condition can be a function of the error |
@@ -38,6 +40,14 @@ handler to catch only that type; any other exception keeps travelling:
 ```csharp
 var address = Result.Success("not a web address")
     .MapTry(static text => new Uri(text), static (UriFormatException exception) => Error.Validation("The address is not valid."));
+```
+
+A value that may be `null` becomes a value that is not, and the type says so. `EnsureNotNull` turns a `Result<T?>` into a `Result<T>`, for a reference
+type and for a nullable value type, and fails with your error when the value is `null`:
+
+```csharp
+var name = Result.Success<string?>(null)
+    .EnsureNotNull(Error.NotFound("No such customer."));    // a Result<string>, no longer a Result<string?>
 ```
 
 LINQ query syntax and `Zip` are supported as well:

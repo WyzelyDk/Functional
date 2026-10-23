@@ -126,6 +126,65 @@ public sealed class ConsumerNullabilityTests
     }
 
     [Fact]
+    internal void EnsureNotNull_turns_a_nullable_reference_result_into_a_non_nullable_one()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Result<string> M(Result<string?> r) => r.EnsureNotNull(\"missing\");");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
+    internal void EnsureNotNull_turns_a_nullable_value_type_result_into_a_plain_one()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Result<int> M(Result<int?> r) => r.EnsureNotNull(\"missing\");");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
+    internal void The_value_after_EnsureNotNull_is_non_null_and_before_it_is_not()
+    {
+        var after = AnalyzerTestHost.NullabilityWarnings("int M(Result<string?> r) => r.EnsureNotNull(\"missing\").Match(v => v.Length, e => 0);");
+        var before = AnalyzerTestHost.NullabilityWarnings("int M(Result<string?> r) => r.Match(v => v.Length, e => 0);");
+
+        Assert.Multiple(
+            () => Assert.Empty(after),
+            () => Assert.Equal(["CS8602"], before));
+    }
+
+    [Fact]
+    internal void EnsureNotNull_keeps_an_async_receiver_async_and_removes_the_annotation()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Task<Result<string>> M(Task<Result<string?>> r) => r.EnsureNotNull(\"missing\");");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
+    internal void SuccessIfNotNull_accepts_a_nullable_reference_and_returns_a_non_nullable_result()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Result<string> M(string? s) => Result.SuccessIfNotNull(s, \"missing\");");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
+    internal void SuccessIfNotNull_accepts_a_nullable_value_type_and_returns_a_plain_result()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Result<int> M(int? n) => Result.SuccessIfNotNull(n, \"missing\");");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
+    internal void SuccessIfNotNull_accepts_a_task_of_a_nullable_reference()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Task<Result<string>> M(Task<string?> t) => Result.SuccessIfNotNull(t, \"missing\");");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
     internal void An_async_receiver_keeps_the_nullability_of_its_value()
     {
         var warnings = AnalyzerTestHost.NullabilityWarnings(

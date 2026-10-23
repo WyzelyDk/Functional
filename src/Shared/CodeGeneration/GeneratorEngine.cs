@@ -54,7 +54,7 @@ internal sealed class GeneratorEngine(GeneratorProfile profile, IReadOnlyList<Op
 
         if (profile.ConditionalFactories)
         {
-            foreach (var (path, content) in new ConditionalFactoryEmitter(profile).Generate(stubs))
+            foreach (var (path, content) in new ConditionalFactoryEmitter(profile).Generate(stubs).Concat(new NotNullFactoryEmitter(profile).Generate(stubs)))
             {
                 files[path] = content;
             }
