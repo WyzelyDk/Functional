@@ -170,6 +170,13 @@ public readonly partial struct Result
         }
     }
 
-    private static Error ErrorOf(Exception exception, Func<Exception, Error>? onException) =>
+    /// <summary>
+    /// Creates the error for an exception that was caught: from the handler when there is one, otherwise with the configured exception mapper.
+    /// The generated <c>*Try</c> steps share it with <c>Try</c>.
+    /// </summary>
+    /// <param name="exception">The exception that was caught.</param>
+    /// <param name="onException">The handler of the caller, or <see langword="null"/> for the default.</param>
+    /// <returns>The error that describes the exception.</returns>
+    internal static Error ErrorOf(Exception exception, Func<Exception, Error>? onException) =>
         onException is null ? ResultConfiguration.Current.ExceptionMapper(exception) : onException(exception);
 }

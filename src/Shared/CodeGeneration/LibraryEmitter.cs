@@ -146,7 +146,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
 
         // The receiver is passed by value on purpose. Measured: `in` makes a chain slower, because the result of the previous call
         // is a temporary that has to be put in memory to take its address (see the ParameterPassing benchmark).
-        writer.Line($"public static {returnType} {operation.Name}{operation.TypeParameterList}(this {string.Join(", ", parameters)})");
+        writer.Line($"public static {returnType} {operation.Name}{operation.TypeParameterList}(this {string.Join(", ", WithDefaults(operation, parameters))})");
 
         EmitConstraints(writer, operation);
         writer.Open();
@@ -166,7 +166,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
 
     private static void EmitConstraints(CodeWriter writer, OperationSpec operation)
     {
-        if (operation.NotNull.Length == 0 && operation.Structs.Length == 0)
+        if (operation.NotNull.Length == 0 && operation.Structs.Length == 0 && operation.Constraints.Length == 0)
         {
             return;
         }
@@ -174,8 +174,18 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         writer.Indent();
         writer.Lines(operation.NotNull.Select(name => $"where {name} : notnull"));
         writer.Lines(operation.Structs.Select(name => $"where {name} : struct"));
+        writer.Lines(operation.Constraints);
         writer.Unindent();
     }
+
+    // The parameters of the signature: the plain list, with the default value of the parameters that have one.
+    private static IEnumerable<string> WithDefaults(OperationSpec operation, List<string> parameters) => parameters.Select(parameter =>
+    {
+        var name = parameter[(parameter.LastIndexOf(' ') + 1)..];
+        var extra = operation.ExtraParameters.FirstOrDefault(candidate => candidate.Name == name && candidate.DefaultValue is not null);
+
+        return extra is null ? parameter : $"{parameter} = {extra.DefaultValue}";
+    });
 
     private static void EmitGuards(CodeWriter writer, List<string> guarded)
     {

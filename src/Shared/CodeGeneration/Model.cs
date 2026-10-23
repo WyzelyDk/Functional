@@ -47,7 +47,8 @@ internal sealed record DelegateSpec(string Name, string[] ParameterTypes, string
 /// <see langword="false"/> for a parameter that must not be checked for <see langword="null"/>, for example a value of an unconstrained
 /// type parameter.
 /// </param>
-internal sealed record ExtraParameter(string Type, string Name, string Description, bool Validated = true);
+/// <param name="DefaultValue">The default value of the parameter, for a parameter the caller may leave out, or <see langword="null"/>.</param>
+internal sealed record ExtraParameter(string Type, string Name, string Description, bool Validated = true, string? DefaultValue = null);
 
 /// <summary>The documentation of a type parameter.</summary>
 internal sealed record TypeParameterDoc(string Name, string Description);
@@ -123,6 +124,11 @@ internal sealed record OperationSpec
     /// nullable value type.
     /// </summary>
     internal string[] Structs { get; init; } = [];
+
+    /// <summary>
+    /// Gets the constraints of the type parameters that are not <c>notnull</c> or <c>struct</c>, for example <c>where TException : Exception</c>.
+    /// </summary>
+    internal string[] Constraints { get; init; } = [];
 
     /// <summary>Gets the summary of the operation.</summary>
     internal required string Summary { get; init; }
