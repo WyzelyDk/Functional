@@ -3,7 +3,7 @@ namespace Wyzely.Functional;
 /// <summary>
 /// Extension methods for sequences of results: combining them into one result and splitting them into successes and failures.
 /// </summary>
-public static class ResultCollectionExtensions
+public static partial class ResultCollectionExtensions
 {
     /// <summary>Combines results that carry no value into one result. See <see cref="Result.Combine(IEnumerable{Result})"/>.</summary>
     /// <param name="results">The results to combine.</param>

@@ -82,6 +82,24 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal async Task The_stream_example_turns_the_result_of_a_list_into_a_stream_of_results_and_combines_it()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var found = Result.Success<IReadOnlyList<string>>(["a.txt", "bb.txt"]);
+
+        var lengths = await found
+            .SelectEach(static async name =>
+            {
+                await Task.Yield();
+
+                return Result.Success(name.Length);
+            })
+            .Combine(cancellationToken);
+
+        Assert.Equal([5, 6], lengths.GetValue());
+    }
+
+    [Fact]
     internal async Task The_async_chain_example_mixes_task_and_value_task_steps()
     {
         var outcome = await FindOrderAsync(7)

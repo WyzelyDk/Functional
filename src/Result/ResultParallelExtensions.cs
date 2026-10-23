@@ -18,7 +18,7 @@ namespace Wyzely.Functional;
 /// <see cref="OperationCanceledException"/>.
 /// </para>
 /// </remarks>
-public static class ResultParallelExtensions
+public static partial class ResultParallelExtensions
 {
     private const int Unbounded = -1;
 
