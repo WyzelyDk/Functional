@@ -33,9 +33,9 @@ public static class NullabilityExample
         output.WriteLine($"Maybe.From(int? with a value): {Maybe.From(withValue)}");
         output.WriteLine($"Maybe.From(int? without a value): {Maybe.From(withoutValue)}");
 
-        // The way back for a value type: ToNullable.
-        output.WriteLine($"ToNullable of a some: {Show(Maybe.Some(12).ToNullable())}");
-        output.WriteLine($"ToNullable of a none: {Show(Maybe.None<int>().ToNullable())}");
+        // The way back for a value type: AsNullable.
+        output.WriteLine($"AsNullable of a some: {Show(Maybe.Some(12).AsNullable())}");
+        output.WriteLine($"AsNullable of a none: {Show(Maybe.None<int>().AsNullable())}");
 
         // The implicit conversion accepts a string? without a warning: a null becomes none.
         var nothing = default(string);

@@ -106,7 +106,7 @@ var count = 3;
 Maybe<string> name = Maybe.Some("Ada");                 // Some(Ada); Maybe.Some(null) throws ArgumentNullException
 Maybe<string> nobody = Maybe.None<string>();            // None
 Maybe<string> nick = Maybe.From(nickname);              // None, because the reference is null
-Maybe<int> several = Maybe.SomeWhen(count > 1, count);  // Some(3)
+Maybe<int> several = Maybe.SomeIf(count > 1, count);  // Some(3)
 Maybe<string> plain = "Ada";                            // Some(Ada); a null reference converts to None
 
 name.IsSome;                                            // true

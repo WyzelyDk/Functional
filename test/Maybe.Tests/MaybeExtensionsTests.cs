@@ -33,13 +33,13 @@ public sealed class MaybeExtensionsTests
     }
 
     [Fact]
-    internal void SomeWhen_does_not_check_the_value_when_the_condition_is_false()
+    internal void SomeIf_does_not_check_the_value_when_the_condition_is_false()
     {
         Assert.Multiple(
-            () => Assert.True(Maybe.SomeWhen(false, (string)null!).IsNone),
-            () => Assert.True(Maybe.NoneWhen(true, (string)null!).IsNone),
-            () => Assert.Throws<ArgumentNullException>(() => Maybe.SomeWhen(true, (string)null!)),
-            () => Assert.Throws<ArgumentNullException>(() => Maybe.NoneWhen(false, (string)null!)));
+            () => Assert.True(Maybe.SomeIf(false, (string)null!).IsNone),
+            () => Assert.True(Maybe.NoneIf(true, (string)null!).IsNone),
+            () => Assert.Throws<ArgumentNullException>(() => Maybe.SomeIf(true, (string)null!)),
+            () => Assert.Throws<ArgumentNullException>(() => Maybe.NoneIf(false, (string)null!)));
     }
 
     [Fact]

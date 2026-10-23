@@ -7,6 +7,6 @@ public static class MaybeNullableExtensions
     /// <typeparam name="T">The value type.</typeparam>
     /// <param name="maybe">The maybe to convert.</param>
     /// <returns>The value, or <see langword="null"/> when the maybe has none.</returns>
-    public static T? ToNullable<T>(this Maybe<T> maybe)
+    public static T? AsNullable<T>(this Maybe<T> maybe)
         where T : struct => maybe.Unpack(out var value) ? value : null;
 }

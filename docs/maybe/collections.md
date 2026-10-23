@@ -34,7 +34,7 @@ var water = prices.GetValueOrNone("water");              // None
 IEnumerable<Maybe<int>> lookups = [Maybe.Some(1), Maybe.None<int>(), Maybe.Some(3)];
 var found = lookups.Choose();                            // 1, 3
 
-var lengths = new[] { "a", "", "ccc" }.Choose(text => Maybe.SomeWhen(text.Length > 0, text.Length));   // 1, 3
+var lengths = new[] { "a", "", "ccc" }.Choose(text => Maybe.SomeIf(text.Length > 0, text.Length));   // 1, 3
 ```
 
 Each of these is run, with its output, in `samples/Maybe.Samples/CollectionsExample.cs`. `Choose` is the one to reach for when you would otherwise write

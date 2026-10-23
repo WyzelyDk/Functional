@@ -31,11 +31,11 @@ public static class BasicsExample
         int? score = 12;
         output.WriteLine($"Maybe.From(int? with a value): {Maybe.From(score)}");
 
-        // SomeWhen / NoneWhen: a value only when (or unless) a condition holds.
-        output.WriteLine($"Maybe.SomeWhen(true, 3): {Maybe.SomeWhen(true, 3)}");
-        output.WriteLine($"Maybe.SomeWhen(false, 3): {Maybe.SomeWhen(false, 3)}");
-        output.WriteLine($"Maybe.NoneWhen(true, 3): {Maybe.NoneWhen(true, 3)}");
-        output.WriteLine($"Maybe.NoneWhen(false, 3): {Maybe.NoneWhen(false, 3)}");
+        // SomeIf / NoneIf: a value only when (or unless) a condition holds.
+        output.WriteLine($"Maybe.SomeIf(true, 3): {Maybe.SomeIf(true, 3)}");
+        output.WriteLine($"Maybe.SomeIf(false, 3): {Maybe.SomeIf(false, 3)}");
+        output.WriteLine($"Maybe.NoneIf(true, 3): {Maybe.NoneIf(true, 3)}");
+        output.WriteLine($"Maybe.NoneIf(false, 3): {Maybe.NoneIf(false, 3)}");
 
         // The implicit conversion: a plain value converts to a maybe and a null reference becomes none, so "return customer;" works in
         // a method that returns Maybe<Customer>. This is the one implicit conversion in the library, and it is deliberate: null
