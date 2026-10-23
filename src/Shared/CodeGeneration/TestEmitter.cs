@@ -21,7 +21,7 @@ internal sealed class TestEmitter(GeneratorProfile profile)
 
         foreach (var testCase in operation.Tests)
         {
-            foreach (var variant in Variant.All)
+            foreach (var variant in operation.Variants)
             {
                 if (!first)
                 {
@@ -47,7 +47,8 @@ internal sealed class TestEmitter(GeneratorProfile profile)
     private void EmitTest(CodeWriter writer, OperationSpec operation, TestCaseSpec testCase, Variant variant, bool pending)
     {
         var suffix = pending ? "_when_the_receiver_completes_later" : string.Empty;
-        var name = $"{operation.Name}_on_{variant.Receiver.Slug()}_receiver_with_{variant.Delegate.Slug()}_delegate_{testCase.Name}{suffix}";
+        var delegatePart = operation.Delegates.Length == 0 ? string.Empty : $"with_{variant.Delegate.Slug()}_delegate_";
+        var name = $"{operation.Name}_on_{variant.Receiver.Slug()}_receiver_{delegatePart}{testCase.Name}{suffix}";
         var isAsync = !variant.IsSync;
         var delegates = operation.Delegates.Select(spec => testCase.Delegates.Single(test => test.DelegateName == spec.Name)).ToList();
 

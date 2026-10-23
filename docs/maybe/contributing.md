@@ -42,7 +42,7 @@ Release builds treat warnings as errors, and every public and internal member ha
 
 ## The generated async variants
 
-The `Map`/`Bind`/`Filter`/`Tap`/`TapNone`/`Or`/`ValueOr`/`Match`/`Switch` methods and their tests are generated: one file per combination of a
+The `Map`/`Bind`/`Filter`/`Any`/`All`/`Contains`/`Tap`/`TapNone`/`Or`/`ValueOr`/`Match`/`Switch` methods and their tests are generated: one file per combination of a
 synchronous, `Task` or `ValueTask` receiver and delegate (for example `Generated/Map/Map.Task.ValueTask.g.cs`). The generator is
 `src/Maybe.CodeGeneration` and the catalog of operations is `Operations.cs`. To add or change an operation, edit the catalog and run:
 

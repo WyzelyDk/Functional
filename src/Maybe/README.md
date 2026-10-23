@@ -64,14 +64,14 @@ What the library adds is everything around that core, and each item is checked a
 
 - **One way to be empty.** `Maybe.Some(null)` throws, `Maybe.From(x)` turns `null` into none, `Maybe<string?>` is reported against `notnull`.
 - **Decided conversions.** A `T` or a `null` reference converts to a maybe implicitly; nothing converts out of one (pinned by tests).
-- **The generated railway:** nine operations in every sync / `Task` / `ValueTask` combination, **90 methods** (`Map` has a second form for nullable value types), each with a generated test, and no
+- **The generated railway:** twelve operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three), **111 methods** (`Map` has a second form for nullable value types), each with a generated test, and no
   `await` in the middle of a chain.
 - **Lookups:** `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose`; and LINQ, `Zip` and `Flatten`.
 - **An analyzer (`WYZ0201`) and nullability annotations** that are pinned by tests which compile consumer code.
 - **Configuration, equality, ordering and formatting**, including redaction of values in `ToString()`.
 - **Measured size and allocation** (only what `PerformanceTests` checks), **interop with `Result`** in the umbrella package, and **C# 15 union support**.
 
-A library costs something too: a vocabulary your team has to learn, generated code you did not write (102 files), one more package to keep updated,
+A library costs something too: a vocabulary your team has to learn, generated code you did not write (123 files), one more package to keep updated,
 and an API that can still change before 1.0. When your use is one corner of one project, with synchronous steps and a handful of call sites, writing
 your own is the better choice. [The whole argument, with the cost of a dependency.](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/why.md)
 

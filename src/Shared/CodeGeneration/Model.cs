@@ -32,7 +32,14 @@ internal sealed record DelegateSpec(string Name, string[] ParameterTypes, string
 }
 
 /// <summary>A plain (non-delegate) parameter after the delegates.</summary>
-internal sealed record ExtraParameter(string Type, string Name, string Description);
+/// <param name="Type">The type of the parameter.</param>
+/// <param name="Name">The name of the parameter.</param>
+/// <param name="Description">The documentation of the parameter.</param>
+/// <param name="Validated">
+/// <see langword="false"/> for a parameter that must not be checked for <see langword="null"/>, for example a value of an unconstrained
+/// type parameter.
+/// </param>
+internal sealed record ExtraParameter(string Type, string Name, string Description, bool Validated = true);
 
 /// <summary>The documentation of a type parameter.</summary>
 internal sealed record TypeParameterDoc(string Name, string Description);
@@ -113,6 +120,9 @@ internal sealed record OperationSpec
 
     /// <summary>Gets the plain parameters that follow the delegates.</summary>
     internal ExtraParameter[] ExtraParameters { get; init; } = [];
+
+    /// <summary>Gets the variants to generate: nine for an operation with a delegate, three (one per receiver) for one without.</summary>
+    internal IReadOnlyList<Variant> Variants => Delegates.Length == 0 ? Variant.ReceiverOnly : Variant.All;
 
     /// <summary>Gets the synchronous return type, or <c>void</c>.</summary>
     internal required string ReturnType { get; init; }
