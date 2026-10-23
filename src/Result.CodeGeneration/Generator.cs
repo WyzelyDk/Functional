@@ -22,6 +22,7 @@ internal static class Generator
             TestNamespace: "Wyzely.Functional.ResultTests",
             TestPreamble: ["""var error = Error.Create("Boom.");"""],
             Zip: ZipKind.Result,
+            CachesCompletedSuccess: true,
             ConditionalFactories: true),
         Operations.All);
 

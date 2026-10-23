@@ -308,10 +308,18 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
     private string NoneTask(OperationSpec operation) =>
         profile.CachesCompletedNone ? $"MaybeTasks<{operation.ReturnType["Maybe<".Length..^1]}>.None" : "Task.FromResult(completed)";
 
-    private string CompletedTask(OperationSpec operation) =>
-        profile.CachesCompletedNone && operation.ReturnType.StartsWith("Maybe<", StringComparison.Ordinal)
-            ? $"completed.IsNone ? MaybeTasks<{operation.ReturnType["Maybe<".Length..^1]}>.None : Task.FromResult(completed)"
+    private string CompletedTask(OperationSpec operation)
+    {
+        if (profile.CachesCompletedNone && operation.ReturnType.StartsWith("Maybe<", StringComparison.Ordinal))
+        {
+            return $"completed.IsNone ? MaybeTasks<{operation.ReturnType["Maybe<".Length..^1]}>.None : Task.FromResult(completed)";
+        }
+
+        // Only a result without a value can share its task: a result with a value is a different task for every value.
+        return profile.CachesCompletedSuccess && operation.ReturnType == "Result"
+            ? "completed.IsSuccess ? ResultTasks.Success : Task.FromResult(completed)"
             : "Task.FromResult(completed)";
+    }
 
     private void EmitAsyncBody(CodeWriter writer, OperationSpec operation, Variant variant, string returnType, List<string> parameters)
     {

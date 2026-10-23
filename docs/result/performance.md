@@ -12,6 +12,8 @@ These facts are checked by tests (`PerformanceTests`, `ExtensionReceiverTests`),
 - On an already completed `Task`, a step that leaves the result as it was hands back the task it received and allocates nothing: `Ensure` that
   passes or meets a failure (with a predicate or with an operation), `Tap`, `TapError`, `MapError`, `Recover` and `Compensate` on a result they do not change
   (`CompletedTaskReuseTests`). `Map` and `Bind` never do, because they can change the value.
+- On an already completed `Task`, a step that ends in a **successful result without a value** (for example `Bind` to an operation that returns a `Result`) hands
+  out one shared completed task instead of allocating a new one (`PerformanceTests`). A result with a value is a different task for every value, so it cannot be shared.
 - A ready-made error is one object: `Error.Create`, `Unavailable`, `Timeout` and `FromException` each allocate exactly one `Error`, and read the message
   of an exception once (`ErrorAllocationTests`).
 - Receivers are passed **by value**, not by `in`, on purpose. `in` is faster when a result is read from a field, but a chain passes the
