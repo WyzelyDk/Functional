@@ -58,6 +58,21 @@ var code = await Task.FromResult(Result.Success("A12"))
     .GetValueOrThrow();                                                             // "a12", or a ResultFailedException
 ```
 
+A failure that has to travel on as a failure of another type is passed with `ConvertFailure<T>()`. It reads the error like `GetError()` does, so it
+belongs behind a check of `IsFailure`, and the analyzer asks for one (WYZ0102):
+
+```csharp
+Result<string> Describe(Result<int> found)
+{
+    if (found.IsFailure)
+    {
+        return found.ConvertFailure<string>();      // the same error, as a Result<string>
+    }
+
+    return Result.Success($"Found {found.GetValue()}.");
+}
+```
+
 A value that may be `null` becomes a value that is not, and the type says so. `EnsureNotNull` turns a `Result<T?>` into a `Result<T>`, for a reference
 type and for a nullable value type, and fails with your error when the value is `null`:
 

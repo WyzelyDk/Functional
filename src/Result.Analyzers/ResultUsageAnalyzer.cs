@@ -46,7 +46,7 @@ public sealed class ResultUsageAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var needsFailure = method.Name == "GetError";
+        var needsFailure = method.Name is "GetError" or "ConvertFailure";
 
         if (!needsFailure && method.Name != "GetValue")
         {

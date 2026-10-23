@@ -30,6 +30,16 @@ public sealed class ReadmeExamplesTests
 
     // README: the interop methods, and docs/functional/interop.md: ToResult and ToMaybe.
     [Fact]
+    internal void ReadmeEnsureSomeExample_turns_a_result_of_a_maybe_into_a_result_of_the_value()
+    {
+        var lookup = Result.Success(Maybe.None<string>());
+
+        var customer = lookup.EnsureSome(Error.NotFound("No such customer."));
+
+        Assert.Equal("No such customer.", customer.GetError().Message);
+    }
+
+    [Fact]
     internal void ReadmeInteropExample_converts_in_both_directions()
     {
         var found = Maybe.Some("ada@example.com");

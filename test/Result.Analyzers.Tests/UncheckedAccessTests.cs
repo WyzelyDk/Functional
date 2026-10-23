@@ -40,6 +40,41 @@ public sealed class UncheckedAccessTests
     }
 
     [Fact]
+    internal async Task ConvertFailure_without_a_check_is_reported()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nResult<string> M(Result<int> r) => r.ConvertFailure<string>();");
+
+        Assert.Equal(["WYZ0102"], ids);
+    }
+
+    [Fact]
+    internal async Task ConvertFailure_of_an_untyped_result_without_a_check_is_reported()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nResult<string> M(Result r) => r.ConvertFailure<string>();");
+
+        Assert.Equal(["WYZ0102"], ids);
+    }
+
+    [Fact]
+    internal async Task ConvertFailure_after_a_check_of_IsFailure_is_not_reported()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(
+            Sources + "\nResult<string> M(Result<int> r) { if (r.IsFailure) { return r.ConvertFailure<string>(); } return Result.Success(\"ok\"); }");
+
+        Assert.Empty(ids);
+    }
+
+    [Fact]
+    internal async Task ConvertFailure_after_a_check_that_the_result_did_not_succeed_is_not_reported()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(
+            Sources + "\nResult<string> M(Result<int> r) { if (!r.TryGetValue(out var v)) { return r.ConvertFailure<string>(); } "
+            + "return Result.Success(v.ToString()); }");
+
+        Assert.Empty(ids);
+    }
+
+    [Fact]
     internal async Task GetError_without_a_check_is_reported()
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nError M(Result r) => r.GetError();");

@@ -61,6 +61,7 @@ some of them, and under 13 it does not (verified by compiling a scratch project 
 |---|---|---|
 | `Maybe<T>`, `Task<Maybe<T>>`, `ValueTask<Maybe<T>>` | `ToResult(Error)` or `ToResult(Func<Error>)` | a success with the value, or a failure with your error |
 | `Result<T>`, `Task<Result<T>>`, `ValueTask<Result<T>>` | `ToMaybe()` | a maybe with the value of a success, or none |
+| `Result<Maybe<T>>`, `Task<Result<Maybe<T>>>`, `ValueTask<Result<Maybe<T>>>` | `EnsureSome(Error)` or `EnsureSome(Func<Error>)` | a `Result<T>`: a failure passes through, a maybe with a value becomes a success, and none becomes your error |
 | `Maybe<T>`, `Task<Maybe<T>>`, `ValueTask<Maybe<T>>` | `ToInvertedResult(Error)` or `ToInvertedResult(Func<T, Error>)` | the meaning turned around, for "this must not exist yet": a failure when there is a value, a success when there is none |
 
 ```csharp
@@ -74,6 +75,15 @@ var failure = missing.ToResult(() => Error.NotFound("No such customer."));   // 
 
 var someValue = Result.Success(5).ToMaybe();                  // Some(5)
 var noValue = Result.Failure<int>("It broke.").ToMaybe();     // None: the error is dropped, on purpose
+```
+
+`EnsureSome` is for a step that returns a result of a maybe, such as a lookup that can fail and can come back empty. It is to `Result<Maybe<T>>` what
+`EnsureNotNull` is to `Result<T?>`:
+
+```csharp
+var lookup = Result.Success(Maybe.None<string>());
+
+var customer = lookup.EnsureSome(Error.NotFound("No such customer."));     // a Result<string>: failed, with that error
 ```
 
 Two things are worth knowing before you use `ToMaybe()`: **the error is dropped on purpose**, because the method is for the place where only

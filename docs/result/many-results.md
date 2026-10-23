@@ -14,6 +14,8 @@ var combined = Result.Combine(checks);
 | `Result.Combine(tasks)` | the same for `IEnumerable<Task<Result>>`, `IEnumerable<Task<Result<T>>>` and the `ValueTask` equivalents: waits for all, observes all |
 | `stream.Combine(ct)` / `stream.Partition(ct)` | the same for an `IAsyncEnumerable<Result<T>>` (`net8.0` and later): the stream is read once, in order, and the value task completes when it ends |
 | `found.SelectEach(op)` | turns the result of a list (`Result<IReadOnlyList<T>>` or `Result<IEnumerable<T>>`) into a stream with one result per item, or a single failure when the list could not be read; `op` may be asynchronous |
+| `results.FirstFailureOrSuccess()` | the first failed result, or a success; stops at the first failure instead of looking at every result (also for an `IAsyncEnumerable<Result>`) |
+| `tasks.CombineInOrder()` | `Combine` for tasks (and value tasks) that runs them **one at a time**: each task of a lazy sequence is created when the previous one has finished |
 | `results.Partition()` | `(values, errors)` of the successes and the failures; keeps the successes when something failed |
 | `items.SelectInParallel(op, maxDegreeOfParallelism, ct)` | runs `op` for every item with bounded parallelism; values come back in **source order** |
 | `items.ForEachInParallel(op, maxDegreeOfParallelism, ct)` | the same for operations that return no value |
@@ -46,6 +48,27 @@ var lengths = await found
 
 `SelectInParallel` and `ForEachInParallel` accept an `IAsyncEnumerable<T>` as well. They read the stream to the end first and then run the operations,
 as they do for a sequence that is enumerated before any operation starts; they do not feed work to the operations while the stream is still being read.
+
+`Combine` of tasks starts every task of a lazy sequence before it waits for any of them. Where the work has to happen in order, because each step
+depends on a side effect of the one before, use `CombineInOrder`. It still looks at every result and aggregates the errors, in order:
+
+```csharp
+var log = new List<string>();
+
+async Task<Result> StepAsync(string name)
+{
+    log.Add($"start {name}");
+    await Task.Yield();
+    log.Add($"end {name}");
+
+    return Result.Success();
+}
+
+var outcome = await new[] { "a", "b" }.Select(StepAsync).CombineInOrder();     // log: start a, end a, start b, end b
+```
+
+`FirstFailureOrSuccess` answers "did anything fail?" without looking further than the first failure, which suits checks that are expensive or have effects:
+`new[] { Check(a), Check(b) }.FirstFailureOrSuccess()` never runs the second check of a lazy sequence when the first failed.
 
 The parallel helpers always attempt **every** item (a failure does not hide the failures of the other items), aggregate the errors in
 source order rather than completion order, and never expose an unassigned slot. They replace the "array of results filled in a loop"

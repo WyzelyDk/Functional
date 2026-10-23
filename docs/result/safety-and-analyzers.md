@@ -17,7 +17,7 @@ The package ships analyzers; all are warnings and enabled by default:
 | Id | Reports | Fix | Code fix |
 |---|---|---|---|
 | [`WYZ0101`](analyzers/WYZ0101.md) | a `Result`, `Task<Result>` or `ValueTask<Result>` that is thrown away | handle it, return it, or write `_ = ...` | yes: `_ =` |
-| [`WYZ0102`](analyzers/WYZ0102.md) | `GetError()` or `GetValue()` that is not guarded by a check of the same result | check `IsFailure` / `IsSuccess` first, or use `TryGetError`, `TryGetValue`, `ValueOr` or `Match` | no (see the page for why) |
+| [`WYZ0102`](analyzers/WYZ0102.md) | `GetError()`, `GetValue()` or `ConvertFailure()` that is not guarded by a check of the same result | check `IsFailure` / `IsSuccess` first, or use `TryGetError`, `TryGetValue`, `ValueOr` or `Match` | no (see the page for why) |
 
 Change a severity in `.editorconfig`:
 

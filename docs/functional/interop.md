@@ -21,6 +21,12 @@ All of it is in the namespace `Wyzely.Functional`, in the static class `MaybeRes
 | `ToResult` | `Task<Maybe<T>>` | `Func<Error>` | `Task<Result<T>>` |
 | `ToResult` | `ValueTask<Maybe<T>>` | `Error` | `ValueTask<Result<T>>` |
 | `ToResult` | `ValueTask<Maybe<T>>` | `Func<Error>` | `ValueTask<Result<T>>` |
+| `EnsureSome` | `Result<Maybe<T>>` | `Error` | `Result<T>` |
+| `EnsureSome` | `Result<Maybe<T>>` | `Func<Error>` | `Result<T>` |
+| `EnsureSome` | `Task<Result<Maybe<T>>>` | `Error` | `Task<Result<T>>` |
+| `EnsureSome` | `Task<Result<Maybe<T>>>` | `Func<Error>` | `Task<Result<T>>` |
+| `EnsureSome` | `ValueTask<Result<Maybe<T>>>` | `Error` | `ValueTask<Result<T>>` |
+| `EnsureSome` | `ValueTask<Result<Maybe<T>>>` | `Func<Error>` | `ValueTask<Result<T>>` |
 | `ToMaybe` | `Result<T>` | none | `Maybe<T>` |
 | `ToMaybe` | `Task<Result<T>>` | none | `Task<Maybe<T>>` |
 | `ToMaybe` | `ValueTask<Result<T>>` | none | `ValueTask<Maybe<T>>` |
