@@ -26,9 +26,29 @@ An `Error` is **immutable**: every `With...` method returns a modified copy.
 | `Kind` | an open set: `Validation`, `NotFound`, `Conflict`, `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout`, `Cancelled`, `Unexpected`, or your own `new ErrorKind("RateLimited")` |
 | `IsTransient` | retrying might help; set by `Error.Unavailable` / `Error.Timeout` |
 | `Exception` | the cause, kept by `Error.FromException` and `Result.Try` |
-| `Context`, `WithContext(...)` | frames added as the error passes layers; `ToString()` prints them outermost first |
+| `Context`, `WithContext(...)` | frames (`ErrorFrame`) added as the error passes layers; a frame is a template with details of its own; `ToString()` prints them outermost first |
 | `Children`, `Error.Aggregate(errors)` | one error that combines many (see below) |
 | structural equality | two errors are equal when template, code, kind, flag, details, context and children are equal |
+
+## Context frames with details
+
+A frame is a message template with details of its own, like the message of the error. When a layer wants a value in its frame, give it as a detail instead of
+building the text yourself: the value stays structured, the template stays a stable text, and a value that is sensitive is hidden in the redacted output.
+
+```csharp
+var error = Error.Create("Upload failed.")
+    .WithContext("Mail to {Email}", "Email", "anna@example.com", isSensitive: true)
+    .WithContext("Checkout of order {OrderId}", "OrderId", 7);
+
+error.ToString();          // "Checkout of order 7: Mail to anna@example.com: Upload failed."
+error.ToRedactedString();  // "Checkout of order 7: Mail to ***: Upload failed."   <- safe to log
+error.Context[0].Template; // "Checkout of order {OrderId}"
+```
+
+The placeholders of a frame are filled from the details of that frame only, never from the details of the error, so two layers can use the same name for
+different values. For several details, pass them as `ErrorDetail` values: `WithContext("Checkout of {OrderId} for {Customer}", new ErrorDetail("OrderId", 7),
+new ErrorDetail("Customer", "Ada"))`. A plain `WithContext("Checkout")` is a frame without details; its text is a template too, so `{{` and `}}` give a single
+brace. Two frames are equal when their templates and details are equal.
 
 ## One error for many failures
 

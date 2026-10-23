@@ -41,7 +41,7 @@ public sealed partial class Error
             && IsTransient == other.IsTransient
             && ReferenceEquals(Exception, other.Exception)
             && Details.SequenceEqual(other.Details)
-            && Context.SequenceEqual(other.Context, StringComparer.Ordinal)
+            && Context.SequenceEqual(other.Context)
             && Children.SequenceEqual(other.Children);
     }
 

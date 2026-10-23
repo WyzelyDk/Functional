@@ -204,9 +204,9 @@ public sealed class ErrorTests
     [Fact]
     internal void WithContext_adds_frames_with_the_latest_one_outermost()
     {
-        var error = Error.Create("Upload failed.").WithContext("Meny").WithContext("Import");
+        var error = Error.Create("Upload failed.").WithContext("Checkout").WithContext("Import");
 
-        Assert.Equal(["Import", "Meny"], error.Context);
+        Assert.Equal(["Import", "Checkout"], error.Context.Select(static frame => frame.Message));
     }
 
     [Fact]
@@ -218,9 +218,9 @@ public sealed class ErrorTests
     [Fact]
     internal void ToString_prefixes_the_context_frames_outermost_first()
     {
-        var error = Error.Create("Upload failed.").WithContext("Meny").WithContext("Import");
+        var error = Error.Create("Upload failed.").WithContext("Checkout").WithContext("Import");
 
-        Assert.Equal("Import: Meny: Upload failed.", error.ToString());
+        Assert.Equal("Import: Checkout: Upload failed.", error.ToString());
     }
 
     [Fact]
@@ -355,11 +355,11 @@ public sealed class ErrorTests
     [Fact]
     internal void Aggregate_message_joins_the_descriptions_of_the_children()
     {
-        var aggregate = Error.Aggregate([Error.Create("a").WithContext("Meny"), Error.Create("b")]);
+        var aggregate = Error.Aggregate([Error.Create("a").WithContext("Checkout"), Error.Create("b")]);
 
         Assert.Multiple(
-            () => Assert.Equal("Meny: a, b", aggregate.Message),
-            () => Assert.Equal("Meny: a, b", aggregate.ToString()));
+            () => Assert.Equal("Checkout: a, b", aggregate.Message),
+            () => Assert.Equal("Checkout: a, b", aggregate.ToString()));
     }
 
     [Fact]
@@ -397,9 +397,9 @@ public sealed class ErrorTests
     [Fact]
     internal void WithContext_on_an_aggregate_applies_to_every_child()
     {
-        var aggregate = Error.Aggregate([Error.Create("a"), Error.Create("b")]).WithContext("Meny");
+        var aggregate = Error.Aggregate([Error.Create("a"), Error.Create("b")]).WithContext("Checkout");
 
-        Assert.Equal(["Meny: a", "Meny: b"], aggregate.Children.Select(child => child.ToString()));
+        Assert.Equal(["Checkout: a", "Checkout: b"], aggregate.Children.Select(child => child.ToString()));
     }
 
     [Fact]
@@ -422,8 +422,8 @@ public sealed class ErrorTests
     [Fact]
     internal void Equality_is_structural()
     {
-        var first = Error.Create("Upload to {Path}.").WithDetail("Path", "a").WithCode("E1").WithContext("Meny");
-        var second = Error.Create("Upload to {Path}.").WithDetail("Path", "a").WithCode("E1").WithContext("Meny");
+        var first = Error.Create("Upload to {Path}.").WithDetail("Path", "a").WithCode("E1").WithContext("Checkout");
+        var second = Error.Create("Upload to {Path}.").WithDetail("Path", "a").WithCode("E1").WithContext("Checkout");
 
         Assert.Multiple(
             () => Assert.True(first.Equals(second)),
@@ -446,7 +446,7 @@ public sealed class ErrorTests
             () => Assert.NotEqual(baseline, baseline.WithKind(ErrorKind.Conflict)),
             () => Assert.NotEqual(baseline, baseline.WithTransient()),
             () => Assert.NotEqual(baseline, baseline.WithDetail("A", 1)),
-            () => Assert.NotEqual(baseline, baseline.WithContext("Meny")),
+            () => Assert.NotEqual(baseline, baseline.WithContext("Checkout")),
             () => Assert.NotEqual(baseline, baseline.WithException(new InvalidOperationException())),
             () => Assert.NotEqual(Error.Aggregate([baseline, Error.Create("z")]), Error.Aggregate([baseline, Error.Create("w")])));
     }

@@ -8,6 +8,26 @@ public sealed class ResultConfigurationTests : IDisposable
     public void Dispose() => ResultConfiguration.Reset();
 
     [Fact]
+    internal void RedactedValue_changes_the_replacement_of_a_sensitive_detail_in_a_frame()
+    {
+        ResultConfiguration.Configure(static options => options.RedactedValue = "HIDDEN");
+
+        var error = Error.Create("Failed.").WithContext("Mail to {Email}", "Email", "ada@example.com", isSensitive: true);
+
+        Assert.Equal("Mail to HIDDEN: Failed.", error.ToRedactedString());
+    }
+
+    [Fact]
+    internal void ContextSeparator_joins_frames_with_details()
+    {
+        ResultConfiguration.Configure(static options => options.ContextSeparator = " > ");
+
+        var error = Error.Create("Failed.").WithContext("Order {Id}", "Id", 1).WithContext("Import");
+
+        Assert.Equal("Import > Order 1 > Failed.", error.ToString());
+    }
+
+    [Fact]
     internal void The_defaults_are_the_documented_ones()
     {
         var aggregate = Error.Aggregate([Error.Create("A."), Error.Create("B.")]);
@@ -15,7 +35,7 @@ public sealed class ResultConfigurationTests : IDisposable
         Assert.Multiple(
             () => Assert.Equal("One or more errors occurred.", aggregate.Template),
             () => Assert.Equal("A., B.", aggregate.Message),
-            () => Assert.Equal("Meny: Boom.", Error.Create("Boom.").WithContext("Meny").ToString()),
+            () => Assert.Equal("Checkout: Boom.", Error.Create("Boom.").WithContext("Checkout").ToString()),
             () => Assert.Equal("The operation was cancelled.", Error.Cancelled().Message),
             () => Assert.Equal("password=***", new ErrorDetail("password", "secret", isSensitive: true).ToString()));
     }
@@ -45,9 +65,9 @@ public sealed class ResultConfigurationTests : IDisposable
     {
         ResultConfiguration.Configure(options => options.ContextSeparator = " > ");
 
-        var error = Error.Create("Boom.").WithContext("Meny");
+        var error = Error.Create("Boom.").WithContext("Checkout");
 
-        Assert.Equal("Meny > Boom.", error.ToString());
+        Assert.Equal("Checkout > Boom.", error.ToString());
     }
 
     [Fact]

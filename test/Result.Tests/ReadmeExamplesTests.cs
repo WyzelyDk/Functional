@@ -160,6 +160,19 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal void The_context_frame_example_keeps_the_values_of_a_frame_as_details_that_can_be_redacted()
+    {
+        var error = Error.Create("Upload failed.")
+            .WithContext("Mail to {Email}", "Email", "anna@example.com", isSensitive: true)
+            .WithContext("Checkout of order {OrderId}", "OrderId", 7);
+
+        Assert.Multiple(
+            () => Assert.Equal("Checkout of order 7: Mail to anna@example.com: Upload failed.", error.ToString()),
+            () => Assert.Equal("Checkout of order 7: Mail to ***: Upload failed.", error.ToRedactedString()),
+            () => Assert.Equal("Checkout of order {OrderId}", error.Context[0].Template));
+    }
+
+    [Fact]
     internal async Task The_async_chain_example_mixes_task_and_value_task_steps()
     {
         var outcome = await FindOrderAsync(7)

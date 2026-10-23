@@ -63,6 +63,17 @@ public sealed class ErrorAllocationTests
         Assert.Equal(plain, fromException);
     }
 
+    [Fact]
+    internal void A_frame_without_details_shares_the_empty_list_of_details_and_allocates_less_than_a_frame_with_one()
+    {
+        var error = Error.Create("Failed.");
+
+        var plain = Allocated(() => error.WithContext("Order"));
+        var withDetail = Allocated(() => error.WithContext("Order {Id}", "Id", 1));
+
+        Assert.True(plain < withDetail, $"A frame without details allocated {plain} bytes and one with a detail {withDetail}.");
+    }
+
     // The smallest of several rounds: a one-off allocation from the runtime itself (compiling a method, say) must not decide the test.
     private static long Allocated(Func<Error> create)
     {
