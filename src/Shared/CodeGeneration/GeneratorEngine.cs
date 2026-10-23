@@ -52,25 +52,38 @@ internal sealed class GeneratorEngine(GeneratorProfile profile, IReadOnlyList<Op
             files[$"{profile.TestDirectory}/{operation.Stem}MatrixTests.g.cs"] = testEmitter.Emit(operation);
         }
 
-        if (profile.Zip is { } zipKind)
+        if (profile.ConditionalFactories)
         {
-            var zip = new ZipEmitter(profile, zipKind);
-
-            for (var arity = 2; arity <= GeneratorSettings.MaxZipArity; arity++)
+            foreach (var (path, content) in new ConditionalFactoryEmitter(profile).Generate(stubs))
             {
-                files[zip.LibraryPath(arity, selector: false)] = zip.EmitLibrary(arity, selector: false, stubs);
-                files[zip.LibraryPath(arity, selector: true)] = zip.EmitLibrary(arity, selector: true, stubs);
-
-                if (zipKind == ZipKind.Maybe)
-                {
-                    files[zip.LibraryPath(arity, selector: true, nullableStruct: true)] = zip.EmitLibrary(arity, selector: true, stubs, nullableStruct: true);
-                }
-
-                files[zip.TestPath(arity)] = zip.EmitTests(arity);
+                files[path] = content;
             }
         }
 
+        if (profile.Zip is { } zipKind)
+        {
+            AddZip(files, zipKind, stubs);
+        }
+
         return files;
+    }
+
+    private void AddZip(SortedDictionary<string, string> files, ZipKind zipKind, bool stubs)
+    {
+        var zip = new ZipEmitter(profile, zipKind);
+
+        for (var arity = 2; arity <= GeneratorSettings.MaxZipArity; arity++)
+        {
+            files[zip.LibraryPath(arity, selector: false)] = zip.EmitLibrary(arity, selector: false, stubs);
+            files[zip.LibraryPath(arity, selector: true)] = zip.EmitLibrary(arity, selector: true, stubs);
+
+            if (zipKind == ZipKind.Maybe)
+            {
+                files[zip.LibraryPath(arity, selector: true, nullableStruct: true)] = zip.EmitLibrary(arity, selector: true, stubs, nullableStruct: true);
+            }
+
+            files[zip.TestPath(arity)] = zip.EmitTests(arity);
+        }
     }
 
     /// <summary>Replaces the generated files in the repository with the given ones. Files are written with CRLF line endings.</summary>

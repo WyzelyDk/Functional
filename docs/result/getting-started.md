@@ -54,7 +54,7 @@ with `Combine`, `Partition` or `SelectInParallel` and not in an array that you f
 | `Result.Success()` / `Result.Success(value)` | success, with or without a value (the value may be `null` for a nullable type) |
 | `Result.Failure(error)` / `Result.Failure("message")` / `Result.Failure<T>(...)` | failure |
 | `Result.FromException(exception)` | failure that keeps the exception as the cause |
-| `Result.SuccessIf(condition, error)` / `Result.FailureIf(condition, error)` | conditional; the error can also be given as a plain message |
+| `Result.SuccessIf(condition, error)` / `Result.FailureIf(condition, error)` | conditional; the condition can be a `bool`, a function, a `Task<bool>` or a `ValueTask<bool>` (or a function that returns one), and the error can also be given as a plain message or as a function that creates the error or the message only when the result fails |
 | `Result.Try(...)` | run code that may throw (see below) |
 
 Nothing converts to a result **implicitly**. `return false;` in a method that returns `Result<bool>` would otherwise compile as a

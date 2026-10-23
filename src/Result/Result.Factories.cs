@@ -56,42 +56,4 @@ public readonly partial struct Result
     /// <returns>A failed result whose error was created by <see cref="Error.FromException(Exception, string?)"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="exception"/> is <see langword="null"/>.</exception>
     public static Result<T> FromException<T>(Exception exception) => Failure<T>(ErrorOf(Guard.NotNull(exception, nameof(exception)), null));
-
-    /// <summary>Creates a successful result when a condition holds and a failed one otherwise.</summary>
-    /// <param name="condition">The condition that must hold for the result to succeed.</param>
-    /// <param name="error">The error of the failed result, used when <paramref name="condition"/> is <see langword="false"/>.</param>
-    /// <returns>A successful result, or a failed result that holds <paramref name="error"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    public static Result SuccessIf(bool condition, Error error) => condition ? Success() : Failure(error);
-
-    /// <summary>Creates a successful result when a condition holds and a failed one with the given message otherwise.</summary>
-    /// <param name="condition">The condition that must hold for the result to succeed.</param>
-    /// <param name="message">The message of the error of the failed result, used when <paramref name="condition"/> is <see langword="false"/>.</param>
-    /// <returns>A successful result, or a failed result whose error was created from <paramref name="message"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
-    public static Result SuccessIf(bool condition, string message)
-    {
-        Guard.NotNull(message, nameof(message));
-
-        return condition ? Success() : Failure(message);
-    }
-
-    /// <summary>Creates a failed result when a condition holds and a successful one otherwise.</summary>
-    /// <param name="condition">The condition that makes the result fail.</param>
-    /// <param name="error">The error of the failed result, used when <paramref name="condition"/> is <see langword="true"/>.</param>
-    /// <returns>A failed result that holds <paramref name="error"/>, or a successful result.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    public static Result FailureIf(bool condition, Error error) => condition ? Failure(error) : Success();
-
-    /// <summary>Creates a failed result with the given message when a condition holds and a successful one otherwise.</summary>
-    /// <param name="condition">The condition that makes the result fail.</param>
-    /// <param name="message">The message of the error of the failed result, used when <paramref name="condition"/> is <see langword="true"/>.</param>
-    /// <returns>A failed result whose error was created from <paramref name="message"/>, or a successful result.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
-    public static Result FailureIf(bool condition, string message)
-    {
-        Guard.NotNull(message, nameof(message));
-
-        return condition ? Failure(message) : Success();
-    }
 }
