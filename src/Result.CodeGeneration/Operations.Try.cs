@@ -454,7 +454,7 @@ internal static partial class Operations
 
             if (named)
             {
-                yield return Throwing(
+                yield return ThrowingCase(
                     "returns_the_error_of_the_handler_when_the_delegate_throws_the_named_exception",
                     [AssertSameHandledOutcomeGetError, calls],
                     _handler);
@@ -463,11 +463,11 @@ internal static partial class Operations
             }
 
             string[] cause = ["Assert.True(outcome.IsFailure);", "Assert.IsType<InvalidOperationException>(outcome.GetError().Exception);", calls];
-            yield return Throwing("returns_a_failure_that_keeps_the_exception_as_the_cause_when_the_delegate_throws", cause, null);
-            yield return Throwing("returns_the_error_of_the_handler_when_the_delegate_throws", [AssertSameHandledOutcomeGetError], "_ => handled");
+            yield return ThrowingCase("returns_a_failure_that_keeps_the_exception_as_the_cause_when_the_delegate_throws", cause, null);
+            yield return ThrowingCase("returns_the_error_of_the_handler_when_the_delegate_throws", [AssertSameHandledOutcomeGetError], "_ => handled");
         }
 
-        private TryCase Throwing(string name, string[] asserts, string? handler) =>
+        private TryCase ThrowingCase(string name, string[] asserts, string? handler) =>
             new(name, shape.GateReceiver, shape.ThrowingTest, asserts, handler, _yes, 1);
 
         // Only a test whose delegate is the plain one uses the arrangement of the shape; only one with a handler that refers to it needs `handled`.

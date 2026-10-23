@@ -10,6 +10,18 @@ public sealed class ReadmeExamplesTests : IDisposable
 {
     public void Dispose() => MaybeConfiguration.Reset();
 
+    // docs/maybe/the-railway.md: the example of GetValueOrThrow.
+    [Fact]
+    internal void GetValueOrThrow_example_returns_the_value_or_throws_the_exception_of_the_caller()
+    {
+        var title = Maybe.Some("Dune").GetValueOrThrow(static () => new KeyNotFoundException("No title."));
+        var missing = Record.Exception(() => Maybe.None<string>().GetValueOrThrow(static () => new KeyNotFoundException("No title.")));
+
+        Assert.Multiple(
+            () => Assert.Equal("Dune", title),
+            () => Assert.Equal("No title.", Assert.IsType<KeyNotFoundException>(missing).Message));
+    }
+
     // README: the example at the top, and docs/maybe/async.md: the first example.
     [Fact]
     internal async Task ReadmeTopExample_sends_mail_when_the_customer_is_active_and_has_an_email()

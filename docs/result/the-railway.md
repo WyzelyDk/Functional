@@ -22,6 +22,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `Map(f)`, `Bind(f)` on a tuple | success | the delegate takes the values of a tuple result (for example of `Zip` or `BindZip`) as separate parameters, up to five |
 | `Recover(f)` | failure | computes a replacement value, turning the failure into a success |
 | `Compensate(f)` | failure | tries a fallback operation that returns a `Result` |
+| `GetValueOrThrow(f)`, `ThrowIfFailure(f)` | always | leaves the railway with an exception of your own type, created from the error; without `f` on a `Task` or `ValueTask` it throws a `ResultFailedException`, as `GetValue()` does |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
 | `Switch(onSuccess, onFailure)` | always | leaves the railway for side effects |
 
@@ -42,6 +43,19 @@ handler to catch only that type; any other exception keeps travelling:
 ```csharp
 var address = Result.Success("not a web address")
     .MapTry(static text => new Uri(text), static (UriFormatException exception) => Error.Validation("The address is not valid."));
+```
+
+Where a failure has to become an exception, say which one. `GetValueOrThrow` and `ThrowIfFailure` take a function that creates the exception from the
+error, and the form without it works on a `Task` or a `ValueTask`, so the end of a chain needs no `await` in the middle. Unlike `GetValue()` they are
+the deliberate way out, so the analyzer does not ask for a check first:
+
+```csharp
+var id = Result.Success(7)
+    .GetValueOrThrow(static error => new KeyNotFoundException(error.Message));      // 7, or the exception of your own type
+
+var code = await Task.FromResult(Result.Success("A12"))
+    .Map(static text => text.ToLowerInvariant())
+    .GetValueOrThrow();                                                             // "a12", or a ResultFailedException
 ```
 
 A value that may be `null` becomes a value that is not, and the type says so. `EnsureNotNull` turns a `Result<T?>` into a `Result<T>`, for a reference

@@ -44,6 +44,7 @@ internal static class Operations
     private const string SomeOfTwo = "Maybe.Some(2)";
     private const string NoneOfInt = "Maybe.None<int>()";
     private const string AssertTrueOutcomeIsNone = "Assert.True(outcome.IsNone);";
+    private const string ThrownSetup = """var thrown = new InvalidOperationException("Thrown.");""";
 
     /// <summary>Gets every operation family.</summary>
     internal static IReadOnlyList<OperationSpec> All { get; } =
@@ -61,6 +62,8 @@ internal static class Operations
         ValueOr(),
         Match(),
         Switch(),
+        GetValueOrThrowWithFactory(),
+        GetValueOrThrowWithoutFactory(),
     ];
 
     private static DelegateTest Returns(string name, string[] parameters, string expression, string returnType, string statements = "") =>
@@ -554,6 +557,86 @@ internal static class Operations
                 SomeOfTwo,
                 [Returns(FallbackName, [], "9", "int")],
                 ["Assert.Equal(2, outcome);", "Assert.Equal(0, fallbackCalls);"]),
+        ],
+    };
+
+    private static OperationSpec GetValueOrThrowWithFactory() => new()
+    {
+        Stem = "GetValueOrThrowWithFactory",
+        Name = "GetValueOrThrow",
+        ReceiverType = MaybeOfT,
+        ReceiverTestType = MaybeOfInt,
+        ReceiverDescription = MaybeReceiverDescription,
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        NotNull = ["T"],
+        Summary = "Leaves the railway: returns the value of a maybe, or throws the exception that a function creates when it has none, so that " +
+            "an absent value can become an exception of your own type.",
+        ExtraParameters = [new("Func<Exception>", "exceptionFactory", "Creates the exception to throw when the maybe has no value.")],
+        SkipsCompletedFastPath = true,
+        ReturnType = "T",
+        ReturnDescription = "The value of the maybe.",
+        Body = ctx =>
+        [
+            Unpack(ctx),
+            string.Empty,
+            IfNotFound,
+            "{",
+            "    throw Guard.NotNull(exceptionFactory(), nameof(exceptionFactory));",
+            "}",
+            string.Empty,
+            "return input;",
+        ],
+        Tests =
+        [
+            new(
+                "returns_the_value_when_the_receiver_has_a_value",
+                SomeOfTwo,
+                [],
+                ["() => thrown"],
+                ["Assert.Equal(2, outcome);"],
+                [ThrownSetup]),
+            new(
+                "throws_the_exception_of_the_factory_when_the_receiver_has_no_value",
+                NoneOfInt,
+                [],
+                ["() => thrown"],
+                ["Assert.Same(thrown, exception);"],
+                [ThrownSetup],
+                null,
+                true),
+        ],
+    };
+
+    private static OperationSpec GetValueOrThrowWithoutFactory() => new()
+    {
+        Stem = "GetValueOrThrow",
+        Name = "GetValueOrThrow",
+        ReceiverType = MaybeOfT,
+        ReceiverTestType = MaybeOfInt,
+        ReceiverDescription = MaybeReceiverDescription,
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        NotNull = ["T"],
+        Summary = "Leaves the railway: returns the value of a maybe, or throws an <see cref=\"InvalidOperationException\"/> when it has none. It is " +
+            "the explicit form of <see cref=\"Maybe{T}.GetValue\"/> for a maybe that is still to come.",
+        SkipsSyncReceiver = true,
+        SkipsCompletedFastPath = true,
+        ReturnType = "T",
+        ReturnDescription = "The value of the maybe.",
+        Body = ctx => [$"return {ctx.R}.GetValue();"],
+        Tests =
+        [
+            new("returns_the_value_when_the_receiver_has_a_value", SomeOfTwo, [], [], ["Assert.Equal(2, outcome);"]),
+            new(
+                "throws_when_the_receiver_has_no_value",
+                NoneOfInt,
+                [],
+                [],
+                ["Assert.IsType<InvalidOperationException>(exception);"],
+                null,
+                null,
+                true),
         ],
     };
 

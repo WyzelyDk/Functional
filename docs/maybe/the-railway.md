@@ -14,6 +14,7 @@ that follows, without running its delegate.
 | `TapNone(f)` | there is none | runs a side effect, returns the maybe unchanged |
 | `Or(f)` | there is none | tries an alternative that returns a `Maybe` |
 | `ValueOr(f)` | there is none | leaves the railway: the value, or what `f` computes (the instance method `ValueOr(fallback)` takes a plain value) |
+| `GetValueOrThrow(f)` | always | leaves the railway: the value, or the exception that `f` creates when there is none; without `f` on a `Task` or `ValueTask` it throws what `GetValue()` throws |
 | `Match(onSome, onNone)` | always | leaves the railway: one value out |
 | `Switch(onSome, onNone)` | always | leaves the railway for side effects |
 
@@ -35,6 +36,13 @@ var empty = Maybe.None<string>()
     .TapNone(() => logged.Add("nothing to show"))               // runs, because there is none
     .Or(() => Maybe.Some("untitled"))                           // the alternative takes over
     .ValueOr(() => "no title");                                 // "untitled"
+```
+
+Where a missing value has to become an exception, say which one: `GetValueOrThrow` takes a function that creates it, and the form without it works on a
+`Task` or a `ValueTask`. It is the deliberate way out, so the analyzer does not ask for a check first:
+
+```csharp
+var title = Maybe.Some("Dune").GetValueOrThrow(static () => new KeyNotFoundException("No title."));      // "Dune"
 ```
 
 `Map` turns a `null` result of its delegate into none, because a `Maybe<T>` cannot hold `null`. The delegate is a `Func<T, TResult?>`, so a

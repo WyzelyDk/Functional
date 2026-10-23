@@ -215,7 +215,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         }
         else
         {
-            if (variant.Receiver != Wrapper.None)
+            if (variant.Receiver != Wrapper.None && !operation.SkipsCompletedFastPath)
             {
                 EmitCompletedFastPath(writer, operation, variant, parameters, profile.ReceiverParameter);
             }
