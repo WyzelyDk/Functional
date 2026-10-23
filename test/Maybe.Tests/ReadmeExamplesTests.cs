@@ -67,7 +67,7 @@ public sealed class ReadmeExamplesTests : IDisposable
         var name = Maybe.Some("Ada");
         var nobody = Maybe.None<string>();
         var nick = Maybe.From(nickname);
-        var several = Maybe.SomeWhen(count > 1, count);
+        var several = Maybe.SomeIf(count > 1, count);
         Maybe<string> plain = "Ada";
         var found = name.TryGetValue(out var value);
 
@@ -197,8 +197,8 @@ public sealed class ReadmeExamplesTests : IDisposable
         Assert.Multiple(
             () => Assert.Equal(5, some.ValueOr(0)),
             () => Assert.Equal(0, none.ValueOr(0)),
-            () => Assert.Equal(5, some.ToNullable()),
-            () => Assert.Null(none.ToNullable()),
+            () => Assert.Equal(5, some.AsNullable()),
+            () => Assert.Null(none.AsNullable()),
             () => Assert.Empty(none.ToEnumerable()),
             () => Assert.True(some == Maybe.Some(5)),
             () => Assert.True(none == default),
@@ -346,7 +346,7 @@ public sealed class ReadmeExamplesTests : IDisposable
         var prices = new Dictionary<string, decimal> { ["tea"] = 3m, ["coffee"] = 4m };
         IEnumerable<Maybe<int>> lookups = [Maybe.Some(1), Maybe.None<int>(), Maybe.Some(3)];
 
-        var lengths = new[] { "a", string.Empty, "ccc" }.Choose(text => Maybe.SomeWhen(text.Length > 0, text.Length));
+        var lengths = new[] { "a", string.Empty, "ccc" }.Choose(text => Maybe.SomeIf(text.Length > 0, text.Length));
 
         Assert.Multiple(
             () => Assert.Equal(Maybe.Some(15), numbers.FirstOrNone(n => n > 10)),

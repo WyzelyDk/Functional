@@ -57,7 +57,7 @@ so creating, passing and chaining maybes allocates nothing.
 | `Maybe.Some(value)` | a value; throws `ArgumentNullException` when `value` is `null` (use `From` when it may be) |
 | `Maybe.None<T>()` | no value |
 | `Maybe.From(value)` | from a reference that may be `null`, or from a nullable value type such as `int?`: `null` becomes none |
-| `Maybe.SomeWhen(condition, value)` / `Maybe.NoneWhen(condition, value)` | a value only when (or unless) a condition holds; `value` is only checked for `null` when it is used |
+| `Maybe.SomeIf(condition, value)` / `Maybe.NoneIf(condition, value)` | a value only when (or unless) a condition holds; `value` is only checked for `null` when it is used |
 | implicit conversion | a `T` converts to `Maybe<T>`, and a `null` reference converts to none |
 
 ```csharp
@@ -84,7 +84,7 @@ The reasoning is in [Design decisions](design-decisions.md#an-implicit-conversio
 | `TryGetValue(out v)` | the non-throwing way; annotated so that `v` is known to be non-null when it returns `true` |
 | `ValueOr(fallback)` | the value, or the fallback. There is also `ValueOr(() => fallback)` for a fallback that is costly to compute |
 | `ToEnumerable()` | a sequence of zero or one values |
-| `ToNullable()` | for a maybe of a value type: the value as a `T?`, or `null` |
+| `AsNullable()` | for a maybe of a value type: the value as a `T?`, or `null` |
 
 ```csharp
 using Wyzely.Functional;
@@ -94,8 +94,8 @@ var none = Maybe.None<int>();
 
 some.ValueOr(0);                          // 5
 none.ValueOr(0);                          // 0
-some.ToNullable();                        // 5, as an int?
-none.ToNullable();                        // null
+some.AsNullable();                        // 5, as an int?
+none.AsNullable();                        // null
 none.ToEnumerable();                      // an empty sequence
 some == Maybe.Some(5);                    // true: value equality
 none == default;                          // true: every none is equal
@@ -117,12 +117,12 @@ reason in its heading comment:
 
 | File | Shows |
 |---|---|
-| `BasicsExample.cs` | `Some`, `None`, `From`, `SomeWhen`, `NoneWhen`, the implicit conversion, `TryGetValue`, `ValueOr`, `Match`, why `GetValue` is a method |
+| `BasicsExample.cs` | `Some`, `None`, `From`, `SomeIf`, `NoneIf`, the implicit conversion, `TryGetValue`, `ValueOr`, `Match`, why `GetValue` is a method |
 | `RailwayExample.cs` | `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `Or`, `ValueOr(Func)`, `Match`, `Switch` |
 | `AsyncExample.cs` | all nine sync, `Task` and `ValueTask` combinations, a mixed chain, async lambdas |
 | `CollectionsExample.cs` | `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose` |
 | `LinqExample.cs` | query syntax, `Zip`, `Flatten` |
-| `NullabilityExample.cs` | nullable references and nullable value types, `ToNullable` |
+| `NullabilityExample.cs` | nullable references and nullable value types, `AsNullable` |
 | `EqualityExample.cs` | equality, ordering, hash codes, `ToString()` |
 | `ConfigurationExample.cs` | `MaybeConfiguration`, redaction, `ContinueOnCapturedContext` |
 | `UnionExample.cs` | the C# 15 union `switch` (`net11.0` builds only) |

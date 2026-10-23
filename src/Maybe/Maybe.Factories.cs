@@ -47,7 +47,7 @@ public static partial class Maybe
     /// <param name="value">The value. It is only checked for <see langword="null"/> when <paramref name="condition"/> is true.</param>
     /// <returns>A maybe that holds <paramref name="value"/> when the condition is true, otherwise none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/> is true and <paramref name="value"/> is <see langword="null"/>.</exception>
-    public static Maybe<T> SomeWhen<T>(bool condition, T value)
+    public static Maybe<T> SomeIf<T>(bool condition, T value)
         where T : notnull => condition ? Some(value) : default;
 
     /// <summary>Creates a maybe that holds a value unless a condition is true.</summary>
@@ -56,6 +56,6 @@ public static partial class Maybe
     /// <param name="value">The value. It is only checked for <see langword="null"/> when <paramref name="condition"/> is false.</param>
     /// <returns>None when the condition is true, otherwise a maybe that holds <paramref name="value"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/> is false and <paramref name="value"/> is <see langword="null"/>.</exception>
-    public static Maybe<T> NoneWhen<T>(bool condition, T value)
+    public static Maybe<T> NoneIf<T>(bool condition, T value)
         where T : notnull => condition ? default : Some(value);
 }

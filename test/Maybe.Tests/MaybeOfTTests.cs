@@ -52,19 +52,19 @@ public sealed class MaybeOfTTests
     }
 
     [Fact]
-    internal void SomeWhen_is_some_only_when_the_condition_is_true()
+    internal void SomeIf_is_some_only_when_the_condition_is_true()
     {
         Assert.Multiple(
-            () => Assert.Equal(5, Maybe.SomeWhen(true, 5).GetValue()),
-            () => Assert.True(Maybe.SomeWhen(false, 5).IsNone));
+            () => Assert.Equal(5, Maybe.SomeIf(true, 5).GetValue()),
+            () => Assert.True(Maybe.SomeIf(false, 5).IsNone));
     }
 
     [Fact]
-    internal void NoneWhen_is_none_only_when_the_condition_is_true()
+    internal void NoneIf_is_none_only_when_the_condition_is_true()
     {
         Assert.Multiple(
-            () => Assert.True(Maybe.NoneWhen(true, 5).IsNone),
-            () => Assert.Equal(5, Maybe.NoneWhen(false, 5).GetValue()));
+            () => Assert.True(Maybe.NoneIf(true, 5).IsNone),
+            () => Assert.Equal(5, Maybe.NoneIf(false, 5).GetValue()));
     }
 
     [Fact]
@@ -128,11 +128,11 @@ public sealed class MaybeOfTTests
     }
 
     [Fact]
-    internal void ToNullable_gives_the_value_or_null_for_a_value_type()
+    internal void AsNullable_gives_the_value_or_null_for_a_value_type()
     {
         Assert.Multiple(
-            () => Assert.Equal(4, Maybe.Some(4).ToNullable()),
-            () => Assert.Null(Maybe.None<int>().ToNullable()));
+            () => Assert.Equal(4, Maybe.Some(4).AsNullable()),
+            () => Assert.Null(Maybe.None<int>().AsNullable()));
     }
 
     [Fact]
