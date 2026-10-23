@@ -1,4 +1,4 @@
-// THE RAILWAY: Map, Bind, Tap, TapError, MapError, Ensure, Check, Recover, Compensate, Match, Switch, Flatten.
+// THE RAILWAY: Map, Bind, Tap, TapError, MapError, Ensure, Recover, Compensate, Match, Switch, Flatten.
 //
 // Scenario: checking out an order. Find it, make sure it is open, reserve the stock, charge the customer,
 // and add where it happened to a failure.
@@ -11,8 +11,8 @@
 //   Map         success  transforms the value
 //   Bind        success  chains an operation that itself returns a Result
 //   Tap         success  a side effect (logging); the result passes through unchanged
-//   Ensure      success  fails when a condition on the value is false
-//   Check       success  validates with an operation that returns a Result; the original value is kept
+//   Ensure      success  fails when a condition on the value is false, or when an operation that returns a Result fails
+//               (given an operation, the original value is kept)
 //   TapError    failure  a side effect with the error
 //   MapError    failure  replaces the error, for example to add context
 //   Recover     failure  computes a replacement VALUE: the failure becomes a success
@@ -65,10 +65,10 @@ public static class RailwayExample
         var empty = Result.Success(new Order(20, 1, [], IsOpen: true)).Ensure(order => order.Lines.Count > 0, "The order has no lines.");
         output.WriteLine("Ensure with a message: " + empty.Match(_ => "ok", error => error.Message));
 
-        // Check: validate with an operation that returns a Result, and KEEP the original value. Compare with
+        // Ensure with an operation: validate with an operation that returns a Result, and KEEP the original value. Compare with
         // Bind(ReserveStock), which would replace the value with what ReserveStock returns (nothing).
-        var checkedOrder = SampleShop.FindOrder(7).Check(SampleShop.ReserveStock).Map(order => order.Id);
-        output.WriteLine($"Check keeps the order: {checkedOrder.ValueOr(-1)}");
+        var reservedOrder = SampleShop.FindOrder(7).Ensure(SampleShop.ReserveStock).Map(order => order.Id);
+        output.WriteLine($"Ensure with an operation keeps the order: {reservedOrder.ValueOr(-1)}");
 
         // Bind into an untyped Result: the chain simply continues with a result that has no value.
         output.WriteLine($"Bind to an untyped result: {SampleShop.FindOrder(7).Bind(SampleShop.ReserveStock)}");
@@ -87,7 +87,7 @@ public static class RailwayExample
     private static Result<Receipt> Checkout(int orderId, TextWriter output) =>
         SampleShop.FindOrder(orderId)
             .Ensure(order => order.IsOpen, Error.Conflict("The order is closed."))
-            .Check(SampleShop.ReserveStock)
+            .Ensure(SampleShop.ReserveStock)
             .Bind(SampleShop.Charge)
             .Tap(receipt => output.WriteLine($"Tap: logged receipt {receipt.Number}"))
             .MapError(error => error.WithContext("Checkout"));

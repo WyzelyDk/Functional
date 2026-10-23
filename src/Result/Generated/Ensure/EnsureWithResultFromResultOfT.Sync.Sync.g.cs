@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <content>
-/// The <c>Check</c> operation for a <see cref="Result{T}"/>, with a synchronous receiver
+/// The <c>Ensure</c> operation for a <see cref="Result{T}"/>, with a synchronous receiver
 /// and a synchronous delegate.
 /// </content>
 public static partial class ResultExtensions
@@ -20,12 +20,12 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="check">The validation to run with the value of the successful result.</param>
+    /// <param name="validation">The validation to run with the value of the successful result.</param>
     /// <returns>The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="check"/> is <see langword="null"/>.</exception>
-    public static Result<T> Check<T>(this Result<T> result, Func<T, Result> check)
+    /// <exception cref="ArgumentNullException"><paramref name="validation"/> is <see langword="null"/>.</exception>
+    public static Result<T> Ensure<T>(this Result<T> result, Func<T, Result> validation)
     {
-        Guard.NotNull(check, nameof(check));
+        Guard.NotNull(validation, nameof(validation));
 
         var failure = result.Unpack(out var input);
 
@@ -34,8 +34,8 @@ public static partial class ResultExtensions
             return result;
         }
 
-        var checkResult = check(input);
-        var checkFailure = checkResult.FailureOrNull();
-        return checkFailure is null ? result : Result<T>.Failed(checkFailure);
+        var validationResult = validation(input);
+        var validationFailure = validationResult.FailureOrNull();
+        return validationFailure is null ? result : Result<T>.Failed(validationFailure);
     }
 }

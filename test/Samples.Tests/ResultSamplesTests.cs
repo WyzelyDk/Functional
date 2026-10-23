@@ -75,7 +75,7 @@ public sealed class ResultSamplesTests
             () => Assert.Contains("Compensate order 12: I-12", lines),
             () => Assert.Contains("Compensate order 9: Customer 2 is blocked.", lines),
             () => Assert.Contains("Ensure with a message: The order has no lines.", lines),
-            () => Assert.Contains("Check keeps the order: 7", lines),
+            () => Assert.Contains("Ensure with an operation keeps the order: 7", lines),
             () => Assert.Contains("Bind to an untyped result: Success", lines),
             () => Assert.Contains("Switch: failure Order 99 was not found.", lines),
             () => Assert.Contains("Flatten: Success(5)", lines));

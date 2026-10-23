@@ -43,7 +43,9 @@ internal static class Operations
     private const string ResultOfInt = "Result<int>";
     private const string ResultOfTReceiverDescription = "a <see cref=\"Result{T}\"/>";
     private const string TResultName = "TResult";
-    private const string CheckName = "check";
+    private const string ValidationName = "validation";
+    private const string EnsureOperationName = "Ensure";
+    private const string AssertEqual1ValidationCalls = "Assert.Equal(1, validationCalls);";
     private const string ResultOfTResult = "Result<TResult>";
     private const string RecoverName = "recover";
     private const string CompensateName = "compensate";
@@ -75,7 +77,8 @@ internal static class Operations
         MapErrorFromResult(),
         EnsureFromResultOfT(),
         EnsureWithMessageFromResultOfT(),
-        CheckFromResultOfT(),
+        EnsureWithResultFromResultOfT(),
+        EnsureWithTypedResultFromResultOfT(),
         RecoverFromResultOfT(),
         CompensateFromResultOfT(),
         CompensateFromResult(),
@@ -665,7 +668,7 @@ internal static class Operations
     {
         Stem = "EnsureFromResultOfT",
         KeepsValue = true,
-        Name = "Ensure",
+        Name = EnsureOperationName,
         ReceiverType = ResultOfT,
         ReceiverTestType = ResultOfInt,
         ReceiverDescription = ResultOfTReceiverDescription,
@@ -717,7 +720,7 @@ internal static class Operations
     {
         Stem = "EnsureWithMessageFromResultOfT",
         KeepsValue = true,
-        Name = "Ensure",
+        Name = EnsureOperationName,
         ReceiverType = ResultOfT,
         ReceiverTestType = ResultOfInt,
         ReceiverDescription = ResultOfTReceiverDescription,
@@ -766,19 +769,19 @@ internal static class Operations
         ],
     };
 
-    private static OperationSpec CheckFromResultOfT() => new()
+    private static OperationSpec EnsureWithResultFromResultOfT() => new()
     {
-        Stem = "CheckFromResultOfT",
+        Stem = "EnsureWithResultFromResultOfT",
         KeepsValue = true,
-        Name = "Check",
+        Name = EnsureOperationName,
         ReceiverType = ResultOfT,
         ReceiverTestType = ResultOfInt,
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Validates the value of a successful result with an operation that returns a result, and keeps the original value when that " +
-            "operation succeeds. A failed result passes through and the delegate is not called.",
-        Delegates = [new(CheckName, ["T"], ResultType, "The validation to run with the value of the successful result.")],
+        Summary = "Validates the value of a successful result with an operation that returns a result, and keeps the original value when " +
+            "that operation succeeds. A failed result passes through and the delegate is not called.",
+        Delegates = [new(ValidationName, ["T"], ResultType, "The validation to run with the value of the successful result.")],
         ReturnType = ResultOfT,
         ReturnDescription = "The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.",
         Body = ctx =>
@@ -790,27 +793,82 @@ internal static class Operations
             $"    return {ctx.R};",
             "}",
             string.Empty,
-            $"var checkResult = {ctx.Call(CheckName, InputName)};",
-            "var checkFailure = checkResult.FailureOrNull();",
-            $"return checkFailure is null ? {ctx.R} : Result<T>.Failed(checkFailure);",
+            $"var validationResult = {ctx.Call(ValidationName, InputName)};",
+            "var validationFailure = validationResult.FailureOrNull();",
+            $"return validationFailure is null ? {ctx.R} : Result<T>.Failed(validationFailure);",
         ],
         Tests =
         [
             Case(
                 "returns_the_receiver_when_the_validation_succeeded",
                 SuccessOfTwo,
-                [Returns(CheckName, ["x"], SuccessWithoutValue, ResultType)],
-                [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(1, checkCalls);"]),
+                [Returns(ValidationName, ["x"], SuccessWithoutValue, ResultType)],
+                [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls]),
             Case(
                 "returns_the_error_of_the_validation_when_the_validation_failed",
                 SuccessOfTwo,
-                [Returns(CheckName, ["x"], FailureWithError, ResultType)],
-                [AssertSameErrorOutcomeGetError, "Assert.Equal(1, checkCalls);"]),
+                [Returns(ValidationName, ["x"], FailureWithError, ResultType)],
+                [AssertSameErrorOutcomeGetError, AssertEqual1ValidationCalls]),
             Case(
                 ReceiverFailed,
                 FailureOfInt,
-                [Returns(CheckName, ["x"], SuccessWithoutValue, ResultType)],
-                [AssertSameErrorOutcomeGetError, "Assert.Equal(0, checkCalls);"]),
+                [Returns(ValidationName, ["x"], SuccessWithoutValue, ResultType)],
+                [AssertSameErrorOutcomeGetError, "Assert.Equal(0, validationCalls);"]),
+        ],
+    };
+
+    private static OperationSpec EnsureWithTypedResultFromResultOfT() => new()
+    {
+        Stem = "EnsureWithTypedResultFromResultOfT",
+        KeepsValue = true,
+        Name = EnsureOperationName,
+        ReceiverType = ResultOfT,
+        ReceiverTestType = ResultOfInt,
+        ReceiverDescription = ResultOfTReceiverDescription,
+        TypeParameters = ["T", "TResult"],
+        TypeParameterDocs = [new("T", TDoc), new("TResult", "The type of the value of the validation result, which is ignored.")],
+        Summary = "Validates the value of a successful result with an operation that returns a result of any value type, and keeps the original value when " +
+            "that operation succeeds. A failed result passes through and the delegate is not called.",
+        Delegates =
+        [
+            new(
+                ValidationName,
+                ["T"],
+                ResultOfTResult,
+                "The validation to run with the value of the successful result. The value of its result is ignored."),
+        ],
+        ReturnType = ResultOfT,
+        ReturnDescription = "The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.",
+        Body = ctx =>
+        [
+            Unpack(ctx),
+            string.Empty,
+            IfFailureIsNotNull,
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var validationResult = {ctx.Call(ValidationName, InputName)};",
+            "var validationFailure = validationResult.Unpack(out _);",
+            $"return validationFailure is null ? {ctx.R} : Result<T>.Failed(validationFailure);",
+        ],
+        Tests =
+        [
+            Case(
+                "returns_the_receiver_when_the_validation_succeeded",
+                SuccessOfTwo,
+                [Returns(ValidationName, ["x"], "Result.Success(\"checked\")", "Result<string>")],
+                [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls]),
+            Case(
+                "returns_the_error_of_the_validation_when_the_validation_failed",
+                SuccessOfTwo,
+                [Returns(ValidationName, ["x"], "Result.Failure<string>(error)", "Result<string>")],
+                [AssertSameErrorOutcomeGetError, AssertEqual1ValidationCalls]),
+            Case(
+                ReceiverFailed,
+                FailureOfInt,
+                [Returns(ValidationName, ["x"], "Result.Success(\"checked\")", "Result<string>")],
+                [AssertSameErrorOutcomeGetError, "Assert.Equal(0, validationCalls);"]),
         ],
     };
 

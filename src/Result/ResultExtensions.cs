@@ -2,7 +2,7 @@ namespace Wyzely.Functional;
 
 /// <summary>
 /// The railway methods of <see cref="Result"/> and <see cref="Result{T}"/>: <c>Map</c>, <c>Bind</c>, <c>Tap</c>,
-/// <c>TapError</c>, <c>MapError</c>, <c>Ensure</c>, <c>Check</c>, <c>Recover</c>, <c>Compensate</c>, <c>Match</c> and <c>Switch</c>.
+/// <c>TapError</c>, <c>MapError</c>, <c>Ensure</c>, <c>Recover</c>, <c>Compensate</c>, <c>Match</c> and <c>Switch</c>.
 /// </summary>
 /// <remarks>
 /// <para>

@@ -100,7 +100,7 @@ public sealed class PerformanceTests
                 .Ensure(static value => value > 0, Rejected)
                 .Bind(static value => Result.Success(value * 2))
                 .Tap(static _ => { })
-                .Check(static value => Result.SuccessIf(value > 0, Rejected))
+                .Ensure(static value => Result.SuccessIf(value > 0, Rejected))
                 .MapError(static error => error);
 
             sum += result.Match(static value => value, static _ => 0);

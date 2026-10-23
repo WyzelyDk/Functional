@@ -62,21 +62,21 @@ public sealed class CompletedTaskReuseTests
     }
 
     [Fact]
-    internal void Check_returns_the_receiver_task_when_the_check_succeeds()
+    internal void Ensure_with_a_validation_returns_the_receiver_task_when_the_validation_succeeds()
     {
         var receiver = Task.FromResult(Result.Success(2));
 
-        var returned = receiver.Check(static _ => Result.Success());
+        var returned = receiver.Ensure(static _ => Result.Success());
 
         Assert.Same(receiver, returned);
     }
 
     [Fact]
-    internal void Check_returns_a_new_task_with_the_error_of_the_check_when_it_fails()
+    internal void Ensure_with_a_validation_returns_a_new_task_with_the_error_of_the_validation_when_it_fails()
     {
         var receiver = Task.FromResult(Result.Success(2));
 
-        var returned = receiver.Check(static _ => Result.Failure(Rejected));
+        var returned = receiver.Ensure(static _ => Result.Failure(Rejected));
 
         Assert.Multiple(
             () => Assert.NotSame(receiver, returned),
@@ -256,7 +256,7 @@ public sealed class CompletedTaskReuseTests
         {
             _ = receiver
                 .Ensure(static x => x > 0, Rejected)
-                .Check(static _ => Result.Success())
+                .Ensure(static _ => Result.Success())
                 .Tap(static _ => { })
                 .TapError(static _ => { })
                 .MapError(static error => error)

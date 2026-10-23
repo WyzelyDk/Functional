@@ -5,12 +5,12 @@
 These facts are checked by tests (`PerformanceTests`, `ExtensionReceiverTests`), not just stated:
 
 - `Result` is exactly the size of one reference; `Result<T>` is `T` plus one reference.
-- Creating results, `Map`, `Bind`, `Ensure`, `Check`, `Tap`, `MapError` and `Match` on the success path allocate **0 bytes** when the
+- Creating results, `Map`, `Bind`, `Ensure`, `Tap`, `MapError` and `Match` on the success path allocate **0 bytes** when the
   delegates are `static` lambdas (measured with `GC.GetAllocatedBytesForCurrentThread`).
 - An already completed `Task` or `ValueTask` receiver takes a synchronous fast path without a state machine, and a synchronous receiver
   with a `Task`/`ValueTask` delegate hands back the task of the delegate for `Bind`, `Compensate` and `Match`.
 - On an already completed `Task`, a step that leaves the result as it was hands back the task it received and allocates nothing: `Ensure` that
-  passes or meets a failure, `Check`, `Tap`, `TapError`, `MapError`, `Recover` and `Compensate` on a result they do not change
+  passes or meets a failure (with a predicate or with an operation), `Tap`, `TapError`, `MapError`, `Recover` and `Compensate` on a result they do not change
   (`CompletedTaskReuseTests`). `Map` and `Bind` never do, because they can change the value.
 - A ready-made error is one object: `Error.Create`, `Unavailable`, `Timeout` and `FromException` each allocate exactly one `Error`, and read the message
   of an exception once (`ErrorAllocationTests`).
@@ -243,7 +243,7 @@ throws for the `Customer`). A throw costs microseconds whatever the library, so 
   Ardalis.Result allocate (160 B and 64 to 72 B) and take 6 to 25 ns.
 - **Chaining on a completed `Task` allocates, for every library that offers it, and awaiting first is cheaper.** A step that changes the result
   creates a new task, and the chain here (`Map`, `Ensure`, `Bind`) took 160 B and 22 to 25 ns: the `Ensure` step hands back the task it received when the result is
-  left as it was, as do `Check`, `Tap`, `TapError`, `MapError`, `Recover` and `Compensate`, which saved 80 B and about a quarter of the time per such step. The
+  left as it was, as do `Tap`, `TapError`, `MapError`, `Recover` and `Compensate`, which saved 80 B and about a quarter of the time per such step. The
   other libraries with `Task` methods took 240 to 264 B (CSharpFunctionalExtensions, ErrorOr), 408 to 432 B (Ardalis.Result) and 1,160 B (FluentResults),
   and two to nine times as long. Awaiting the task first and then running the synchronous chain allocated nothing and took 11 to 12 ns, twice as fast (see the
   extra row). **If you can await, await, and chain on the result.** The `Task` extension methods are for when you want the chain to read as one expression,

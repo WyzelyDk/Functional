@@ -28,7 +28,7 @@ One chain, no `await` in the middle, no exception thrown, and the failure carrie
 
 ## Fluent from first step to last
 
-The whole railway is available as chained calls: `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure`, `Check`, `Recover` and
+The whole railway is available as chained calls: `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure`, `Recover` and
 `Compensate` continue the chain; `Match` and `Switch` leave it. Each accepts a synchronous, `Task` or `ValueTask` receiver and delegate in
 any mix, so the chain above needs no `await` in the middle, and LINQ query syntax follows the same rules. `Zip` (2 to 5 independent results) and `Flatten` (`Result<Result<T>>` to `Result<T>`) are there too.
 [The full list](https://github.com/WyzelyDk/Functional/blob/main/docs/result/the-railway.md).
@@ -82,9 +82,10 @@ needs grow. What this package adds, each point checked against the source or a t
   sensitive-detail flag with redacted output (`ToRedactedString()`), context frames (`WithContext`), aggregation of several errors into one
   (`Error.Aggregate`, used by `Combine` and `Zip`), an `IsTransient` flag, and `Error.FromException`, which keeps the exception as the cause.
   A string loses all of that.
-- **The whole railway, in every async shape.** `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure` (an `Error` and a message form), `Check`,
-  `Recover`, `Compensate`, `Match` and `Switch` are 22 operations in `src/Result/Generated` (counting the `Result` and `Result<T>` forms and the
-  two `Ensure` forms separately), each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate: 198 generated methods,
+- **The whole railway, in every async shape.** `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure` (with an `Error`, with a message, and with an
+  operation that returns a `Result`), `Recover`, `Compensate`, `Match` and `Switch` are 23 operations in `src/Result/Generated` (counting the `Result`
+  and `Result<T>` forms and the four `Ensure` forms separately), each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate:
+  207 generated methods,
   covered by generated tests. Writing those by hand, consistently, is the part nobody enjoys.
 - **Analyzers and code fixes in the package:** `WYZ0101` (a discarded result, with a code fix) and `WYZ0102`
   (`GetError()` / `GetValue()` not guarded). For example:
@@ -99,7 +100,7 @@ needs grow. What this package adds, each point checked against the source or a t
   `SelectInParallel` / `ForEachInParallel`, which never expose an unfilled slot.
 - **Configuration:** nine settings with defaults (separators, messages, which exceptions `Try` catches, ...) instead of constants buried in your own type.
 - **Size and allocation, only what a test checks:** an untyped `Result` is one reference wide, a `Result<T>` is `T` plus one reference, and the
-  success path of `Map`, `Bind`, `Ensure`, `Check`, `Tap`, `MapError` and `Match` allocates 0 bytes with `static` lambdas (`PerformanceTests`). Your
+  success path of `Map`, `Bind`, `Ensure`, `Tap`, `MapError` and `Match` allocates 0 bytes with `static` lambdas (`PerformanceTests`). Your
   own sketch can reach similar numbers; this is not a claim that it cannot.
 - **C# 15 unions:** on a `net11.0` build `Result<T>` is a union of `T` and `Error`, for an exhaustive `switch`.
 - **Interop with Maybe:** the umbrella package `Wyzely.Functional` adds `ToResult` and `ToMaybe` between the two types.
