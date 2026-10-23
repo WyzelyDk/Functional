@@ -44,6 +44,16 @@ internal static class Operations
     private const string ResultOfTReceiverDescription = "a <see cref=\"Result{T}\"/>";
     private const string TResultName = "TResult";
     private const string ValidationName = "validation";
+    private const string ConditionName = "condition";
+    private const string OperationDoc = "The validation to run when the receiver succeeded. It gets no value.";
+    private const string TypedOperationDoc = "The validation to run when the receiver succeeded. It gets no value, and the value of its result is ignored.";
+    private const string SuccessOfChecked = "Result.Success(\"checked\")";
+    private const string FailureOfChecked = "Result.Failure<string>(error)";
+    private const string ResultOfString = "Result<string>";
+    private const string AssertEqual1ConditionCalls = "Assert.Equal(1, conditionCalls);";
+    private const string AssertEqual0ConditionCalls = "Assert.Equal(0, conditionCalls);";
+    private const string TooSmallMessage = "\"Too small.\"";
+    private const string OtherErrorSetup = """var other = Error.Create("Other.");""";
     private const string EnsureOperationName = "Ensure";
     private const string AssertEqual1ValidationCalls = "Assert.Equal(1, validationCalls);";
     private const string ResultOfTResult = "Result<TResult>";
@@ -79,6 +89,10 @@ internal static class Operations
         EnsureWithMessageFromResultOfT(),
         EnsureWithResultFromResultOfT(),
         EnsureWithTypedResultFromResultOfT(),
+        EnsureConditionFromResult(withMessage: false),
+        EnsureConditionFromResult(withMessage: true),
+        EnsureOperationFromResultOfT(typed: false),
+        EnsureOperationFromResultOfT(typed: true),
         RecoverFromResultOfT(),
         CompensateFromResultOfT(),
         CompensateFromResult(),
@@ -752,19 +766,19 @@ internal static class Operations
                 SuccessOfTwo,
                 [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
                 [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1PredicateCalls],
-                extraArguments: ["\"Too small.\""]),
+                extraArguments: [TooSmallMessage]),
             Case(
                 "returns_an_error_with_the_given_message_when_the_value_does_not_satisfy_the_condition",
                 SuccessOfTwo,
                 [Returns(PredicateName, ["x"], "x > 5", "bool")],
                 ["Assert.Equal(\"Too small.\", outcome.GetError().Message);", AssertEqual1PredicateCalls],
-                extraArguments: ["\"Too small.\""]),
+                extraArguments: [TooSmallMessage]),
             Case(
                 "keeps_the_error_of_the_receiver_without_running_the_predicate_when_the_receiver_failed",
                 "Result.Failure<int>(other)",
                 [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
                 ["Assert.Same(other, outcome.GetError());", "Assert.Equal(0, predicateCalls);"],
-                extraArguments: ["\"Too small.\""],
+                extraArguments: [TooSmallMessage],
                 setup: ["""var other = Error.Create("Other.");"""]),
         ],
     };
@@ -825,8 +839,8 @@ internal static class Operations
         ReceiverType = ResultOfT,
         ReceiverTestType = ResultOfInt,
         ReceiverDescription = ResultOfTReceiverDescription,
-        TypeParameters = ["T", "TResult"],
-        TypeParameterDocs = [new("T", TDoc), new("TResult", "The type of the value of the validation result, which is ignored.")],
+        TypeParameters = ["T", TResultName],
+        TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the validation result, which is ignored.")],
         Summary = "Validates the value of a successful result with an operation that returns a result of any value type, and keeps the original value when " +
             "that operation succeeds. A failed result passes through and the delegate is not called.",
         Delegates =
@@ -857,17 +871,139 @@ internal static class Operations
             Case(
                 "returns_the_receiver_when_the_validation_succeeded",
                 SuccessOfTwo,
-                [Returns(ValidationName, ["x"], "Result.Success(\"checked\")", "Result<string>")],
+                [Returns(ValidationName, ["x"], SuccessOfChecked, ResultOfString)],
                 [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls]),
             Case(
                 "returns_the_error_of_the_validation_when_the_validation_failed",
                 SuccessOfTwo,
-                [Returns(ValidationName, ["x"], "Result.Failure<string>(error)", "Result<string>")],
+                [Returns(ValidationName, ["x"], FailureOfChecked, ResultOfString)],
                 [AssertSameErrorOutcomeGetError, AssertEqual1ValidationCalls]),
             Case(
                 ReceiverFailed,
                 FailureOfInt,
-                [Returns(ValidationName, ["x"], "Result.Success(\"checked\")", "Result<string>")],
+                [Returns(ValidationName, ["x"], SuccessOfChecked, ResultOfString)],
+                [AssertSameErrorOutcomeGetError, "Assert.Equal(0, validationCalls);"]),
+        ],
+    };
+
+    private static OperationSpec EnsureConditionFromResult(bool withMessage) => new()
+    {
+        Stem = withMessage ? "EnsureWithMessageFromResult" : "EnsureFromResult",
+        KeepsValue = true,
+        Name = EnsureOperationName,
+        ReceiverType = ResultType,
+        ReceiverTestType = ResultType,
+        ReceiverDescription = ResultReceiverDescription,
+        TypeParameters = [],
+        TypeParameterDocs = [],
+        Summary = withMessage
+            ? "Turns a successful result into a failure with the given message when a condition does not hold. A failed result passes through " +
+                "with its own error and the condition is not evaluated."
+            : "Turns a successful result into a failure when a condition does not hold. A failed result passes through with its own error and " +
+                "the condition is not evaluated.",
+        Delegates = [new(ConditionName, [], "bool", "The condition that must hold for the result to stay a success.")],
+        ExtraParameters =
+        [
+            withMessage
+                ? new(StringType, "message", "The message of the error of the failed result that is returned when the condition does not hold.")
+                : new(ErrorType, ErrorName, "The error of the failed result that is returned when the condition does not hold."),
+        ],
+        ReturnType = ResultType,
+        ReturnDescription = withMessage
+            ? "The receiver when it failed or the condition holds, otherwise a failed result whose error was created from <paramref name=\"message\"/>."
+            : "The receiver when it failed or the condition holds, otherwise a failed result with <paramref name=\"error\"/>.",
+        Body = ctx =>
+        [
+            Failure(ctx),
+            string.Empty,
+            IfFailureIsNotNull,
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var holds = {ctx.Call(ConditionName, string.Empty)};",
+            withMessage ? $"return holds ? {ctx.R} : Result.Failure(message);" : $"return holds ? {ctx.R} : new Result(error);",
+        ],
+        Tests =
+        [
+            Case(
+                "returns_the_receiver_when_the_condition_holds",
+                SuccessWithoutValue,
+                [Returns(ConditionName, [], "true", "bool")],
+                [AssertTrueOutcomeIsSuccess, AssertEqual1ConditionCalls],
+                extraArguments: [withMessage ? TooSmallMessage : ErrorName]),
+            Case(
+                withMessage
+                    ? "returns_an_error_with_the_given_message_when_the_condition_does_not_hold"
+                    : "returns_the_given_error_when_the_condition_does_not_hold",
+                SuccessWithoutValue,
+                [Returns(ConditionName, [], "false", "bool")],
+                [withMessage ? "Assert.Equal(\"Too small.\", outcome.GetError().Message);" : AssertSameErrorOutcomeGetError, AssertEqual1ConditionCalls],
+                extraArguments: [withMessage ? TooSmallMessage : ErrorName]),
+            Case(
+                "keeps_the_error_of_the_receiver_without_evaluating_the_condition_when_the_receiver_failed",
+                "Result.Failure(other)",
+                [Returns(ConditionName, [], "true", "bool")],
+                ["Assert.Same(other, outcome.GetError());", AssertEqual0ConditionCalls],
+                extraArguments: [withMessage ? TooSmallMessage : ErrorName],
+                setup: [OtherErrorSetup]),
+        ],
+    };
+
+    private static OperationSpec EnsureOperationFromResultOfT(bool typed) => new()
+    {
+        Stem = typed ? "EnsureWithTypedOperationFromResultOfT" : "EnsureWithOperationFromResultOfT",
+        KeepsValue = true,
+        Name = EnsureOperationName,
+        ReceiverType = ResultOfT,
+        ReceiverTestType = ResultOfInt,
+        ReceiverDescription = ResultOfTReceiverDescription,
+        TypeParameters = typed ? ["T", TResultName] : ["T"],
+        TypeParameterDocs = typed
+            ? [new("T", TDoc), new(TResultName, "The type of the value of the validation result, which is ignored.")]
+            : [new("T", TDoc)],
+        Summary = "Validates a successful result with an operation that returns a result" + (typed ? " of any value type" : string.Empty) +
+            " and does not need the value, and keeps the original value when that operation succeeds. A failed result passes through and the " +
+            "delegate is not called.",
+        Delegates =
+        [
+            new(
+                ValidationName,
+                [],
+                typed ? ResultOfTResult : ResultType,
+                typed ? TypedOperationDoc : OperationDoc),
+        ],
+        ReturnType = ResultOfT,
+        ReturnDescription = "The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.",
+        Body = ctx =>
+        [
+            Unpack(ctx, "_"),
+            string.Empty,
+            IfFailureIsNotNull,
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var validationResult = {ctx.Call(ValidationName, string.Empty)};",
+            typed ? "var validationFailure = validationResult.Unpack(out _);" : "var validationFailure = validationResult.FailureOrNull();",
+            $"return validationFailure is null ? {ctx.R} : Result<T>.Failed(validationFailure);",
+        ],
+        Tests =
+        [
+            Case(
+                "returns_the_receiver_when_the_validation_succeeded",
+                SuccessOfTwo,
+                [Returns(ValidationName, [], typed ? SuccessOfChecked : SuccessWithoutValue, typed ? ResultOfString : ResultType)],
+                [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls]),
+            Case(
+                "returns_the_error_of_the_validation_when_the_validation_failed",
+                SuccessOfTwo,
+                [Returns(ValidationName, [], typed ? FailureOfChecked : FailureWithError, typed ? ResultOfString : ResultType)],
+                [AssertSameErrorOutcomeGetError, AssertEqual1ValidationCalls]),
+            Case(
+                ReceiverFailed,
+                FailureOfInt,
+                [Returns(ValidationName, [], typed ? SuccessOfChecked : SuccessWithoutValue, typed ? ResultOfString : ResultType)],
                 [AssertSameErrorOutcomeGetError, "Assert.Equal(0, validationCalls);"]),
         ],
     };
