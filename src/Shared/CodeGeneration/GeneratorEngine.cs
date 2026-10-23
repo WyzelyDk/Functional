@@ -44,7 +44,8 @@ internal sealed class GeneratorEngine(GeneratorProfile profile, IReadOnlyList<Op
             foreach (var variant in operation.Variants)
             {
                 var delegatePart = operation.Delegates.Length == 0 ? string.Empty : $".{FilePart(variant.Delegate)}";
-                var fileName = $"{operation.Stem}.{FilePart(variant.Receiver)}{delegatePart}.g.cs";
+                var secondPart = operation.HasIndependentDelegate ? $".{FilePart(variant.Second)}" : string.Empty;
+                var fileName = $"{operation.Stem}.{FilePart(variant.Receiver)}{delegatePart}{secondPart}.g.cs";
                 files[$"{profile.LibraryDirectory}/{operation.Name}/{fileName}"] = libraryEmitter.Emit(operation, variant, stubs);
             }
 

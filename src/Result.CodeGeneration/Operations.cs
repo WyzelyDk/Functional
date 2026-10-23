@@ -16,6 +16,7 @@ internal static class Operations
     private const string ReceiverSucceeded = "returns_the_receiver_without_running_the_delegate_when_the_receiver_succeeded";
     private const string FailureOfInt = "Result.Failure<int>(error)";
     private const string AssertSameErrorOutcomeGetError = "Assert.Same(error, outcome.GetError());";
+    private const string AssertSameOtherOutcomeGetError = "Assert.Same(other, outcome.GetError());";
     private const string VarLogNewListString = "var log = new List<string>();";
     private const string ResultType = "Result";
     private const string ResultReceiverDescription = "a <see cref=\"Result\"/>";
@@ -69,6 +70,8 @@ internal static class Operations
     private const string FailEMessage = "\"fail:\" + e.Message";
     private const string RunsOnlyTheFailureDelegateWhenTheReceiverFailed = "runs_only_the_failure_delegate_when_the_receiver_failed";
     private const string AssertTrueOutcomeIsSuccess = "Assert.True(outcome.IsSuccess);";
+    private const string ErrorFactoryName = "errorFactory";
+    private const string MessageFactoryName = "messageFactory";
 
     /// <summary>Gets every operation family.</summary>
     internal static IReadOnlyList<OperationSpec> All { get; } =
@@ -87,6 +90,8 @@ internal static class Operations
         MapErrorFromResult(),
         EnsureFromResultOfT(),
         EnsureWithMessageFromResultOfT(),
+        EnsureWithFactoryFromResultOfT(message: false),
+        EnsureWithFactoryFromResultOfT(message: true),
         EnsureWithResultFromResultOfT(),
         EnsureWithTypedResultFromResultOfT(),
         EnsureConditionFromResult(withMessage: false),
@@ -724,7 +729,7 @@ internal static class Operations
                 "keeps_the_error_of_the_receiver_without_running_the_predicate_when_the_receiver_failed",
                 "Result.Failure<int>(other)",
                 [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
-                ["Assert.Same(other, outcome.GetError());", "Assert.Equal(0, predicateCalls);"],
+                [AssertSameOtherOutcomeGetError, "Assert.Equal(0, predicateCalls);"],
                 extraArguments: [ErrorName],
                 setup: ["""var other = Error.Create("Other.");"""]),
         ],
@@ -777,11 +782,95 @@ internal static class Operations
                 "keeps_the_error_of_the_receiver_without_running_the_predicate_when_the_receiver_failed",
                 "Result.Failure<int>(other)",
                 [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
-                ["Assert.Same(other, outcome.GetError());", "Assert.Equal(0, predicateCalls);"],
+                [AssertSameOtherOutcomeGetError, "Assert.Equal(0, predicateCalls);"],
                 extraArguments: [TooSmallMessage],
                 setup: ["""var other = Error.Create("Other.");"""]),
         ],
     };
+
+    // The condition and the factory that builds the error are asynchronous independently of each other, so this family has 27 variants.
+    private static OperationSpec EnsureWithFactoryFromResultOfT(bool message)
+    {
+        var factoryName = message ? MessageFactoryName : ErrorFactoryName;
+        var factoryReturns = message ? StringType : ErrorType;
+        var factoryResult = message ? TooSmallMessage : ErrorName;
+        var factoryCalls = $"{factoryName}Calls";
+        var factoryDoc = message
+            ? "Creates the message of the error from the value. It is called only when the condition does not hold."
+            : "Creates the error from the value. It is called only when the condition does not hold.";
+
+        return new()
+        {
+            Stem = message ? "EnsureWithMessageFactoryFromResultOfT" : "EnsureWithErrorFactoryFromResultOfT",
+            KeepsValue = true,
+            Name = EnsureOperationName,
+            ReceiverType = ResultOfT,
+            ReceiverTestType = ResultOfInt,
+            ReceiverDescription = ResultOfTReceiverDescription,
+            TypeParameters = ["T"],
+            TypeParameterDocs = [new("T", TDoc)],
+            Summary = message
+                ? "Turns a successful result into a failure when its value does not satisfy a condition. The message of the error is created from the " +
+                    "value, and only when the condition does not hold. A failed result passes through with its own error and neither delegate is called."
+                : "Turns a successful result into a failure when its value does not satisfy a condition. The error is created from the value, and only " +
+                    "when the condition does not hold. A failed result passes through with its own error and neither delegate is called.",
+            Delegates =
+            [
+                new(PredicateName, ["T"], "bool", "The condition the value must satisfy."),
+                new(factoryName, ["T"], factoryReturns, factoryDoc, Independent: true),
+            ],
+            ReturnType = ResultOfT,
+            ReturnDescription = message
+                ? "The receiver when it failed or its value satisfies the condition, otherwise a failed result whose error was created from the " +
+                    $"message of <paramref name=\"{factoryName}\"/>."
+                : "The receiver when it failed or its value satisfies the condition, otherwise a failed result with the error of " +
+                    $"<paramref name=\"{factoryName}\"/>.",
+            Body = ctx =>
+            [
+                Unpack(ctx),
+                string.Empty,
+                IfFailureIsNotNull,
+                "{",
+                $"    return {ctx.R};",
+                "}",
+                string.Empty,
+                $"var holds = {ctx.Call(PredicateName, InputName)};",
+                string.Empty,
+                "if (holds)",
+                "{",
+                $"    return {ctx.R};",
+                "}",
+                string.Empty,
+                $"var {(message ? "message" : ErrorName)} = {ctx.CallSecond(factoryName, InputName)};",
+                $"return Result.Failure<T>({(message ? "message" : ErrorName)});",
+            ],
+            Tests =
+            [
+                Case(
+                    "returns_the_receiver_without_creating_an_error_when_the_value_satisfies_the_condition",
+                    SuccessOfTwo,
+                    [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
+                    [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1PredicateCalls, $"Assert.Equal(0, {factoryCalls});"]),
+                Case(
+                    "returns_the_failure_the_factory_creates_from_the_value_when_the_value_does_not_satisfy_the_condition",
+                    SuccessOfTwo,
+                    [Returns(PredicateName, ["x"], "x > 5", "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns, "seen = x;")],
+                    [
+                        message ? "Assert.Equal(\"Too small.\", outcome.GetError().Message);" : AssertSameErrorOutcomeGetError,
+                        AssertEqual1PredicateCalls,
+                        $"Assert.Equal(1, {factoryCalls});",
+                        "Assert.Equal(2, seen);",
+                    ],
+                    setup: ["var seen = 0;"]),
+                Case(
+                    "keeps_the_error_of_the_receiver_without_running_a_delegate_when_the_receiver_failed",
+                    "Result.Failure<int>(other)",
+                    [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
+                    [AssertSameOtherOutcomeGetError, "Assert.Equal(0, predicateCalls);", $"Assert.Equal(0, {factoryCalls});"],
+                    setup: [OtherErrorSetup]),
+            ],
+        };
+    }
 
     private static OperationSpec EnsureWithResultFromResultOfT() => new()
     {
@@ -944,7 +1033,7 @@ internal static class Operations
                 "keeps_the_error_of_the_receiver_without_evaluating_the_condition_when_the_receiver_failed",
                 "Result.Failure(other)",
                 [Returns(ConditionName, [], "true", "bool")],
-                ["Assert.Same(other, outcome.GetError());", AssertEqual0ConditionCalls],
+                [AssertSameOtherOutcomeGetError, AssertEqual0ConditionCalls],
                 extraArguments: [withMessage ? TooSmallMessage : ErrorName],
                 setup: [OtherErrorSetup]),
         ],
