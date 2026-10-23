@@ -11,6 +11,8 @@ exception (`First`, `Single`, `ElementAt`, the dictionary indexer) or a `null` (
 | `source.LastOrNone()` / `source.LastOrNone(predicate)` | the last element (that satisfies the predicate), or none |
 | `source.SingleOrNone()` / `source.SingleOrNone(predicate)` | the only element (that satisfies the predicate); none when there are **none or several** |
 | `source.ElementAtOrNone(index)` | the element at the index, or none when it is out of range (a negative index is out of range) |
+| `stream.FirstOrNone(...)`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone` | the same for an `IAsyncEnumerable<T>` (`net8.0` and later): a `ValueTask<Maybe<T>>` that reads the stream once and only as far as the answer needs; the predicate may be asynchronous |
+| `streams.Choose()` / `stream.Choose(selector)` | the same for streams: an `IAsyncEnumerable<T>` of the values of the somes; the selector may be asynchronous |
 | `dictionary.GetValueOrNone(key)` | the value of the key, or none when the key is missing |
 | `maybes.Choose()` | the values of the somes, in order; the nones are dropped |
 | `source.Choose(selector)` | maps every element to a `Maybe` and keeps the values of the somes, in order |
@@ -35,6 +37,14 @@ IEnumerable<Maybe<int>> lookups = [Maybe.Some(1), Maybe.None<int>(), Maybe.Some(
 var found = lookups.Choose();                            // 1, 3
 
 var lengths = new[] { "a", "", "ccc" }.Choose(text => Maybe.SomeIf(text.Length > 0, text.Length));   // 1, 3
+```
+
+For a stream, the answer comes in a `ValueTask`, and the reading stops as soon as it is known:
+
+```csharp
+IAsyncEnumerable<int> numbers = ReadNumbersAsync();
+
+var firstBig = await numbers.FirstOrNone(static number => number > 10, cancellationToken);      // Some(15), and no more is read
 ```
 
 Each of these is run, with its output, in `samples/Maybe.Samples/CollectionsExample.cs`. `Choose` is the one to reach for when you would otherwise write

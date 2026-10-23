@@ -9,7 +9,7 @@ namespace Wyzely.Functional;
 /// <remarks>
 /// An element that is <see langword="null"/> counts as no value, like everywhere else in this library.
 /// </remarks>
-public static class MaybeCollectionExtensions
+public static partial class MaybeCollectionExtensions
 {
     /// <summary>Returns the first element of a sequence, or none when it is empty.</summary>
     /// <typeparam name="T">The type of the elements.</typeparam>

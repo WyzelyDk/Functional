@@ -10,6 +10,21 @@ public sealed class ReadmeExamplesTests : IDisposable
 {
     public void Dispose() => MaybeConfiguration.Reset();
 
+    // docs/maybe/collections.md: the example of a stream.
+    [Fact]
+    internal async Task FirstOrNone_example_reads_a_stream_only_as_far_as_the_answer_needs()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var pulled = 0;
+        var numbers = AsyncStreams.Counted(count => pulled = count, 4, 8, 15, 16);
+
+        var firstBig = await numbers.FirstOrNone(static number => number > 10, cancellationToken);
+
+        Assert.Multiple(
+            () => Assert.Equal(15, firstBig.GetValue()),
+            () => Assert.Equal(3, pulled));
+    }
+
     // docs/maybe/the-railway.md: the example of GetValueOrThrow.
     [Fact]
     internal void GetValueOrThrow_example_returns_the_value_or_throws_the_exception_of_the_caller()
