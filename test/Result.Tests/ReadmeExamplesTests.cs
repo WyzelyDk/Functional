@@ -35,6 +35,15 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal void The_try_steps_example_turns_the_exception_of_a_delegate_into_a_failure()
+    {
+        var address = Result.Success("not a web address")
+            .MapTry(static text => new Uri(text), static (UriFormatException exception) => Error.Validation("The address is not valid."));
+
+        Assert.Equal("The address is not valid.", address.GetError().Message);
+    }
+
+    [Fact]
     internal async Task The_async_chain_example_mixes_task_and_value_task_steps()
     {
         var outcome = await FindOrderAsync(7)

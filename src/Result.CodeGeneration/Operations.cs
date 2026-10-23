@@ -106,6 +106,7 @@ internal static partial class Operations
         SwitchFromResultOfT(),
         SwitchFromResult(),
         .. IfFamily(),
+        .. TryFamily(),
     ];
 
     private static DelegateTest Returns(string name, string[] parameters, string expression, string returnType, string statements = "") =>

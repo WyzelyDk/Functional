@@ -15,6 +15,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `Ensure(f)` | success | validates with an operation that returns a `Result` (or a typed result, whose value is ignored), keeping the original value; the operation may also take no parameter |
 | `MapIf(condition, f)`, `BindIf`, `TapIf`, `EnsureIf` | success | the same step, run only when the condition holds; the condition is a `bool`, a function, or a function of the value, and `MapIf` and `BindIf` keep the type of the value |
 | `TapErrorIf(condition, f)` | failure | `TapError`, run only when the condition holds; the condition can be a function of the error |
+| `MapTry(f)`, `BindTry`, `TapTry`, `TapIfTry` | success | the same step for a delegate that may throw: the exception becomes a failure, like `Result.Try`; a handler can create the error, and a handler that names an exception type catches only that type |
 | `Recover(f)` | failure | computes a replacement value, turning the failure into a success |
 | `Compensate(f)` | failure | tries a fallback operation that returns a `Result` |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
@@ -28,6 +29,15 @@ var price = Result.Success(100)
     .MapIf(isMember, static value => value * 9 / 10)
     .BindIf(() => couponIsValid, static value => Result.Success(value - 5))
     .EnsureIf(static value => value > 50, static value => Result.SuccessIf(value < 1000, "Needs approval."));
+```
+
+A delegate that may throw does not need a `try`/`catch` in the chain. `MapTry`, `BindTry`, `TapTry` and `TapIfTry` turn the exception into a
+failure, as `Result.Try` does, so a cancellation keeps travelling unless `ShouldCatch` says otherwise. Name the exception type with the parameter of the
+handler to catch only that type; any other exception keeps travelling:
+
+```csharp
+var address = Result.Success("not a web address")
+    .MapTry(static text => new Uri(text), static (UriFormatException exception) => Error.Validation("The address is not valid."));
 ```
 
 LINQ query syntax and `Zip` are supported as well:

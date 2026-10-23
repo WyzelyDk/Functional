@@ -193,6 +193,11 @@ public readonly partial struct Result
         }
     }
 
-    private static bool Matches<TException>(Func<TException, bool>? when, TException exception)
+    /// <summary>Returns whether an exception of the named type meets the extra condition of the caller, if there is one.</summary>
+    /// <typeparam name="TException">The type of the exception.</typeparam>
+    /// <param name="when">The condition of the caller, or <see langword="null"/> for none.</param>
+    /// <param name="exception">The exception that was caught.</param>
+    /// <returns><see langword="true"/> when the exception is to be turned into a failure.</returns>
+    internal static bool Matches<TException>(Func<TException, bool>? when, TException exception)
         where TException : Exception => when is null || when(exception);
 }
