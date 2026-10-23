@@ -82,6 +82,23 @@ as the cause. By default an `OperationCanceledException` is **not** turned into 
 and keeps travelling as an exception. Both the default mapping and which exceptions are caught can be changed, see
 [Configuration](configuration.md).
 
+To catch **one kind of exception** and let every other kind keep travelling, name its type with the parameter of the handler, and narrow it
+further with `when` if you need to. Both the type of the value and the type of the exception are inferred:
+
+```csharp
+var order = Result.Try(
+    () => JsonSerializer.Deserialize<Order>(json),
+    (JsonException exception) => Error.FromException(exception, "The order is not valid JSON."));
+
+var response = await Result.Try(
+    () => client.GetAsync(url, cancellationToken),
+    (OperationCanceledException exception) => Error.Timeout("The request timed out.").WithException(exception),
+    when: _ => !cancellationToken.IsCancellationRequested);   // a timeout, not a cancellation by the caller
+```
+
+Naming the type is the decision, so `ShouldCatch` does not apply to this form, which is also how a cancellation is caught on purpose. A
+handler that takes a plain `Exception` is the `Try` above, which does follow the setting.
+
 ## Samples
 
 [`samples/Result.Samples`](../../samples/Result.Samples) is a runnable project with one heavily commented file per theme: basics, errors, the railway, async, combining, exceptions, parallel, configuration, untyped results and C# 15 unions. Run it with `dotnet run --project samples/Result.Samples`. The examples are run as tests.

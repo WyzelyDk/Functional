@@ -240,6 +240,45 @@ public sealed class ResultConfigurationTests : IDisposable
         Assert.Equal(1, posts);
     }
 
+    [Fact]
+    internal async Task A_typed_Try_does_not_continue_on_the_captured_context_by_default()
+    {
+        var posts = await CountPostsOfTypedTryOnPendingTaskAsync();
+
+        Assert.Equal(0, posts);
+    }
+
+    [Fact]
+    internal async Task ContinueOnCapturedContext_makes_a_typed_Try_continue_on_the_captured_context()
+    {
+        ResultConfiguration.Configure(options => options.ContinueOnCapturedContext = true);
+
+        var posts = await CountPostsOfTypedTryOnPendingTaskAsync();
+
+        Assert.Equal(1, posts);
+    }
+
+    private static async Task<int> CountPostsOfTypedTryOnPendingTaskAsync()
+    {
+        var previous = SynchronizationContext.Current;
+        var context = new CountingSynchronizationContext();
+        SynchronizationContext.SetSynchronizationContext(context);
+
+        try
+        {
+            var source = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var pending = Result.Try(() => source.Task, (InvalidOperationException exception) => Error.FromException(exception));
+            source.SetResult(1);
+            await pending.ConfigureAwait(false);
+
+            return context.Posts;
+        }
+        finally
+        {
+            SynchronizationContext.SetSynchronizationContext(previous);
+        }
+    }
+
     private static async Task<int> CountPostsOfMapOnPendingTaskAsync()
     {
         var previous = SynchronizationContext.Current;
