@@ -63,7 +63,7 @@ and, where it says so, is pinned by a test:
   and nothing converts out of a maybe; `ImplicitConversionTests` pins that this is the only conversion.
 - **The whole railway, in every sync / `Task` / `ValueTask` combination.** `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `Or`, `ValueOr`,
   `Match` and `Switch` exist for a maybe, a `Task<Maybe<T>>` and a `ValueTask<Maybe<T>>` receiver, times a synchronous, `Task` or
-  `ValueTask` delegate: nine operations times nine variants is **90 methods** (with the nullable-value form of `Map`), generated from one catalog (90 files under
+  `ValueTask` delegate: eleven operations times nine variants, plus the three of `Contains`, is **111 methods** (with the nullable-value form of `Map`), generated from one catalog (111 files under
   `src/Maybe/Generated`, plus 12 more for `Zip`), each variant with a generated test. Writing and testing those by hand is the part that is
   not twenty lines.
 - **No `await` in the middle of a chain.** Because the variants share one name, `FindAsync(...).Filter(...).Bind(...).Map(...)` reads
@@ -94,7 +94,7 @@ and, where it says so, is pinned by a test:
 - **You adopt a vocabulary and a release cadence.** Your team has to learn `Bind`, `Match` and `Or`, and you follow our releases and our
   breaking changes.
 - **There is generated code you did not write.** A stack trace through `Map.Task.ValueTask` is longer than one through your own twenty
-  lines. The generated files are in the repository and readable, but there are 102 of them.
+  lines. The generated files are in the repository and readable, but there are 123 of them.
 - **An extra package in every project that uses it.** The library has no dependencies outside the BCL (except
   `System.Threading.Tasks.Extensions` on `netstandard2.0`); it still is one more thing to restore, scan and update.
 - **It is opinionated** (`where T : notnull`, a guarded `GetValue()`, a `null` that becomes none); if you disagree, your own type is

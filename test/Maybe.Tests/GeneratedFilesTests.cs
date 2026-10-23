@@ -31,7 +31,7 @@ public sealed class GeneratedFilesTests
         var zipFiles = (GeneratorSettings.MaxZipArity - 1) * 3;
 
         Assert.Multiple(
-            () => Assert.Equal((Operations.All.Count * Variant.All.Count) + zipFiles, files.Length),
+            () => Assert.Equal(Operations.All.Sum(operation => operation.Variants.Count) + zipFiles, files.Length),
             () => Assert.All(files, file => Assert.Contains(Path.GetFileName(Path.GetDirectoryName(file))!, operationNames)),
             () => Assert.All(files, file => Assert.Single(File.ReadAllLines(file), line => line.StartsWith("    public static ", StringComparison.Ordinal))));
     }

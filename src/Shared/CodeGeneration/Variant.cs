@@ -6,6 +6,12 @@ internal readonly record struct Variant(Wrapper Receiver, Wrapper Delegate)
     /// <summary>Gets all nine combinations.</summary>
     internal static IReadOnlyList<Variant> All { get; } = CreateAll();
 
+    /// <summary>
+    /// Gets the three combinations of an operation without a delegate: only the receiver can be wrapped, because a delegate that does not
+    /// exist has no kind.
+    /// </summary>
+    internal static IReadOnlyList<Variant> ReceiverOnly { get; } = [.. CreateAll().Where(variant => variant.Delegate == Wrapper.None)];
+
     /// <summary>Gets a value indicating whether neither the receiver nor the delegate is asynchronous.</summary>
     internal bool IsSync => Receiver == Wrapper.None && Delegate == Wrapper.None;
 

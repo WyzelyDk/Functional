@@ -20,6 +20,11 @@ internal static class Operations
     private const string ReceiverSome = "returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value";
 
     private const string PredicateName = "predicate";
+    private const string GreaterThanOne = "x > 1";
+    private const string AssertEqual1PredicateCalls = "Assert.Equal(1, predicateCalls);";
+    private const string AssertEqual0PredicateCalls = "Assert.Equal(0, predicateCalls);";
+    private const string AssertTrueOutcome = "Assert.True(outcome);";
+    private const string AssertFalseOutcome = "Assert.False(outcome);";
     private const string AssertValueIsTwo = "Assert.Equal(2, outcome.GetValue());";
     private const string IfFound = "if (found)";
     private const string TapNoneName = "tapNone";
@@ -47,6 +52,9 @@ internal static class Operations
         MapStruct(),
         Bind(),
         Filter(),
+        Quantifier(all: false),
+        Quantifier(all: true),
+        Contains(),
         Tap(),
         TapNone(),
         Or(),
@@ -259,18 +267,101 @@ internal static class Operations
             Case(
                 "returns_the_receiver_when_the_value_satisfies_the_condition",
                 SomeOfTwo,
-                [Returns(PredicateName, ["x"], "x > 1", "bool")],
-                [AssertValueIsTwo, "Assert.Equal(1, predicateCalls);"]),
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
+                [AssertValueIsTwo, AssertEqual1PredicateCalls]),
             Case(
                 "returns_none_when_the_value_does_not_satisfy_the_condition",
                 SomeOfTwo,
                 [Returns(PredicateName, ["x"], "x > 5", "bool")],
-                [AssertTrueOutcomeIsNone, "Assert.Equal(1, predicateCalls);"]),
+                [AssertTrueOutcomeIsNone, AssertEqual1PredicateCalls]),
             Case(
                 ReceiverNone,
                 NoneOfInt,
-                [Returns(PredicateName, ["x"], "x > 1", "bool")],
-                [AssertTrueOutcomeIsNone, "Assert.Equal(0, predicateCalls);"]),
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
+                [AssertTrueOutcomeIsNone, AssertEqual0PredicateCalls]),
+        ],
+    };
+
+    private static OperationSpec Quantifier(bool all) => new()
+    {
+        Stem = all ? "All" : "Any",
+        Name = all ? "All" : "Any",
+        ReceiverType = MaybeOfT,
+        ReceiverTestType = MaybeOfInt,
+        ReceiverDescription = MaybeReceiverDescription,
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        NotNull = ["T"],
+        Summary = all
+            ? "Leaves the railway: returns whether a maybe has no value or has a value that satisfies a condition. A maybe without a value gives " +
+                "true and the predicate is not called."
+            : "Leaves the railway: returns whether a maybe has a value that satisfies a condition. A maybe without a value gives false and the " +
+                "predicate is not called.",
+        Delegates = [new(PredicateName, ["T"], "bool", "The condition the value must satisfy.")],
+        ReturnType = "bool",
+        ReturnDescription = all
+            ? "<see langword=\"true\"/> when the receiver has no value or its value satisfies the condition, otherwise <see langword=\"false\"/>."
+            : "<see langword=\"true\"/> when the receiver has a value that satisfies the condition, otherwise <see langword=\"false\"/>.",
+        Body = ctx =>
+        [
+            Unpack(ctx),
+            string.Empty,
+            IfNotFound,
+            "{",
+            all ? "    return true;" : "    return false;",
+            "}",
+            string.Empty,
+            $"return {ctx.Call(PredicateName, InputName)};",
+        ],
+        Tests =
+        [
+            Case(
+                "returns_true_when_the_value_satisfies_the_condition",
+                SomeOfTwo,
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
+                [AssertTrueOutcome, AssertEqual1PredicateCalls]),
+            Case(
+                "returns_false_when_the_value_does_not_satisfy_the_condition",
+                SomeOfTwo,
+                [Returns(PredicateName, ["x"], "x > 5", "bool")],
+                [AssertFalseOutcome, AssertEqual1PredicateCalls]),
+            Case(
+                all
+                    ? "returns_true_without_running_the_predicate_when_the_receiver_has_no_value"
+                    : "returns_false_without_running_the_predicate_when_the_receiver_has_no_value",
+                NoneOfInt,
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool")],
+                [all ? AssertTrueOutcome : AssertFalseOutcome, AssertEqual0PredicateCalls]),
+        ],
+    };
+
+    private static OperationSpec Contains() => new()
+    {
+        Stem = "Contains",
+        Name = "Contains",
+        ReceiverType = MaybeOfT,
+        ReceiverTestType = MaybeOfInt,
+        ReceiverDescription = MaybeReceiverDescription,
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        NotNull = ["T"],
+        Summary = "Leaves the railway: returns whether a maybe has a value that equals the given value, compared with the default equality of " +
+            "the type.",
+        ExtraParameters = [new("T", "value", "The value to look for.", Validated: false)],
+        ReturnType = "bool",
+        ReturnDescription = "<see langword=\"true\"/> when the receiver has a value that equals <paramref name=\"value\"/>, " +
+            "otherwise <see langword=\"false\"/>.",
+        Body = ctx =>
+        [
+            Unpack(ctx),
+            string.Empty,
+            "return found && EqualityComparer<T>.Default.Equals(input, value);",
+        ],
+        Tests =
+        [
+            Case("returns_true_when_the_value_equals_the_given_value", SomeOfTwo, [], [AssertTrueOutcome], extraArguments: ["2"]),
+            Case("returns_false_when_the_value_differs_from_the_given_value", SomeOfTwo, [], [AssertFalseOutcome], extraArguments: ["3"]),
+            Case("returns_false_when_the_receiver_has_no_value", NoneOfInt, [], [AssertFalseOutcome], extraArguments: ["2"]),
         ],
     };
 

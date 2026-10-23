@@ -83,6 +83,9 @@ The reasoning is in [Design decisions](design-decisions.md#an-implicit-conversio
 | `GetValue()` | the value; throws `InvalidOperationException` when there is none. A method, not a property, and the analyzer [`WYZ0201`](analyzers/WYZ0201.md) checks that it is guarded |
 | `TryGetValue(out v)` | the non-throwing way; annotated so that `v` is known to be non-null when it returns `true` |
 | `ValueOr(fallback)` | the value, or the fallback. There is also `ValueOr(() => fallback)` for a fallback that is costly to compute |
+| `Any(predicate)` | whether there is a value that satisfies the predicate (`false` for none) |
+| `All(predicate)` | whether there is no value, or the value satisfies the predicate (`true` for none) |
+| `Contains(value)` | whether there is a value equal to `value`, with the default equality of the type |
 | `ToEnumerable()` | a sequence of zero or one values |
 | `AsNullable()` | for a maybe of a value type: the value as a `T?`, or `null` |
 
@@ -97,6 +100,10 @@ none.ValueOr(0);                          // 0
 some.AsNullable();                        // 5, as an int?
 none.AsNullable();                        // null
 none.ToEnumerable();                      // an empty sequence
+some.Any(value => value > 3);             // true: there is a value and it satisfies the condition
+none.Any(value => value > 3);             // false
+none.All(value => value > 3);             // true: there is no value that fails the condition
+some.Contains(5);                         // true
 some == Maybe.Some(5);                    // true: value equality
 none == default;                          // true: every none is equal
 none < some;                              // true: none sorts before every some

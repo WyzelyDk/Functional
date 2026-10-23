@@ -17,8 +17,18 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         writer.Line("namespace Wyzely.Functional;");
         writer.Line();
         writer.Line("/// <content>");
-        writer.Line($"/// The <c>{operation.Name}</c> operation for {operation.ReceiverDescription}, with a {variant.Receiver.Label()} receiver");
-        writer.Line($"/// and a {variant.Delegate.Label()} delegate.");
+        var receiverLine = $"/// The <c>{operation.Name}</c> operation for {operation.ReceiverDescription}, with a {variant.Receiver.Label()} receiver";
+
+        if (operation.Delegates.Length == 0)
+        {
+            writer.Line(receiverLine + ".");
+        }
+        else
+        {
+            writer.Line(receiverLine);
+            writer.Line($"/// and a {variant.Delegate.Label()} delegate.");
+        }
+
         writer.Line("/// </content>");
         writer.Line($"public static partial class {profile.ExtensionsClass}");
         writer.Open();
@@ -38,7 +48,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         }
 
         names.AddRange(operation.Delegates.Select(@delegate => @delegate.Name));
-        names.AddRange(operation.ExtraParameters.Select(extra => extra.Name));
+        names.AddRange(operation.ExtraParameters.Where(extra => extra.Validated).Select(extra => extra.Name));
 
         return names;
     }
