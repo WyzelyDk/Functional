@@ -41,6 +41,8 @@ public sealed class ResultSamplesTests
             () => Assert.Contains("Detail: Customer=***", lines),
             () => Assert.Contains("Custom kind: RateLimited", lines),
             () => Assert.Contains("With two context frames: Web: Checkout: Order 7 of anna@example.com was not found.", lines),
+            () => Assert.Contains("Frame with a detail: Mail to anna@example.com: Order 7 of anna@example.com was not found.", lines),
+            () => Assert.Contains("Frame with a detail, redacted: Mail to ***: Order 7 of *** was not found.", lines),
             () => Assert.Contains("The original error is unchanged: Order 7 of anna@example.com was not found.", lines),
             () => Assert.Contains("Aggregate message: Name is missing., Email is invalid.", lines),
             () => Assert.Contains("Aggregate kind when every child has the same kind: Validation", lines),

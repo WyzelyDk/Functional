@@ -43,31 +43,43 @@ public sealed partial class Error
         new(Template, Kind, Code, IsTransient, Guard.NotNull(exception, nameof(exception)), Details, Context, Children);
 
     /// <summary>Returns a copy of the error with a context frame as the new outermost frame.</summary>
-    /// <param name="context">What the caller was doing, for example a chain name. It must not be empty.</param>
+    /// <param name="context">
+    /// What the caller was doing, for example a chain name. It is a message template, like the message of an error, so <c>{{</c> and <c>}}</c>
+    /// produce a single brace. It must not be empty.
+    /// </param>
     /// <returns>
     /// A modified copy of the error. For an aggregate error the frame is added to every child, so each individual message
     /// keeps its own context.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="context"/> is empty or consists only of white space.</exception>
-    public Error WithContext(string context)
-    {
-        Guard.NotNullOrWhiteSpace(context, nameof(context));
+    public Error WithContext(string context) => WithContext(new ErrorFrame(Guard.NotNullOrWhiteSpace(context, nameof(context)), NoDetails));
 
-        if (IsAggregate)
-        {
-            var children = new List<Error>(Children.Count);
+    /// <summary>Returns a copy of the error with a context frame, and one detail that fills a placeholder of the frame, as the new outermost frame.</summary>
+    /// <param name="context">What the caller was doing, as a message template such as <c>Checkout of order {OrderId}</c>. It must not be empty.</param>
+    /// <param name="name">The name of the detail, which is matched, case-sensitively, with a placeholder of <paramref name="context"/>.</param>
+    /// <param name="value">The value of the detail, which may be <see langword="null"/>.</param>
+    /// <param name="isSensitive"><see langword="true"/> when the value must not appear in redacted output, for example an email address.</param>
+    /// <returns>A modified copy of the error. For an aggregate error the frame is added to every child.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="name"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="context"/> or <paramref name="name"/> is empty or consists only of white space.</exception>
+    public Error WithContext(string context, string name, object? value, bool isSensitive = false) =>
+        WithContext(new ErrorFrame(
+            Guard.NotNullOrWhiteSpace(context, nameof(context)),
+            new ReadOnlyCollection<ErrorDetail>([new ErrorDetail(name, value, isSensitive)])));
 
-            foreach (var child in Children)
-            {
-                children.Add(child.WithContext(context));
-            }
-
-            return new Error(Template, Kind, Code, IsTransient, Exception, Details, Context, new ReadOnlyCollection<Error>(children));
-        }
-
-        return new Error(Template, Kind, Code, IsTransient, Exception, Details, Prepend(Context, context), Children);
-    }
+    /// <summary>Returns a copy of the error with a context frame and the details that fill its placeholders as the new outermost frame.</summary>
+    /// <param name="context">
+    /// What the caller was doing, as a message template such as <c>Checkout of {OrderId} for {Customer}</c>. It must not be empty.
+    /// </param>
+    /// <param name="details">The details whose names are matched, case-sensitively, with the placeholders of <paramref name="context"/>.</param>
+    /// <returns>A modified copy of the error. For an aggregate error the frame is added to every child.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="details"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="context"/> is empty or consists only of white space.</exception>
+    public Error WithContext(string context, params ErrorDetail[] details) =>
+        WithContext(new ErrorFrame(
+            Guard.NotNullOrWhiteSpace(context, nameof(context)),
+            new ReadOnlyCollection<ErrorDetail>([.. Guard.NotNull(details, nameof(details))])));
 
     private static ReadOnlyCollection<T> Append<T>(IReadOnlyList<T> source, T item)
     {
@@ -94,5 +106,22 @@ public sealed partial class Error
         }
 
         return new ReadOnlyCollection<T>(array);
+    }
+
+    private Error WithContext(ErrorFrame frame)
+    {
+        if (IsAggregate)
+        {
+            var children = new List<Error>(Children.Count);
+
+            foreach (var child in Children)
+            {
+                children.Add(child.WithContext(frame));
+            }
+
+            return new Error(Template, Kind, Code, IsTransient, Exception, Details, Context, new ReadOnlyCollection<Error>(children));
+        }
+
+        return new Error(Template, Kind, Code, IsTransient, Exception, Details, Prepend(Context, frame), Children);
     }
 }

@@ -45,6 +45,11 @@ public static class ErrorsExample
         output.WriteLine($"With two context frames: {withContext}");
         output.WriteLine($"The original error is unchanged: {error}");
 
+        // A frame is a template with details of its own, like a message: the value stays structured and can be redacted.
+        var withDetails = error.WithContext("Mail to {Email}", "Email", "anna@example.com", isSensitive: true);
+        output.WriteLine($"Frame with a detail: {withDetails}");
+        output.WriteLine($"Frame with a detail, redacted: {withDetails.ToRedactedString()}");
+
         // Aggregation: several errors become one. A single error stays as it is; nested aggregates are flattened.
         var name = Error.Validation("Name is missing.");
         var email = Error.Validation("Email is invalid.");

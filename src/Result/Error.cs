@@ -27,7 +27,7 @@ namespace Wyzely.Functional;
 public sealed partial class Error : IEquatable<Error>
 {
     private static readonly IReadOnlyList<ErrorDetail> NoDetails = new ReadOnlyCollection<ErrorDetail>(Array.Empty<ErrorDetail>());
-    private static readonly IReadOnlyList<string> NoContext = new ReadOnlyCollection<string>(Array.Empty<string>());
+    private static readonly IReadOnlyList<ErrorFrame> NoContext = new ReadOnlyCollection<ErrorFrame>(Array.Empty<ErrorFrame>());
     private static readonly IReadOnlyList<Error> NoChildren = new ReadOnlyCollection<Error>(Array.Empty<Error>());
 
     [SuppressMessage("Style", "IDE0032", Justification = "The message is rendered lazily on first use, so it cannot be an auto-property.")]
@@ -46,7 +46,7 @@ public sealed partial class Error : IEquatable<Error>
         bool isTransient,
         Exception? exception,
         IReadOnlyList<ErrorDetail> details,
-        IReadOnlyList<string> context,
+        IReadOnlyList<ErrorFrame> context,
         IReadOnlyList<Error> children)
     {
         Template = template;
@@ -93,8 +93,11 @@ public sealed partial class Error : IEquatable<Error>
     public IReadOnlyList<ErrorDetail> Details { get; }
 
     /// <summary>Gets the context frames of the error, outermost first.</summary>
-    /// <remarks>A frame is added by <see cref="WithContext(string)"/> each time the error passes a layer that knows more about the situation.</remarks>
-    public IReadOnlyList<string> Context { get; }
+    /// <remarks>
+    /// A frame is added by <see cref="WithContext(string)"/> each time the error passes a layer that knows more about the situation. A frame is a
+    /// message template with details of its own, so a value that a layer adds is structured, and can be redacted, like the details of the error.
+    /// </remarks>
+    public IReadOnlyList<ErrorFrame> Context { get; }
 
     /// <summary>Gets the individual errors of an aggregate error. It is empty for an error that is not an aggregate.</summary>
     public IReadOnlyList<Error> Children { get; }

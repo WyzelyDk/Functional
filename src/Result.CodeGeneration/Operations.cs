@@ -34,7 +34,7 @@ internal static partial class Operations
     private const string ErrorType = "Error";
     private const string FailureName = "failure";
     private const string MapErrorName = "mapError";
-    private const string EWithContextMeny = """e.WithContext("Meny")""";
+    private const string EWithContextCheckout = """e.WithContext("Checkout")""";
     private const string PredicateName = "predicate";
     private const string ErrorName = "error";
     private const string GreaterThanOne = "x > 1";
@@ -636,12 +636,12 @@ internal static partial class Operations
             Case(
                 "returns_the_error_of_the_delegate_when_the_receiver_failed",
                 FailureOfInt,
-                [Returns(MapErrorName, ["e"], EWithContextMeny, ErrorType)],
-                ["""Assert.Equal(["Meny"], outcome.GetError().Context);""", "Assert.Equal(1, mapErrorCalls);"]),
+                [Returns(MapErrorName, ["e"], EWithContextCheckout, ErrorType)],
+                ["""Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));""", "Assert.Equal(1, mapErrorCalls);"]),
             Case(
                 ReceiverSucceeded,
                 SuccessOfTwo,
-                [Returns(MapErrorName, ["e"], EWithContextMeny, ErrorType)],
+                [Returns(MapErrorName, ["e"], EWithContextCheckout, ErrorType)],
                 [AssertTrueOutcomeIsSuccess, "Assert.Equal(0, mapErrorCalls);"]),
         ],
     };
@@ -678,12 +678,12 @@ internal static partial class Operations
             Case(
                 "returns_the_error_of_the_delegate_when_the_receiver_failed",
                 FailureWithError,
-                [Returns(MapErrorName, ["e"], EWithContextMeny, ErrorType)],
-                ["""Assert.Equal(["Meny"], outcome.GetError().Context);""", "Assert.Equal(1, mapErrorCalls);"]),
+                [Returns(MapErrorName, ["e"], EWithContextCheckout, ErrorType)],
+                ["""Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));""", "Assert.Equal(1, mapErrorCalls);"]),
             Case(
                 ReceiverSucceeded,
                 SuccessWithoutValue,
-                [Returns(MapErrorName, ["e"], EWithContextMeny, ErrorType)],
+                [Returns(MapErrorName, ["e"], EWithContextCheckout, ErrorType)],
                 [AssertTrueOutcomeIsSuccess, "Assert.Equal(0, mapErrorCalls);"]),
         ],
     };

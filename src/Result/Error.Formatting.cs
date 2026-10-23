@@ -7,7 +7,7 @@ namespace Wyzely.Functional;
 /// </content>
 public sealed partial class Error
 {
-    /// <summary>Returns the message prefixed with the context frames, outermost first, for example <c>Import: Meny: Upload failed.</c>.</summary>
+    /// <summary>Returns the message prefixed with the context frames, outermost first, for example <c>Import: Checkout: Upload failed.</c>.</summary>
     /// <returns>The full description of the error, including sensitive details.</returns>
     public override string ToString() => Describe(redact: false);
 
@@ -15,7 +15,12 @@ public sealed partial class Error
     /// <returns>The full description of the error that is safe to log.</returns>
     public string ToRedactedString() => Describe(redact: true);
 
-    private static string Format(string template, IReadOnlyList<ErrorDetail> details, bool redact)
+    /// <summary>Renders a message template with its details.</summary>
+    /// <param name="template">The template, whose <c>{Name}</c> placeholders are replaced.</param>
+    /// <param name="details">The details whose names the placeholders refer to.</param>
+    /// <param name="redact"><see langword="true"/> to replace the value of a sensitive detail.</param>
+    /// <returns>The rendered text.</returns>
+    internal static string Format(string template, IReadOnlyList<ErrorDetail> details, bool redact)
     {
         if (template.IndexOf('{') < 0 && template.IndexOf('}') < 0)
         {
@@ -99,6 +104,13 @@ public sealed partial class Error
         var message = redact ? RedactedMessage : Message;
         var separator = ResultConfiguration.Current.ContextSeparator;
 
-        return Context.Count == 0 ? message : string.Join(separator, Context) + separator + message;
+        if (Context.Count == 0)
+        {
+            return message;
+        }
+
+        var frames = Context.Select(frame => redact ? frame.RedactedMessage : frame.Message);
+
+        return string.Join(separator, frames) + separator + message;
     }
 }
