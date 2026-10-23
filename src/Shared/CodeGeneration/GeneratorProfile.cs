@@ -19,6 +19,10 @@ namespace Wyzely.Functional.CodeGeneration;
 /// <see langword="true"/> when the library has a cached completed task for "no value" (<c>MaybeTasks&lt;T&gt;.None</c>) that the generated
 /// fast paths should hand out.
 /// </param>
+/// <param name="CachesCompletedSuccess">
+/// <see langword="true"/> when the library has a cached completed task for a success without a value (<c>ResultTasks.Success</c>) that the
+/// generated fast paths should hand out.
+/// </param>
 /// <param name="ConditionalFactories">
 /// <see langword="true"/> when the library has the generated <c>SuccessIf</c> and <c>FailureIf</c> factories (a result type does, a maybe type
 /// writes its own).
@@ -36,4 +40,5 @@ internal sealed record GeneratorProfile(
     string[] TestPreamble,
     ZipKind? Zip = null,
     bool CachesCompletedNone = false,
+    bool CachesCompletedSuccess = false,
     bool ConditionalFactories = false);

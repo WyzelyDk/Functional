@@ -32,7 +32,7 @@ public static partial class ResultExtensions
         if (result.Status == TaskStatus.RanToCompletion)
         {
             var completed = Compensate(result.Result, compensate);
-            return completed.HasSameStateAs(result.Result) ? result : Task.FromResult(completed);
+            return completed.HasSameStateAs(result.Result) ? result : completed.IsSuccess ? ResultTasks.Success : Task.FromResult(completed);
         }
 
         return Core(result, compensate);

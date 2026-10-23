@@ -64,6 +64,28 @@ public sealed class PerformanceTests
     }
 
     [Fact]
+    internal void Binding_a_completed_task_to_a_successful_result_without_a_value_allocates_nothing()
+    {
+        RunCompletedBinds(10);
+
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var succeeded = RunCompletedBinds(1_000);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+        Assert.Multiple(
+            () => Assert.True(succeeded),
+            () => Assert.Equal(0, allocated));
+    }
+
+    [Fact]
+    internal async Task Binding_a_completed_task_to_a_failed_result_without_a_value_still_returns_that_failure()
+    {
+        var outcome = await CompletedResult.Bind(static _ => Result.Failure(Rejected));
+
+        Assert.Same(Rejected, outcome.GetError());
+    }
+
+    [Fact]
     internal void A_successful_synchronous_chain_allocates_nothing()
     {
         RunSuccessfulChain(10);
@@ -115,6 +137,20 @@ public sealed class PerformanceTests
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
         Assert.Equal(0, allocated);
+    }
+
+    // A completed receiver and a synchronous delegate: the library answers with a completed task of a result without a value, which is the same
+    // task every time.
+    private static bool RunCompletedBinds(int iterations)
+    {
+        var succeeded = true;
+
+        for (var index = 0; index < iterations; index++)
+        {
+            succeeded &= CompletedResult.Bind(static _ => Result.Success()).Result.IsSuccess;
+        }
+
+        return succeeded;
     }
 
     private static long RunTupleSteps(int iterations)

@@ -35,7 +35,7 @@ public static partial class ResultExtensions
         if (result.Status == TaskStatus.RanToCompletion)
         {
             var completed = Bind(result.Result, bind);
-            return Task.FromResult(completed);
+            return completed.IsSuccess ? ResultTasks.Success : Task.FromResult(completed);
         }
 
         return Core(result, bind);
