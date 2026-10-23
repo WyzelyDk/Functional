@@ -16,6 +16,30 @@ public sealed class UncheckedAccessTests
     }
 
     [Fact]
+    internal async Task GetValueOrThrow_without_a_check_is_not_reported_because_it_is_the_explicit_form()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nint M(Result<int> r) => r.GetValueOrThrow(e => new InvalidOperationException(e.Message));");
+
+        Assert.Empty(ids);
+    }
+
+    [Fact]
+    internal async Task ThrowIfFailure_with_a_factory_without_a_check_is_not_reported()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nvoid M(Result r) => r.ThrowIfFailure(e => new InvalidOperationException(e.Message));");
+
+        Assert.Empty(ids);
+    }
+
+    [Fact]
+    internal async Task GetValueOrThrow_of_a_task_without_a_check_is_not_reported()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nasync Task<int> M(Task<Result<int>> r) => await r.GetValueOrThrow();");
+
+        Assert.Empty(ids);
+    }
+
+    [Fact]
     internal async Task GetError_without_a_check_is_reported()
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nError M(Result r) => r.GetError();");

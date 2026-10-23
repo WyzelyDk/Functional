@@ -63,6 +63,25 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal async Task The_throwing_example_leaves_the_railway_with_an_exception_of_your_own_type()
+    {
+        var id = Result.Success(7)
+            .GetValueOrThrow(static error => new KeyNotFoundException(error.Message));
+
+        var code = await Task.FromResult(Result.Success("A12"))
+            .Map(static text => text.ToLowerInvariant())
+            .GetValueOrThrow();
+
+        var failed = Record.Exception(() => Result.Failure<int>(Error.NotFound("No such order."))
+            .GetValueOrThrow(static error => new KeyNotFoundException(error.Message)));
+
+        Assert.Multiple(
+            () => Assert.Equal(7, id),
+            () => Assert.Equal("a12", code),
+            () => Assert.Equal("No such order.", Assert.IsType<KeyNotFoundException>(failed).Message));
+    }
+
+    [Fact]
     internal async Task The_async_chain_example_mixes_task_and_value_task_steps()
     {
         var outcome = await FindOrderAsync(7)

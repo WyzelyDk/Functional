@@ -78,7 +78,11 @@ internal sealed class TestEmitter(GeneratorProfile profile)
         var call = $"receiver.{operation.Name}({string.Join(", ", arguments)})";
         var awaitPrefix = isAsync ? "await " : string.Empty;
 
-        if (operation.ReturnsVoid)
+        if (testCase.RecordsException)
+        {
+            writer.Line(RecordException(operation, call, isAsync));
+        }
+        else if (operation.ReturnsVoid)
         {
             writer.Line($"{awaitPrefix}{call};");
         }
@@ -90,6 +94,21 @@ internal sealed class TestEmitter(GeneratorProfile profile)
         writer.Line();
         writer.Lines(testCase.Asserts);
         writer.Close();
+    }
+
+    // The call of an operation that is expected to throw, with the exception kept in `exception` (null when nothing was thrown).
+    private static string RecordException(OperationSpec operation, string call, bool isAsync)
+    {
+        if (isAsync)
+        {
+            return operation.ReturnsVoid
+                ? $"var exception = await Record.ExceptionAsync(async () => await {call});"
+                : $"var exception = await Record.ExceptionAsync(async () => {{ _ = await {call}; }});";
+        }
+
+        return operation.ReturnsVoid
+            ? $"var exception = Record.Exception(() => {call});"
+            : $"var exception = Record.Exception(() => {{ _ = {call}; }});";
     }
 
     private static string WrapReceiver(string expression, string receiverType, Wrapper receiver, bool pending)

@@ -99,7 +99,8 @@ internal sealed record TestCaseSpec(
     string[] ExtraArguments,
     string[] Asserts,
     string[]? Setup = null,
-    string[]? LeadingArguments = null);
+    string[]? LeadingArguments = null,
+    bool RecordsException = false);
 
 /// <summary>One family of generated methods: an operation on one kind of receiver, in all nine variants.</summary>
 internal sealed record OperationSpec
@@ -156,12 +157,32 @@ internal sealed record OperationSpec
     /// Gets the variants to generate: nine for an operation with a delegate, 27 when a second delegate has a kind of its own, three (one
     /// per receiver) for an operation without a delegate.
     /// </summary>
-    internal IReadOnlyList<Variant> Variants => (Delegates.Length == 0, HasIndependentDelegate) switch
+    internal IReadOnlyList<Variant> Variants
     {
-        (true, _) => Variant.ReceiverOnly,
-        (_, true) => Variant.AllWithSecond,
-        _ => Variant.All,
-    };
+        get
+        {
+            var variants = (Delegates.Length == 0, HasIndependentDelegate) switch
+            {
+                (true, _) => Variant.ReceiverOnly,
+                (_, true) => Variant.AllWithSecond,
+                _ => Variant.All,
+            };
+
+            return SkipsSyncReceiver ? [.. variants.Where(variant => variant.Receiver != Wrapper.None)] : variants;
+        }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the operation exists only for a <c>Task</c> or <c>ValueTask</c> receiver, because the synchronous one is
+    /// an instance method of the receiver type.
+    /// </summary>
+    internal bool SkipsSyncReceiver { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether the operation never takes the shortcut for a receiver that has already completed. It is for an operation that
+    /// throws as part of its work: for a task, that exception belongs in the task that is returned, not in the call.
+    /// </summary>
+    internal bool SkipsCompletedFastPath { get; init; }
 
     /// <summary>Gets the synchronous return type, or <c>void</c>.</summary>
     internal required string ReturnType { get; init; }

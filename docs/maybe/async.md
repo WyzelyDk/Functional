@@ -32,7 +32,7 @@ var email = await FindCustomerAsync(7)
 Awaiting inside the methods does not capture the synchronization context (a setting, see [Configuration](configuration.md)). Argument
 validation happens when you call the method, not when you await the returned task. An already completed `Task`/`ValueTask` receiver is
 read directly, without a state machine, and a step that leaves the maybe as it was (`Filter` that keeps the value, `Tap`, `TapNone`, `Or`) hands
-back the task it received instead of allocating a new one. The 111 methods (eleven operations times nine variants, the three variants of `Contains`, and a second form of `Map` for nullable value types) are generated from one catalog (see
+back the task it received instead of allocating a new one. The 116 methods (eleven operations times nine variants, the three variants of `Contains`, the five of `GetValueOrThrow`, and a second form of `Map` for nullable value types) are generated from one catalog (see
 [Building from source](contributing.md)), together with a test for every variant. `Flatten` for a `Maybe<Maybe<T>>` also takes a `Task` or a
 `ValueTask` receiver (it is `Bind` with the identity function), and `Zip` is generated too, but combines plain maybes only.
 

@@ -109,6 +109,7 @@ internal static partial class Operations
         .. TryFamily(),
         .. Conveniences(),
         .. TupleOperations(),
+        .. Throwing(),
     ];
 
     private static DelegateTest Returns(string name, string[] parameters, string expression, string returnType, string statements = "") =>
