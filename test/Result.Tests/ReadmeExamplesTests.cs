@@ -100,6 +100,66 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal void The_convert_failure_example_passes_a_failure_on_as_a_failure_of_another_type()
+    {
+        static Result<string> Describe(Result<int> found)
+        {
+            if (found.IsFailure)
+            {
+                return found.ConvertFailure<string>();
+            }
+
+            return Result.Success($"Found {found.GetValue()}.");
+        }
+
+        var error = Error.NotFound("No such order.");
+
+        Assert.Multiple(
+            () => Assert.Same(error, Describe(Result.Failure<int>(error)).GetError()),
+            () => Assert.Equal("Found 7.", Describe(Result.Success(7)).GetValue()));
+    }
+
+    [Fact]
+    internal async Task The_combine_in_order_example_runs_the_steps_one_at_a_time()
+    {
+        var log = new List<string>();
+
+        async Task<Result> StepAsync(string name)
+        {
+            log.Add($"start {name}");
+            await Task.Yield();
+            log.Add($"end {name}");
+
+            return Result.Success();
+        }
+
+        var outcome = await new[] { "a", "b" }.Select(StepAsync).CombineInOrder();
+
+        Assert.Multiple(
+            () => Assert.True(outcome.IsSuccess),
+            () => Assert.Equal(["start a", "end a", "start b", "end b"], log));
+    }
+
+    [Fact]
+    internal void The_first_failure_example_does_not_run_the_check_after_the_first_failure()
+    {
+        var checks = 0;
+
+        Result Check(Result result)
+        {
+            checks++;
+
+            return result;
+        }
+
+        var outcome = new[] { Result.Failure("Rejected."), Result.Success() }.Select(Check).FirstFailureOrSuccess();
+
+        Assert.Multiple(
+            () => Assert.True(outcome.IsFailure),
+            () => Assert.Equal(1, checks));
+    }
+
+    [Fact]
     internal async Task The_async_chain_example_mixes_task_and_value_task_steps()
     {
         var outcome = await FindOrderAsync(7)

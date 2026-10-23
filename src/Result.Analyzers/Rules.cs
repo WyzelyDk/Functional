@@ -16,7 +16,7 @@ internal static class Rules
         description: UnusedResultDescription,
         helpLinkUri: HelpLinkBase + "WYZ0101.md");
 
-    /// <summary>WYZ0102: <c>GetError()</c> or <c>GetValue()</c> is called without checking the state of the result first.</summary>
+    /// <summary>WYZ0102: <c>GetError()</c>, <c>GetValue()</c> or <c>ConvertFailure()</c> is called without checking the state of the result first.</summary>
     internal static readonly DiagnosticDescriptor UncheckedAccess = new(
         id: "WYZ0102",
         title: "Check the state of a Result before reading its error or value",
@@ -34,7 +34,7 @@ internal static class Rules
         "ignored silently. Handle the result, return it, or write '_ = ...' to show that ignoring it is intended.";
 
     private const string UncheckedAccessDescription =
-        "GetError() throws when the result succeeded and GetValue() throws when it failed. Call them only where the state is known: " +
+        "GetError() and ConvertFailure() throw when the result succeeded and GetValue() throws when it failed. Call them only where the state is known: " +
         "inside an if on IsFailure or IsSuccess, after an early return, or after TryGetError or TryGetValue. Match, ValueOr and the railway " +
         "methods need no check.";
 
