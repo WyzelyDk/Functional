@@ -78,6 +78,20 @@ public sealed class PerformanceTests
     }
 
     [Fact]
+    internal void BindZip_and_the_tuple_steps_allocate_nothing_on_the_success_path()
+    {
+        RunTupleSteps(10);
+
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var sum = RunTupleSteps(1_000);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+        Assert.Multiple(
+            () => Assert.Equal(0, allocated),
+            () => Assert.True(sum > 0));
+    }
+
+    [Fact]
     internal void EnsureNotNull_and_SuccessIfNotNull_allocate_nothing_on_the_success_path()
     {
         RunNullChecks(10);
@@ -101,6 +115,22 @@ public sealed class PerformanceTests
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
         Assert.Equal(0, allocated);
+    }
+
+    private static long RunTupleSteps(int iterations)
+    {
+        long sum = 0;
+
+        for (var index = 1; index <= iterations; index++)
+        {
+            var pair = Result.Success(index).BindZip(static value => Result.Success(value + 1));
+            var triple = pair.BindZip(static values => Result.Success(values.Item1 + values.Item2));
+            var total = triple.Map(static (first, second, third) => first + second + third).Bind(static value => Result.Success(value));
+
+            sum += total.GetValue();
+        }
+
+        return sum;
     }
 
     private static long RunNullChecks(int iterations)

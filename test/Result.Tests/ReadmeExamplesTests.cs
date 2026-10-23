@@ -53,6 +53,16 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal void The_tuple_steps_example_keeps_a_value_next_to_the_next_one()
+    {
+        var line = Result.Success(3)
+            .BindZip(static quantity => Result.Success(quantity * 5))
+            .Map(static (quantity, price) => $"{quantity} for {price}");
+
+        Assert.Equal("3 for 15", line.GetValue());
+    }
+
+    [Fact]
     internal async Task The_async_chain_example_mixes_task_and_value_task_steps()
     {
         var outcome = await FindOrderAsync(7)
