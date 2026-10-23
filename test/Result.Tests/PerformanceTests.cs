@@ -98,6 +98,8 @@ public sealed class PerformanceTests
             var result = Result.Success(index)
                 .Map(static value => value + 1)
                 .Ensure(static value => value > 0, Rejected)
+                .Ensure(static value => value > 0, static _ => Rejected)
+                .Ensure(static value => value > 0, static _ => "Rejected.")
                 .Bind(static value => Result.Success(value * 2))
                 .Tap(static _ => { })
                 .Ensure(static value => Result.SuccessIf(value > 0, Rejected))

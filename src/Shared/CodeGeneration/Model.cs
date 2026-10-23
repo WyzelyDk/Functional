@@ -1,7 +1,15 @@
 namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>A delegate parameter of an operation, for example <c>Func&lt;T, Maybe&lt;TResult&gt;&gt; bind</c>.</summary>
-internal sealed record DelegateSpec(string Name, string[] ParameterTypes, string ReturnType, string Description)
+/// <param name="Name">The name of the parameter.</param>
+/// <param name="ParameterTypes">The types of the parameters of the delegate.</param>
+/// <param name="ReturnType">The type the delegate produces, or <c>void</c>.</param>
+/// <param name="Description">The documentation of the parameter.</param>
+/// <param name="Independent">
+/// <see langword="true"/> when the kind of this delegate (synchronous, <c>Task</c> or <c>ValueTask</c>) is chosen separately from the
+/// kind of the other delegates, for example a condition and an error factory that can each be asynchronous on their own.
+/// </param>
+internal sealed record DelegateSpec(string Name, string[] ParameterTypes, string ReturnType, string Description, bool Independent = false)
 {
     /// <summary>Gets a value indicating whether the delegate returns nothing.</summary>
     internal bool ReturnsVoid => ReturnType == "void";
@@ -72,6 +80,9 @@ internal sealed record BodyContext(Variant Variant, string ReturnType, Generator
     /// <summary>Renders a call of a delegate that returns a value.</summary>
     internal string Call(string delegateName, string arguments) => Variant.Call(delegateName, arguments, Profile.ConfigurationClass);
 
+    /// <summary>Renders a call of an independent delegate that returns a value: it is awaited when its own kind is asynchronous.</summary>
+    internal string CallSecond(string delegateName, string arguments) => Variant.CallSecond(delegateName, arguments, Profile.ConfigurationClass);
+
     /// <summary>Renders a call of a delegate that returns nothing, as a statement.</summary>
     internal string CallStatement(string delegateName, string arguments) => Call(delegateName, arguments) + ";";
 }
@@ -121,8 +132,19 @@ internal sealed record OperationSpec
     /// <summary>Gets the plain parameters that follow the delegates.</summary>
     internal ExtraParameter[] ExtraParameters { get; init; } = [];
 
-    /// <summary>Gets the variants to generate: nine for an operation with a delegate, three (one per receiver) for one without.</summary>
-    internal IReadOnlyList<Variant> Variants => Delegates.Length == 0 ? Variant.ReceiverOnly : Variant.All;
+    /// <summary>Gets a value indicating whether an independent delegate has a kind of its own, next to the kind of the other delegates.</summary>
+    internal bool HasIndependentDelegate => Delegates.Any(@delegate => @delegate.Independent);
+
+    /// <summary>
+    /// Gets the variants to generate: nine for an operation with a delegate, 27 when a second delegate has a kind of its own, three (one
+    /// per receiver) for an operation without a delegate.
+    /// </summary>
+    internal IReadOnlyList<Variant> Variants => (Delegates.Length == 0, HasIndependentDelegate) switch
+    {
+        (true, _) => Variant.ReceiverOnly,
+        (_, true) => Variant.AllWithSecond,
+        _ => Variant.All,
+    };
 
     /// <summary>Gets the synchronous return type, or <c>void</c>.</summary>
     internal required string ReturnType { get; init; }

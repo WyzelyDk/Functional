@@ -48,9 +48,12 @@ internal sealed class TestEmitter(GeneratorProfile profile)
     {
         var suffix = pending ? "_when_the_receiver_completes_later" : string.Empty;
         var delegatePart = operation.Delegates.Length == 0 ? string.Empty : $"with_{variant.Delegate.Slug()}_delegate_";
-        var name = $"{operation.Name}_on_{variant.Receiver.Slug()}_receiver_{delegatePart}{testCase.Name}{suffix}";
+        var secondPart = operation.HasIndependentDelegate ? $"and_{variant.Second.Slug()}_second_delegate_" : string.Empty;
+        var name = $"{operation.Name}_on_{variant.Receiver.Slug()}_receiver_{delegatePart}{secondPart}{testCase.Name}{suffix}";
         var isAsync = !variant.IsSync;
-        var delegates = operation.Delegates.Select(spec => testCase.Delegates.Single(test => test.DelegateName == spec.Name)).ToList();
+        var delegates = operation.Delegates
+            .Select(spec => (Spec: spec, Test: testCase.Delegates.Single(test => test.DelegateName == spec.Name)))
+            .ToList();
 
         writer.Line("[Fact]");
         writer.Line(isAsync ? $"internal async Task {name}()" : $"internal void {name}()");
@@ -62,14 +65,14 @@ internal sealed class TestEmitter(GeneratorProfile profile)
             writer.Lines(testCase.Setup);
         }
 
-        foreach (var test in delegates)
+        foreach (var (_, test) in delegates)
         {
             writer.Line($"var {test.DelegateName}Calls = 0;");
         }
 
         writer.Line($"var receiver = {WrapReceiver(testCase.Receiver, operation.ReceiverTestType, variant.Receiver, pending)};");
 
-        var arguments = delegates.Select(test => RenderLambda(test, variant.Delegate)).Concat(testCase.ExtraArguments);
+        var arguments = delegates.Select(pair => RenderLambda(pair.Test, variant.WrapperOf(pair.Spec))).Concat(testCase.ExtraArguments);
         var call = $"receiver.{operation.Name}({string.Join(", ", arguments)})";
         var awaitPrefix = isAsync ? "await " : string.Empty;
 

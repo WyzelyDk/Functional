@@ -153,8 +153,8 @@ number is counted from the source or pinned by a test.
   retry decisions, the causing exception, context frames added as the error travels up, aggregation of many errors into one, and
   redaction: a detail marked sensitive is shown by `Message` and hidden by `RedactedMessage` and `ToRedactedString()` ([errors](docs/result/errors.md)).
 - **A railway that needs no `await` in the middle.** Every operation exists for a plain, a `Task` and a `ValueTask` receiver, each with a plain, `Task`
-  or `ValueTask` delegate: nine variants. They are generated, not hand-written: `src/Result/Generated` holds 251 files (243 for the 10 operation names
-  of the railway, 8 for `Zip`) and `src/Maybe/Generated` holds 123 (111 for 12 operations, where `Map` has a second form for nullable value types and `Contains` has three variants, and 12 for `Zip`).
+  or `ValueTask` delegate: nine variants (27 for `Ensure` with an error or message factory, where the condition and the factory each choose their own kind).
+  They are generated, not hand-written: `src/Result/Generated` holds 305 files (297 for the 10 operation names of the railway, 8 for `Zip`) and `src/Maybe/Generated` holds 123 (111 for 12 operations, where `Map` has a second form for nullable value types and `Contains` has three variants, and 12 for `Zip`).
   `GeneratedFilesTests` fails if they are out of date. Writing that matrix by hand is the part that is no longer "easy" ([async](docs/result/async.md)).
 - **Analyzers and code fixes in the package.** `WYZ0101` (a `Result` is not used, with a code fix), `WYZ0102` (check the state of a `Result`
   before `GetError()` or `GetValue()`) and `WYZ0201` (check that a `Maybe` has a value before `GetValue()`). They are tested in a real Roslyn

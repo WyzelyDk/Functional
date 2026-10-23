@@ -62,6 +62,48 @@ public sealed class CompletedTaskReuseTests
     }
 
     [Fact]
+    internal void Ensure_with_an_error_factory_returns_the_receiver_task_when_the_condition_holds()
+    {
+        var receiver = Task.FromResult(Result.Success(2));
+
+        var returned = receiver.Ensure(static x => x > 1, static _ => Rejected);
+
+        Assert.Same(receiver, returned);
+    }
+
+    [Fact]
+    internal void Ensure_with_an_error_factory_returns_the_receiver_task_when_the_receiver_failed()
+    {
+        var receiver = Task.FromResult(Result.Failure<int>(Other));
+
+        var returned = receiver.Ensure(static x => x > 1, static _ => Rejected);
+
+        Assert.Same(receiver, returned);
+    }
+
+    [Fact]
+    internal void Ensure_with_an_error_factory_returns_a_new_task_with_the_created_error_when_the_condition_does_not_hold()
+    {
+        var receiver = Task.FromResult(Result.Success(2));
+
+        var returned = receiver.Ensure(static x => x > 5, static _ => Rejected);
+
+        Assert.Multiple(
+            () => Assert.NotSame(receiver, returned),
+            () => Assert.Same(Rejected, returned.Result.GetError()));
+    }
+
+    [Fact]
+    internal void Ensure_with_a_message_factory_returns_the_receiver_task_when_the_condition_holds()
+    {
+        var receiver = Task.FromResult(Result.Success(2));
+
+        var returned = receiver.Ensure(static x => x > 1, static _ => "Rejected.");
+
+        Assert.Same(receiver, returned);
+    }
+
+    [Fact]
     internal void Ensure_with_a_validation_returns_the_receiver_task_when_the_validation_succeeds()
     {
         var receiver = Task.FromResult(Result.Success(2));

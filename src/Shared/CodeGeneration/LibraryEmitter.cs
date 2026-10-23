@@ -26,7 +26,9 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         else
         {
             writer.Line(receiverLine);
-            writer.Line($"/// and a {variant.Delegate.Label()} delegate.");
+            writer.Line(operation.HasIndependentDelegate
+                ? $"/// and a {variant.Delegate.Label()} delegate and a {variant.Second.Label()} delegate of the second kind."
+                : $"/// and a {variant.Delegate.Label()} delegate.");
         }
 
         writer.Line("/// </content>");
@@ -56,7 +58,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
     // The synchronous variant for an asynchronous delegate returns the kind of the delegate; the caller wants the kind of the receiver.
     private static string ConvertInner(OperationSpec operation, Variant variant)
     {
-        if (variant.Receiver == variant.Delegate)
+        if (variant.Receiver == new Variant(Wrapper.None, variant.Delegate, variant.Second).Result)
         {
             return "inner";
         }
@@ -75,7 +77,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
 
         foreach (var @delegate in operation.Delegates)
         {
-            parameters.Add($"{@delegate.TypeFor(variant.Delegate)} {@delegate.Name}");
+            parameters.Add($"{@delegate.TypeFor(variant.WrapperOf(@delegate))} {@delegate.Name}");
         }
 
         foreach (var extra in operation.ExtraParameters)
@@ -127,9 +129,13 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         var guarded = GuardedNames(operation, variant, receiverName);
 
         WriteDocumentation(writer, operation, variant, guarded);
-        if (variant.Delegate == Wrapper.Task)
+
+        // An async lambda converts to both Func<Task> and Func<ValueTask>; the overload with the most Task delegates wins.
+        var taskDelegates = (variant.Delegate == Wrapper.Task ? 1 : 0) + (variant.Second == Wrapper.Task ? 1 : 0);
+
+        if (taskDelegates > 0)
         {
-            writer.Line("[OverloadResolutionPriority(1)]");
+            writer.Line($"[OverloadResolutionPriority({taskDelegates})]");
         }
 
         // The receiver is passed by value on purpose. Measured: `in` makes a chain slower, because the result of the previous call
@@ -210,17 +216,17 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         writer.Line($"if ({completed})");
         writer.Open();
 
-        if (variant.Delegate == Wrapper.None && operation.ReturnsVoid)
+        if (!variant.HasAsyncDelegate && operation.ReturnsVoid)
         {
             writer.Line($"{call};");
             writer.Line(variant.Receiver == Wrapper.Task ? "return Task.CompletedTask;" : "return default;");
         }
-        else if (variant.Delegate == Wrapper.None && variant.Receiver == Wrapper.Task && operation.KeepsValue && operation.StateChange == StateChange.Never)
+        else if (!variant.HasAsyncDelegate && variant.Receiver == Wrapper.Task && operation.KeepsValue && operation.StateChange == StateChange.Never)
         {
             writer.Line($"_ = {call};");
             writer.Line($"return {receiverName};");
         }
-        else if (variant.Delegate == Wrapper.None)
+        else if (!variant.HasAsyncDelegate)
         {
             writer.Line($"var completed = {call};");
 
@@ -285,7 +291,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
 
     private void WriteDocumentation(CodeWriter writer, OperationSpec operation, Variant variant, List<string> guarded)
     {
-        writer.Line($"/// <summary>{operation.Summary}{VariantSentence(variant)}</summary>");
+        writer.Line($"/// <summary>{operation.Summary}{VariantSentence(operation, variant)}</summary>");
 
         foreach (var typeParameter in operation.TypeParameterDocs)
         {
@@ -316,7 +322,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
     private string AwaitedWithoutContext() =>
         $"awaited without capturing the synchronization context unless <see cref=\"{profile.OptionsClass}.ContinueOnCapturedContext\"/> says otherwise.";
 
-    private string VariantSentence(Variant variant)
+    private string VariantSentence(OperationSpec operation, Variant variant)
     {
         var sentence = string.Empty;
 
@@ -325,9 +331,18 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
             sentence += $" The receiver is a {variant.Receiver.Label()} that produces the {profile.ReceiverParameter}; it is " + AwaitedWithoutContext();
         }
 
+        // With two kinds of delegate each sentence names its parameter; with one, "the delegate" is enough.
+        var first = operation.HasIndependentDelegate ? $"<paramref name=\"{operation.Delegates.First(spec => !spec.Independent).Name}\"/>" : "delegate";
+        var second = operation.HasIndependentDelegate ? $"<paramref name=\"{operation.Delegates.First(spec => spec.Independent).Name}\"/>" : "delegate";
+
         if (variant.Delegate != Wrapper.None)
         {
-            sentence += $" The delegate is asynchronous (it returns a {variant.Delegate.Label()}) and is " + AwaitedWithoutContext();
+            sentence += $" The {first} is asynchronous (it returns a {variant.Delegate.Label()}) and is " + AwaitedWithoutContext();
+        }
+
+        if (variant.Second != Wrapper.None)
+        {
+            sentence += $" The {second} is asynchronous (it returns a {variant.Second.Label()}) and is " + AwaitedWithoutContext();
         }
 
         return sentence;
