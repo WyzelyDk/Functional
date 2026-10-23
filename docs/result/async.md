@@ -24,9 +24,9 @@ var outcome = await FindOrderAsync(id)                              // Task<Resu
 
 Awaiting inside the methods does not capture the synchronization context (a setting, see [Configuration](configuration.md)). Argument
 validation happens when you call the method, not when you await the returned task. An already completed `Task`/`ValueTask` takes a
-synchronous fast path without a state machine; a step that leaves the result as it was (`Ensure` that passes, `Check`, `Tap`, `TapError`,
+synchronous fast path without a state machine; a step that leaves the result as it was (`Ensure` that passes, `Tap`, `TapError`,
 `MapError`, `Recover`, `Compensate`) hands back the task it received instead of allocating a new one; and a synchronous receiver with an asynchronous delegate (for `Bind`, `Compensate`
-and `Match`) hands back the delegate's own task. The 198 methods are generated from one catalog (see [Building from source](contributing.md)), together with a
+and `Match`) hands back the delegate's own task. The 207 methods are generated from one catalog (see [Building from source](contributing.md)), together with a
 test for every variant.
 
 ## Async lambdas and the language version

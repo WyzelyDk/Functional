@@ -12,7 +12,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `TapError(f)` | failure | runs a side effect with the error |
 | `MapError(f)` | failure | replaces the error, for example to add context |
 | `Ensure(predicate, error)` | success | turns the success into a failure when the predicate is false; the error can also be a plain message |
-| `Check(f)` | success | validates with an operation that returns a `Result`, keeping the original value |
+| `Ensure(f)` | success | validates with an operation that returns a `Result` (or a typed result, whose value is ignored), keeping the original value |
 | `Recover(f)` | failure | computes a replacement value, turning the failure into a success |
 | `Compensate(f)` | failure | tries a fallback operation that returns a `Result` |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |

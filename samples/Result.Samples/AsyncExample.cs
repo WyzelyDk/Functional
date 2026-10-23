@@ -26,7 +26,7 @@ public static class AsyncExample
         {
             var outcome = await SampleShop.FindOrderAsync(orderId) // a Task<Result<Order>> receiver
                 .Ensure(order => order.IsOpen, Error.Conflict("The order is closed.")) // sync delegate
-                .Check(SampleShop.ReserveStockAsync) // Task delegate
+                .Ensure(SampleShop.ReserveStockAsync) // Task delegate
                 .Bind(SampleShop.ChargeAsync) // ValueTask delegate
                 .Map(receipt => receipt.Number) // sync delegate
                 .MapError(error => error.WithContext("Checkout"));

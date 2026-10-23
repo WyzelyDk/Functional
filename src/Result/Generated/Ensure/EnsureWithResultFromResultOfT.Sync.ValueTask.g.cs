@@ -9,33 +9,32 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <content>
-/// The <c>Check</c> operation for a <see cref="Result{T}"/>, with a synchronous receiver
-/// and a <see cref="Task"/> delegate.
+/// The <c>Ensure</c> operation for a <see cref="Result{T}"/>, with a synchronous receiver
+/// and a <see cref="ValueTask"/> delegate.
 /// </content>
 public static partial class ResultExtensions
 {
     /// <summary>
     /// Validates the value of a successful result with an operation that returns a result, and keeps the original value when that operation
     /// succeeds. A failed result passes through and the delegate is not called. The delegate is asynchronous (it returns a
-    /// <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="check">The validation to run with the value of the successful result.</param>
+    /// <param name="validation">The validation to run with the value of the successful result.</param>
     /// <returns>
     /// The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation. The value is
-    /// returned in a <see cref="Task{TResult}"/>.
+    /// returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="check"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
-    public static Task<Result<T>> Check<T>(this Result<T> result, Func<T, Task<Result>> check)
+    /// <exception cref="ArgumentNullException"><paramref name="validation"/> is <see langword="null"/>.</exception>
+    public static ValueTask<Result<T>> Ensure<T>(this Result<T> result, Func<T, ValueTask<Result>> validation)
     {
-        Guard.NotNull(check, nameof(check));
+        Guard.NotNull(validation, nameof(validation));
 
-        return Core(result, check);
+        return Core(result, validation);
 
-        static async Task<Result<T>> Core(Result<T> result, Func<T, Task<Result>> check)
+        static async ValueTask<Result<T>> Core(Result<T> result, Func<T, ValueTask<Result>> validation)
         {
             var failure = result.Unpack(out var input);
 
@@ -44,9 +43,9 @@ public static partial class ResultExtensions
                 return result;
             }
 
-            var checkResult = await check(input).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
-            var checkFailure = checkResult.FailureOrNull();
-            return checkFailure is null ? result : Result<T>.Failed(checkFailure);
+            var validationResult = await validation(input).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+            var validationFailure = validationResult.FailureOrNull();
+            return validationFailure is null ? result : Result<T>.Failed(validationFailure);
         }
     }
 }

@@ -27,7 +27,7 @@ A new public member goes in only if the answer to every question is yes:
 - **HTTP, ASP.NET Core, `ProblemDetails`, gRPC mapping.** An adapter package.
 - **Logging and telemetry.** An adapter package; the library does not log.
 - **Retry, circuit breaker, timeouts.** A resilience library already does this and can consume `Result`.
-- **Validation frameworks.** `Ensure`, `Check` and `Combine` are the building blocks; the rest is the application's.
+- **Validation frameworks.** `Ensure` and `Combine` are the building blocks; the rest is the application's.
 - **Serialization attributes and JSON converters.** An adapter package.
 - **Implicit conversions** from a value or an error to a result, and **throwing properties** for the error or value.
 
@@ -45,7 +45,7 @@ to shrink before 1.0. They are listed so the decision is deliberate.
 | `Combine` for `IEnumerable<Task<...>>` / `ValueTask` (and their duplicates) | `await Task.WhenAll(tasks)` followed by `Combine` does the same in one line. | Keep the `Task` forms at most. |
 | `SelectInParallel` / `ForEachInParallel` | About running work in parallel rather than about results; `Parallel.ForEachAsync` plus `Combine` is close. | Kept on request; do not grow it (no streaming, no retries, no channels). A separate package if it ever needs more. |
 | `Deconstruct` (`var (value, error) = result`) | The one way to read the payload without a check that the analyzer does not see. | Consider removing, or document it as the unchecked route. |
-| `Check`, `Compensate` next to `Ensure`, `Recover` | Close cousins; each is justified, but together they are four operations a reader must tell apart. | Keep, but add nothing alongside them. |
+| `Compensate` next to `Recover` | Close cousins; each is justified, but together they are two operations a reader must tell apart. | Keep, but add nothing alongside them. |
 | `ContinueOnCapturedContext` setting | A process-wide switch for something that is almost always `false` in a library. | The first setting to drop if the configuration is trimmed. |
 | `AggregateMessage`, `CancelledMessage` settings | Text that is closer to localization than to behavior. | Keep only while someone needs it. |
 | Kind factories `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout` | HTTP-flavored; they match other libraries, but they are convenience over `Error.Create(message, kind)`. | Add no further kinds; users can use `new ErrorKind("...")`. |

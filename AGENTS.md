@@ -26,6 +26,7 @@ The library is judged by how it feels to use, not only by what it can do.
 
 - **The API reads like prose.** Functional names (`Map`, `Bind`, `Ensure`, `Match`), the same name for every sync/`Task`/`ValueTask`
   variant (no `Async` suffix), no abbreviations. A chain should read top to bottom without an `await` in the middle.
+- **Generic type parameters begin with `T` and say what they are:** `T`, `TResult`, `TSource`, `TException`; never a bare `K`, `U` or `E`.
 - **Conversions are named by what they do.** `As...` re-presents the same data under another type without creating a new object and without
   losing information (`AsNullable`, like `AsEnumerable`); `To...` builds something new or drops information (`ToResult`, `ToMaybe`,
   `ToEnumerable`).
