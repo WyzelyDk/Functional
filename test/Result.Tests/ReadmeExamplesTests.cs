@@ -44,6 +44,15 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal void The_not_null_example_turns_a_nullable_result_into_a_plain_one()
+    {
+        var name = Result.Success<string?>(null)
+            .EnsureNotNull(Error.NotFound("No such customer."));
+
+        Assert.Equal("No such customer.", name.GetError().Message);
+    }
+
+    [Fact]
     internal async Task The_async_chain_example_mixes_task_and_value_task_steps()
     {
         var outcome = await FindOrderAsync(7)
