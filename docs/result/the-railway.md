@@ -18,6 +18,8 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `MapIf(condition, f)`, `BindIf`, `TapIf`, `EnsureIf` | success | the same step, run only when the condition holds; the condition is a `bool`, a function, or a function of the value, and `MapIf` and `BindIf` keep the type of the value |
 | `TapErrorIf(condition, f)` | failure | `TapError`, run only when the condition holds; the condition can be a function of the error |
 | `MapTry(f)`, `BindTry`, `TapTry`, `TapIfTry` | success | the same step for a delegate that may throw: the exception becomes a failure, like `Result.Try`; a handler can create the error, and a handler that names an exception type catches only that type |
+| `BindZip(f)` | success | chains an operation and keeps the value next to its value, in a tuple; on a tuple result it adds the value to the tuple, up to five |
+| `Map(f)`, `Bind(f)` on a tuple | success | the delegate takes the values of a tuple result (for example of `Zip` or `BindZip`) as separate parameters, up to five |
 | `Recover(f)` | failure | computes a replacement value, turning the failure into a success |
 | `Compensate(f)` | failure | tries a fallback operation that returns a `Result` |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
@@ -48,6 +50,16 @@ type and for a nullable value type, and fails with your error when the value is 
 ```csharp
 var name = Result.Success<string?>(null)
     .EnsureNotNull(Error.NotFound("No such customer."));    // a Result<string>, no longer a Result<string?>
+```
+
+A step often needs a value from an earlier one. `BindZip` keeps the value next to the value of the next step, and `Map` and `Bind` take the values of
+such a tuple as separate parameters, so no `Item1` or lambda that closes over a variable is needed. `Zip` returns the same kind of tuple. A tuple result that is
+given a `BindZip` grows by one value, up to five:
+
+```csharp
+var line = Result.Success(3)
+    .BindZip(static quantity => Result.Success(quantity * 5))
+    .Map(static (quantity, price) => $"{quantity} for {price}");
 ```
 
 LINQ query syntax and `Zip` are supported as well:
