@@ -72,7 +72,9 @@ internal sealed class TestEmitter(GeneratorProfile profile)
 
         writer.Line($"var receiver = {WrapReceiver(testCase.Receiver, operation.ReceiverTestType, variant.Receiver, pending)};");
 
-        var arguments = delegates.Select(pair => RenderLambda(pair.Test, variant.WrapperOf(pair.Spec))).Concat(testCase.ExtraArguments);
+        var arguments = (testCase.LeadingArguments ?? [])
+            .Concat(delegates.Select(pair => RenderLambda(pair.Test, variant.WrapperOf(pair.Spec))))
+            .Concat(testCase.ExtraArguments);
         var call = $"receiver.{operation.Name}({string.Join(", ", arguments)})";
         var awaitPrefix = isAsync ? "await " : string.Empty;
 

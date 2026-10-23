@@ -13,10 +13,22 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `MapError(f)` | failure | replaces the error, for example to add context |
 | `Ensure(predicate, error)` | success | turns the success into a failure when the predicate is false; the error can also be a plain message, or a function of the value that creates the error (or the message) only when the predicate is false; on an untyped result the condition takes no value |
 | `Ensure(f)` | success | validates with an operation that returns a `Result` (or a typed result, whose value is ignored), keeping the original value; the operation may also take no parameter |
+| `MapIf(condition, f)`, `BindIf`, `TapIf`, `EnsureIf` | success | the same step, run only when the condition holds; the condition is a `bool`, a function, or a function of the value, and `MapIf` and `BindIf` keep the type of the value |
+| `TapErrorIf(condition, f)` | failure | `TapError`, run only when the condition holds; the condition can be a function of the error |
 | `Recover(f)` | failure | computes a replacement value, turning the failure into a success |
 | `Compensate(f)` | failure | tries a fallback operation that returns a `Result` |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
 | `Switch(onSuccess, onFailure)` | always | leaves the railway for side effects |
+
+A step that is only sometimes needed does not have to leave the chain. The condition is a `bool` you already have, or a function that is
+evaluated only when the result succeeded (a function of the value gets it). When it does not hold, the result passes through as it was:
+
+```csharp
+var price = Result.Success(100)
+    .MapIf(isMember, static value => value * 9 / 10)
+    .BindIf(() => couponIsValid, static value => Result.Success(value - 5))
+    .EnsureIf(static value => value > 50, static value => Result.SuccessIf(value < 1000, "Needs approval."));
+```
 
 LINQ query syntax and `Zip` are supported as well:
 

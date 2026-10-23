@@ -84,9 +84,10 @@ needs grow. What this package adds, each point checked against the source or a t
   A string loses all of that.
 - **The whole railway, in every async shape.** `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure` (with an `Error`, with a message, with an
   error or a message created from the value, with an operation that returns a `Result`, and for an untyped result with a condition), `Recover`,
-  `Compensate`, `Match` and `Switch` are 29 operations in `src/Result/Generated` (counting the `Result` and `Result<T>` forms and the ten `Ensure`
-  forms separately), each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate (27 for `Ensure` with a factory, where
-  the condition and the factory each choose their own kind): 297 generated methods,
+  `Compensate`, `Match` and `Switch`, plus the conditional `MapIf`, `BindIf`, `TapIf`, `EnsureIf` and `TapErrorIf`, are 54 operations in
+  `src/Result/Generated` (counting the `Result` and `Result<T>` forms, the ten `Ensure` forms and the 25 `*If` forms separately), each in the nine
+  combinations of a plain, `Task` or `ValueTask` receiver and delegate (27 for `Ensure` with a factory, where the condition and the factory each
+  choose their own kind): 522 generated methods,
   covered by generated tests. Writing those by hand, consistently, is the part nobody enjoys.
 - **Analyzers and code fixes in the package:** `WYZ0101` (a discarded result, with a code fix) and `WYZ0102`
   (`GetError()` / `GetValue()` not guarded). For example:

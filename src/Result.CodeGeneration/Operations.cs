@@ -9,7 +9,7 @@ namespace Wyzely.Functional.ResultCodeGeneration;
 /// The bodies read the state of the receiver once (<c>Unpack</c> for a typed result, <c>Failure()</c> for an untyped one) and
 /// build results with the internal constructors, so that nothing is checked or validated twice on the hot path.
 /// </remarks>
-internal static class Operations
+internal static partial class Operations
 {
     private const string TDoc = "The type of the value of the receiver result.";
     private const string ReceiverFailed = "returns_the_error_without_running_the_delegate_when_the_receiver_failed";
@@ -105,6 +105,7 @@ internal static class Operations
         MatchFromResult(),
         SwitchFromResultOfT(),
         SwitchFromResult(),
+        .. IfFamily(),
     ];
 
     private static DelegateTest Returns(string name, string[] parameters, string expression, string returnType, string statements = "") =>

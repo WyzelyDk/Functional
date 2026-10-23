@@ -97,7 +97,8 @@ internal sealed record TestCaseSpec(
     DelegateTest[] Delegates,
     string[] ExtraArguments,
     string[] Asserts,
-    string[]? Setup = null);
+    string[]? Setup = null,
+    string[]? LeadingArguments = null);
 
 /// <summary>One family of generated methods: an operation on one kind of receiver, in all nine variants.</summary>
 internal sealed record OperationSpec
@@ -125,6 +126,16 @@ internal sealed record OperationSpec
 
     /// <summary>Gets the summary of the operation.</summary>
     internal required string Summary { get; init; }
+
+    /// <summary>Gets the plain parameters that come right after the receiver, before the delegates, for example a condition.</summary>
+    internal ExtraParameter[] LeadingParameters { get; init; } = [];
+
+    /// <summary>
+    /// Gets the name of the operation that every variant forwards to when its first leading parameter, a <c>bool</c>, is <see langword="true"/>.
+    /// When it is <see langword="false"/> the variant returns the receiver as it was, which for a task is the task it received. The operation
+    /// then has no body of its own.
+    /// </summary>
+    internal string? ForwardsTo { get; init; }
 
     /// <summary>Gets the delegate parameters, in order.</summary>
     internal DelegateSpec[] Delegates { get; init; } = [];
