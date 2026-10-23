@@ -49,6 +49,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
             names.Add(receiverName);
         }
 
+        names.AddRange(operation.LeadingParameters.Where(leading => leading.Validated).Select(leading => leading.Name));
         names.AddRange(operation.Delegates.Select(@delegate => @delegate.Name));
         names.AddRange(operation.ExtraParameters.Where(extra => extra.Validated).Select(extra => extra.Name));
 
@@ -74,6 +75,11 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
     private static List<string> BuildParameters(OperationSpec operation, Variant variant, string receiverType, string receiverName)
     {
         var parameters = new List<string> { $"{receiverType} {receiverName}" };
+
+        foreach (var leading in operation.LeadingParameters)
+        {
+            parameters.Add($"{leading.Type} {leading.Name}");
+        }
 
         foreach (var @delegate in operation.Delegates)
         {
@@ -185,7 +191,11 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
     {
         var context = new BodyContext(variant, operation.ReturnType, profile);
 
-        if (variant.IsSync)
+        if (operation.ForwardsTo is { } target)
+        {
+            writer.Lines(ForwardingBody(operation, variant, target));
+        }
+        else if (variant.IsSync)
         {
             writer.Lines(operation.Body(context));
         }
@@ -202,6 +212,29 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
 
             EmitAsyncBody(writer, operation, variant, returnType, parameters);
         }
+    }
+
+    // A false condition returns the receiver as it was (the task it received, for a task receiver); a true one is the plain operation.
+    private string[] ForwardingBody(OperationSpec operation, Variant variant, string target)
+    {
+        var receiver = profile.ReceiverParameter;
+        var unchanged = (variant.Receiver, variant.Delegate) switch
+        {
+            (Wrapper.None, Wrapper.Task) => $"Task.FromResult({receiver})",
+            (Wrapper.None, Wrapper.ValueTask) => $"new ValueTask<{operation.ReturnType}>({receiver})",
+            _ => receiver,
+        };
+        var arguments = operation.Delegates.Select(@delegate => @delegate.Name).Concat(operation.ExtraParameters.Select(extra => extra.Name));
+
+        return
+        [
+            $"if (!{operation.LeadingParameters[0].Name})",
+            "{",
+            $"    return {unchanged};",
+            "}",
+            string.Empty,
+            $"return {target}({string.Join(", ", arguments.Prepend(receiver))});",
+        ];
     }
 
     // When the receiver has already completed successfully there is nothing to wait for: run the synchronous variant (or the
@@ -299,6 +332,11 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         }
 
         writer.Line($"/// <param name=\"{profile.ReceiverParameter}\">{ReceiverDescription(variant.Receiver)}</param>");
+
+        foreach (var leading in operation.LeadingParameters)
+        {
+            writer.Line($"/// <param name=\"{leading.Name}\">{leading.Description}</param>");
+        }
 
         foreach (var @delegate in operation.Delegates)
         {
