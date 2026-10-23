@@ -21,7 +21,8 @@ internal static class Generator
             TestDirectory: TestDirectory,
             TestNamespace: "Wyzely.Functional.ResultTests",
             TestPreamble: ["""var error = Error.Create("Boom.");"""],
-            Zip: ZipKind.Result),
+            Zip: ZipKind.Result,
+            ConditionalFactories: true),
         Operations.All);
 
     /// <summary>Generates every file. The keys are paths relative to the repository root, with forward slashes.</summary>

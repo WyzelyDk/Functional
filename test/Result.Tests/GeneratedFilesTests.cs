@@ -27,11 +27,15 @@ public sealed class GeneratedFilesTests
         Assert.NotNull(root);
         var directory = Path.Combine(root, Generator.LibraryDirectory);
         var files = Directory.GetFiles(directory, "*.g.cs", SearchOption.AllDirectories);
-        var operationNames = Operations.All.Select(operation => operation.Name).Append("Zip").ToHashSet(StringComparer.Ordinal);
+        var operationNames = Operations.All
+            .Select(operation => operation.Name)
+            .Append("Zip")
+            .Concat(ConditionalFactoryEmitter.Folders)
+            .ToHashSet(StringComparer.Ordinal);
         var zipFiles = (GeneratorSettings.MaxZipArity - 1) * 2;
 
         Assert.Multiple(
-            () => Assert.Equal(Operations.All.Sum(operation => operation.Variants.Count) + zipFiles, files.Length),
+            () => Assert.Equal(Operations.All.Sum(operation => operation.Variants.Count) + zipFiles + ConditionalFactoryEmitter.FileCount, files.Length),
             () => Assert.All(files, file => Assert.Contains(Path.GetFileName(Path.GetDirectoryName(file))!, operationNames)),
             () => Assert.All(files, file => Assert.Single(File.ReadAllLines(file), line => line.StartsWith("    public static ", StringComparison.Ordinal))));
     }

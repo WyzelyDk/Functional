@@ -19,6 +19,10 @@ namespace Wyzely.Functional.CodeGeneration;
 /// <see langword="true"/> when the library has a cached completed task for "no value" (<c>MaybeTasks&lt;T&gt;.None</c>) that the generated
 /// fast paths should hand out.
 /// </param>
+/// <param name="ConditionalFactories">
+/// <see langword="true"/> when the library has the generated <c>SuccessIf</c> and <c>FailureIf</c> factories (a result type does, a maybe type
+/// writes its own).
+/// </param>
 internal sealed record GeneratorProfile(
     string ToolNamespace,
     string ToolProject,
@@ -31,4 +35,5 @@ internal sealed record GeneratorProfile(
     string TestNamespace,
     string[] TestPreamble,
     ZipKind? Zip = null,
-    bool CachesCompletedNone = false);
+    bool CachesCompletedNone = false,
+    bool ConditionalFactories = false);
