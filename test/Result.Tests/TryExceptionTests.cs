@@ -24,6 +24,18 @@ public sealed class TryExceptionTests : IDisposable
     }
 
     [Fact]
+    internal void Try_returns_success_when_an_action_without_a_value_completes()
+    {
+        var ran = false;
+
+        var result = Result.Try(() => { ran = true; }, (InvalidOperationException exception) => Error.FromException(exception));
+
+        Assert.Multiple(
+            () => Assert.True(result.IsSuccess),
+            () => Assert.True(ran));
+    }
+
+    [Fact]
     internal void Try_turns_an_exception_of_the_named_type_into_a_failure_that_keeps_the_cause()
     {
         var result = Result.Try(ThrowBoom, (InvalidOperationException exception) => Error.FromException(exception));
@@ -210,6 +222,14 @@ public sealed class TryExceptionTests : IDisposable
 
         Assert.True(caught.IsFailure);
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
+    }
+
+    [Fact]
+    internal async Task Try_awaits_a_value_task_and_returns_success()
+    {
+        var result = await Result.Try(static () => ValueTask.CompletedTask, (InvalidOperationException exception) => Error.FromException(exception));
+
+        Assert.True(result.IsSuccess);
     }
 
     [Fact]

@@ -144,6 +144,19 @@ public sealed class ErrorFrameTests
     }
 
     [Fact]
+    internal void A_frame_is_equal_to_itself_and_to_an_equal_frame_given_as_an_object_but_not_to_another_kind_of_object()
+    {
+        var frame = Upload.WithContext("Order {Id}", "Id", 7).Context[0];
+        var equal = Error.Create("Other.").WithContext("Order {Id}", "Id", 7).Context[0];
+
+        Assert.Multiple(
+            () => Assert.True(frame.Equals(frame)),
+            () => Assert.True(frame.Equals((object)equal)),
+            () => Assert.False(frame.Equals("Order 7")),
+            () => Assert.False(frame.Equals((object?)null)));
+    }
+
+    [Fact]
     internal void Frames_are_equal_when_template_and_details_are_equal()
     {
         var first = Upload.WithContext("Order {Id}", "Id", 7).Context[0];
