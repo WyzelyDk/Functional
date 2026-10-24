@@ -75,6 +75,14 @@ nav:
       - Analyzer rules:
           - WYZ0101: result/analyzers/WYZ0101.md
           - WYZ0102: result/analyzers/WYZ0102.md
+          - WYZ0103: result/analyzers/WYZ0103.md
+          - WYZ0104: result/analyzers/WYZ0104.md
+          - WYZ0105: result/analyzers/WYZ0105.md
+          - WYZ0106: result/analyzers/WYZ0106.md
+          - WYZ0107: result/analyzers/WYZ0107.md
+          - WYZ0108: result/analyzers/WYZ0108.md
+          - WYZ0109: result/analyzers/WYZ0109.md
+          - WYZ0110: result/analyzers/WYZ0110.md
   - Maybe:
       - Getting started: maybe/getting-started.md
       - The railway: maybe/the-railway.md
