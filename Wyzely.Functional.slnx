@@ -94,6 +94,14 @@
   <Folder Name="/docs/result/analyzers/">
     <File Path="docs/result/analyzers/WYZ0101.md" />
     <File Path="docs/result/analyzers/WYZ0102.md" />
+    <File Path="docs/result/analyzers/WYZ0103.md" />
+    <File Path="docs/result/analyzers/WYZ0104.md" />
+    <File Path="docs/result/analyzers/WYZ0105.md" />
+    <File Path="docs/result/analyzers/WYZ0106.md" />
+    <File Path="docs/result/analyzers/WYZ0107.md" />
+    <File Path="docs/result/analyzers/WYZ0108.md" />
+    <File Path="docs/result/analyzers/WYZ0109.md" />
+    <File Path="docs/result/analyzers/WYZ0110.md" />
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Aot.Samples/Aot.Samples.csproj" />

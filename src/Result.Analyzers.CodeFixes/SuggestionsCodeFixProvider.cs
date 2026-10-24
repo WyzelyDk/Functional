@@ -1,0 +1,88 @@
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
+
+namespace Wyzely.Functional.ResultAnalyzers;
+
+/// <summary>Rewrites the code that the suggestion rules (WYZ0103 to WYZ0110) point at into the method of the library that says what it does.</summary>
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SuggestionsCodeFixProvider))]
+[System.Composition.Shared]
+public sealed class SuggestionsCodeFixProvider : CodeFixProvider
+{
+    private static readonly ImmutableDictionary<string, string> Titles = new Dictionary<string, string>
+    {
+        ["WYZ0103"] = "Use BindIf",
+        ["WYZ0104"] = "Use MapIf",
+        ["WYZ0105"] = "Use EnsureNot",
+        ["WYZ0106"] = "Use EnsureNotNull",
+        ["WYZ0107"] = "Use BindZip",
+        ["WYZ0108"] = "Use ConvertFailure",
+        ["WYZ0109"] = "Use SuccessIf or FailureIf",
+        ["WYZ0110"] = "Use MapTry",
+    }.ToImmutableDictionary();
+
+    /// <inheritdoc />
+    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [.. Titles.Keys.OrderBy(id => id, StringComparer.Ordinal)];
+
+    /// <inheritdoc />
+    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+
+    /// <inheritdoc />
+    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    {
+        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+        var diagnostic = context.Diagnostics[0];
+
+        if (root is null || !Titles.TryGetValue(diagnostic.Id, out var title))
+        {
+            return;
+        }
+
+        var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var target = TargetOf(node, diagnostic.Id);
+
+        if (target is null || Rewrite(target, diagnostic) is null)
+        {
+            return;
+        }
+
+        context.RegisterCodeFix(
+            CodeAction.Create(title, token => ApplyAsync(context.Document, target, diagnostic, token), equivalenceKey: diagnostic.Id),
+            diagnostic);
+    }
+
+    // The conditional expression for WYZ0109, otherwise the call that the diagnostic is reported on.
+    private static SyntaxNode? TargetOf(SyntaxNode node, string id) => id == "WYZ0109"
+        ? node.AncestorsAndSelf().OfType<ConditionalExpressionSyntax>().FirstOrDefault()
+        : node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+
+    private static SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic)
+    {
+        var properties = diagnostic.Properties;
+
+        return (target, diagnostic.Id) switch
+        {
+            (InvocationExpressionSyntax call, "WYZ0103") => SuggestionRewrites.BindIf(call, properties),
+            (InvocationExpressionSyntax call, "WYZ0104") => SuggestionRewrites.MapIf(call, properties),
+            (InvocationExpressionSyntax call, "WYZ0105") => SuggestionRewrites.EnsureNot(call),
+            (InvocationExpressionSyntax call, "WYZ0106") => SuggestionRewrites.EnsureNotNull(call, properties),
+            (InvocationExpressionSyntax call, "WYZ0107") => SuggestionRewrites.BindZip(call),
+            (InvocationExpressionSyntax call, "WYZ0108") => SuggestionRewrites.ConvertFailure(call),
+            (ConditionalExpressionSyntax conditional, "WYZ0109") => SuggestionRewrites.SuccessIf(conditional, properties),
+            (InvocationExpressionSyntax call, "WYZ0110") => SuggestionRewrites.MapTry(call),
+            _ => null,
+        };
+    }
+
+    private static async Task<Document> ApplyAsync(Document document, SyntaxNode target, Diagnostic diagnostic, CancellationToken token)
+    {
+        var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
+        var replacement = Rewrite(target, diagnostic)!;
+        var formatted = replacement.WithTriviaFrom(target).WithAdditionalAnnotations(Formatter.Annotation);
+
+        return document.WithSyntaxRoot(root!.ReplaceNode(target, formatted));
+    }
+}

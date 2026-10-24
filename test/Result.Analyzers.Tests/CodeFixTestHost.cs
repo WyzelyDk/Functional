@@ -13,7 +13,10 @@ namespace Wyzely.Functional.ResultAnalyzersTests;
 // applies the action that the provider offers.
 internal static class CodeFixTestHost
 {
-    internal static async Task<CodeFixOutcome> FixAsync(string members, CodeFixProvider provider, string diagnosticId)
+    internal static Task<CodeFixOutcome> FixAsync(string members, CodeFixProvider provider, string diagnosticId) =>
+        FixAsync(members, provider, diagnosticId, new ResultUsageAnalyzer());
+
+    internal static async Task<CodeFixOutcome> FixAsync(string members, CodeFixProvider provider, string diagnosticId, DiagnosticAnalyzer analyzer)
     {
         var token = TestContext.Current.CancellationToken;
         var source = AnalyzerTestHost.Header + "public class Sample\n{\n" + members + "\n}\n";
@@ -32,7 +35,7 @@ internal static class CodeFixTestHost
             .AddDocument(DocumentId.CreateNewId(projectId), "Sample.cs", SourceText.From(source));
         var document = solution.Projects.Single().Documents.Single();
 
-        var diagnostics = await DiagnosticsAsync(document, token);
+        var diagnostics = await DiagnosticsAsync(document, analyzer, token);
         var diagnostic = diagnostics.First(candidate => candidate.Id == diagnosticId);
         var actions = new List<CodeAction>();
         await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostic, (action, _) => actions.Add(action), token));
@@ -44,15 +47,15 @@ internal static class CodeFixTestHost
 
         var operations = await actions[0].GetOperationsAsync(token);
         var changed = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution.GetDocument(document.Id)!;
-        var remaining = await DiagnosticsAsync(changed, token);
+        var remaining = await DiagnosticsAsync(changed, analyzer, token);
 
         return new CodeFixOutcome((await changed.GetTextAsync(token)).ToString(), [.. remaining.Select(candidate => candidate.Id)]);
     }
 
-    private static async Task<IReadOnlyList<Diagnostic>> DiagnosticsAsync(Document document, CancellationToken token)
+    private static async Task<IReadOnlyList<Diagnostic>> DiagnosticsAsync(Document document, DiagnosticAnalyzer analyzer, CancellationToken token)
     {
         var compilation = (await document.Project.GetCompilationAsync(token))!;
-        var withAnalyzers = compilation.WithAnalyzers([new ResultUsageAnalyzer()]);
+        var withAnalyzers = compilation.WithAnalyzers([analyzer]);
 
         return await withAnalyzers.GetAnalyzerDiagnosticsAsync(token);
     }
