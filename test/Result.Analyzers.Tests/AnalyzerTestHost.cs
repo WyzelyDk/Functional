@@ -20,10 +20,13 @@ internal static class AnalyzerTestHost
         """;
 
     // Returns the ids of the diagnostics that the analyzer reports for the members of a class.
-    internal static async Task<string[]> AnalyzeAsync(string members)
+    internal static Task<string[]> AnalyzeAsync(string members) => AnalyzeAsync(members, new ResultUsageAnalyzer());
+
+    // Returns the ids of the diagnostics that the given analyzer reports for the members of a class.
+    internal static async Task<string[]> AnalyzeAsync(string members, DiagnosticAnalyzer analyzer)
     {
         var compilation = Compile(members);
-        var withAnalyzers = compilation.WithAnalyzers([new ResultUsageAnalyzer()]);
+        var withAnalyzers = compilation.WithAnalyzers([analyzer]);
         var diagnostics = await withAnalyzers.GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken);
 
         return [.. diagnostics.Select(diagnostic => diagnostic.Id).OrderBy(id => id, StringComparer.Ordinal)];

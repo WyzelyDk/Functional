@@ -12,12 +12,20 @@ A struct always has a default value, and for a result it is a success, so there 
 forgotten field or an array slot that nobody assigned counts as "it worked": collect results with `Combine`, `Partition` or `SelectInParallel`,
 which never expose an unassigned slot, instead of filling an array yourself.
 
-The package ships analyzers; all are warnings and enabled by default:
+The package ships analyzers, all enabled by default: `WYZ0101` and `WYZ0102` are warnings, and the rules from `WYZ0103` on are suggestions (info) that point at the method of the library that says what a piece of code does:
 
 | Id | Reports | Fix | Code fix |
 |---|---|---|---|
 | [`WYZ0101`](analyzers/WYZ0101.md) | a `Result`, `Task<Result>` or `ValueTask<Result>` that is thrown away | handle it, return it, or write `_ = ...` | yes: `_ =` |
 | [`WYZ0102`](analyzers/WYZ0102.md) | `GetError()`, `GetValue()` or `ConvertFailure()` that is not guarded by a check of the same result | check `IsFailure` / `IsSuccess` first, or use `TryGetError`, `TryGetValue`, `ValueOr` or `Match` | no (see the page for why) |
+| [`WYZ0103`](analyzers/WYZ0103.md) | a condition inside `Bind` that returns the value unchanged | `BindIf` | yes |
+| [`WYZ0104`](analyzers/WYZ0104.md) | a condition inside `Map` that returns the value unchanged | `MapIf` | yes |
+| [`WYZ0105`](analyzers/WYZ0105.md) | `Ensure` with a negated condition | `EnsureNot` | yes |
+| [`WYZ0106`](analyzers/WYZ0106.md) | a null check inside `Bind` | `EnsureNotNull` | yes |
+| [`WYZ0107`](analyzers/WYZ0107.md) | `Bind` then `Map` into a tuple of both values | `BindZip` | yes |
+| [`WYZ0108`](analyzers/WYZ0108.md) | `Result.Failure<T>(r.GetError())` | `r.ConvertFailure<T>()` | yes |
+| [`WYZ0109`](analyzers/WYZ0109.md) | a conditional between `Result.Success()` and `Result.Failure(e)` | `SuccessIf` or `FailureIf` | yes |
+| [`WYZ0110`](analyzers/WYZ0110.md) | `Result.Try` inside `Bind` | `MapTry` | yes |
 
 Change a severity in `.editorconfig`:
 

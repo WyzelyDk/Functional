@@ -27,7 +27,116 @@ internal static class Rules
         description: UncheckedAccessDescription,
         helpLinkUri: HelpLinkBase + "WYZ0102.md");
 
+    /// <summary>WYZ0103: Use BindIf instead of a condition inside Bind.</summary>
+    internal static readonly DiagnosticDescriptor UseBindIf = new(
+        id: "WYZ0103",
+        title: "Use BindIf instead of a condition inside Bind",
+        messageFormat: "This 'Bind' returns the value unchanged unless a condition holds; 'BindIf' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseBindIfDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0103.md");
+
+    /// <summary>WYZ0104: Use MapIf instead of a condition inside Map.</summary>
+    internal static readonly DiagnosticDescriptor UseMapIf = new(
+        id: "WYZ0104",
+        title: "Use MapIf instead of a condition inside Map",
+        messageFormat: "This 'Map' returns the value unchanged unless a condition holds; 'MapIf' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseMapIfDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0104.md");
+
+    /// <summary>WYZ0105: Use EnsureNot instead of Ensure with a negated condition.</summary>
+    internal static readonly DiagnosticDescriptor UseEnsureNot = new(
+        id: "WYZ0105",
+        title: "Use EnsureNot instead of Ensure with a negated condition",
+        messageFormat: "'Ensure' with a negated condition is 'EnsureNot'",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Ensure(x => !condition, error) is EnsureNot(x => condition, error): the value is rejected when the condition holds.",
+        helpLinkUri: HelpLinkBase + "WYZ0105.md");
+
+    /// <summary>WYZ0106: Use EnsureNotNull instead of a null check inside Bind.</summary>
+    internal static readonly DiagnosticDescriptor UseEnsureNotNull = new(
+        id: "WYZ0106",
+        title: "Use EnsureNotNull instead of a null check inside Bind",
+        messageFormat: "This 'Bind' checks the value for null; 'EnsureNotNull' does the same and removes the nullable annotation",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseEnsureNotNullDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0106.md");
+
+    /// <summary>WYZ0107: Use BindZip to keep the earlier value.</summary>
+    internal static readonly DiagnosticDescriptor UseBindZip = new(
+        id: "WYZ0107",
+        title: "Use BindZip to keep the earlier value",
+        messageFormat: "This 'Bind' and 'Map' keep a value next to the next one in a tuple; 'BindZip' does that directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Bind(a => f(a).Map(b => (a, b))) is BindZip(a => f(a)). The elements of the tuple are named First and Second, like the ones of Zip.",
+        helpLinkUri: HelpLinkBase + "WYZ0107.md");
+
+    /// <summary>WYZ0108: Use ConvertFailure to pass a failure on as another type.</summary>
+    internal static readonly DiagnosticDescriptor UseConvertFailure = new(
+        id: "WYZ0108",
+        title: "Use ConvertFailure to pass a failure on as another type",
+        messageFormat: "'Failure<T>' of 'GetError()' is 'ConvertFailure<T>()'",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Result.Failure<T>(r.GetError()) is r.ConvertFailure<T>(): the same error as a failed result of another value type.",
+        helpLinkUri: HelpLinkBase + "WYZ0108.md");
+
+    /// <summary>WYZ0109: Use SuccessIf or FailureIf instead of a conditional expression.</summary>
+    internal static readonly DiagnosticDescriptor UseSuccessIf = new(
+        id: "WYZ0109",
+        title: "Use SuccessIf or FailureIf instead of a conditional expression",
+        messageFormat: "This conditional expression creates a result from a condition; '{0}' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseSuccessIfDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0109.md");
+
+    /// <summary>WYZ0110: Use MapTry instead of Result.Try inside Bind.</summary>
+    internal static readonly DiagnosticDescriptor UseMapTry = new(
+        id: "WYZ0110",
+        title: "Use MapTry instead of Result.Try inside Bind",
+        messageFormat: "This 'Bind' runs a function inside 'Result.Try'; 'MapTry' does that directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Bind(x => Result.Try(() => f(x))) is MapTry(x => f(x)): an exception becomes a failed result in the same way.",
+        helpLinkUri: HelpLinkBase + "WYZ0110.md");
+
     private const string Category = "Usage";
+
+    private const string SuggestionCategory = "Design";
+
+    private const string UseBindIfDescription =
+        "A Bind whose delegate returns Result.Success(x) for one branch of a condition and another result for the other " +
+        "branch is a BindIf. BindIf takes the condition as a function that runs only for a successful result, so the " +
+        "behavior is the same.";
+
+    private const string UseMapIfDescription =
+        "A Map whose delegate returns the value itself for one branch of a condition and a new value of the same type " +
+        "for the other branch is a MapIf. MapIf takes the condition as a function that runs only for a successful " +
+        "result, so the behavior is the same.";
+
+    private const string UseEnsureNotNullDescription =
+        "A Bind that fails for a null value and succeeds with the value otherwise is EnsureNotNull, which also turns a " +
+        "Result<T?> into a Result<T>.";
+
+    private const string UseSuccessIfDescription =
+        "cond ? Result.Success() : Result.Failure(e) is Result.SuccessIf(cond, e), and the reverse is " +
+        "Result.FailureIf(cond, e). The rule reports it only when the error is a constant, a local or a field, because " +
+        "passing the error as a function would allocate a delegate on every call.";
 
     private const string UnusedResultDescription =
         "A Result (or a Task or ValueTask of a Result) that is neither awaited and used nor assigned means a failed operation can be " +
