@@ -40,12 +40,14 @@ public sealed partial class ResultSuggestionsAnalyzer
         Report(context, Rules.UseBindZip, invocation, []);
     }
 
-    // WYZ0110: Bind(x => Result.Try(() => f(x))) is MapTry(x => f(x)). Try with a function: the forms without a value have no MapTry.
+    // WYZ0110: Bind(x => Result.Try(() => f(x))) is MapTry(x => f(x)). Try with a function: the forms without a value have no MapTry, and neither
+    // has the form that names an exception type (it has two type arguments), because MapTry catches an Exception.
     private static void CheckMapTry(OperationAnalysisContext context, IInvocationOperation invocation)
     {
         if (OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out _, out var returned)
             && returned is IInvocationOperation attempt
             && OperationShapes.IsResultFactory(attempt.TargetMethod, "Try")
+            && attempt.TargetMethod.TypeArguments.Length == 1
             && OperationShapes.ArgumentOf(attempt, "function") is { } function
             && OperationShapes.TryGetLambda(function, 0, out _, out _))
         {
