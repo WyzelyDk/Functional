@@ -1,5 +1,6 @@
 using System.Globalization;
 using Wyzely.Functional;
+using Wyzely.Functional.AotSamples;
 
 // Exercises every kind of code path the libraries have, so that the AOT compiler must compile and keep all of it. The exit code is
 // the number of checks that failed.
@@ -72,6 +73,12 @@ Check(
     Maybe.Some(1).ToInvertedResult(Error.Conflict("taken")).IsFailure && Maybe.None<int>().ToInvertedResult(Error.Conflict("taken")).IsSuccess);
 var invertedAsync = await Task.FromResult(Maybe.Some(1)).ToInvertedResult(static id => Error.Conflict($"{id} exists"));
 Check("interop inverted async", invertedAsync.GetError().Message == "1 exists");
+
+// The operations added after the first release.
+NewOperations.Railway(Check);
+NewOperations.ErrorsAndMaybe(Check);
+NewOperations.Exits(Check);
+await NewOperations.StreamsAsync(Check);
 
 // Settings are respected under AOT too.
 MaybeConfiguration.Configure(static o =>

@@ -131,6 +131,7 @@ public sealed class SuggestionsAnalyzerTests
     [InlineData("Result M(bool ok) => ok ? Result.Failure(Rejected) : Result.Failure(Failed());")]
     [InlineData("Result M(Result<string> r) => r.Bind(s => Result.Try(() => Console.WriteLine(s)));")]
     [InlineData("Result<int> M(Result<string> r) => r.Bind(s => Result.Try(() => int.Parse(s)).Map(n => n + 1));")]
+    [InlineData("Result<int> M(Result<string> r) => r.Bind(s => Result.Try(() => int.Parse(s), (FormatException e) => Rejected));")]
     internal async Task Shapes_that_would_change_the_behavior_or_do_not_match_are_left_alone(string method)
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\n" + method, Analyzer);
