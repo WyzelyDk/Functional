@@ -1,6 +1,8 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Wyzely.Functional.AnalyzerTesting;
 using Wyzely.Functional.MaybeAnalyzers;
 
 namespace Wyzely.Functional.MaybeAnalyzersTests;
@@ -43,28 +45,8 @@ internal static class AnalyzerTestHost
         return [.. warnings];
     }
 
-    internal static List<MetadataReference> References()
-    {
-        var trusted = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
-        var paths = trusted.Split(Path.PathSeparator).ToList();
-        paths.Add(typeof(Maybe<>).Assembly.Location);
+    internal static ImmutableArray<MetadataReference> References() => CodeFixTesting.References(typeof(Maybe<>).Assembly.Location);
 
-        return [.. paths.Distinct(StringComparer.OrdinalIgnoreCase).Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))];
-    }
-
-    private static CSharpCompilation Compile(string members)
-    {
-        var source = Header + "public class Sample\n{\n" + members + "\n}\n";
-        var tree = CSharpSyntaxTree.ParseText(source);
-        var compilation = CSharpCompilation.Create(
-            "Sample",
-            [tree],
-            References(),
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
-
-        var errors = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToList();
-        Assert.True(errors.Count == 0, "The snippet does not compile: " + string.Join("; ", errors));
-
-        return compilation;
-    }
+    private static CSharpCompilation Compile(string members) =>
+        CodeFixTesting.Compile(Header + "public class Sample\n{\n" + members + "\n}\n", References());
 }

@@ -22,6 +22,11 @@
     <Using Include="$(ProductPrefix).Internal" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Compiled into the analyzer and code fix projects, which have the Roslyn references; listed here for the IDE only. -->
+    <None Include="Analyzers\*.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
     <!-- The generator engine targets net8.0, so the netstandard2.0 build leaves it out. -->
     <Compile Include="CodeGeneration\*.cs" />

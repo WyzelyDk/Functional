@@ -47,7 +47,7 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
             && types.IsMaybe(property.Property.ContainingType)
             && property.Syntax is MemberAccessExpressionSyntax access
             && property.Instance is { } instance
-            && OperationShapes.Unwrap(instance) is IInvocationOperation { TargetMethod.Name: "Filter" } filter
+            && OperationHelpers.Unwrap(instance) is IInvocationOperation { TargetMethod.Name: "Filter" } filter
             && OperationShapes.IsMaybeExtension(filter.TargetMethod)
             && filter.Syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: IdentifierNameSyntax } })
         {
@@ -78,7 +78,7 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
     // ValueOr evaluates the fallback on every call, so it has to be cheap, and the receiver has to be read the same way in both places.
     private static bool IsValueOrShape(IConditionalOperation conditional, IOperation otherwise, MaybeTypes types)
     {
-        if (OperationShapes.Unwrap(conditional.Condition) is not IPropertyReferenceOperation { Property.Name: "IsSome" or "IsNone" } check
+        if (OperationHelpers.Unwrap(conditional.Condition) is not IPropertyReferenceOperation { Property.Name: "IsSome" or "IsNone" } check
             || !types.IsMaybe(check.Property.ContainingType)
             || check.Instance is not { } receiver
             || !OperationShapes.IsPlain(receiver.Syntax))
@@ -87,12 +87,12 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
         }
 
         var some = check.Property.Name == "IsSome";
-        var read = OperationShapes.Unwrap(some ? conditional.WhenTrue : otherwise);
+        var read = OperationHelpers.Unwrap(some ? conditional.WhenTrue : otherwise);
         var fallback = some ? otherwise : conditional.WhenTrue;
 
         if (read is not IInvocationOperation { TargetMethod: { Name: "GetValue", Parameters.Length: 0 }, Instance: { } getter }
             || !OperationShapes.SameText(getter.Syntax, receiver.Syntax)
-            || !OperationShapes.IsCheap(fallback))
+            || !OperationHelpers.IsCheap(fallback))
         {
             return false;
         }
@@ -109,8 +109,8 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
-        var none = OperationShapes.Unwrap(isNullWhenTrue ? conditional.WhenTrue : otherwise);
-        var some = OperationShapes.Unwrap(isNullWhenTrue ? otherwise : conditional.WhenTrue);
+        var none = OperationHelpers.Unwrap(isNullWhenTrue ? conditional.WhenTrue : otherwise);
+        var some = OperationHelpers.Unwrap(isNullWhenTrue ? otherwise : conditional.WhenTrue);
 
         return OperationShapes.IsNone(none, types) && OperationShapes.IsSomeOf(some, checkedOperation);
     }

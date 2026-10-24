@@ -1,10 +1,8 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 
 namespace Wyzely.Functional.MaybeAnalyzers;
 
@@ -27,49 +25,20 @@ public sealed class MaybeSuggestionsCodeFixProvider : CodeFixProvider
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
     /// <inheritdoc />
-    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
-    {
-        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-        var diagnostic = context.Diagnostics[0];
-
-        if (root is null || !Titles.TryGetValue(diagnostic.Id, out var title))
-        {
-            return;
-        }
-
-        var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-        var target = TargetOf(node, diagnostic.Id);
-
-        if (target is null || Rewrite(target, diagnostic.Id) is null)
-        {
-            return;
-        }
-
-        context.RegisterCodeFix(
-            CodeAction.Create(title, token => ApplyAsync(context.Document, target, diagnostic.Id, token), equivalenceKey: diagnostic.Id),
-            diagnostic);
-    }
+    public override Task RegisterCodeFixesAsync(CodeFixContext context) => RewriteFixes.RegisterAsync(context, Titles, TargetOf, Rewrite);
 
     // The member access that ends in IsSome for WYZ0202, otherwise the conditional expression.
     private static SyntaxNode? TargetOf(SyntaxNode node, string id) => id == "WYZ0202"
         ? node.AncestorsAndSelf().OfType<MemberAccessExpressionSyntax>().FirstOrDefault()
         : node.AncestorsAndSelf().OfType<ConditionalExpressionSyntax>().FirstOrDefault();
 
-    private static InvocationExpressionSyntax? Rewrite(SyntaxNode target, string id) => (target, id) switch
+    private static InvocationExpressionSyntax? Rewrite(SyntaxNode target, Diagnostic diagnostic) => (target, diagnostic.Id) switch
     {
         (MemberAccessExpressionSyntax access, "WYZ0202") => Any(access),
         (ConditionalExpressionSyntax conditional, "WYZ0203") => ValueOr(conditional),
         (ConditionalExpressionSyntax conditional, "WYZ0204") => From(conditional),
         _ => null,
     };
-
-    private static async Task<Document> ApplyAsync(Document document, SyntaxNode target, string id, CancellationToken token)
-    {
-        var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
-        var replacement = Rewrite(target, id)!.WithTriviaFrom(target).WithAdditionalAnnotations(Formatter.Annotation);
-
-        return document.WithSyntaxRoot(root!.ReplaceNode(target, replacement));
-    }
 
     // WYZ0202: maybe.Filter(p).IsSome becomes maybe.Any(p).
     private static InvocationExpressionSyntax? Any(MemberAccessExpressionSyntax access) =>

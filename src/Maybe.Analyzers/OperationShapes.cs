@@ -8,27 +8,6 @@ namespace Wyzely.Functional.MaybeAnalyzers;
 /// <summary>Reads the shapes of expressions that the suggestion rules look for, so that each rule only says what it wants to see.</summary>
 internal static class OperationShapes
 {
-    /// <summary>Strips the implicit conversions and the parentheses around an operation.</summary>
-    /// <param name="operation">The operation to unwrap.</param>
-    /// <returns>The operation inside.</returns>
-    internal static IOperation Unwrap(IOperation operation)
-    {
-        while (true)
-        {
-            switch (operation)
-            {
-                case IConversionOperation { IsImplicit: true } conversion:
-                    operation = conversion.Operand;
-                    break;
-                case IParenthesizedOperation parenthesized:
-                    operation = parenthesized.Operand;
-                    break;
-                default:
-                    return operation;
-            }
-        }
-    }
-
     /// <summary>Determines whether a method is a member of the library's <c>MaybeExtensions</c>.</summary>
     /// <param name="method">The method to test.</param>
     /// <returns><see langword="true"/> for an extension method of the library.</returns>
@@ -56,20 +35,6 @@ internal static class OperationShapes
     internal static bool SameText(SyntaxNode first, SyntaxNode second) => first.WithoutTrivia().ToString() == second.WithoutTrivia().ToString();
 
     /// <summary>
-    /// Determines whether evaluating an operation ahead of time costs nothing and cannot change anything: a constant, or a read of a local, a
-    /// parameter or a field. Anything else (a call, an allocation) has to stay lazy when a rewrite would otherwise evaluate it on every call.
-    /// </summary>
-    /// <param name="operation">The operation to test.</param>
-    /// <returns><see langword="true"/> for a cheap and safe operation.</returns>
-    internal static bool IsCheap(IOperation operation)
-    {
-        var inner = Unwrap(operation);
-
-        return inner.ConstantValue.HasValue
-            || inner is ILocalReferenceOperation or IParameterReferenceOperation or IFieldReferenceOperation or IDefaultValueOperation;
-    }
-
-    /// <summary>
     /// Reads a condition that compares an expression with <see langword="null"/>: <c>is null</c>, <c>is not null</c>, <c>==</c> or <c>!=</c>.
     /// </summary>
     /// <param name="condition">The condition.</param>
@@ -81,21 +46,21 @@ internal static class OperationShapes
         checkedOperation = null!;
         isNullWhenTrue = false;
 
-        switch (Unwrap(condition))
+        switch (OperationHelpers.Unwrap(condition))
         {
             case IIsPatternOperation { Pattern: IConstantPatternOperation constant } pattern when IsNullConstant(constant.Value):
-                checkedOperation = Unwrap(pattern.Value);
+                checkedOperation = OperationHelpers.Unwrap(pattern.Value);
                 isNullWhenTrue = true;
 
                 return true;
             case IIsPatternOperation { Pattern: INegatedPatternOperation { Pattern: IConstantPatternOperation constant } } pattern
                 when IsNullConstant(constant.Value):
-                checkedOperation = Unwrap(pattern.Value);
+                checkedOperation = OperationHelpers.Unwrap(pattern.Value);
 
                 return true;
             case IBinaryOperation { OperatorKind: BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals } binary
                 when IsNullConstant(binary.LeftOperand) != IsNullConstant(binary.RightOperand):
-                checkedOperation = Unwrap(IsNullConstant(binary.LeftOperand) ? binary.RightOperand : binary.LeftOperand);
+                checkedOperation = OperationHelpers.Unwrap(IsNullConstant(binary.LeftOperand) ? binary.RightOperand : binary.LeftOperand);
                 isNullWhenTrue = binary.OperatorKind == BinaryOperatorKind.Equals;
 
                 return true;
@@ -129,7 +94,7 @@ internal static class OperationShapes
             return false;
         }
 
-        var argument = Unwrap(invocation.Arguments[0].Value);
+        var argument = OperationHelpers.Unwrap(invocation.Arguments[0].Value);
 
         if (checkedOperation.Type is { IsReferenceType: true })
         {
@@ -147,5 +112,5 @@ internal static class OperationShapes
         && method.ContainingType is { Name: "Maybe", IsGenericType: false }
         && method.ContainingNamespace.ToDisplayString() == "Wyzely.Functional";
 
-    private static bool IsNullConstant(IOperation operation) => Unwrap(operation).ConstantValue is { HasValue: true, Value: null };
+    private static bool IsNullConstant(IOperation operation) => OperationHelpers.Unwrap(operation).ConstantValue is { HasValue: true, Value: null };
 }
