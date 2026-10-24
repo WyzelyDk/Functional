@@ -17,7 +17,7 @@ The package ships analyzers, all enabled by default: `WYZ0101` and `WYZ0102` are
 | Id | Reports | Fix | Code fix |
 |---|---|---|---|
 | [`WYZ0101`](analyzers/WYZ0101.md) | a `Result`, `Task<Result>` or `ValueTask<Result>` that is thrown away | handle it, return it, or write `_ = ...` | yes: `_ =` |
-| [`WYZ0102`](analyzers/WYZ0102.md) | `GetError()`, `GetValue()` or `ConvertFailure()` that is not guarded by a check of the same result | check `IsFailure` / `IsSuccess` first, or use `TryGetError`, `TryGetValue`, `ValueOr` or `Match` | no (see the page for why) |
+| [`WYZ0102`](analyzers/WYZ0102.md) | `GetError()`, `GetValue()` or `ConvertFailure()` that is not guarded by a check of the same result | check `IsFailure` / `IsSuccess` first, or use `TryGetError`, `TryGetValue`, `ValueOr` or `Match` | for `GetValue()` in a method that returns a result: a guard clause (see the page) |
 | [`WYZ0103`](analyzers/WYZ0103.md) | a condition inside `Bind` that returns the value unchanged | `BindIf` | yes |
 | [`WYZ0104`](analyzers/WYZ0104.md) | a condition inside `Map` that returns the value unchanged | `MapIf` | yes |
 | [`WYZ0105`](analyzers/WYZ0105.md) | `Ensure` with a negated condition | `EnsureNot` | yes |

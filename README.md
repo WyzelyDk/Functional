@@ -157,7 +157,7 @@ number is counted from the source or pinned by a test.
   They are generated, not hand-written: `src/Result/Generated` holds 993 files (919 for the 24 operation names of the railway, 66 for the `SuccessIf`, `FailureIf` and `SuccessIfNotNull` factories, 8 for `Zip`) and `src/Maybe/Generated` holds 128 (116 for 13 operations, where `Map` has a second form for nullable value types, `Contains` has three variants and `GetValueOrThrow` five, and 12 for `Zip`).
   `GeneratedFilesTests` fails if they are out of date. Writing that matrix by hand is the part that is no longer "easy" ([async](docs/result/async.md)).
 - **Analyzers and code fixes in the package.** `WYZ0101` (a `Result` is not used, with a code fix), `WYZ0102` (check the state of a `Result`
-  before `GetError()` or `GetValue()`) and `WYZ0201` (check that a `Maybe` has a value before `GetValue()`). Fourteen more suggestions (`WYZ0103` to
+  before `GetError()` or `GetValue()`, with a guard clause as the fix for `GetValue()` in a method that returns a result) and `WYZ0201` (check that a `Maybe` has a value before `GetValue()`). Fourteen more suggestions (`WYZ0103` to
   `WYZ0110` and `WYZ0112` to `WYZ0117`, info severity, each with a code fix) point at the method that says what a piece of code does: `BindIf`, `MapIf`, `EnsureNot`,
   `EnsureNotNull`, `BindZip`, `ConvertFailure`, `SuccessIf`/`FailureIf` and `MapTry`, and at code that does more than it has to: `Map` instead of a `Bind` that only
   wraps, `Tap`, `ValueOr`, `Flatten`, a step that does nothing, and `Failure` with a message. `WYZ0111` (a warning) catches a value interpolated into the message of an error, which is built even when nothing fails and hides the
