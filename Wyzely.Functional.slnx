@@ -102,6 +102,7 @@
     <File Path="docs/result/analyzers/WYZ0108.md" />
     <File Path="docs/result/analyzers/WYZ0109.md" />
     <File Path="docs/result/analyzers/WYZ0110.md" />
+    <File Path="docs/result/analyzers/WYZ0111.md" />
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Aot.Samples/Aot.Samples.csproj" />

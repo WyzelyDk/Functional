@@ -159,7 +159,8 @@ number is counted from the source or pinned by a test.
 - **Analyzers and code fixes in the package.** `WYZ0101` (a `Result` is not used, with a code fix), `WYZ0102` (check the state of a `Result`
   before `GetError()` or `GetValue()`) and `WYZ0201` (check that a `Maybe` has a value before `GetValue()`). Eight more suggestions (`WYZ0103` to
   `WYZ0110`, info severity, each with a code fix) point at the method that says what a piece of code does: `BindIf`, `MapIf`, `EnsureNot`,
-  `EnsureNotNull`, `BindZip`, `ConvertFailure`, `SuccessIf`/`FailureIf` and `MapTry`. They are tested in a real Roslyn workspace
+  `EnsureNotNull`, `BindZip`, `ConvertFailure`, `SuccessIf`/`FailureIf` and `MapTry`. `WYZ0111` (a warning) catches a value interpolated into the message of an error, which is built even when nothing fails and hides the
+  value from the template, the details and the redaction; its code fix moves the values into details. They are tested in a real Roslyn workspace
   ([rules](docs/analyzers.md)).
 - **No hidden third state.** A struct always has a `default`, and here it always has a meaning: `default(Result)` is a success,
   `default(Result<T>)` is a success holding `default(T)`, and `default(Maybe<T>)` is none. Nothing throws because a value was never assigned.

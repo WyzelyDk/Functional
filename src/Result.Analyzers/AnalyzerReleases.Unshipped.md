@@ -13,3 +13,4 @@ WYZ0107 | Design | Info | ResultSuggestionsAnalyzer: use BindZip to keep the ear
 WYZ0108 | Design | Info | ResultSuggestionsAnalyzer: use ConvertFailure to pass a failure on as another type
 WYZ0109 | Design | Info | ResultSuggestionsAnalyzer: use SuccessIf or FailureIf instead of a conditional expression
 WYZ0110 | Design | Info | ResultSuggestionsAnalyzer: use MapTry instead of Result.Try inside Bind
+WYZ0111 | Usage | Warning | ResultMessageAnalyzer: do not interpolate values into the message of an error

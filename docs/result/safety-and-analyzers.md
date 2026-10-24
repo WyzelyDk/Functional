@@ -27,6 +27,12 @@ The package ships analyzers, all enabled by default: `WYZ0101` and `WYZ0102` are
 | [`WYZ0109`](analyzers/WYZ0109.md) | a conditional between `Result.Success()` and `Result.Failure(e)` | `SuccessIf` or `FailureIf` | yes |
 | [`WYZ0110`](analyzers/WYZ0110.md) | `Result.Try` inside `Bind` | `MapTry` | yes |
 
+`WYZ0111` is a warning again, because it is about a mistake and not about style:
+
+| Id | Reports | Fix | Code fix |
+|---|---|---|---|
+| [`WYZ0111`](analyzers/WYZ0111.md) | a value interpolated into the message of an error, as in `Error.Create($"Order {id} not found.")` | a message template with the value as a detail | yes, when each value is a name or a member access |
+
 Change a severity in `.editorconfig`:
 
 ```ini

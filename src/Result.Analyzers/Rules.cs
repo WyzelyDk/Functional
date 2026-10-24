@@ -115,6 +115,17 @@ internal static class Rules
         description: "Bind(x => Result.Try(() => f(x))) is MapTry(x => f(x)): an exception becomes a failed result in the same way.",
         helpLinkUri: HelpLinkBase + "WYZ0110.md");
 
+    /// <summary>WYZ0111: a value is interpolated into the message of an error.</summary>
+    internal static readonly DiagnosticDescriptor InterpolatedMessage = new(
+        id: "WYZ0111",
+        title: "Do not interpolate values into the message of an error",
+        messageFormat: "The message passed to '{0}' is built with string interpolation; make the values details of the error instead",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: InterpolatedMessageDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0111.md");
+
     private const string Category = "Usage";
 
     private const string SuggestionCategory = "Design";
@@ -137,6 +148,12 @@ internal static class Rules
         "cond ? Result.Success() : Result.Failure(e) is Result.SuccessIf(cond, e), and the reverse is " +
         "Result.FailureIf(cond, e). The rule reports it only when the error is a constant, a local or a field, because " +
         "passing the error as a function would allocate a delegate on every call.";
+
+    private const string InterpolatedMessageDescription =
+        "An interpolated message is built every time the line runs, also when the result succeeds, and the values become part of the " +
+        "text. A message template with {Name} placeholders and the values as details costs nothing until the message is read, keeps " +
+        "the template the same for every value (so errors can be grouped), and lets a detail be marked as sensitive so that redacted " +
+        "output hides it.";
 
     private const string UnusedResultDescription =
         "A Result (or a Task or ValueTask of a Result) that is neither awaited and used nor assigned means a failed operation can be " +
