@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Wyzely.Functional;
 
 /// <content>
@@ -27,6 +29,7 @@ public readonly partial struct Result
     /// <returns>A failed result with a new <see cref="Error"/> of kind <see cref="ErrorKind.Failure"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="message"/> is empty or consists only of white space.</exception>
+    [SuppressMessage("Design", "WYZ0116", Justification = "This is the implementation of the overload that the rule suggests; calling it would recurse.")]
     public static Result Failure(string message) => Failure(Error.Create(message));
 
     /// <summary>Creates a failed result that would have held a value of type <typeparamref name="T"/>.</summary>
@@ -42,6 +45,7 @@ public readonly partial struct Result
     /// <returns>A failed result with a new <see cref="Error"/> of kind <see cref="ErrorKind.Failure"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="message"/> is empty or consists only of white space.</exception>
+    [SuppressMessage("Design", "WYZ0116", Justification = "This is the implementation of the overload that the rule suggests; calling it would recurse.")]
     public static Result<T> Failure<T>(string message) => Failure<T>(Error.Create(message));
 
     /// <summary>Creates a failed result from an exception.</summary>

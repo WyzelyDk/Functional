@@ -142,7 +142,7 @@ public sealed class SuggestionsAnalyzerTests
     internal void Every_rule_is_an_info_suggestion_in_the_design_category_with_a_help_link_to_its_page()
     {
         Assert.Multiple(
-            () => Assert.Equal(8, Analyzer.SupportedDiagnostics.Length),
+            () => Assert.Equal(14, Analyzer.SupportedDiagnostics.Length),
             () => Assert.All(
                 Analyzer.SupportedDiagnostics,
                 descriptor => Assert.Equal(Microsoft.CodeAnalysis.DiagnosticSeverity.Info, descriptor.DefaultSeverity)),

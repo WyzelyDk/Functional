@@ -33,6 +33,17 @@ The package ships analyzers, all enabled by default: `WYZ0101` and `WYZ0102` are
 |---|---|---|---|
 | [`WYZ0111`](analyzers/WYZ0111.md) | a value interpolated into the message of an error, as in `Error.Create($"Order {id} not found.")` | a message template with the value as a detail | yes, when each value is a name or a member access |
 
+Six more suggestions (info) point at code that does more than it has to. A rewrite must give the same result and type, so a rule reports only the exact shape:
+
+| Id | Reports | Fix | Code fix |
+|---|---|---|---|
+| [`WYZ0112`](analyzers/WYZ0112.md) | `Bind(x => Result.Success(f(x)))` | `Map(x => f(x))` | yes |
+| [`WYZ0113`](analyzers/WYZ0113.md) | `Map(x => { Use(x); return x; })` | `Tap(x => { Use(x); })` | yes |
+| [`WYZ0114`](analyzers/WYZ0114.md) | `Match(v => v, _ => fallback)` with a cheap fallback | `ValueOr(fallback)` | yes |
+| [`WYZ0115`](analyzers/WYZ0115.md) | `Map(x => x)` and `Bind(x => Result.Success(x))` | remove the step | yes |
+| [`WYZ0116`](analyzers/WYZ0116.md) | `Result.Failure(Error.Create(message))` | `Result.Failure(message)` | yes |
+| [`WYZ0117`](analyzers/WYZ0117.md) | `Bind(x => x)` on a result of a result | `Flatten()` | yes |
+
 Change a severity in `.editorconfig`:
 
 ```ini

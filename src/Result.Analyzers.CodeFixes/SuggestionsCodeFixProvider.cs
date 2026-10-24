@@ -7,7 +7,10 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace Wyzely.Functional.ResultAnalyzers;
 
-/// <summary>Rewrites the code that the suggestion rules (WYZ0103 to WYZ0110) point at into the method of the library that says what it does.</summary>
+/// <summary>
+/// Rewrites the code that the suggestion rules (WYZ0103 to WYZ0110 and WYZ0112 to WYZ0117) point at into the method of the library that says what
+/// it does, or into the simpler form.
+/// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SuggestionsCodeFixProvider))]
 [System.Composition.Shared]
 public sealed class SuggestionsCodeFixProvider : CodeFixProvider
@@ -22,6 +25,12 @@ public sealed class SuggestionsCodeFixProvider : CodeFixProvider
         ["WYZ0108"] = "Use ConvertFailure",
         ["WYZ0109"] = "Use SuccessIf or FailureIf",
         ["WYZ0110"] = "Use MapTry",
+        ["WYZ0112"] = "Use Map",
+        ["WYZ0113"] = "Use Tap",
+        ["WYZ0114"] = "Use ValueOr",
+        ["WYZ0115"] = "Remove the step",
+        ["WYZ0116"] = "Pass the message to Failure",
+        ["WYZ0117"] = "Use Flatten",
     }.ToImmutableDictionary();
 
     /// <inheritdoc />
@@ -73,6 +82,12 @@ public sealed class SuggestionsCodeFixProvider : CodeFixProvider
             (InvocationExpressionSyntax call, "WYZ0108") => SuggestionRewrites.ConvertFailure(call),
             (ConditionalExpressionSyntax conditional, "WYZ0109") => SuggestionRewrites.SuccessIf(conditional, properties),
             (InvocationExpressionSyntax call, "WYZ0110") => SuggestionRewrites.MapTry(call),
+            (InvocationExpressionSyntax call, "WYZ0112") => SuggestionRewrites.BindToMap(call),
+            (InvocationExpressionSyntax call, "WYZ0113") => SuggestionRewrites.MapToTap(call),
+            (InvocationExpressionSyntax call, "WYZ0114") => SuggestionRewrites.MatchToValueOr(call),
+            (InvocationExpressionSyntax call, "WYZ0115") => SuggestionRewrites.RemoveStep(call),
+            (InvocationExpressionSyntax call, "WYZ0116") => SuggestionRewrites.FailureWithMessage(call),
+            (InvocationExpressionSyntax call, "WYZ0117") => SuggestionRewrites.Flatten(call),
             _ => null,
         };
     }

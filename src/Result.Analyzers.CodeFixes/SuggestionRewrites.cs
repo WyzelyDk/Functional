@@ -160,6 +160,84 @@ internal static class SuggestionRewrites
         return Renamed(invocation, "MapTry").WithArgumentList(ArgumentsOf(arguments));
     }
 
+    /// <summary>WYZ0112: <c>Bind(x => Result.Success(f(x)))</c> becomes <c>Map(x => f(x))</c>.</summary>
+    /// <param name="invocation">The call of <c>Bind</c>.</param>
+    /// <returns>The call of <c>Map</c>, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? BindToMap(InvocationExpressionSyntax invocation)
+    {
+        if (!TryGetFirstLambda(invocation, out var lambda)
+            || ReturnedExpression(lambda) is not InvocationExpressionSyntax { ArgumentList.Arguments.Count: 1 } success)
+        {
+            return null;
+        }
+
+        var value = success.ArgumentList.Arguments[0].Expression;
+
+        return Renamed(invocation, "Map").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(WithReturned(lambda, value.WithTriviaFrom(success)))]));
+    }
+
+    /// <summary>WYZ0113: <c>Map(x => { Use(x); return x; })</c> becomes <c>Tap(x => { Use(x); })</c>.</summary>
+    /// <param name="invocation">The call of <c>Map</c>.</param>
+    /// <returns>The call of <c>Tap</c>, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? MapToTap(InvocationExpressionSyntax invocation)
+    {
+        if (!TryGetFirstLambda(invocation, out var lambda) || lambda.Body is not BlockSyntax { Statements.Count: > 1 } block)
+        {
+            return null;
+        }
+
+        var tapped = lambda.WithBody(block.WithStatements(block.Statements.RemoveAt(block.Statements.Count - 1)));
+
+        return Renamed(invocation, "Tap").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(tapped)]));
+    }
+
+    /// <summary>WYZ0114: <c>Match(v => v, _ => fallback)</c> becomes <c>ValueOr(fallback)</c>.</summary>
+    /// <param name="invocation">The call of <c>Match</c>.</param>
+    /// <returns>The call of <c>ValueOr</c>, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? MatchToValueOr(InvocationExpressionSyntax invocation)
+    {
+        var arguments = invocation.ArgumentList.Arguments;
+
+        if (invocation.Expression is not MemberAccessExpressionSyntax
+            || arguments.Count != 2
+            || arguments.Any(argument => argument.NameColon is not null)
+            || arguments[1].Expression is not LambdaExpressionSyntax failure
+            || ReturnedExpression(failure) is not { } fallback)
+        {
+            return null;
+        }
+
+        return Renamed(invocation, "ValueOr").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(fallback.WithoutTrivia())]));
+    }
+
+    /// <summary>WYZ0115: <c>result.Map(x => x)</c> and <c>result.Bind(x => Result.Success(x))</c> become <c>result</c>.</summary>
+    /// <param name="invocation">The call of <c>Map</c> or <c>Bind</c>.</param>
+    /// <returns>The receiver of the call, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? RemoveStep(InvocationExpressionSyntax invocation) =>
+        invocation.Expression is MemberAccessExpressionSyntax access ? access.Expression.WithTriviaFrom(invocation) : null;
+
+    /// <summary>WYZ0116: <c>Result.Failure(Error.Create(message))</c> becomes <c>Result.Failure(message)</c>.</summary>
+    /// <param name="invocation">The call of <c>Failure</c>.</param>
+    /// <returns>The call of <c>Failure</c> with the message, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? FailureWithMessage(InvocationExpressionSyntax invocation)
+    {
+        if (invocation.ArgumentList.Arguments.Count != 1
+            || StripParentheses(invocation.ArgumentList.Arguments[0].Expression) is not InvocationExpressionSyntax { ArgumentList.Arguments.Count: 1 } create)
+        {
+            return null;
+        }
+
+        return invocation.WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(create.ArgumentList.Arguments[0].Expression)]));
+    }
+
+    /// <summary>WYZ0117: <c>Bind(x => x)</c> on a result of a result becomes <c>Flatten()</c>.</summary>
+    /// <param name="invocation">The call of <c>Bind</c>.</param>
+    /// <returns>The call of <c>Flatten</c>, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? Flatten(InvocationExpressionSyntax invocation) =>
+        invocation.Expression is MemberAccessExpressionSyntax
+            ? Renamed(invocation, "Flatten").WithArgumentList(SyntaxFactory.ArgumentList())
+            : null;
+
     // BindIf and MapIf: the lambda that decides, and the lambda that does the work, in place of the one conditional lambda.
     private static InvocationExpressionSyntax? ConditionalRewrite(
         InvocationExpressionSyntax invocation,

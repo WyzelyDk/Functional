@@ -115,6 +115,72 @@ internal static class Rules
         description: "Bind(x => Result.Try(() => f(x))) is MapTry(x => f(x)): an exception becomes a failed result in the same way.",
         helpLinkUri: HelpLinkBase + "WYZ0110.md");
 
+    /// <summary>WYZ0112: Use Map instead of Bind with Result.Success.</summary>
+    internal static readonly DiagnosticDescriptor UseMapInsteadOfBind = new(
+        id: "WYZ0112",
+        title: "Use Map instead of Bind that only wraps the value in Result.Success",
+        messageFormat: "This 'Bind' always returns 'Result.Success'; 'Map' does that without the wrapping",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Bind(x => Result.Success(f(x))) is Map(x => f(x)): a delegate that cannot fail does not need to return a result.",
+        helpLinkUri: HelpLinkBase + "WYZ0112.md");
+
+    /// <summary>WYZ0113: Use Tap instead of a Map that returns its own value.</summary>
+    internal static readonly DiagnosticDescriptor UseTapInsteadOfMap = new(
+        id: "WYZ0113",
+        title: "Use Tap instead of Map that returns the value it was given",
+        messageFormat: "This 'Map' does something with the value and returns it unchanged; 'Tap' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Map(x => { Use(x); return x; }) is Tap(x => { Use(x); }): the value passes through unchanged.",
+        helpLinkUri: HelpLinkBase + "WYZ0113.md");
+
+    /// <summary>WYZ0114: Use ValueOr instead of Match that returns the value or a fallback.</summary>
+    internal static readonly DiagnosticDescriptor UseValueOr = new(
+        id: "WYZ0114",
+        title: "Use ValueOr instead of Match that returns the value or a fallback",
+        messageFormat: "This 'Match' returns the value of a success or a fallback; 'ValueOr' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseValueOrDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0114.md");
+
+    /// <summary>WYZ0115: A step that leaves the result as it is.</summary>
+    internal static readonly DiagnosticDescriptor RemoveNoOpStep = new(
+        id: "WYZ0115",
+        title: "Remove a step that does not change the result",
+        messageFormat: "This step returns the value it was given, so it does nothing; remove it",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Map(x => x) and Bind(x => Result.Success(x)) return the result they were called on, with the same value and type.",
+        helpLinkUri: HelpLinkBase + "WYZ0115.md");
+
+    /// <summary>WYZ0116: Use Failure with a message instead of Failure with Error.Create.</summary>
+    internal static readonly DiagnosticDescriptor UseFailureWithMessage = new(
+        id: "WYZ0116",
+        title: "Pass the message to Result.Failure instead of creating the error",
+        messageFormat: "'Result.Failure' takes the message directly; 'Error.Create' is not needed",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Result.Failure(Error.Create(message)) is Result.Failure(message): the overload with a message creates the same error.",
+        helpLinkUri: HelpLinkBase + "WYZ0116.md");
+
+    /// <summary>WYZ0117: Use Flatten instead of Bind that returns its own value.</summary>
+    internal static readonly DiagnosticDescriptor UseFlatten = new(
+        id: "WYZ0117",
+        title: "Use Flatten instead of Bind that returns the nested result",
+        messageFormat: "This 'Bind' returns the nested result it was given; 'Flatten' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Bind(x => x) on a Result<Result<T>> is Flatten(): the inner result becomes the result.",
+        helpLinkUri: HelpLinkBase + "WYZ0117.md");
+
     /// <summary>WYZ0111: a value is interpolated into the message of an error.</summary>
     internal static readonly DiagnosticDescriptor InterpolatedMessage = new(
         id: "WYZ0111",
@@ -148,6 +214,10 @@ internal static class Rules
         "cond ? Result.Success() : Result.Failure(e) is Result.SuccessIf(cond, e), and the reverse is " +
         "Result.FailureIf(cond, e). The rule reports it only when the error is a constant, a local or a field, because " +
         "passing the error as a function would allocate a delegate on every call.";
+
+    private const string UseValueOrDescription =
+        "Match(v => v, _ => fallback) is ValueOr(fallback). Match evaluates the fallback only for a failure and ValueOr always does, so the rule " +
+        "reports it only when the fallback is a constant, a local, a parameter or a field, and the failure delegate does not read the error.";
 
     private const string InterpolatedMessageDescription =
         "An interpolated message is built every time the line runs, also when the result succeeds, and the values become part of the " +
