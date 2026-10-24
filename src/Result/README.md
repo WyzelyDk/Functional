@@ -91,7 +91,7 @@ needs grow. What this package adds, each point checked against the source or a t
   covered by generated tests. Writing those by hand, consistently, is the part nobody enjoys.
 - **Analyzers and code fixes in the package:** `WYZ0101` (a discarded result, with a code fix) and `WYZ0102`
   (`GetError()` / `GetValue()` not guarded), and eight suggestions (`WYZ0103` to `WYZ0110`, info severity, each with a code fix) that point at `BindIf`,
-  `MapIf`, `EnsureNot`, `EnsureNotNull`, `BindZip`, `ConvertFailure`, `SuccessIf`/`FailureIf` and `MapTry`. For example:
+  `MapIf`, `EnsureNot`, `EnsureNotNull`, `BindZip`, `ConvertFailure`, `SuccessIf`/`FailureIf` and `MapTry`. `WYZ0111` warns about an interpolated error message (the values belong in details, and the code fix moves them). For example:
 
   ```csharp
   Save(order);                       // WYZ0101: a failure would go unnoticed.  Code fix: _ = Save(order);

@@ -36,6 +36,13 @@ internal static class OperationShapes
         && method.ContainingType.Name == "ResultExtensions"
         && method.ContainingNamespace.ToDisplayString() == "Wyzely.Functional";
 
+    /// <summary>Determines whether a method is a member of <c>Error</c>, <c>Result</c>, <c>Result&lt;T&gt;</c> or <c>ResultExtensions</c>.</summary>
+    /// <param name="method">The method to test.</param>
+    /// <returns><see langword="true"/> for a method of the library that creates or passes on results and errors.</returns>
+    internal static bool IsLibraryMember(IMethodSymbol method) =>
+        method.ContainingType.Name is "Error" or "Result" or "ResultExtensions"
+        && method.ContainingNamespace.ToDisplayString() == "Wyzely.Functional";
+
     /// <summary>Determines whether a method is a static member of <c>Result</c> (the type without a value) with the given name.</summary>
     /// <param name="method">The method to test.</param>
     /// <param name="name">The name of the method.</param>
