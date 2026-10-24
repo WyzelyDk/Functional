@@ -131,6 +131,34 @@ internal static class OperationShapes
             || inner is ILocalReferenceOperation or IParameterReferenceOperation or IFieldReferenceOperation or IDefaultValueOperation;
     }
 
+    /// <summary>Determines whether an operation, or an operation inside it, is of a kind.</summary>
+    /// <typeparam name="TOperation">The kind of operation to look for.</typeparam>
+    /// <param name="operation">The operation to search.</param>
+    /// <returns><see langword="true"/> when one is found, also inside a nested lambda.</returns>
+    internal static bool Contains<TOperation>(IOperation operation)
+        where TOperation : IOperation =>
+        operation is TOperation || operation.ChildOperations.Any(Contains<TOperation>);
+
+    /// <summary>
+    /// Determines whether an operation assigns to a parameter, changes it with <c>++</c> or <c>--</c>, or passes it by <see langword="ref"/> or
+    /// <see langword="out"/>, so that the value afterwards is not the value that came in.
+    /// </summary>
+    /// <param name="operation">The operation to search.</param>
+    /// <param name="parameter">The parameter.</param>
+    /// <returns><see langword="true"/> when the parameter may be changed.</returns>
+    internal static bool ChangesParameter(IOperation operation, IParameterSymbol parameter)
+    {
+        var target = operation switch
+        {
+            IAssignmentOperation assignment => assignment.Target,
+            IIncrementOrDecrementOperation increment => increment.Target,
+            IArgumentOperation { Parameter.RefKind: RefKind.Ref or RefKind.Out } argument => argument.Value,
+            _ => null,
+        };
+
+        return (target is not null && IsParameter(target, parameter)) || operation.ChildOperations.Any(child => ChangesParameter(child, parameter));
+    }
+
     /// <summary>Determines whether an operation is a call of <c>Result.Success(x)</c> for the given parameter <c>x</c>.</summary>
     /// <param name="operation">The operation to test.</param>
     /// <param name="parameter">The parameter.</param>

@@ -84,6 +84,12 @@ nav:
           - WYZ0109: result/analyzers/WYZ0109.md
           - WYZ0110: result/analyzers/WYZ0110.md
           - WYZ0111: result/analyzers/WYZ0111.md
+          - WYZ0112: result/analyzers/WYZ0112.md
+          - WYZ0113: result/analyzers/WYZ0113.md
+          - WYZ0114: result/analyzers/WYZ0114.md
+          - WYZ0115: result/analyzers/WYZ0115.md
+          - WYZ0116: result/analyzers/WYZ0116.md
+          - WYZ0117: result/analyzers/WYZ0117.md
   - Maybe:
       - Getting started: maybe/getting-started.md
       - The railway: maybe/the-railway.md

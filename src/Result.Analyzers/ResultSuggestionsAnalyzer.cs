@@ -46,6 +46,12 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
         Rules.UseConvertFailure,
         Rules.UseSuccessIf,
         Rules.UseMapTry,
+        Rules.UseMapInsteadOfBind,
+        Rules.UseTapInsteadOfMap,
+        Rules.UseValueOr,
+        Rules.RemoveNoOpStep,
+        Rules.UseFailureWithMessage,
+        Rules.UseFlatten,
     ];
 
     /// <inheritdoc />
@@ -68,10 +74,19 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
             CheckEnsureNotNull(context, invocation);
             CheckBindZip(context, invocation);
             CheckMapTry(context, invocation);
+            CheckBindToMap(context, invocation);
+            CheckNoOpBind(context, invocation);
+            CheckFlatten(context, invocation);
         }
         else if (OperationShapes.IsResultExtension(method, "Map"))
         {
             CheckMapIf(context, invocation);
+            CheckMapToTap(context, invocation);
+            CheckNoOpMap(context, invocation);
+        }
+        else if (OperationShapes.IsResultExtension(method, "Match"))
+        {
+            CheckMatchToValueOr(context, invocation);
         }
         else if (OperationShapes.IsResultExtension(method, "Ensure"))
         {
@@ -80,6 +95,7 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
         else if (OperationShapes.IsResultFactory(method, "Failure"))
         {
             CheckConvertFailure(context, invocation);
+            CheckFailureWithMessage(context, invocation);
         }
     }
 
