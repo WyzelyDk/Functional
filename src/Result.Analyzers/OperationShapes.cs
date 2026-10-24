@@ -6,27 +6,6 @@ namespace Wyzely.Functional.ResultAnalyzers;
 /// <summary>Reads the shapes of calls and lambdas that the suggestion rules look for, so that each rule only says what it wants to see.</summary>
 internal static class OperationShapes
 {
-    /// <summary>Strips the implicit conversions and the parentheses around an operation.</summary>
-    /// <param name="operation">The operation to unwrap.</param>
-    /// <returns>The operation inside.</returns>
-    internal static IOperation Unwrap(IOperation operation)
-    {
-        while (true)
-        {
-            switch (operation)
-            {
-                case IConversionOperation { IsImplicit: true } conversion:
-                    operation = conversion.Operand;
-                    break;
-                case IParenthesizedOperation parenthesized:
-                    operation = parenthesized.Operand;
-                    break;
-                default:
-                    return operation;
-            }
-        }
-    }
-
     /// <summary>Determines whether a method is an extension method of the library's <c>ResultExtensions</c> with the given name.</summary>
     /// <param name="method">The method to test.</param>
     /// <param name="name">The name of the method.</param>
@@ -63,7 +42,7 @@ internal static class OperationShapes
         {
             if (argument.Parameter?.Name == parameterName)
             {
-                return Unwrap(argument.Value);
+                return OperationHelpers.Unwrap(argument.Value);
             }
         }
 
@@ -82,13 +61,13 @@ internal static class OperationShapes
         returned = null!;
 
         if (operation is not null
-            && Unwrap(operation) is IDelegateCreationOperation { Target: IAnonymousFunctionOperation function }
+            && OperationHelpers.Unwrap(operation) is IDelegateCreationOperation { Target: IAnonymousFunctionOperation function }
             && function.Symbol.Parameters.Length == parameterCount
             && function.Body.Operations.Length == 1
             && function.Body.Operations[0] is IReturnOperation { ReturnedValue: { } value })
         {
             lambda = function;
-            returned = Unwrap(value);
+            returned = OperationHelpers.Unwrap(value);
 
             return true;
         }
@@ -101,7 +80,7 @@ internal static class OperationShapes
     /// <param name="parameter">The parameter.</param>
     /// <returns><see langword="true"/> when the operation is a plain read of the parameter.</returns>
     internal static bool IsParameter(IOperation operation, IParameterSymbol parameter) =>
-        Unwrap(operation) is IParameterReferenceOperation reference && SymbolEqualityComparer.Default.Equals(reference.Parameter, parameter);
+        OperationHelpers.Unwrap(operation) is IParameterReferenceOperation reference && SymbolEqualityComparer.Default.Equals(reference.Parameter, parameter);
 
     /// <summary>Determines whether an operation reads a parameter anywhere inside it.</summary>
     /// <param name="operation">The operation to search.</param>
@@ -115,20 +94,6 @@ internal static class OperationShapes
         }
 
         return operation.ChildOperations.Any(child => UsesParameter(child, parameter));
-    }
-
-    /// <summary>
-    /// Determines whether evaluating an operation ahead of time costs nothing and cannot change anything: a constant, or a read of a local, a
-    /// parameter or a field. Anything else (a call, an allocation) has to stay lazy when a rewrite would otherwise evaluate it on every call.
-    /// </summary>
-    /// <param name="operation">The operation to test.</param>
-    /// <returns><see langword="true"/> for a cheap and safe operation.</returns>
-    internal static bool IsCheap(IOperation operation)
-    {
-        var inner = Unwrap(operation);
-
-        return inner.ConstantValue.HasValue
-            || inner is ILocalReferenceOperation or IParameterReferenceOperation or IFieldReferenceOperation or IDefaultValueOperation;
     }
 
     /// <summary>Determines whether an operation, or an operation inside it, is of a kind.</summary>
@@ -164,7 +129,7 @@ internal static class OperationShapes
     /// <param name="parameter">The parameter.</param>
     /// <returns><see langword="true"/> when the operation just wraps the parameter in a successful result.</returns>
     internal static bool IsSuccessOf(IOperation operation, IParameterSymbol parameter) =>
-        Unwrap(operation) is IInvocationOperation { Arguments.Length: 1 } invocation
+        OperationHelpers.Unwrap(operation) is IInvocationOperation { Arguments.Length: 1 } invocation
         && IsResultFactory(invocation.TargetMethod, "Success")
         && IsParameter(invocation.Arguments[0].Value, parameter);
 }

@@ -136,7 +136,7 @@ The `sonarcloud` job is part of the gate, so a pull request cannot be merged whi
 - **Forks:** the token is not available to a pull request from a fork, so the analysis is skipped there with a warning. A missing token
   anywhere else fails the job.
 - **Coverage exclusions** are set in the `begin` step (`sonar.coverage.exclusions`): the samples, the benchmarks, the generator tools and
-  the analyzers, which the tests' coverage does not measure.
+  the analyzers (also the source they share in `src/Shared/Analyzers`), which the tests' coverage does not measure.
 - **The build is not `-warnaserror` here:** the scanner changes the build and adds the rules of the SonarCloud profile. The strict build is
   the one in `build-and-test`. The rules that the analyzer package leaves off by default but SonarCloud applies are switched on in
   `.editorconfig`, so a local build already reports them.

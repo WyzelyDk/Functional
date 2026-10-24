@@ -58,7 +58,7 @@ can watch the generated tests fail first.
 ```
 src/Maybe                      the library
 src/Maybe.Analyzers            the Roslyn analyzer (packed into the library package)
-src/Maybe.Analyzers.CodeFixes  the code fix project (WYZ0201 has no code fix)
+src/Maybe.Analyzers.CodeFixes  the code fixes (WYZ0201 has none; WYZ0202 to WYZ0204 do)
 src/Maybe.CodeGeneration       the generator for the async variants and their tests
 src/Functional                 the umbrella package: Result, Maybe and the methods between them
 test/                          unit, analyzer and nullability tests (Maybe.Tests, Maybe.Analyzers.Tests, Functional.Tests)

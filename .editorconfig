@@ -508,8 +508,8 @@ dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
 # Treat as generated code (the code generators write these files, so analyzers skip them)
 generated_code = true
 
-# Test projects
-[**/*.Tests/**.cs]
+# Test projects, and the test code that the analyzer test projects share as source
+[{**/*.Tests/**.cs,test/AnalyzerTesting/**.cs}]
 # Sonar way rules that SonarCloud applies to main code only, not to tests
 # String literals should not be duplicated
 dotnet_diagnostic.S1192.severity = none

@@ -27,7 +27,7 @@ public sealed partial class ResultSuggestionsAnalyzer
         }
 
         // A branch that is a failure is a validation, which Ensure and EnsureNotNull say better.
-        var other = OperationShapes.Unwrap(whenTrueIsPass ? whenFalse : whenTrue);
+        var other = OperationHelpers.Unwrap(whenTrueIsPass ? whenFalse : whenTrue);
 
         if (other is IInvocationOperation otherCall && OperationShapes.IsResultFactory(otherCall.TargetMethod, "Failure"))
         {
@@ -60,7 +60,7 @@ public sealed partial class ResultSuggestionsAnalyzer
 
         var other = whenTrueIsPass ? whenFalse : whenTrue;
 
-        if (!SymbolEqualityComparer.Default.Equals(OperationShapes.Unwrap(other).Type, parameter.Type))
+        if (!SymbolEqualityComparer.Default.Equals(OperationHelpers.Unwrap(other).Type, parameter.Type))
         {
             return;
         }
@@ -88,8 +88,8 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        var failure = OperationShapes.Unwrap(isNullWhenTrue.Value ? whenTrue : whenFalse);
-        var success = OperationShapes.Unwrap(isNullWhenTrue.Value ? whenFalse : whenTrue);
+        var failure = OperationHelpers.Unwrap(isNullWhenTrue.Value ? whenTrue : whenFalse);
+        var success = OperationHelpers.Unwrap(isNullWhenTrue.Value ? whenFalse : whenTrue);
 
         if (!IsSuccessWithValue(success, parameter) || failure is not IInvocationOperation { Arguments.Length: 1 } failed)
         {
@@ -108,7 +108,7 @@ public sealed partial class ResultSuggestionsAnalyzer
             context,
             Rules.UseEnsureNotNull,
             invocation,
-            [Flag(LazyProperty, !OperationShapes.IsCheap(error)), Flag(MessageProperty, error.Type?.SpecialType == SpecialType.System_String)]);
+            [Flag(LazyProperty, !OperationHelpers.IsCheap(error)), Flag(MessageProperty, error.Type?.SpecialType == SpecialType.System_String)]);
     }
 
     private static bool TryGetConditionalLambda(
@@ -139,7 +139,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     // Returns true when the condition is true for null, false when it is true for not null, and null when it is not a null check of the parameter.
     private static bool? NullCheck(IOperation condition, IParameterSymbol parameter)
     {
-        switch (OperationShapes.Unwrap(condition))
+        switch (OperationHelpers.Unwrap(condition))
         {
             case IIsPatternOperation pattern when OperationShapes.IsParameter(pattern.Value, parameter):
                 if (pattern.Pattern is IConstantPatternOperation constant && IsNull(constant.Value))
@@ -165,7 +165,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     }
 
     private static bool IsNull(IOperation operation) =>
-        OperationShapes.Unwrap(operation).ConstantValue is { HasValue: true, Value: null };
+        OperationHelpers.Unwrap(operation).ConstantValue is { HasValue: true, Value: null };
 
     private static bool IsNullableValueType(ITypeSymbol type) => type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T };
 
@@ -179,7 +179,7 @@ public sealed partial class ResultSuggestionsAnalyzer
 
         return operation is IInvocationOperation { Arguments.Length: 1 } call
             && OperationShapes.IsResultFactory(call.TargetMethod, "Success")
-            && OperationShapes.Unwrap(call.Arguments[0].Value) is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
+            && OperationHelpers.Unwrap(call.Arguments[0].Value) is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
             && OperationShapes.IsParameter(instance, parameter);
     }
 }

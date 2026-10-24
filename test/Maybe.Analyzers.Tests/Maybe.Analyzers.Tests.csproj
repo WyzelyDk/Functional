@@ -8,11 +8,18 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shared as source between the two analyzer test projects. -->
+    <Compile Include="..\AnalyzerTesting\*.cs" Link="AnalyzerTesting\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Maybe\Maybe.csproj" />
     <ProjectReference Include="..\..\src\Maybe.Analyzers\Maybe.Analyzers.csproj" />
+    <ProjectReference Include="..\..\src\Maybe.Analyzers.CodeFixes\Maybe.Analyzers.CodeFixes.csproj" />
   </ItemGroup>
 
 </Project>

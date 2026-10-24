@@ -14,7 +14,7 @@ analyzers use these ranges:
 | Range | Package | Rules |
 |---|---|---|
 | `WYZ01xx` | `Wyzely.Functional.Result` | [`WYZ0101`](result/analyzers/WYZ0101.md), [`WYZ0102`](result/analyzers/WYZ0102.md), and the suggestions [`WYZ0103`](result/analyzers/WYZ0103.md) to [`WYZ0110`](result/analyzers/WYZ0110.md) and [`WYZ0112`](result/analyzers/WYZ0112.md) to [`WYZ0117`](result/analyzers/WYZ0117.md), and [`WYZ0111`](result/analyzers/WYZ0111.md) (a value interpolated into the message of an error) |
-| `WYZ02xx` | `Wyzely.Functional.Maybe` | [`WYZ0201`](maybe/analyzers/WYZ0201.md) |
+| `WYZ02xx` | `Wyzely.Functional.Maybe` | [`WYZ0201`](maybe/analyzers/WYZ0201.md), and the suggestions [`WYZ0202`](maybe/analyzers/WYZ0202.md) to [`WYZ0204`](maybe/analyzers/WYZ0204.md) |
 
 A package that has no analyzers uses no range. The next package that ships analyzers takes the next free number, and the table above is
 updated in the same pull request.

@@ -24,7 +24,7 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        var value = OperationShapes.Unwrap(success.Arguments[0].Value);
+        var value = OperationHelpers.Unwrap(success.Arguments[0].Value);
 
         if (!OperationShapes.IsParameter(value, lambda.Symbol.Parameters[0])
             && SymbolEqualityComparer.Default.Equals(value.Type, success.TargetMethod.TypeArguments[0]))
@@ -81,7 +81,7 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        if (OperationShapes.IsCheap(fallback) && !OperationShapes.UsesParameter(fallback, failure.Symbol.Parameters[0]))
+        if (OperationHelpers.IsCheap(fallback) && !OperationShapes.UsesParameter(fallback, failure.Symbol.Parameters[0]))
         {
             Report(context, Rules.UseValueOr, invocation, []);
         }
@@ -119,7 +119,7 @@ public sealed partial class ResultSuggestionsAnalyzer
             && create.ContainingType.Name == "Error"
             && create.Parameters.Length == 1)
         {
-            var message = OperationShapes.Unwrap(created.Arguments[0].Value);
+            var message = OperationHelpers.Unwrap(created.Arguments[0].Value);
 
             if (!message.ConstantValue.HasValue || message.ConstantValue.Value is not null)
             {

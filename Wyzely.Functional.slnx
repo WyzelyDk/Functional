@@ -74,6 +74,9 @@
   </Folder>
   <Folder Name="/docs/maybe/analyzers/">
     <File Path="docs/maybe/analyzers/WYZ0201.md" />
+    <File Path="docs/maybe/analyzers/WYZ0202.md" />
+    <File Path="docs/maybe/analyzers/WYZ0203.md" />
+    <File Path="docs/maybe/analyzers/WYZ0204.md" />
   </Folder>
   <Folder Name="/docs/result/">
     <File Path="docs/result/async.md" />

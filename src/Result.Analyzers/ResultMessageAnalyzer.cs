@@ -33,7 +33,7 @@ public sealed class ResultMessageAnalyzer : DiagnosticAnalyzer
         foreach (var argument in invocation.Arguments)
         {
             if (argument.Parameter is { Name: "message" or "context", Type.SpecialType: SpecialType.System_String }
-                && OperationShapes.Unwrap(argument.Value) is IInterpolatedStringOperation { ConstantValue.HasValue: false } interpolated)
+                && OperationHelpers.Unwrap(argument.Value) is IInterpolatedStringOperation { ConstantValue.HasValue: false } interpolated)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rules.InterpolatedMessage, interpolated.Syntax.GetLocation(), method.Name));
             }

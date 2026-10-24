@@ -28,8 +28,8 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        var whenTrue = OperationShapes.Unwrap(conditional.WhenTrue);
-        var whenFalse = OperationShapes.Unwrap(otherwise);
+        var whenTrue = OperationHelpers.Unwrap(conditional.WhenTrue);
+        var whenFalse = OperationHelpers.Unwrap(otherwise);
         var successFirst = IsSuccessWithoutValue(whenTrue);
 
         if (successFirst == IsSuccessWithoutValue(whenFalse))
@@ -49,7 +49,7 @@ public sealed partial class ResultSuggestionsAnalyzer
         var error = OperationShapes.ArgumentOf(failed, "error") ?? OperationShapes.ArgumentOf(failed, "message");
 
         // Passing the error as a function would allocate a delegate on every call, so an error that is not a constant, a local or a field stays as it is.
-        if (error is null || !OperationShapes.IsCheap(error))
+        if (error is null || !OperationHelpers.IsCheap(error))
         {
             return;
         }

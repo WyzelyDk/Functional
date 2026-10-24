@@ -12,6 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Shared as source between the two analyzer test projects. -->
+    <Compile Include="..\AnalyzerTesting\*.cs" Link="AnalyzerTesting\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Result\Result.csproj" />
     <ProjectReference Include="..\..\src\Result.Analyzers\Result.Analyzers.csproj" />
     <ProjectReference Include="..\..\src\Result.Analyzers.CodeFixes\Result.Analyzers.CodeFixes.csproj" />

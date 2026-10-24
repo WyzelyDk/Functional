@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Shared as source, not as an assembly (see src/Shared/Shared.csproj). -->
+    <Compile Include="..\Shared\Analyzers\OperationHelpers.cs" Link="Shared\OperationHelpers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

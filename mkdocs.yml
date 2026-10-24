@@ -105,6 +105,9 @@ nav:
       - Performance: maybe/performance.md
       - Analyzer rules:
           - WYZ0201: maybe/analyzers/WYZ0201.md
+          - WYZ0202: maybe/analyzers/WYZ0202.md
+          - WYZ0203: maybe/analyzers/WYZ0203.md
+          - WYZ0204: maybe/analyzers/WYZ0204.md
   - Functional:
       - Getting started: functional/getting-started.md
       - 'Interop: ToResult and ToMaybe': functional/interop.md
