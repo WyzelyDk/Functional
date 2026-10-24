@@ -9,9 +9,10 @@ namespace Wyzely.Functional.MaybeAnalyzers;
 /// <summary>Rewrites the code that the suggestion rules (WYZ0202 to WYZ0204) point at into the method of the library that says what it does.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MaybeSuggestionsCodeFixProvider))]
 [System.Composition.Shared]
-public sealed class MaybeSuggestionsCodeFixProvider : CodeFixProvider
+public sealed class MaybeSuggestionsCodeFixProvider : RewriteCodeFixProvider
 {
-    private static readonly ImmutableDictionary<string, string> Titles = new Dictionary<string, string>
+    /// <inheritdoc />
+    protected override ImmutableDictionary<string, string> Titles { get; } = new Dictionary<string, string>
     {
         ["WYZ0202"] = "Use Any",
         ["WYZ0203"] = "Use ValueOr",
@@ -19,20 +20,12 @@ public sealed class MaybeSuggestionsCodeFixProvider : CodeFixProvider
     }.ToImmutableDictionary();
 
     /// <inheritdoc />
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [.. Titles.Keys.OrderBy(id => id, StringComparer.Ordinal)];
-
-    /// <inheritdoc />
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-    /// <inheritdoc />
-    public override Task RegisterCodeFixesAsync(CodeFixContext context) => RewriteFixes.RegisterAsync(context, Titles, TargetOf, Rewrite);
-
     // The member access that ends in IsSome for WYZ0202, otherwise the conditional expression.
-    private static SyntaxNode? TargetOf(SyntaxNode node, string id) => id == "WYZ0202"
-        ? node.AncestorsAndSelf().OfType<MemberAccessExpressionSyntax>().FirstOrDefault()
-        : node.AncestorsAndSelf().OfType<ConditionalExpressionSyntax>().FirstOrDefault();
+    protected override bool IsTarget(SyntaxNode node, string id) =>
+        id == "WYZ0202" ? node is MemberAccessExpressionSyntax : node is ConditionalExpressionSyntax;
 
-    private static InvocationExpressionSyntax? Rewrite(SyntaxNode target, Diagnostic diagnostic) => (target, diagnostic.Id) switch
+    /// <inheritdoc />
+    protected override SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic) => (target, diagnostic.Id) switch
     {
         (MemberAccessExpressionSyntax access, "WYZ0202") => Any(access),
         (ConditionalExpressionSyntax conditional, "WYZ0203") => ValueOr(conditional),

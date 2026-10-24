@@ -11,9 +11,10 @@ namespace Wyzely.Functional.ResultAnalyzers;
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SuggestionsCodeFixProvider))]
 [System.Composition.Shared]
-public sealed class SuggestionsCodeFixProvider : CodeFixProvider
+public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
 {
-    private static readonly ImmutableDictionary<string, string> Titles = new Dictionary<string, string>
+    /// <inheritdoc />
+    protected override ImmutableDictionary<string, string> Titles { get; } = new Dictionary<string, string>
     {
         ["WYZ0103"] = "Use BindIf",
         ["WYZ0104"] = "Use MapIf",
@@ -32,20 +33,11 @@ public sealed class SuggestionsCodeFixProvider : CodeFixProvider
     }.ToImmutableDictionary();
 
     /// <inheritdoc />
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [.. Titles.Keys.OrderBy(id => id, StringComparer.Ordinal)];
-
-    /// <inheritdoc />
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-    /// <inheritdoc />
-    public override Task RegisterCodeFixesAsync(CodeFixContext context) => RewriteFixes.RegisterAsync(context, Titles, TargetOf, Rewrite);
-
     // The conditional expression for WYZ0109, otherwise the call that the diagnostic is reported on.
-    private static SyntaxNode? TargetOf(SyntaxNode node, string id) => id == "WYZ0109"
-        ? node.AncestorsAndSelf().OfType<ConditionalExpressionSyntax>().FirstOrDefault()
-        : node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+    protected override bool IsTarget(SyntaxNode node, string id) => id == "WYZ0109" ? node is ConditionalExpressionSyntax : node is InvocationExpressionSyntax;
 
-    private static SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic)
+    /// <inheritdoc />
+    protected override SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic)
     {
         var properties = diagnostic.Properties;
 

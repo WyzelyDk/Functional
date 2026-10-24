@@ -292,7 +292,7 @@ jobs:
           /o:"wyzelydk"
           /d:sonar.token="$SONAR_TOKEN"
           /d:sonar.cs.cobertura.reportsPaths="**/TestResults/*.cobertura.xml"
-          /d:sonar.coverage.exclusions="samples/**,benchmarks/**,src/*.CodeGeneration/**,src/Shared/CodeGeneration/**,src/*.Analyzers/**,src/*.Analyzers.CodeFixes/**,.github/**"
+          /d:sonar.coverage.exclusions="samples/**,benchmarks/**,src/*.CodeGeneration/**,src/Shared/CodeGeneration/**,src/Shared/Analyzers/**,src/*.Analyzers/**,src/*.Analyzers.CodeFixes/**,.github/**"
           /d:sonar.cpd.exclusions="benchmarks/**,src/*.CodeGeneration/**"
           /d:sonar.exclusions="assets/**"
           /d:sonar.python.version=3.13

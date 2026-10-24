@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <!-- Shared as source, not as an assembly (see src/Shared/Shared.csproj). -->
-    <Compile Include="..\Shared\Analyzers\RewriteFixes.cs" Link="Shared\RewriteFixes.cs" />
+    <Compile Include="..\Shared\Analyzers\RewriteCodeFixProvider.cs" Link="Shared\RewriteCodeFixProvider.cs" />
   </ItemGroup>
 
   <ItemGroup>

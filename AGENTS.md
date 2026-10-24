@@ -98,7 +98,7 @@ The library is judged by how it feels to use, not only by what it can do.
   `src/Shared/CodeGeneration` (the generator engine) into both generator projects. A separate assembly would have to ship in the package or
   expose its types, which would let a consumer reach them. What differs between `Result` and `Maybe` in the generator is one
   `GeneratorProfile`; the number of values `Zip` combines is `GeneratorSettings.MaxZipArity`, defined once. The two analyzer projects share
-  `src/Shared/Analyzers/OperationHelpers.cs` and the two code fix projects `RewriteFixes.cs` the same way (linked in their project files; they need
+  `src/Shared/Analyzers/OperationHelpers.cs` and the two code fix projects the base class `RewriteCodeFixProvider.cs` the same way (linked in their project files; they need
   the Roslyn references, so `Shared.csproj` only lists them), and the two analyzer test projects share `test/AnalyzerTesting`. **Duplication is
   a failure of the SonarCloud gate** (new code may not be duplicated by more than a few percent): when a new `Result` rule has a counterpart for
   `Maybe`, put what they have in common in one of these places instead of copying it.
