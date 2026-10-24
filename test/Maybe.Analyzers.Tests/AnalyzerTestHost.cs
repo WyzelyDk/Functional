@@ -18,10 +18,13 @@ internal static class AnalyzerTestHost
         """;
 
     // Returns the ids of the diagnostics that the analyzer reports for the members of a class.
-    internal static async Task<string[]> AnalyzeAsync(string members)
+    internal static Task<string[]> AnalyzeAsync(string members) => AnalyzeAsync(members, new MaybeUsageAnalyzer());
+
+    // Returns the ids of the diagnostics that the given analyzer reports for the members of a class.
+    internal static async Task<string[]> AnalyzeAsync(string members, DiagnosticAnalyzer analyzer)
     {
         var compilation = Compile(members);
-        var withAnalyzers = compilation.WithAnalyzers([new MaybeUsageAnalyzer()]);
+        var withAnalyzers = compilation.WithAnalyzers([analyzer]);
         var diagnostics = await withAnalyzers.GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken);
 
         return [.. diagnostics.Select(diagnostic => diagnostic.Id).OrderBy(id => id, StringComparer.Ordinal)];
@@ -40,6 +43,15 @@ internal static class AnalyzerTestHost
         return [.. warnings];
     }
 
+    internal static List<MetadataReference> References()
+    {
+        var trusted = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
+        var paths = trusted.Split(Path.PathSeparator).ToList();
+        paths.Add(typeof(Maybe<>).Assembly.Location);
+
+        return [.. paths.Distinct(StringComparer.OrdinalIgnoreCase).Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))];
+    }
+
     private static CSharpCompilation Compile(string members)
     {
         var source = Header + "public class Sample\n{\n" + members + "\n}\n";
@@ -54,14 +66,5 @@ internal static class AnalyzerTestHost
         Assert.True(errors.Count == 0, "The snippet does not compile: " + string.Join("; ", errors));
 
         return compilation;
-    }
-
-    private static List<MetadataReference> References()
-    {
-        var trusted = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
-        var paths = trusted.Split(Path.PathSeparator).ToList();
-        paths.Add(typeof(Maybe<>).Assembly.Location);
-
-        return [.. paths.Distinct(StringComparer.OrdinalIgnoreCase).Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))];
     }
 }

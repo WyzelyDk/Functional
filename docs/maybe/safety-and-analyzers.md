@@ -13,11 +13,14 @@ unfilled.GetValue();       // throws InvalidOperationException: "The maybe has n
 There is nothing to fail loudly about for a `default` maybe: an unassigned field or array slot simply has no value, which
 is what it would mean anyway. The one mistake that throws is reading the value of a none with `GetValue()`, and that is what the analyzer is for.
 
-The package ships one analyzer, a warning that is enabled by default:
+The package ships analyzers, all enabled by default: `WYZ0201` is a warning, and `WYZ0202` to `WYZ0204` are suggestions (info) that point at the method of the library that says what a piece of code does.
 
 | Id | Reports | Fix | Code fix |
 |---|---|---|---|
 | [`WYZ0201`](analyzers/WYZ0201.md) | `GetValue()` that is not guarded by a check of the same maybe | check `IsSome` / `IsNone` first, or use `TryGetValue`, `ValueOr` or `Match` | no (see the page for why) |
+| [`WYZ0202`](analyzers/WYZ0202.md) | `maybe.Filter(p).IsSome` | `maybe.Any(p)` | yes |
+| [`WYZ0203`](analyzers/WYZ0203.md) | `maybe.IsSome ? maybe.GetValue() : fallback` with a cheap fallback | `maybe.ValueOr(fallback)` | yes |
+| [`WYZ0204`](analyzers/WYZ0204.md) | `x is null ? Maybe.None<T>() : Maybe.Some(x)` | `Maybe.From(x)` | yes |
 
 Change the severity in `.editorconfig`:
 

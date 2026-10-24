@@ -8,11 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Maybe\Maybe.csproj" />
     <ProjectReference Include="..\..\src\Maybe.Analyzers\Maybe.Analyzers.csproj" />
+    <ProjectReference Include="..\..\src\Maybe.Analyzers.CodeFixes\Maybe.Analyzers.CodeFixes.csproj" />
   </ItemGroup>
 
 </Project>

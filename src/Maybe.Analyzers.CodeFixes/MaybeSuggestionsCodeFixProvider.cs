@@ -1,0 +1,141 @@
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
+
+namespace Wyzely.Functional.MaybeAnalyzers;
+
+/// <summary>Rewrites the code that the suggestion rules (WYZ0202 to WYZ0204) point at into the method of the library that says what it does.</summary>
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MaybeSuggestionsCodeFixProvider))]
+[System.Composition.Shared]
+public sealed class MaybeSuggestionsCodeFixProvider : CodeFixProvider
+{
+    private static readonly ImmutableDictionary<string, string> Titles = new Dictionary<string, string>
+    {
+        ["WYZ0202"] = "Use Any",
+        ["WYZ0203"] = "Use ValueOr",
+        ["WYZ0204"] = "Use Maybe.From",
+    }.ToImmutableDictionary();
+
+    /// <inheritdoc />
+    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [.. Titles.Keys.OrderBy(id => id, StringComparer.Ordinal)];
+
+    /// <inheritdoc />
+    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+
+    /// <inheritdoc />
+    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    {
+        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+        var diagnostic = context.Diagnostics[0];
+
+        if (root is null || !Titles.TryGetValue(diagnostic.Id, out var title))
+        {
+            return;
+        }
+
+        var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var target = TargetOf(node, diagnostic.Id);
+
+        if (target is null || Rewrite(target, diagnostic.Id) is null)
+        {
+            return;
+        }
+
+        context.RegisterCodeFix(
+            CodeAction.Create(title, token => ApplyAsync(context.Document, target, diagnostic.Id, token), equivalenceKey: diagnostic.Id),
+            diagnostic);
+    }
+
+    // The member access that ends in IsSome for WYZ0202, otherwise the conditional expression.
+    private static SyntaxNode? TargetOf(SyntaxNode node, string id) => id == "WYZ0202"
+        ? node.AncestorsAndSelf().OfType<MemberAccessExpressionSyntax>().FirstOrDefault()
+        : node.AncestorsAndSelf().OfType<ConditionalExpressionSyntax>().FirstOrDefault();
+
+    private static InvocationExpressionSyntax? Rewrite(SyntaxNode target, string id) => (target, id) switch
+    {
+        (MemberAccessExpressionSyntax access, "WYZ0202") => Any(access),
+        (ConditionalExpressionSyntax conditional, "WYZ0203") => ValueOr(conditional),
+        (ConditionalExpressionSyntax conditional, "WYZ0204") => From(conditional),
+        _ => null,
+    };
+
+    private static async Task<Document> ApplyAsync(Document document, SyntaxNode target, string id, CancellationToken token)
+    {
+        var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
+        var replacement = Rewrite(target, id)!.WithTriviaFrom(target).WithAdditionalAnnotations(Formatter.Annotation);
+
+        return document.WithSyntaxRoot(root!.ReplaceNode(target, replacement));
+    }
+
+    // WYZ0202: maybe.Filter(p).IsSome becomes maybe.Any(p).
+    private static InvocationExpressionSyntax? Any(MemberAccessExpressionSyntax access) =>
+        access.Expression is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax filter } call
+            ? call.WithExpression(filter.WithName(SyntaxFactory.IdentifierName("Any")))
+            : null;
+
+    // WYZ0203: maybe.IsSome ? maybe.GetValue() : fallback becomes maybe.ValueOr(fallback), and maybe.IsNone ? fallback : maybe.GetValue() too.
+    private static InvocationExpressionSyntax? ValueOr(ConditionalExpressionSyntax conditional)
+    {
+        if (StripParentheses(conditional.Condition) is not MemberAccessExpressionSyntax { Name.Identifier.ValueText: "IsSome" or "IsNone" } check)
+        {
+            return null;
+        }
+
+        var fallback = check.Name.Identifier.ValueText == "IsSome" ? conditional.WhenFalse : conditional.WhenTrue;
+
+        return SyntaxFactory.InvocationExpression(
+            SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                check.Expression.WithoutTrivia(),
+                SyntaxFactory.IdentifierName("ValueOr")),
+            SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(StripParentheses(fallback).WithoutTrivia()))));
+    }
+
+    // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) becomes Maybe.From(x). The qualifier is taken from the call of Some, so that it is written
+    // the way the code already writes it.
+    private static InvocationExpressionSyntax? From(ConditionalExpressionSyntax conditional)
+    {
+        var some = new[] { conditional.WhenTrue, conditional.WhenFalse }
+            .Select(StripParentheses)
+            .OfType<InvocationExpressionSyntax>()
+            .FirstOrDefault(call => call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Some" });
+
+        var value = NullCheckedExpression(StripParentheses(conditional.Condition));
+
+        if (some is null || value is null)
+        {
+            return null;
+        }
+
+        var access = (MemberAccessExpressionSyntax)some.Expression;
+
+        return SyntaxFactory.InvocationExpression(
+            access.WithName(SyntaxFactory.IdentifierName("From")),
+            SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value.WithoutTrivia()))));
+    }
+
+    // The expression that a null check is about: x in x is null, x is not null, x == null and x != null.
+    private static ExpressionSyntax? NullCheckedExpression(ExpressionSyntax condition) => condition switch
+    {
+        IsPatternExpressionSyntax pattern => pattern.Expression,
+        BinaryExpressionSyntax binary when IsNull(binary.Right) => binary.Left,
+        BinaryExpressionSyntax binary when IsNull(binary.Left) => binary.Right,
+        _ => null,
+    };
+
+    private static bool IsNull(ExpressionSyntax expression) => StripParentheses(expression).IsKind(SyntaxKind.NullLiteralExpression);
+
+    private static ExpressionSyntax StripParentheses(ExpressionSyntax expression)
+    {
+        while (expression is ParenthesizedExpressionSyntax parenthesized)
+        {
+            expression = parenthesized.Expression;
+        }
+
+        return expression;
+    }
+}
