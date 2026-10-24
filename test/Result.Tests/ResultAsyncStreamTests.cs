@@ -152,6 +152,31 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
+    internal async Task SelectEach_awaits_a_selector_that_returns_a_task_for_a_result_of_a_plain_sequence()
+    {
+        var results = await AsyncStreams.ToListAsync(
+            Result.Success<IEnumerable<int>>([1, 2]).SelectEach(static async item =>
+            {
+                await Task.Yield();
+
+                return Result.Success(item * 10);
+            }),
+            Token);
+
+        Assert.Equal([10, 20], results.Select(static result => result.GetValue()));
+    }
+
+    [Fact]
+    internal async Task SelectEach_awaits_a_selector_that_returns_a_value_task_for_a_result_of_a_plain_sequence()
+    {
+        var results = await AsyncStreams.ToListAsync(
+            Result.Success<IEnumerable<int>>([1, 2]).SelectEach(static item => new ValueTask<Result<int>>(Result.Success(item * 10))),
+            Token);
+
+        Assert.Equal([10, 20], results.Select(static result => result.GetValue()));
+    }
+
+    [Fact]
     internal async Task SelectEach_yields_the_failure_of_the_receiver_once_without_calling_the_selector()
     {
         var calls = 0;
@@ -195,6 +220,27 @@ public sealed class ResultAsyncStreamTests
         await enumerator.MoveNextAsync();
 
         Assert.Equal(1, calls);
+    }
+
+    [Fact]
+    internal async Task SelectEach_can_be_left_after_the_failure_of_the_receiver_without_reading_further()
+    {
+        var stream = Result.Failure<IReadOnlyList<int>>(First).SelectEach(static item => Result.Success(item));
+
+        await using var enumerator = stream.GetAsyncEnumerator(Token);
+        var read = await enumerator.MoveNextAsync();
+
+        Assert.Multiple(
+            () => Assert.True(read),
+            () => Assert.Same(First, enumerator.Current.GetError()));
+    }
+
+    [Fact]
+    internal async Task SelectEach_lets_an_exception_of_the_selector_escape()
+    {
+        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach<int, int>(static _ => throw new InvalidOperationException("boom"));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await AsyncStreams.ToListAsync(stream, Token));
     }
 
     [Fact]

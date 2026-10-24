@@ -90,6 +90,23 @@ public sealed class EnsureSomeTests
     }
 
     [Fact]
+    internal async Task EnsureSome_with_a_factory_takes_the_fast_path_for_a_completed_task_and_waits_for_a_pending_value_task()
+    {
+        var completed = await Task.FromResult(Result.Success(Maybe.Some(2))).EnsureSome(static () => Missing);
+
+        var source = new TaskCompletionSource<Result<Maybe<int>>>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var waiting = new ValueTask<Result<Maybe<int>>>(source.Task).EnsureSome(static () => Missing);
+        var stillWaiting = !waiting.IsCompleted;
+        source.SetResult(Result.Success(Maybe.Some(3)));
+        var pending = await waiting;
+
+        Assert.Multiple(
+            () => Assert.Equal(2, completed.GetValue()),
+            () => Assert.True(stillWaiting),
+            () => Assert.Equal(3, pending.GetValue()));
+    }
+
+    [Fact]
     internal async Task EnsureSome_ends_a_chain_without_an_await_in_the_middle()
     {
         var outcome = await Task.FromResult(Result.Success(Maybe.Some(2)))

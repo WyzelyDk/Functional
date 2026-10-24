@@ -108,6 +108,14 @@ public sealed class MaybeAsyncStreamTests
     }
 
     [Fact]
+    internal async Task SingleOrNone_of_an_empty_stream_is_none()
+    {
+        var outcome = await AsyncStreams.Of<int>().SingleOrNone(Token);
+
+        Assert.True(outcome.IsNone);
+    }
+
+    [Fact]
     internal async Task SingleOrNone_is_none_for_two_elements_and_stops_reading_at_the_second()
     {
         var pulled = 0;
