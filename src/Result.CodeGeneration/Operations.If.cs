@@ -34,200 +34,236 @@ internal static partial class Operations
     // A method, not a field: the order in which static fields of partial files are initialized is not defined, and All reads this.
     private static IfShape[] CreateIfShapes() =>
     [
-        new()
-        {
-            Name = "MapIf",
-            BaseName = "Map",
-            StemPart = "MapIf",
-            Typed = true,
-            Summary = "Transforms the value of a successful result, keeping its type, when a condition holds. Otherwise, and for a failed result, " +
-                "the receiver is returned as it was and the delegate is not called.",
-            Delegate = new("map", ["T"], "T", "Computes the new value from the value of the successful result."),
-            ReturnDescription = "A successful result that holds the value computed by the delegate when the condition held, otherwise the receiver.",
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Returns("map", ["x"], "x * 10", "int"),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", "Assert.Equal(1, mapCalls);"],
-            SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(0, mapCalls);"],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, "Assert.Equal(0, mapCalls);"],
-            Act = ctx => [$"var mapped = {ctx.Call("map", InputName)};", "return Result<T>.Succeeded(mapped);"],
-        },
-        new()
-        {
-            Name = BindIfName,
-            BaseName = "Bind",
-            StemPart = BindIfName,
-            Typed = true,
-            Summary = "Chains an operation that can fail and returns a result of the same type, when a condition holds. Otherwise, and for a failed " +
-                "result, the receiver is returned as it was and the delegate is not called.",
-            Delegate = new(BindName, ["T"], ResultOfT, "The operation to run with the value of the successful result."),
-            ReturnDescription = "The result of the delegate when the condition held, otherwise the receiver.",
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Returns(BindName, ["x"], "Result.Success(x * 10)", ResultOfInt),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", AssertEqual1BindCalls],
-            SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual0BindCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
-            Act = ctx => [$"return {ctx.Call(BindName, InputName)};"],
-            ActForwarded = [$"return {BindName}({InputName});"],
-        },
-        new()
-        {
-            Name = TapIfName,
-            BaseName = "Tap",
-            StemPart = TapIfName,
-            Typed = true,
-            KeepsValue = true,
-            StateChange = StateChange.Never,
-            Summary = "Runs a side effect with the value of a successful result when a condition holds, and returns the result unchanged. The delegate " +
-                "is not called for a failed result or when the condition does not hold.",
-            Delegate = new(TapName, ["T"], "void", "The side effect to run with the value of the successful result."),
-            ReturnDescription = ReceiverUnchangedDescription,
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Does(TapName, ["x"], "seen = x;"),
-            Setup = ["var seen = 0;"],
-            RunAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(2, seen);", "Assert.Equal(1, tapCalls);"],
-            SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(0, seen);", AssertNoTapCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-            Act = ctx => [ctx.CallStatement(TapName, InputName), string.Empty, $"return {ctx.R};"],
-        },
-        new()
-        {
-            Name = EnsureIfName,
-            BaseName = "Ensure",
-            StemPart = EnsureIfName,
-            Typed = true,
-            KeepsValue = true,
-            Summary = "Validates the value of a successful result with an operation that returns a result, when a condition holds, and keeps the " +
-                "original value when that operation succeeds. The delegate is not called for a failed result or when the condition does not hold.",
-            Delegate = new(ValidationName, ["T"], ResultType, "The validation to run with the value of the successful result."),
-            ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, otherwise a failed result with " +
-                "the error of the validation.",
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Returns(ValidationName, ["x"], "Result.Failure(other)", ResultType),
-            PassTest = Returns(ValidationName, ["x"], SuccessWithoutValue, ResultType),
-            Setup = [OtherErrorSetup],
-            RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1ValidationCalls],
-            SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertNoValidationCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoValidationCalls],
-            Act = ctx => EnsureAct(ctx, "validationResult.FailureOrNull()"),
-        },
-        new()
-        {
-            Name = EnsureIfName,
-            BaseName = "Ensure",
-            StemPart = "EnsureIfTyped",
-            Typed = true,
-            KeepsValue = true,
-            TypeParameters = ["T", TResultName],
-            TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the validation result, which is ignored.")],
-            Summary = "Validates the value of a successful result with an operation that returns a result of any value type, when a condition holds, " +
-                "and keeps the original value when that operation succeeds. The delegate is not called for a failed result or when the condition " +
-                "does not hold.",
-            Delegate = new(
-                ValidationName,
-                ["T"],
-                ResultOfTResult,
-                "The validation to run with the value of the successful result. The value of its result is ignored."),
-            ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, otherwise a failed result with " +
-                "the error of the validation.",
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Returns(ValidationName, ["x"], "Result.Failure<string>(other)", ResultOfString),
-            PassTest = Returns(ValidationName, ["x"], SuccessOfChecked, ResultOfString),
-            Setup = [OtherErrorSetup],
-            RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1ValidationCalls],
-            SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertNoValidationCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoValidationCalls],
-            Act = ctx => EnsureAct(ctx, "validationResult.Unpack(out _)"),
-        },
-        new()
-        {
-            Name = TapErrorIfName,
-            BaseName = "TapError",
-            StemPart = TapErrorIfName,
-            Typed = true,
-            FailureGated = true,
-            KeepsValue = true,
-            StateChange = StateChange.Never,
-            Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. The delegate is " +
-                "not called for a successful result or when the condition does not hold.",
-            Delegate = new(TapErrorName, [ErrorType], "void", "The side effect to run with the error of the failed result."),
-            ReturnDescription = ReceiverUnchangedDescription,
-            GateReceiver = FailureOfInt,
-            OtherReceiver = SuccessOfTwo,
-            Test = Does(TapErrorName, ["e"], "seen = e;"),
-            Setup = ["Error? seen = null;"],
-            RunAsserts = [AssertSameErrorOutcomeGetError, "Assert.Same(error, seen);", "Assert.Equal(1, tapErrorCalls);"],
-            SkipAsserts = [AssertSameErrorOutcomeGetError, "Assert.Null(seen);", AssertNoTapErrorCalls],
-            OtherAsserts = [AssertTrueOutcomeIsSuccess, AssertNoTapErrorCalls],
-            Act = ctx => [ctx.CallStatement(TapErrorName, FailureName), string.Empty, $"return {ctx.R};"],
-        },
-        new()
-        {
-            Name = TapIfName,
-            BaseName = "Tap",
-            StemPart = TapIfName,
-            Typed = false,
-            KeepsValue = true,
-            StateChange = StateChange.Never,
-            Summary = "Runs a side effect for a successful result when a condition holds, and returns the result unchanged. The delegate is not " +
-                "called for a failed result or when the condition does not hold.",
-            Delegate = new(TapName, [], "void", "The side effect to run."),
-            ReturnDescription = ReceiverUnchangedDescription,
-            GateReceiver = SuccessWithoutValue,
-            OtherReceiver = FailureWithError,
-            Test = Does(TapName, []),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(1, tapCalls);"],
-            SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertNoTapCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-            Act = ctx => [ctx.CallStatement(TapName, string.Empty), string.Empty, $"return {ctx.R};"],
-        },
-        new()
-        {
-            Name = BindIfName,
-            BaseName = "Bind",
-            StemPart = BindIfName,
-            Typed = false,
-            Summary = "Chains an operation that can fail and returns no value, when a condition holds. Otherwise, and for a failed result, the " +
-                "receiver is returned as it was and the delegate is not called.",
-            Delegate = new(BindName, [], ResultType, "The operation to run."),
-            ReturnDescription = "The result of the delegate when the condition held, otherwise the receiver.",
-            GateReceiver = SuccessWithoutValue,
-            OtherReceiver = FailureWithError,
-            Test = Returns(BindName, [], "Result.Failure(other)", ResultType),
-            Setup = [OtherErrorSetup],
-            RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
-            SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual0BindCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
-            Act = ctx => [$"return {ctx.Call(BindName, string.Empty)};"],
-            ActForwarded = [$"return {BindName}();"],
-        },
-        new()
-        {
-            Name = TapErrorIfName,
-            BaseName = "TapError",
-            StemPart = TapErrorIfName,
-            Typed = false,
-            FailureGated = true,
-            KeepsValue = true,
-            StateChange = StateChange.Never,
-            Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. The delegate is " +
-                "not called for a successful result or when the condition does not hold.",
-            Delegate = new(TapErrorName, [ErrorType], "void", "The side effect to run with the error of the failed result."),
-            ReturnDescription = ReceiverUnchangedDescription,
-            GateReceiver = FailureWithError,
-            OtherReceiver = SuccessWithoutValue,
-            Test = Does(TapErrorName, ["e"], "seen = e;"),
-            Setup = ["Error? seen = null;"],
-            RunAsserts = [AssertSameErrorOutcomeGetError, "Assert.Same(error, seen);", "Assert.Equal(1, tapErrorCalls);"],
-            SkipAsserts = [AssertSameErrorOutcomeGetError, "Assert.Null(seen);", AssertNoTapErrorCalls],
-            OtherAsserts = [AssertTrueOutcomeIsSuccess, AssertNoTapErrorCalls],
-            Act = ctx => [ctx.CallStatement(TapErrorName, FailureName), string.Empty, $"return {ctx.R};"],
-        },
+        MapIfShape(),
+        BindIfTypedShape(),
+        TapIfTypedShape(),
+        EnsureIfShape(),
+        EnsureIfTypedShape(),
+        TapErrorIfTypedShape(),
+        TapIfUntypedShape(),
+        BindIfUntypedShape(),
+        TapErrorIfUntypedShape(),
     ];
+
+    /// <summary>Gets the shape of MapIf.</summary>
+    private static IfShape MapIfShape() =>
+    new()
+    {
+        Name = "MapIf",
+        BaseName = "Map",
+        StemPart = "MapIf",
+        Typed = true,
+        Summary = "Transforms the value of a successful result, keeping its type, when a condition holds. Otherwise, and for a failed result, " +
+            "the receiver is returned as it was and the delegate is not called.",
+        Delegate = new("map", ["T"], "T", "Computes the new value from the value of the successful result."),
+        ReturnDescription = "A successful result that holds the value computed by the delegate when the condition held, otherwise the receiver.",
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Returns("map", ["x"], "x * 10", "int"),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", "Assert.Equal(1, mapCalls);"],
+        SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(0, mapCalls);"],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, "Assert.Equal(0, mapCalls);"],
+        Act = ctx => [$"var mapped = {ctx.Call("map", InputName)};", "return Result<T>.Succeeded(mapped);"],
+    };
+
+    /// <summary>Gets the shape of BindIf of a typed result.</summary>
+    private static IfShape BindIfTypedShape() =>
+    new()
+    {
+        Name = BindIfName,
+        BaseName = "Bind",
+        StemPart = BindIfName,
+        Typed = true,
+        Summary = "Chains an operation that can fail and returns a result of the same type, when a condition holds. Otherwise, and for a failed " +
+            "result, the receiver is returned as it was and the delegate is not called.",
+        Delegate = new(BindName, ["T"], ResultOfT, "The operation to run with the value of the successful result."),
+        ReturnDescription = "The result of the delegate when the condition held, otherwise the receiver.",
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Returns(BindName, ["x"], "Result.Success(x * 10)", ResultOfInt),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", AssertEqual1BindCalls],
+        SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual0BindCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
+        Act = ctx => [$"return {ctx.Call(BindName, InputName)};"],
+        ActForwarded = [$"return {BindName}({InputName});"],
+    };
+
+    /// <summary>Gets the shape of TapIf of a typed result.</summary>
+    private static IfShape TapIfTypedShape() =>
+    new()
+    {
+        Name = TapIfName,
+        BaseName = "Tap",
+        StemPart = TapIfName,
+        Typed = true,
+        KeepsValue = true,
+        StateChange = StateChange.Never,
+        Summary = "Runs a side effect with the value of a successful result when a condition holds, and returns the result unchanged. The delegate " +
+            "is not called for a failed result or when the condition does not hold.",
+        Delegate = new(TapName, ["T"], "void", "The side effect to run with the value of the successful result."),
+        ReturnDescription = ReceiverUnchangedDescription,
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Does(TapName, ["x"], "seen = x;"),
+        Setup = ["var seen = 0;"],
+        RunAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(2, seen);", "Assert.Equal(1, tapCalls);"],
+        SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(0, seen);", AssertNoTapCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
+        Act = ctx => [ctx.CallStatement(TapName, InputName), string.Empty, $"return {ctx.R};"],
+    };
+
+    /// <summary>Gets the shape of EnsureIf with a validation that returns a result.</summary>
+    private static IfShape EnsureIfShape() =>
+    new()
+    {
+        Name = EnsureIfName,
+        BaseName = "Ensure",
+        StemPart = EnsureIfName,
+        Typed = true,
+        KeepsValue = true,
+        Summary = "Validates the value of a successful result with an operation that returns a result, when a condition holds, and keeps the " +
+            "original value when that operation succeeds. The delegate is not called for a failed result or when the condition does not hold.",
+        Delegate = new(ValidationName, ["T"], ResultType, "The validation to run with the value of the successful result."),
+        ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, otherwise a failed result with " +
+            "the error of the validation.",
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Returns(ValidationName, ["x"], "Result.Failure(other)", ResultType),
+        PassTest = Returns(ValidationName, ["x"], SuccessWithoutValue, ResultType),
+        Setup = [OtherErrorSetup],
+        RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1ValidationCalls],
+        SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertNoValidationCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoValidationCalls],
+        Act = ctx => EnsureAct(ctx, "validationResult.FailureOrNull()"),
+    };
+
+    /// <summary>Gets the shape of EnsureIf with a validation that returns a result of any value type.</summary>
+    private static IfShape EnsureIfTypedShape() =>
+    new()
+    {
+        Name = EnsureIfName,
+        BaseName = "Ensure",
+        StemPart = "EnsureIfTyped",
+        Typed = true,
+        KeepsValue = true,
+        TypeParameters = ["T", TResultName],
+        TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the validation result, which is ignored.")],
+        Summary = "Validates the value of a successful result with an operation that returns a result of any value type, when a condition holds, " +
+            "and keeps the original value when that operation succeeds. The delegate is not called for a failed result or when the condition " +
+            "does not hold.",
+        Delegate = new(
+            ValidationName,
+            ["T"],
+            ResultOfTResult,
+            "The validation to run with the value of the successful result. The value of its result is ignored."),
+        ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, otherwise a failed result with " +
+            "the error of the validation.",
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Returns(ValidationName, ["x"], "Result.Failure<string>(other)", ResultOfString),
+        PassTest = Returns(ValidationName, ["x"], SuccessOfChecked, ResultOfString),
+        Setup = [OtherErrorSetup],
+        RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1ValidationCalls],
+        SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertNoValidationCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoValidationCalls],
+        Act = ctx => EnsureAct(ctx, "validationResult.Unpack(out _)"),
+    };
+
+    /// <summary>Gets the shape of TapErrorIf of a typed result.</summary>
+    private static IfShape TapErrorIfTypedShape() =>
+    new()
+    {
+        Name = TapErrorIfName,
+        BaseName = "TapError",
+        StemPart = TapErrorIfName,
+        Typed = true,
+        FailureGated = true,
+        KeepsValue = true,
+        StateChange = StateChange.Never,
+        Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. The delegate is " +
+            "not called for a successful result or when the condition does not hold.",
+        Delegate = new(TapErrorName, [ErrorType], "void", "The side effect to run with the error of the failed result."),
+        ReturnDescription = ReceiverUnchangedDescription,
+        GateReceiver = FailureOfInt,
+        OtherReceiver = SuccessOfTwo,
+        Test = Does(TapErrorName, ["e"], "seen = e;"),
+        Setup = ["Error? seen = null;"],
+        RunAsserts = [AssertSameErrorOutcomeGetError, "Assert.Same(error, seen);", "Assert.Equal(1, tapErrorCalls);"],
+        SkipAsserts = [AssertSameErrorOutcomeGetError, "Assert.Null(seen);", AssertNoTapErrorCalls],
+        OtherAsserts = [AssertTrueOutcomeIsSuccess, AssertNoTapErrorCalls],
+        Act = ctx => [ctx.CallStatement(TapErrorName, FailureName), string.Empty, $"return {ctx.R};"],
+    };
+
+    /// <summary>Gets the shape of TapIf of a result without a value.</summary>
+    private static IfShape TapIfUntypedShape() =>
+    new()
+    {
+        Name = TapIfName,
+        BaseName = "Tap",
+        StemPart = TapIfName,
+        Typed = false,
+        KeepsValue = true,
+        StateChange = StateChange.Never,
+        Summary = "Runs a side effect for a successful result when a condition holds, and returns the result unchanged. The delegate is not " +
+            "called for a failed result or when the condition does not hold.",
+        Delegate = new(TapName, [], "void", "The side effect to run."),
+        ReturnDescription = ReceiverUnchangedDescription,
+        GateReceiver = SuccessWithoutValue,
+        OtherReceiver = FailureWithError,
+        Test = Does(TapName, []),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(1, tapCalls);"],
+        SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertNoTapCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
+        Act = ctx => [ctx.CallStatement(TapName, string.Empty), string.Empty, $"return {ctx.R};"],
+    };
+
+    /// <summary>Gets the shape of BindIf of a result without a value.</summary>
+    private static IfShape BindIfUntypedShape() =>
+    new()
+    {
+        Name = BindIfName,
+        BaseName = "Bind",
+        StemPart = BindIfName,
+        Typed = false,
+        Summary = "Chains an operation that can fail and returns no value, when a condition holds. Otherwise, and for a failed result, the " +
+            "receiver is returned as it was and the delegate is not called.",
+        Delegate = new(BindName, [], ResultType, "The operation to run."),
+        ReturnDescription = "The result of the delegate when the condition held, otherwise the receiver.",
+        GateReceiver = SuccessWithoutValue,
+        OtherReceiver = FailureWithError,
+        Test = Returns(BindName, [], "Result.Failure(other)", ResultType),
+        Setup = [OtherErrorSetup],
+        RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
+        SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual0BindCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
+        Act = ctx => [$"return {ctx.Call(BindName, string.Empty)};"],
+        ActForwarded = [$"return {BindName}();"],
+    };
+
+    /// <summary>Gets the shape of TapErrorIf of a result without a value.</summary>
+    private static IfShape TapErrorIfUntypedShape() =>
+    new()
+    {
+        Name = TapErrorIfName,
+        BaseName = "TapError",
+        StemPart = TapErrorIfName,
+        Typed = false,
+        FailureGated = true,
+        KeepsValue = true,
+        StateChange = StateChange.Never,
+        Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. The delegate is " +
+            "not called for a successful result or when the condition does not hold.",
+        Delegate = new(TapErrorName, [ErrorType], "void", "The side effect to run with the error of the failed result."),
+        ReturnDescription = ReceiverUnchangedDescription,
+        GateReceiver = FailureWithError,
+        OtherReceiver = SuccessWithoutValue,
+        Test = Does(TapErrorName, ["e"], "seen = e;"),
+        Setup = ["Error? seen = null;"],
+        RunAsserts = [AssertSameErrorOutcomeGetError, "Assert.Same(error, seen);", "Assert.Equal(1, tapErrorCalls);"],
+        SkipAsserts = [AssertSameErrorOutcomeGetError, "Assert.Null(seen);", AssertNoTapErrorCalls],
+        OtherAsserts = [AssertTrueOutcomeIsSuccess, AssertNoTapErrorCalls],
+        Act = ctx => [ctx.CallStatement(TapErrorName, FailureName), string.Empty, $"return {ctx.R};"],
+    };
 
     /// <summary>Gets the operations of the <c>*If</c> family: every shape with a <c>bool</c> condition and with a function that decides.</summary>
     private static IEnumerable<OperationSpec> IfFamily() => CreateIfShapes().SelectMany(IfSpecs);
@@ -251,40 +287,42 @@ internal static partial class Operations
         }
     }
 
-    private static OperationSpec IfSpec(IfShape shape, IfCondition condition)
+    private static OperationSpec IfSpec(IfShape shape, IfCondition condition) => new()
     {
-        var receiver = shape.Typed ? ResultOfT : ResultType;
-        var type = ConditionType(shape, condition);
-        var documentation = ConditionDocumentation(shape, condition);
-        var stemKind = condition switch
-        {
-            IfCondition.Bool => "Bool",
-            IfCondition.Function => "Func",
-            _ => "ValueFunc",
-        };
+        Stem = IfStem(shape, condition),
+        Name = shape.Name,
+        KeepsValue = shape.KeepsValue,
+        StateChange = shape.StateChange,
+        ReceiverType = shape.ReturnType,
+        ReceiverTestType = shape.ReceiverTestType,
+        ReceiverDescription = shape.ReceiverDescription,
+        TypeParameters = shape.EffectiveTypeParameters,
+        TypeParameterDocs = shape.EffectiveTypeParameterDocs,
+        Summary = shape.Summary,
+        LeadingParameters =
+        [
+            new(ConditionType(shape, condition), ConditionName, ConditionDocumentation(shape, condition), Validated: condition != IfCondition.Bool),
+        ],
+        Delegates = [shape.Delegate],
+        ReturnType = shape.ReturnType,
+        ReturnDescription = shape.ReturnDescription,
+        ForwardsTo = condition == IfCondition.Bool ? shape.BaseName : null,
+        Body = ctx => IfBody(shape, condition, ctx, forwarded: false),
+        ForwardBody = shape.ActForwarded is null ? null : ctx => IfBody(shape, condition, ctx, forwarded: true),
+        Tests = IfTests(shape, condition),
+    };
 
-        return new OperationSpec
-        {
-            Stem = $"{shape.StemPart}{stemKind}From{(shape.Typed ? "ResultOfT" : ResultType)}",
-            Name = shape.Name,
-            KeepsValue = shape.KeepsValue,
-            StateChange = shape.StateChange,
-            ReceiverType = receiver,
-            ReceiverTestType = shape.Typed ? ResultOfInt : ResultType,
-            ReceiverDescription = shape.Typed ? ResultOfTReceiverDescription : ResultReceiverDescription,
-            TypeParameters = shape.TypeParameters ?? (shape.Typed ? ["T"] : []),
-            TypeParameterDocs = shape.TypeParameterDocs ?? (shape.Typed ? [new("T", TDoc)] : []),
-            Summary = shape.Summary,
-            LeadingParameters = [new(type, ConditionName, documentation, Validated: condition != IfCondition.Bool)],
-            Delegates = [shape.Delegate],
-            ReturnType = shape.ReturnType,
-            ReturnDescription = shape.ReturnDescription,
-            ForwardsTo = condition == IfCondition.Bool ? shape.BaseName : null,
-            Body = ctx => IfBody(shape, condition, ctx, forwarded: false),
-            ForwardBody = shape.ActForwarded is null ? null : ctx => IfBody(shape, condition, ctx, forwarded: true),
-            Tests = IfTests(shape, condition),
-        };
-    }
+    /// <summary>Gets the stem of the file names of a <c>*If</c> operation.</summary>
+    private static string IfStem(IfShape shape, IfCondition condition) =>
+        $"{shape.StemPart}{IfStemKind(condition)}From{(shape.Typed ? "ResultOfT" : ResultType)}";
+
+    /// <summary>Gets the part of the stem that names how the condition is given.</summary>
+    private static string IfStemKind(IfCondition condition) => condition switch
+    {
+        IfCondition.Bool => "Bool",
+        IfCondition.Function => "Func",
+        _ => "ValueFunc",
+    };
 
     private static string ConditionType(IfShape shape, IfCondition condition) => condition switch
     {
@@ -358,8 +396,6 @@ internal static partial class Operations
             ? $"does_not_evaluate_the_condition_or_run_the_delegate_when_the_receiver_{otherWord}"
             : $"does_not_run_the_delegate_when_the_receiver_{otherWord}";
 
-        string[] WithCount(string[] asserts, int calls) => counted ? [.. asserts, $"Assert.Equal({calls}, conditionCalls);"] : asserts;
-
         List<TestCaseSpec> cases =
         [
             new(
@@ -367,29 +403,39 @@ internal static partial class Operations
                 shape.GateReceiver,
                 [shape.Test],
                 [],
-                WithCount(shape.RunAsserts, 1),
+                WithCount(counted, shape.RunAsserts, 1),
                 setup,
                 [yes]),
-            new(skipName, shape.GateReceiver, [shape.Test], [], WithCount(shape.SkipAsserts, 1), setup, [no]),
-            new(otherName, shape.OtherReceiver, [shape.Test], [], WithCount(shape.OtherAsserts, 0), setup, [yes]),
+            new(skipName, shape.GateReceiver, [shape.Test], [], WithCount(counted, shape.SkipAsserts, 1), setup, [no]),
+            new(otherName, shape.OtherReceiver, [shape.Test], [], WithCount(counted, shape.OtherAsserts, 0), setup, [yes]),
         ];
 
         if (shape.PassTest is not null)
         {
-            string[] passAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls];
-            string[] passSetup = counted ? ["var conditionCalls = 0;"] : [];
-
-            cases.Add(new(
-                "keeps_the_receiver_when_the_validation_succeeded",
-                shape.GateReceiver,
-                [shape.PassTest],
-                [],
-                WithCount(passAsserts, 1),
-                passSetup,
-                [yes]));
+            cases.Add(IfPassCase(shape, shape.PassTest, counted, yes));
         }
 
         return [.. cases];
+    }
+
+    /// <summary>Gets the asserts of a test, with the one on the number of evaluations of the condition when the condition is a function.</summary>
+    private static string[] WithCount(bool counted, string[] asserts, int calls) =>
+        counted ? [.. asserts, $"Assert.Equal({calls}, conditionCalls);"] : asserts;
+
+    /// <summary>Gets the test in which the validation of <c>EnsureIf</c> succeeds.</summary>
+    private static TestCaseSpec IfPassCase(IfShape shape, DelegateTest passTest, bool counted, string yes)
+    {
+        string[] passAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls];
+        string[] passSetup = counted ? ["var conditionCalls = 0;"] : [];
+
+        return new(
+            "keeps_the_receiver_when_the_validation_succeeded",
+            shape.GateReceiver,
+            [passTest],
+            [],
+            WithCount(counted, passAsserts, 1),
+            passSetup,
+            [yes]);
     }
 
     // The argument of a test for a condition that holds or does not: the plain value, or a function that counts its calls.
@@ -472,5 +518,17 @@ internal static partial class Operations
 
         /// <summary>Gets the synchronous return type.</summary>
         internal string ReturnType => Typed ? ResultOfT : ResultType;
+
+        /// <summary>Gets the type of the receiver in the generated tests.</summary>
+        internal string ReceiverTestType => Typed ? ResultOfInt : ResultType;
+
+        /// <summary>Gets the documentation of the receiver.</summary>
+        internal string ReceiverDescription => Typed ? ResultOfTReceiverDescription : ResultReceiverDescription;
+
+        /// <summary>Gets the type parameters, which are <c>T</c> or none unless the shape names them.</summary>
+        internal string[] EffectiveTypeParameters => TypeParameters ?? (Typed ? ["T"] : []);
+
+        /// <summary>Gets the documentation of the type parameters, which is that of <c>T</c> or none unless the shape gives it.</summary>
+        internal TypeParameterDoc[] EffectiveTypeParameterDocs => TypeParameterDocs ?? (Typed ? [new("T", TDoc)] : []);
     }
 }

@@ -799,8 +799,6 @@ internal static partial class Operations
     {
         var factoryName = message ? MessageFactoryName : ErrorFactoryName;
         var factoryReturns = message ? StringType : ErrorType;
-        var factoryResult = message ? TooSmallMessage : ErrorName;
-        var factoryCalls = $"{factoryName}Calls";
         var factoryDoc = message
             ? "Creates the message of the error from the value. It is called only when the condition does not hold."
             : "Creates the error from the value. It is called only when the condition does not hold.";
@@ -831,51 +829,68 @@ internal static partial class Operations
                     $"message of <paramref name=\"{factoryName}\"/>."
                 : "The receiver when it failed or its value satisfies the condition, otherwise a failed result with the error of " +
                     $"<paramref name=\"{factoryName}\"/>.",
-            Body = ctx =>
-            [
-                Unpack(ctx),
-                string.Empty,
-                IfFailureIsNotNull,
-                "{",
-                $"    return {ctx.R};",
-                "}",
-                string.Empty,
-                $"var holds = {ctx.Call(PredicateName, InputName)};",
-                string.Empty,
-                "if (holds)",
-                "{",
-                $"    return {ctx.R};",
-                "}",
-                string.Empty,
-                $"var {(message ? "message" : ErrorName)} = {ctx.CallSecond(factoryName, InputName)};",
-                $"return Result.Failure<T>({(message ? "message" : ErrorName)});",
-            ],
-            Tests =
-            [
-                Case(
-                    "returns_the_receiver_without_creating_an_error_when_the_value_satisfies_the_condition",
-                    SuccessOfTwo,
-                    [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
-                    [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1PredicateCalls, $"Assert.Equal(0, {factoryCalls});"]),
-                Case(
-                    "returns_the_failure_the_factory_creates_from_the_value_when_the_value_does_not_satisfy_the_condition",
-                    SuccessOfTwo,
-                    [Returns(PredicateName, ["x"], "x > 5", "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns, "seen = x;")],
-                    [
-                        message ? "Assert.Equal(\"Too small.\", outcome.GetError().Message);" : AssertSameErrorOutcomeGetError,
-                        AssertEqual1PredicateCalls,
-                        $"Assert.Equal(1, {factoryCalls});",
-                        "Assert.Equal(2, seen);",
-                    ],
-                    setup: ["var seen = 0;"]),
-                Case(
-                    "keeps_the_error_of_the_receiver_without_running_a_delegate_when_the_receiver_failed",
-                    "Result.Failure<int>(other)",
-                    [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
-                    [AssertSameOtherOutcomeGetError, "Assert.Equal(0, predicateCalls);", $"Assert.Equal(0, {factoryCalls});"],
-                    setup: [OtherErrorSetup]),
-            ],
+            Body = ctx => EnsureWithFactoryBody(ctx, message, factoryName),
+            Tests = EnsureWithFactoryTests(message, factoryName, factoryReturns),
         };
+    }
+
+    /// <summary>Gets the body of <c>Ensure</c> with a factory that creates the error or its message.</summary>
+    private static string[] EnsureWithFactoryBody(BodyContext ctx, bool message, string factoryName)
+    {
+        var variable = message ? "message" : ErrorName;
+
+        return
+        [
+            Unpack(ctx),
+            string.Empty,
+            IfFailureIsNotNull,
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var holds = {ctx.Call(PredicateName, InputName)};",
+            string.Empty,
+            "if (holds)",
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var {variable} = {ctx.CallSecond(factoryName, InputName)};",
+            $"return Result.Failure<T>({variable});",
+        ];
+    }
+
+    /// <summary>Gets the generated tests of <c>Ensure</c> with a factory that creates the error or its message.</summary>
+    private static TestCaseSpec[] EnsureWithFactoryTests(bool message, string factoryName, string factoryReturns)
+    {
+        var factoryResult = message ? TooSmallMessage : ErrorName;
+        var factoryCalls = $"{factoryName}Calls";
+
+        return
+        [
+            Case(
+                "returns_the_receiver_without_creating_an_error_when_the_value_satisfies_the_condition",
+                SuccessOfTwo,
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
+                [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1PredicateCalls, $"Assert.Equal(0, {factoryCalls});"]),
+            Case(
+                "returns_the_failure_the_factory_creates_from_the_value_when_the_value_does_not_satisfy_the_condition",
+                SuccessOfTwo,
+                [Returns(PredicateName, ["x"], "x > 5", "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns, "seen = x;")],
+                [
+                    message ? "Assert.Equal(\"Too small.\", outcome.GetError().Message);" : AssertSameErrorOutcomeGetError,
+                    AssertEqual1PredicateCalls,
+                    $"Assert.Equal(1, {factoryCalls});",
+                    "Assert.Equal(2, seen);",
+                ],
+                setup: ["var seen = 0;"]),
+            Case(
+                "keeps_the_error_of_the_receiver_without_running_a_delegate_when_the_receiver_failed",
+                "Result.Failure<int>(other)",
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
+                [AssertSameOtherOutcomeGetError, "Assert.Equal(0, predicateCalls);", $"Assert.Equal(0, {factoryCalls});"],
+                setup: [OtherErrorSetup]),
+        ];
     }
 
     private static OperationSpec EnsureWithResultFromResultOfT() => new()
@@ -998,36 +1013,47 @@ internal static partial class Operations
             : "Turns a successful result into a failure when a condition does not hold. A failed result passes through with its own error and " +
                 "the condition is not evaluated.",
         Delegates = [new(ConditionName, [], "bool", "The condition that must hold for the result to stay a success.")],
-        ExtraParameters =
-        [
-            withMessage
-                ? new(StringType, "message", "The message of the error of the failed result that is returned when the condition does not hold.")
-                : new(ErrorType, ErrorName, "The error of the failed result that is returned when the condition does not hold."),
-        ],
+        ExtraParameters = [EnsureConditionParameter(withMessage)],
         ReturnType = ResultType,
         ReturnDescription = withMessage
             ? "The receiver when it failed or the condition holds, otherwise a failed result whose error was created from <paramref name=\"message\"/>."
             : "The receiver when it failed or the condition holds, otherwise a failed result with <paramref name=\"error\"/>.",
-        Body = ctx =>
-        [
-            Failure(ctx),
-            string.Empty,
-            IfFailureIsNotNull,
-            "{",
-            $"    return {ctx.R};",
-            "}",
-            string.Empty,
-            $"var holds = {ctx.Call(ConditionName, string.Empty)};",
-            withMessage ? $"return holds ? {ctx.R} : Result.Failure(message);" : $"return holds ? {ctx.R} : new Result(error);",
-        ],
-        Tests =
+        Body = ctx => EnsureConditionBody(ctx, withMessage),
+        Tests = EnsureConditionTests(withMessage),
+    };
+
+    /// <summary>Gets the parameter of <c>Ensure</c> on a result without a value that carries the error, or the message of the error.</summary>
+    private static ExtraParameter EnsureConditionParameter(bool withMessage) => withMessage
+        ? new(StringType, "message", "The message of the error of the failed result that is returned when the condition does not hold.")
+        : new(ErrorType, ErrorName, "The error of the failed result that is returned when the condition does not hold.");
+
+    /// <summary>Gets the body of <c>Ensure</c> on a result without a value.</summary>
+    private static string[] EnsureConditionBody(BodyContext ctx, bool withMessage) =>
+    [
+        Failure(ctx),
+        string.Empty,
+        IfFailureIsNotNull,
+        "{",
+        $"    return {ctx.R};",
+        "}",
+        string.Empty,
+        $"var holds = {ctx.Call(ConditionName, string.Empty)};",
+        withMessage ? $"return holds ? {ctx.R} : Result.Failure(message);" : $"return holds ? {ctx.R} : new Result(error);",
+    ];
+
+    /// <summary>Gets the generated tests of <c>Ensure</c> on a result without a value.</summary>
+    private static TestCaseSpec[] EnsureConditionTests(bool withMessage)
+    {
+        var argument = withMessage ? TooSmallMessage : ErrorName;
+
+        return
         [
             Case(
                 "returns_the_receiver_when_the_condition_holds",
                 SuccessWithoutValue,
                 [Returns(ConditionName, [], "true", "bool")],
                 [AssertTrueOutcomeIsSuccess, AssertEqual1ConditionCalls],
-                extraArguments: [withMessage ? TooSmallMessage : ErrorName]),
+                extraArguments: [argument]),
             Case(
                 withMessage
                     ? "returns_an_error_with_the_given_message_when_the_condition_does_not_hold"
@@ -1035,16 +1061,16 @@ internal static partial class Operations
                 SuccessWithoutValue,
                 [Returns(ConditionName, [], "false", "bool")],
                 [withMessage ? "Assert.Equal(\"Too small.\", outcome.GetError().Message);" : AssertSameErrorOutcomeGetError, AssertEqual1ConditionCalls],
-                extraArguments: [withMessage ? TooSmallMessage : ErrorName]),
+                extraArguments: [argument]),
             Case(
                 "keeps_the_error_of_the_receiver_without_evaluating_the_condition_when_the_receiver_failed",
                 "Result.Failure(other)",
                 [Returns(ConditionName, [], "true", "bool")],
                 [AssertSameOtherOutcomeGetError, AssertEqual0ConditionCalls],
-                extraArguments: [withMessage ? TooSmallMessage : ErrorName],
+                extraArguments: [argument],
                 setup: [OtherErrorSetup]),
-        ],
-    };
+        ];
+    }
 
     private static OperationSpec EnsureOperationFromResultOfT(bool typed) => new()
     {
@@ -1061,48 +1087,54 @@ internal static partial class Operations
         Summary = "Validates a successful result with an operation that returns a result" + (typed ? " of any value type" : string.Empty) +
             " and does not need the value, and keeps the original value when that operation succeeds. A failed result passes through and the " +
             "delegate is not called.",
-        Delegates =
-        [
-            new(
-                ValidationName,
-                [],
-                typed ? ResultOfTResult : ResultType,
-                typed ? TypedOperationDoc : OperationDoc),
-        ],
+        Delegates = [new(ValidationName, [], typed ? ResultOfTResult : ResultType, typed ? TypedOperationDoc : OperationDoc)],
         ReturnType = ResultOfT,
         ReturnDescription = "The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.",
-        Body = ctx =>
-        [
-            Unpack(ctx, "_"),
-            string.Empty,
-            IfFailureIsNotNull,
-            "{",
-            $"    return {ctx.R};",
-            "}",
-            string.Empty,
-            $"var validationResult = {ctx.Call(ValidationName, string.Empty)};",
-            typed ? "var validationFailure = validationResult.Unpack(out _);" : "var validationFailure = validationResult.FailureOrNull();",
-            $"return validationFailure is null ? {ctx.R} : Result<T>.Failed(validationFailure);",
-        ],
-        Tests =
+        Body = ctx => EnsureOperationBody(ctx, typed),
+        Tests = EnsureOperationTests(typed),
+    };
+
+    /// <summary>Gets the body of <c>Ensure</c> with an operation that does not need the value.</summary>
+    private static string[] EnsureOperationBody(BodyContext ctx, bool typed) =>
+    [
+        Unpack(ctx, "_"),
+        string.Empty,
+        IfFailureIsNotNull,
+        "{",
+        $"    return {ctx.R};",
+        "}",
+        string.Empty,
+        $"var validationResult = {ctx.Call(ValidationName, string.Empty)};",
+        typed ? "var validationFailure = validationResult.Unpack(out _);" : "var validationFailure = validationResult.FailureOrNull();",
+        $"return validationFailure is null ? {ctx.R} : Result<T>.Failed(validationFailure);",
+    ];
+
+    /// <summary>Gets the generated tests of <c>Ensure</c> with an operation that does not need the value.</summary>
+    private static TestCaseSpec[] EnsureOperationTests(bool typed)
+    {
+        var succeeds = typed ? SuccessOfChecked : SuccessWithoutValue;
+        var fails = typed ? FailureOfChecked : FailureWithError;
+        var resultType = typed ? ResultOfString : ResultType;
+
+        return
         [
             Case(
                 "returns_the_receiver_when_the_validation_succeeded",
                 SuccessOfTwo,
-                [Returns(ValidationName, [], typed ? SuccessOfChecked : SuccessWithoutValue, typed ? ResultOfString : ResultType)],
+                [Returns(ValidationName, [], succeeds, resultType)],
                 [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls]),
             Case(
                 "returns_the_error_of_the_validation_when_the_validation_failed",
                 SuccessOfTwo,
-                [Returns(ValidationName, [], typed ? FailureOfChecked : FailureWithError, typed ? ResultOfString : ResultType)],
+                [Returns(ValidationName, [], fails, resultType)],
                 [AssertSameErrorOutcomeGetError, AssertEqual1ValidationCalls]),
             Case(
                 ReceiverFailed,
                 FailureOfInt,
-                [Returns(ValidationName, [], typed ? SuccessOfChecked : SuccessWithoutValue, typed ? ResultOfString : ResultType)],
+                [Returns(ValidationName, [], succeeds, resultType)],
                 [AssertSameErrorOutcomeGetError, "Assert.Equal(0, validationCalls);"]),
-        ],
-    };
+        ];
+    }
 
     private static OperationSpec RecoverFromResultOfT() => new()
     {

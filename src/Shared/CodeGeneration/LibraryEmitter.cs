@@ -259,41 +259,50 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         writer.Line($"if ({completed})");
         writer.Open();
 
-        if (!variant.HasAsyncDelegate && operation.ReturnsVoid)
-        {
-            writer.Line($"{call};");
-            writer.Line(variant.Receiver == Wrapper.Task ? "return Task.CompletedTask;" : "return default;");
-        }
-        else if (!variant.HasAsyncDelegate && variant.Receiver == Wrapper.Task && operation.KeepsValue && operation.StateChange == StateChange.Never)
-        {
-            writer.Line($"_ = {call};");
-            writer.Line($"return {receiverName};");
-        }
-        else if (!variant.HasAsyncDelegate)
-        {
-            writer.Line($"var completed = {call};");
-
-            if (variant.Receiver != Wrapper.Task)
-            {
-                writer.Line($"return new ValueTask<{operation.ReturnType}>(completed);");
-            }
-            else if (operation.KeepsValue)
-            {
-                writer.Line($"return completed.HasSameStateAs({receiverName}.Result) ? {receiverName} : {ChangedTask(operation)};");
-            }
-            else
-            {
-                writer.Line($"return {CompletedTask(operation)};");
-            }
-        }
-        else
+        if (variant.HasAsyncDelegate)
         {
             writer.Line($"var inner = {call};");
             writer.Line($"return {ConvertInner(operation, variant)};");
         }
+        else
+        {
+            EmitSynchronousFastPath(writer, operation, variant, call, receiverName);
+        }
 
         writer.Close();
         writer.Line();
+    }
+
+    // The fast path for a synchronous delegate: the result of the synchronous variant is wrapped in the kind of the receiver.
+    private void EmitSynchronousFastPath(CodeWriter writer, OperationSpec operation, Variant variant, string call, string receiverName)
+    {
+        if (operation.ReturnsVoid)
+        {
+            writer.Line($"{call};");
+            writer.Line(variant.Receiver == Wrapper.Task ? "return Task.CompletedTask;" : "return default;");
+        }
+        else if (variant.Receiver == Wrapper.Task && operation.KeepsValue && operation.StateChange == StateChange.Never)
+        {
+            writer.Line($"_ = {call};");
+            writer.Line($"return {receiverName};");
+        }
+        else
+        {
+            writer.Line($"var completed = {call};");
+            writer.Line(CompletedReturn(operation, variant, receiverName));
+        }
+    }
+
+    private string CompletedReturn(OperationSpec operation, Variant variant, string receiverName)
+    {
+        if (variant.Receiver != Wrapper.Task)
+        {
+            return $"return new ValueTask<{operation.ReturnType}>(completed);";
+        }
+
+        return operation.KeepsValue
+            ? $"return completed.HasSameStateAs({receiverName}.Result) ? {receiverName} : {ChangedTask(operation)};"
+            : $"return {CompletedTask(operation)};";
     }
 
     // A task that ends in none hands out the cached completed task instead of allocating a new one.

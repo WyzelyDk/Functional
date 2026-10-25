@@ -48,22 +48,12 @@ internal static class OperationShapes
 
         switch (OperationHelpers.Unwrap(condition))
         {
-            case IIsPatternOperation { Pattern: IConstantPatternOperation constant } pattern when IsNullConstant(constant.Value):
-                checkedOperation = OperationHelpers.Unwrap(pattern.Value);
-                isNullWhenTrue = true;
-
-                return true;
-            case IIsPatternOperation { Pattern: INegatedPatternOperation { Pattern: IConstantPatternOperation constant } } pattern
-                when IsNullConstant(constant.Value):
+            case IIsPatternOperation pattern when TryReadNullPattern(pattern.Pattern, out isNullWhenTrue):
                 checkedOperation = OperationHelpers.Unwrap(pattern.Value);
 
                 return true;
-            case IBinaryOperation { OperatorKind: BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals } binary
-                when IsNullConstant(binary.LeftOperand) != IsNullConstant(binary.RightOperand):
-                checkedOperation = OperationHelpers.Unwrap(IsNullConstant(binary.LeftOperand) ? binary.RightOperand : binary.LeftOperand);
-                isNullWhenTrue = binary.OperatorKind == BinaryOperatorKind.Equals;
-
-                return true;
+            case IBinaryOperation binary:
+                return TryReadNullComparison(binary, out checkedOperation, out isNullWhenTrue);
             default:
                 return false;
         }
@@ -89,22 +79,76 @@ internal static class OperationShapes
     /// <returns><see langword="true"/> when <c>Maybe.From</c> of the expression would be the same maybe.</returns>
     internal static bool IsSomeOf(IOperation operation, IOperation checkedOperation)
     {
-        if (operation is not IInvocationOperation { Arguments.Length: 1 } invocation || !IsMaybeFactory(invocation.TargetMethod, "Some"))
+        if (!TryReadSomeArgument(operation, out var argument))
         {
             return false;
         }
-
-        var argument = OperationHelpers.Unwrap(invocation.Arguments[0].Value);
 
         if (checkedOperation.Type is { IsReferenceType: true })
         {
             return SameText(argument.Syntax, checkedOperation.Syntax);
         }
 
-        return checkedOperation.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T }
-            && argument is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
-            && SameText(instance.Syntax, checkedOperation.Syntax);
+        return IsValueOfNullable(argument, checkedOperation);
     }
+
+    // `null` or `not null` as a pattern.
+    private static bool TryReadNullPattern(IPatternOperation pattern, out bool isNullWhenTrue)
+    {
+        isNullWhenTrue = pattern is IConstantPatternOperation;
+
+        var constant = pattern switch
+        {
+            IConstantPatternOperation direct => direct,
+            INegatedPatternOperation { Pattern: IConstantPatternOperation negated } => negated,
+            _ => null,
+        };
+
+        return constant is not null && IsNullConstant(constant.Value);
+    }
+
+    // `x == null`, `x != null`, `null == x` and `null != x`.
+    private static bool TryReadNullComparison(IBinaryOperation binary, out IOperation checkedOperation, out bool isNullWhenTrue)
+    {
+        checkedOperation = null!;
+        isNullWhenTrue = false;
+
+        if (binary.OperatorKind is not (BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals))
+        {
+            return false;
+        }
+
+        var leftIsNull = IsNullConstant(binary.LeftOperand);
+
+        if (leftIsNull == IsNullConstant(binary.RightOperand))
+        {
+            return false;
+        }
+
+        checkedOperation = OperationHelpers.Unwrap(leftIsNull ? binary.RightOperand : binary.LeftOperand);
+        isNullWhenTrue = binary.OperatorKind == BinaryOperatorKind.Equals;
+
+        return true;
+    }
+
+    private static bool TryReadSomeArgument(IOperation operation, out IOperation argument)
+    {
+        argument = null!;
+
+        if (operation is not IInvocationOperation { Arguments.Length: 1 } invocation || !IsMaybeFactory(invocation.TargetMethod, "Some"))
+        {
+            return false;
+        }
+
+        argument = OperationHelpers.Unwrap(invocation.Arguments[0].Value);
+
+        return true;
+    }
+
+    private static bool IsValueOfNullable(IOperation argument, IOperation checkedOperation) =>
+        checkedOperation.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T }
+        && argument is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
+        && SameText(instance.Syntax, checkedOperation.Syntax);
 
     private static bool IsMaybeFactory(IMethodSymbol method, string name) =>
         method.Name == name

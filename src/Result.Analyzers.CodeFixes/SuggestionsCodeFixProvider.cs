@@ -49,64 +49,75 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
         // Every other rule is about a call, which is what IsTarget looks for.
         var call = (InvocationExpressionSyntax)target;
 
-        // A chain of ifs and not a switch on the text: the compiler turns a switch of this size into a hash table, and the equality check behind it has a
-        // side (the same hash for another text) that no test can take.
-        if (diagnostic.Id == "WYZ0103")
+        return RewriteConditionalRules(call, diagnostic.Id, properties);
+    }
+
+    // A chain of ifs and not a switch on the text: the compiler turns a switch of this size into a hash table, and the equality check behind it has a
+    // side (the same hash for another text) that no test can take.
+    private static SyntaxNode? RewriteConditionalRules(InvocationExpressionSyntax call, string id, ImmutableDictionary<string, string?> properties)
+    {
+        if (id == "WYZ0103")
         {
             return SuggestionRewrites.BindIf(call, properties);
         }
 
-        if (diagnostic.Id == "WYZ0104")
+        if (id == "WYZ0104")
         {
             return SuggestionRewrites.MapIf(call, properties);
         }
 
-        if (diagnostic.Id == "WYZ0105")
+        if (id == "WYZ0105")
         {
             return SuggestionRewrites.EnsureNot(call);
         }
 
-        if (diagnostic.Id == "WYZ0106")
+        if (id == "WYZ0106")
         {
             return SuggestionRewrites.EnsureNotNull(call, properties);
         }
 
-        if (diagnostic.Id == "WYZ0107")
+        if (id == "WYZ0107")
         {
             return SuggestionRewrites.BindZip(call);
         }
 
-        if (diagnostic.Id == "WYZ0108")
+        if (id == "WYZ0108")
         {
             return SuggestionRewrites.ConvertFailure(call);
         }
 
-        if (diagnostic.Id == "WYZ0110")
+        if (id == "WYZ0110")
         {
             return SuggestionRewrites.MapTry(call);
         }
 
-        if (diagnostic.Id == "WYZ0112")
+        return RewriteStepRules(call, id);
+    }
+
+    // The rules that replace a step of a chain by another step or remove it.
+    private static SyntaxNode? RewriteStepRules(InvocationExpressionSyntax call, string id)
+    {
+        if (id == "WYZ0112")
         {
             return SuggestionRewrites.BindToMap(call);
         }
 
-        if (diagnostic.Id == "WYZ0113")
+        if (id == "WYZ0113")
         {
             return SuggestionRewrites.MapToTap(call);
         }
 
-        if (diagnostic.Id == "WYZ0114")
+        if (id == "WYZ0114")
         {
             return SuggestionRewrites.MatchToValueOr(call);
         }
 
-        if (diagnostic.Id == "WYZ0115")
+        if (id == "WYZ0115")
         {
             return SuggestionRewrites.RemoveStep(call);
         }
 
-        if (diagnostic.Id == "WYZ0116")
+        if (id == "WYZ0116")
         {
             return SuggestionRewrites.FailureWithMessage(call);
         }

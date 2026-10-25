@@ -12,12 +12,26 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0108: Result.Failure<T>(r.GetError()) is r.ConvertFailure<T>().
     private static void CheckConvertFailure(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (invocation.TargetMethod.TypeArguments.Length == 1
-            && OperationShapes.ArgumentOf(invocation, "error") is IInvocationOperation { Arguments.Length: 0, Instance: not null } getError
-            && getError.TargetMethod is { Name: "GetError", ContainingType.Name: "Result" })
+        if (invocation.TargetMethod.TypeArguments.Length == 1 && TryGetGetError(OperationShapes.ArgumentOf(invocation, "error"), out _))
         {
             Report(context, Rules.UseConvertFailure, invocation, []);
         }
+    }
+
+    // A call of GetError() on a Result or Result<T>.
+    private static bool TryGetGetError(IOperation? operation, out IInvocationOperation getError)
+    {
+        getError = null!;
+
+        if (operation is IInvocationOperation { Arguments.Length: 0, Instance: not null } found
+            && found.TargetMethod is { Name: "GetError", ContainingType.Name: "Result" })
+        {
+            getError = found;
+
+            return true;
+        }
+
+        return false;
     }
 
     // WYZ0109: cond ? Result.Success() : Result.Failure(error) is Result.SuccessIf(cond, error), and the reverse is Result.FailureIf(cond, error).
@@ -34,18 +48,8 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        var failure = successFirst ? whenFalse : whenTrue;
-
-        // The branch has the type Result, so a failure with a value type (Result<T>) cannot be the other branch.
-        if (failure is not IInvocationOperation { Arguments.Length: 1 } failed || !OperationShapes.IsResultFactory(failed.TargetMethod, "Failure"))
-        {
-            return;
-        }
-
-        var error = (OperationShapes.ArgumentOf(failed, "error") ?? OperationShapes.ArgumentOf(failed, "message"))!;
-
         // Passing the error as a function would allocate a delegate on every call, so an error that is not a constant, a local or a field stays as it is.
-        if (!OperationHelpers.IsCheap(error))
+        if (!TryGetFailureError(successFirst ? whenFalse : whenTrue, out var error) || !OperationHelpers.IsCheap(error))
         {
             return;
         }
@@ -58,6 +62,21 @@ public sealed partial class ResultSuggestionsAnalyzer
             conditional,
             [new(MethodProperty, method)],
             method);
+    }
+
+    // The branch has the type Result, so a failure with a value type (Result<T>) cannot be the other branch.
+    private static bool TryGetFailureError(IOperation failure, out IOperation error)
+    {
+        error = null!;
+
+        if (failure is not IInvocationOperation { Arguments.Length: 1 } failed || !OperationShapes.IsResultFactory(failed.TargetMethod, "Failure"))
+        {
+            return false;
+        }
+
+        error = ErrorArgumentOf(failed)!;
+
+        return true;
     }
 
     private static bool IsSuccessWithoutValue(IOperation operation) =>

@@ -13,11 +13,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0107: Bind(a => f(a).Map(b => (a, b))) is BindZip(a => f(a)).
     private static void CheckBindZip(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (!OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out var outer, out var returned)
-            || returned is not IInvocationOperation map
-            || !OperationShapes.IsResultExtension(map.TargetMethod, "Map")
-            || !OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(map, "map"), 1, out var inner, out var tuple)
-            || tuple is not ITupleOperation { Elements.Length: 2 } pair)
+        if (!TryGetZippedPair(invocation, out var outer, out var inner, out var pair))
         {
             return;
         }
@@ -38,6 +34,30 @@ public sealed partial class ResultSuggestionsAnalyzer
         }
 
         Report(context, Rules.UseBindZip, invocation, []);
+    }
+
+    // Bind(a => f(a).Map(b => (x, y))): the two lambdas and the tuple of two elements that the inner one returns.
+    private static bool TryGetZippedPair(
+        IInvocationOperation invocation,
+        out IAnonymousFunctionOperation outer,
+        out IAnonymousFunctionOperation inner,
+        out ITupleOperation pair)
+    {
+        inner = null!;
+        pair = null!;
+
+        if (!OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out outer, out var returned)
+            || returned is not IInvocationOperation map
+            || !OperationShapes.IsResultExtension(map.TargetMethod, "Map")
+            || !OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(map, "map"), 1, out inner, out var tuple)
+            || tuple is not ITupleOperation { Elements.Length: 2 } found)
+        {
+            return false;
+        }
+
+        pair = found;
+
+        return true;
     }
 
     // WYZ0110: Bind(x => Result.Try(() => f(x))) is MapTry(x => f(x)). Try with a function: the forms without a value have no MapTry, and neither

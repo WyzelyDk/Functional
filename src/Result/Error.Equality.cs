@@ -30,19 +30,7 @@ public sealed partial class Error
             return false;
         }
 
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return string.Equals(Template, other.Template, StringComparison.Ordinal)
-            && string.Equals(Code, other.Code, StringComparison.Ordinal)
-            && Kind.Equals(other.Kind)
-            && IsTransient == other.IsTransient
-            && ReferenceEquals(Exception, other.Exception)
-            && Details.SequenceEqual(other.Details)
-            && Context.SequenceEqual(other.Context)
-            && Children.SequenceEqual(other.Children);
+        return ReferenceEquals(this, other) || (SameScalars(other) && SameCollections(other));
     }
 
     /// <inheritdoc />
@@ -54,4 +42,16 @@ public sealed partial class Error
         Code is null ? 0 : StringComparer.Ordinal.GetHashCode(Code),
         Kind.GetHashCode(),
         Children.Count);
+
+    private bool SameScalars(Error other) =>
+        string.Equals(Template, other.Template, StringComparison.Ordinal)
+        && string.Equals(Code, other.Code, StringComparison.Ordinal)
+        && Kind.Equals(other.Kind)
+        && IsTransient == other.IsTransient
+        && ReferenceEquals(Exception, other.Exception);
+
+    private bool SameCollections(Error other) =>
+        Details.SequenceEqual(other.Details)
+        && Context.SequenceEqual(other.Context)
+        && Children.SequenceEqual(other.Children);
 }

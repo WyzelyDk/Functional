@@ -14,6 +14,8 @@ namespace Wyzely.Functional.MaybeAnalyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
 {
+    private const string IsSomeName = "IsSome";
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rules.UseAny, Rules.UseValueOr, Rules.UseFrom];
 
@@ -43,16 +45,26 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
     {
         var property = (IPropertyReferenceOperation)context.Operation;
 
-        if (property.Property.Name == "IsSome"
+        if (property.Property.Name == IsSomeName
             && types.IsMaybe(property.Property.ContainingType)
             && property.Syntax is MemberAccessExpressionSyntax access
-            && property.Instance is { } instance
-            && OperationHelpers.Unwrap(instance) is IInvocationOperation { TargetMethod.Name: "Filter" } filter
-            && OperationShapes.IsMaybeExtension(filter.TargetMethod)
-            && filter.Syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: IdentifierNameSyntax } })
+            && property.Instance is { } instance)
         {
-            context.ReportDiagnostic(Diagnostic.Create(Rules.UseAny, access.Name.GetLocation()));
+            ReportFilterCall(context, access, instance);
         }
+    }
+
+    // `maybe.Filter(p)` written as a call of a member, read with IsSome.
+    private static void ReportFilterCall(OperationAnalysisContext context, MemberAccessExpressionSyntax access, IOperation instance)
+    {
+        if (OperationHelpers.Unwrap(instance) is not IInvocationOperation { TargetMethod.Name: "Filter" } filter
+            || !OperationShapes.IsMaybeExtension(filter.TargetMethod)
+            || filter.Syntax is not InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: IdentifierNameSyntax } })
+        {
+            return;
+        }
+
+        context.ReportDiagnostic(Diagnostic.Create(Rules.UseAny, access.Name.GetLocation()));
     }
 
     private static void AnalyzeConditional(OperationAnalysisContext context, MaybeTypes types)
@@ -81,27 +93,48 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
     // ValueOr evaluates the fallback on every call, so it has to be cheap, and the receiver has to be read the same way in both places.
     private static bool IsValueOrShape(IConditionalOperation conditional, IOperation otherwise, MaybeTypes types)
     {
-        if (OperationHelpers.Unwrap(conditional.Condition) is not IPropertyReferenceOperation { Property.Name: "IsSome" or "IsNone" } check
-            || !types.IsMaybe(check.Property.ContainingType)
-            || check.Instance is not { } receiver
-            || !OperationShapes.IsPlain(receiver.Syntax))
+        if (!TryReadPresenceCheck(conditional.Condition, types, out var check, out var receiver))
         {
             return false;
         }
 
-        var some = check.Property.Name == "IsSome";
+        var some = check.Property.Name == IsSomeName;
         var read = OperationHelpers.Unwrap(some ? conditional.WhenTrue : otherwise);
         var fallback = some ? otherwise : conditional.WhenTrue;
 
-        if (read is not IInvocationOperation { TargetMethod: { Name: "GetValue", Parameters.Length: 0 }, Instance: { } getter }
-            || !OperationShapes.SameText(getter.Syntax, receiver.Syntax)
-            || !OperationHelpers.IsCheap(fallback))
+        return IsGetValueOf(read, receiver) && OperationHelpers.IsCheap(fallback);
+    }
+
+    // `maybe.IsSome` or `maybe.IsNone` on a plain receiver.
+    private static bool TryReadPresenceCheck(
+        IOperation condition,
+        MaybeTypes types,
+        out IPropertyReferenceOperation check,
+        out IOperation receiver)
+    {
+        check = null!;
+        receiver = null!;
+
+        if (OperationHelpers.Unwrap(condition) is not IPropertyReferenceOperation candidate
+            || !IsPresenceProperty(candidate.Property, types)
+            || candidate.Instance is not { } instance
+            || !OperationShapes.IsPlain(instance.Syntax))
         {
             return false;
         }
 
+        check = candidate;
+        receiver = instance;
+
         return true;
     }
+
+    private static bool IsPresenceProperty(IPropertySymbol property, MaybeTypes types) =>
+        property.Name is IsSomeName or "IsNone" && types.IsMaybe(property.ContainingType);
+
+    private static bool IsGetValueOf(IOperation read, IOperation receiver) =>
+        read is IInvocationOperation { TargetMethod: { Name: "GetValue", Parameters.Length: 0 }, Instance: { } getter }
+        && OperationShapes.SameText(getter.Syntax, receiver.Syntax);
 
     // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) is Maybe.From(x), also for a nullable value type with Some(x.Value).
     private static bool IsFromShape(IConditionalOperation conditional, IOperation otherwise, MaybeTypes types)

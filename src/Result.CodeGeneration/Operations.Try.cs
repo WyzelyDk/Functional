@@ -43,227 +43,267 @@ internal static partial class Operations
     // A method, not a field: the order in which static fields of partial files are initialized is not defined, and All reads this.
     private static TryShape[] CreateTryShapes() =>
     [
-        new()
-        {
-            Name = MapTryName,
-            Typed = true,
-            Summary = "Transforms the value of a successful result with a function that may throw.",
-            TypeParameters = ["T", TResultName],
-            TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value that the delegate produces.")],
-            Delegate = new("map", ["T"], TResultName, "Computes the new value from the value of the successful result."),
-            ReturnType = ResultOfTResult,
-            ReturnDescription = "A successful result that holds the value computed by the delegate, or a failed result.",
-            OnReceiverFailed = _ => ReceiverFailedFailure,
-            FailureFormat = FailureOfResultOfTResult,
-            Act = ctx => [$"var value = {ctx.Call("map", InputName)};", "return Result<TResult>.Succeeded(value);"],
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Returns("map", ["x"], "x * 10", "int"),
-            ThrowingTest = Returns("map", ["x"], "Boom.Throw<int>()", "int"),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", "Assert.Equal(1, mapCalls);"],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, "Assert.Equal(0, mapCalls);"],
-        },
-        new()
-        {
-            Name = BindTryName,
-            StemPart = "BindTryToResultOfT",
-            Typed = true,
-            Summary = "Chains an operation that can fail and returns a value, and may also throw.",
-            TypeParameters = ["T", TResultName],
-            TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the result that the delegate returns.")],
-            Delegate = new("bind", ["T"], ResultOfTResult, "The operation to run with the value of the successful result."),
-            ReturnType = ResultOfTResult,
-            ReturnDescription = ReturnDelegateOrFailure,
-            OnReceiverFailed = _ => ReceiverFailedFailure,
-            FailureFormat = FailureOfResultOfTResult,
-            Act = ctx => [$"return {ctx.Call("bind", InputName)};"],
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Returns("bind", ["x"], "Result.Success(x * 10)", ResultOfInt),
-            ThrowingTest = Returns("bind", ["x"], "Boom.Throw<Result<int>>()", ResultOfInt),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", AssertEqual1BindCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
-        },
-        new()
-        {
-            Name = BindTryName,
-            StemPart = "BindTryToResult",
-            Typed = true,
-            Summary = "Chains an operation that can fail and returns no value, and may also throw.",
-            TypeParameters = ["T"],
-            TypeParameterDocs = [new("T", TDoc)],
-            Delegate = new("bind", ["T"], ResultType, "The operation to run with the value of the successful result."),
-            ReturnType = ResultType,
-            ReturnDescription = ReturnDelegateOrFailure,
-            OnReceiverFailed = _ => "new Result(failure)",
-            FailureFormat = FailureOfResult,
-            Act = ctx => [$"return {ctx.Call("bind", InputName)};"],
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Returns("bind", ["x"], "Result.Failure(other)", ResultType),
-            PassTest = Returns("bind", ["x"], "Result.Success()", ResultType),
-            ThrowingTest = Returns("bind", ["x"], "Boom.Throw<Result>()", ResultType),
-            Setup = [OtherErrorSetup],
-            RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
-        },
-        new()
-        {
-            Name = TapTryName,
-            Typed = true,
-            KeepsValue = true,
-            Summary = "Runs a side effect that may throw with the value of a successful result, and returns the result unchanged when it does not.",
-            TypeParameters = ["T"],
-            TypeParameterDocs = [new("T", TDoc)],
-            Delegate = new("tap", ["T"], "void", "The side effect to run with the value of the successful result."),
-            ReturnType = ResultOfT,
-            ReturnDescription = ReturnReceiverOrFailure,
-            OnReceiverFailed = ctx => ctx.R,
-            FailureFormat = "Result.Failure<T>({0})",
-            Act = ctx => [ctx.CallStatement("tap", InputName), $"return {ctx.R};"],
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Does("tap", ["x"], "seen = x;"),
-            ThrowingTest = Does("tap", ["x"], BoomThrowStatement),
-            Setup = ["var seen = 0;"],
-            RunAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(2, seen);", AssertTapCalledOnce],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-        },
-        new()
-        {
-            Name = TapIfTryName,
-            Typed = true,
-            Conditional = true,
-            KeepsValue = true,
-            Summary = "Runs a side effect that may throw with the value of a successful result when a condition holds, and returns the result " +
-                "unchanged when it does not throw.",
-            TypeParameters = ["T"],
-            TypeParameterDocs = [new("T", TDoc)],
-            Delegate = new("tap", ["T"], "void", "The side effect to run with the value of the successful result."),
-            ReturnType = ResultOfT,
-            ReturnDescription = ReturnReceiverOrFailure,
-            OnReceiverFailed = ctx => ctx.R,
-            FailureFormat = "Result.Failure<T>({0})",
-            Act = ctx => [ctx.CallStatement("tap", InputName), $"return {ctx.R};"],
-            GateReceiver = SuccessOfTwo,
-            OtherReceiver = FailureOfInt,
-            Test = Does("tap", ["x"], "seen = x;"),
-            ThrowingTest = Does("tap", ["x"], BoomThrowStatement),
-            Setup = ["var seen = 0;"],
-            RunAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(2, seen);", AssertTapCalledOnce],
-            SkipAsserts = [AssertEqual2OutcomeGetValue, "Assert.Equal(0, seen);", AssertNoTapCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-        },
-        new()
-        {
-            Name = MapTryName,
-            Typed = false,
-            Summary = "Turns a successful result without a value into a result with a value, computed by a function that may throw.",
-            TypeParameters = [TResultName],
-            TypeParameterDocs = [new(TResultName, "The type of the value that the delegate produces.")],
-            Delegate = new("map", [], TResultName, "Produces the value of the new result."),
-            ReturnType = ResultOfTResult,
-            ReturnDescription = "A successful result that holds the value produced by the delegate, or a failed result.",
-            OnReceiverFailed = _ => ReceiverFailedFailure,
-            FailureFormat = FailureOfResultOfTResult,
-            Act = ctx => [$"var value = {ctx.Call("map", string.Empty)};", "return Result<TResult>.Succeeded(value);"],
-            GateReceiver = SuccessWithoutValue,
-            OtherReceiver = FailureWithError,
-            Test = Returns("map", [], "7", "int"),
-            ThrowingTest = Returns("map", [], "Boom.Throw<int>()", "int"),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(7, outcome.GetValue());", "Assert.Equal(1, mapCalls);"],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, "Assert.Equal(0, mapCalls);"],
-        },
-        new()
-        {
-            Name = BindTryName,
-            StemPart = "BindTryToResultOfT",
-            Typed = false,
-            Summary = "Chains an operation that returns a value after an operation that returned none, and may throw.",
-            TypeParameters = [TResultName],
-            TypeParameterDocs = [new(TResultName, "The type of the value of the result that the delegate returns.")],
-            Delegate = new("bind", [], ResultOfTResult, "The operation to run."),
-            ReturnType = ResultOfTResult,
-            ReturnDescription = ReturnDelegateOrFailure,
-            OnReceiverFailed = _ => ReceiverFailedFailure,
-            FailureFormat = FailureOfResultOfTResult,
-            Act = ctx => [$"return {ctx.Call("bind", string.Empty)};"],
-            GateReceiver = SuccessWithoutValue,
-            OtherReceiver = FailureWithError,
-            Test = Returns("bind", [], "Result.Success(7)", ResultOfInt),
-            ThrowingTest = Returns("bind", [], "Boom.Throw<Result<int>>()", ResultOfInt),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(7, outcome.GetValue());", AssertEqual1BindCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
-        },
-        new()
-        {
-            Name = BindTryName,
-            StemPart = "BindTryToResult",
-            Typed = false,
-            Summary = "Chains an operation that returns no value after another one, and may throw.",
-            TypeParameters = [],
-            TypeParameterDocs = [],
-            Delegate = new("bind", [], ResultType, "The operation to run."),
-            ReturnType = ResultType,
-            ReturnDescription = ReturnDelegateOrFailure,
-            OnReceiverFailed = ctx => ctx.R,
-            FailureFormat = FailureOfResult,
-            Act = ctx => [$"return {ctx.Call("bind", string.Empty)};"],
-            GateReceiver = SuccessWithoutValue,
-            OtherReceiver = FailureWithError,
-            Test = Returns("bind", [], "Result.Failure(other)", ResultType),
-            PassTest = Returns("bind", [], "Result.Success()", ResultType),
-            ThrowingTest = Returns("bind", [], "Boom.Throw<Result>()", ResultType),
-            Setup = [OtherErrorSetup],
-            RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
-        },
-        new()
-        {
-            Name = TapTryName,
-            Typed = false,
-            KeepsValue = true,
-            Summary = "Runs a side effect that may throw for a successful result, and returns the result unchanged when it does not.",
-            TypeParameters = [],
-            TypeParameterDocs = [],
-            Delegate = new("tap", [], "void", "The side effect to run."),
-            ReturnType = ResultType,
-            ReturnDescription = ReturnReceiverOrFailure,
-            OnReceiverFailed = ctx => ctx.R,
-            FailureFormat = FailureOfResult,
-            Act = ctx => [ctx.CallStatement("tap", string.Empty), $"return {ctx.R};"],
-            GateReceiver = SuccessWithoutValue,
-            OtherReceiver = FailureWithError,
-            Test = Does("tap", []),
-            ThrowingTest = Does("tap", [], BoomThrowStatement),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, AssertTapCalledOnce],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-        },
-        new()
-        {
-            Name = TapIfTryName,
-            Typed = false,
-            Conditional = true,
-            KeepsValue = true,
-            Summary = "Runs a side effect that may throw for a successful result when a condition holds, and returns the result unchanged when it " +
-                "does not throw.",
-            TypeParameters = [],
-            TypeParameterDocs = [],
-            Delegate = new("tap", [], "void", "The side effect to run."),
-            ReturnType = ResultType,
-            ReturnDescription = ReturnReceiverOrFailure,
-            OnReceiverFailed = ctx => ctx.R,
-            FailureFormat = FailureOfResult,
-            Act = ctx => [ctx.CallStatement("tap", string.Empty), $"return {ctx.R};"],
-            GateReceiver = SuccessWithoutValue,
-            OtherReceiver = FailureWithError,
-            Test = Does("tap", []),
-            ThrowingTest = Does("tap", [], BoomThrowStatement),
-            RunAsserts = [AssertTrueOutcomeIsSuccess, AssertTapCalledOnce],
-            SkipAsserts = [AssertNoTapCalls],
-            OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-        },
+        MapTryTypedShape(),
+        BindTryTypedToValueShape(),
+        BindTryTypedToResultShape(),
+        TapTryTypedShape(),
+        TapIfTryTypedShape(),
+        MapTryUntypedShape(),
+        BindTryUntypedToValueShape(),
+        BindTryUntypedToResultShape(),
+        TapTryUntypedShape(),
+        TapIfTryUntypedShape(),
     ];
+
+    /// <summary>Gets the shape of the map of a typed result.</summary>
+    private static TryShape MapTryTypedShape() =>
+    new()
+    {
+        Name = MapTryName,
+        Typed = true,
+        Summary = "Transforms the value of a successful result with a function that may throw.",
+        TypeParameters = ["T", TResultName],
+        TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value that the delegate produces.")],
+        Delegate = new("map", ["T"], TResultName, "Computes the new value from the value of the successful result."),
+        ReturnType = ResultOfTResult,
+        ReturnDescription = "A successful result that holds the value computed by the delegate, or a failed result.",
+        OnReceiverFailed = _ => ReceiverFailedFailure,
+        FailureFormat = FailureOfResultOfTResult,
+        Act = ctx => [$"var value = {ctx.Call("map", InputName)};", "return Result<TResult>.Succeeded(value);"],
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Returns("map", ["x"], "x * 10", "int"),
+        ThrowingTest = Returns("map", ["x"], "Boom.Throw<int>()", "int"),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", "Assert.Equal(1, mapCalls);"],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, "Assert.Equal(0, mapCalls);"],
+    };
+
+    /// <summary>Gets the shape of the bind of a typed result to a result with a value.</summary>
+    private static TryShape BindTryTypedToValueShape() =>
+    new()
+    {
+        Name = BindTryName,
+        StemPart = "BindTryToResultOfT",
+        Typed = true,
+        Summary = "Chains an operation that can fail and returns a value, and may also throw.",
+        TypeParameters = ["T", TResultName],
+        TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the result that the delegate returns.")],
+        Delegate = new("bind", ["T"], ResultOfTResult, "The operation to run with the value of the successful result."),
+        ReturnType = ResultOfTResult,
+        ReturnDescription = ReturnDelegateOrFailure,
+        OnReceiverFailed = _ => ReceiverFailedFailure,
+        FailureFormat = FailureOfResultOfTResult,
+        Act = ctx => [$"return {ctx.Call("bind", InputName)};"],
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Returns("bind", ["x"], "Result.Success(x * 10)", ResultOfInt),
+        ThrowingTest = Returns("bind", ["x"], "Boom.Throw<Result<int>>()", ResultOfInt),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(20, outcome.GetValue());", AssertEqual1BindCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
+    };
+
+    /// <summary>Gets the shape of the bind of a typed result to a result without a value.</summary>
+    private static TryShape BindTryTypedToResultShape() =>
+    new()
+    {
+        Name = BindTryName,
+        StemPart = "BindTryToResult",
+        Typed = true,
+        Summary = "Chains an operation that can fail and returns no value, and may also throw.",
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        Delegate = new("bind", ["T"], ResultType, "The operation to run with the value of the successful result."),
+        ReturnType = ResultType,
+        ReturnDescription = ReturnDelegateOrFailure,
+        OnReceiverFailed = _ => "new Result(failure)",
+        FailureFormat = FailureOfResult,
+        Act = ctx => [$"return {ctx.Call("bind", InputName)};"],
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Returns("bind", ["x"], "Result.Failure(other)", ResultType),
+        PassTest = Returns("bind", ["x"], "Result.Success()", ResultType),
+        ThrowingTest = Returns("bind", ["x"], "Boom.Throw<Result>()", ResultType),
+        Setup = [OtherErrorSetup],
+        RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
+    };
+
+    /// <summary>Gets the shape of the tap of a typed result.</summary>
+    private static TryShape TapTryTypedShape() =>
+    new()
+    {
+        Name = TapTryName,
+        Typed = true,
+        KeepsValue = true,
+        Summary = "Runs a side effect that may throw with the value of a successful result, and returns the result unchanged when it does not.",
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        Delegate = new("tap", ["T"], "void", "The side effect to run with the value of the successful result."),
+        ReturnType = ResultOfT,
+        ReturnDescription = ReturnReceiverOrFailure,
+        OnReceiverFailed = ctx => ctx.R,
+        FailureFormat = "Result.Failure<T>({0})",
+        Act = ctx => [ctx.CallStatement("tap", InputName), $"return {ctx.R};"],
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Does("tap", ["x"], "seen = x;"),
+        ThrowingTest = Does("tap", ["x"], BoomThrowStatement),
+        Setup = ["var seen = 0;"],
+        RunAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(2, seen);", AssertTapCalledOnce],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
+    };
+
+    /// <summary>Gets the shape of the conditional tap of a typed result.</summary>
+    private static TryShape TapIfTryTypedShape() =>
+    new()
+    {
+        Name = TapIfTryName,
+        Typed = true,
+        Conditional = true,
+        KeepsValue = true,
+        Summary = "Runs a side effect that may throw with the value of a successful result when a condition holds, and returns the result " +
+            "unchanged when it does not throw.",
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        Delegate = new("tap", ["T"], "void", "The side effect to run with the value of the successful result."),
+        ReturnType = ResultOfT,
+        ReturnDescription = ReturnReceiverOrFailure,
+        OnReceiverFailed = ctx => ctx.R,
+        FailureFormat = "Result.Failure<T>({0})",
+        Act = ctx => [ctx.CallStatement("tap", InputName), $"return {ctx.R};"],
+        GateReceiver = SuccessOfTwo,
+        OtherReceiver = FailureOfInt,
+        Test = Does("tap", ["x"], "seen = x;"),
+        ThrowingTest = Does("tap", ["x"], BoomThrowStatement),
+        Setup = ["var seen = 0;"],
+        RunAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(2, seen);", AssertTapCalledOnce],
+        SkipAsserts = [AssertEqual2OutcomeGetValue, "Assert.Equal(0, seen);", AssertNoTapCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
+    };
+
+    /// <summary>Gets the shape of the map of a result without a value.</summary>
+    private static TryShape MapTryUntypedShape() =>
+    new()
+    {
+        Name = MapTryName,
+        Typed = false,
+        Summary = "Turns a successful result without a value into a result with a value, computed by a function that may throw.",
+        TypeParameters = [TResultName],
+        TypeParameterDocs = [new(TResultName, "The type of the value that the delegate produces.")],
+        Delegate = new("map", [], TResultName, "Produces the value of the new result."),
+        ReturnType = ResultOfTResult,
+        ReturnDescription = "A successful result that holds the value produced by the delegate, or a failed result.",
+        OnReceiverFailed = _ => ReceiverFailedFailure,
+        FailureFormat = FailureOfResultOfTResult,
+        Act = ctx => [$"var value = {ctx.Call("map", string.Empty)};", "return Result<TResult>.Succeeded(value);"],
+        GateReceiver = SuccessWithoutValue,
+        OtherReceiver = FailureWithError,
+        Test = Returns("map", [], "7", "int"),
+        ThrowingTest = Returns("map", [], "Boom.Throw<int>()", "int"),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(7, outcome.GetValue());", "Assert.Equal(1, mapCalls);"],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, "Assert.Equal(0, mapCalls);"],
+    };
+
+    /// <summary>Gets the shape of the bind of a result without a value to a result with a value.</summary>
+    private static TryShape BindTryUntypedToValueShape() =>
+    new()
+    {
+        Name = BindTryName,
+        StemPart = "BindTryToResultOfT",
+        Typed = false,
+        Summary = "Chains an operation that returns a value after an operation that returned none, and may throw.",
+        TypeParameters = [TResultName],
+        TypeParameterDocs = [new(TResultName, "The type of the value of the result that the delegate returns.")],
+        Delegate = new("bind", [], ResultOfTResult, "The operation to run."),
+        ReturnType = ResultOfTResult,
+        ReturnDescription = ReturnDelegateOrFailure,
+        OnReceiverFailed = _ => ReceiverFailedFailure,
+        FailureFormat = FailureOfResultOfTResult,
+        Act = ctx => [$"return {ctx.Call("bind", string.Empty)};"],
+        GateReceiver = SuccessWithoutValue,
+        OtherReceiver = FailureWithError,
+        Test = Returns("bind", [], "Result.Success(7)", ResultOfInt),
+        ThrowingTest = Returns("bind", [], "Boom.Throw<Result<int>>()", ResultOfInt),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, "Assert.Equal(7, outcome.GetValue());", AssertEqual1BindCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
+    };
+
+    /// <summary>Gets the shape of the bind of a result without a value to a result without a value.</summary>
+    private static TryShape BindTryUntypedToResultShape() =>
+    new()
+    {
+        Name = BindTryName,
+        StemPart = "BindTryToResult",
+        Typed = false,
+        Summary = "Chains an operation that returns no value after another one, and may throw.",
+        TypeParameters = [],
+        TypeParameterDocs = [],
+        Delegate = new("bind", [], ResultType, "The operation to run."),
+        ReturnType = ResultType,
+        ReturnDescription = ReturnDelegateOrFailure,
+        OnReceiverFailed = ctx => ctx.R,
+        FailureFormat = FailureOfResult,
+        Act = ctx => [$"return {ctx.Call("bind", string.Empty)};"],
+        GateReceiver = SuccessWithoutValue,
+        OtherReceiver = FailureWithError,
+        Test = Returns("bind", [], "Result.Failure(other)", ResultType),
+        PassTest = Returns("bind", [], "Result.Success()", ResultType),
+        ThrowingTest = Returns("bind", [], "Boom.Throw<Result>()", ResultType),
+        Setup = [OtherErrorSetup],
+        RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertEqual0BindCalls],
+    };
+
+    /// <summary>Gets the shape of the tap of a result without a value.</summary>
+    private static TryShape TapTryUntypedShape() =>
+    new()
+    {
+        Name = TapTryName,
+        Typed = false,
+        KeepsValue = true,
+        Summary = "Runs a side effect that may throw for a successful result, and returns the result unchanged when it does not.",
+        TypeParameters = [],
+        TypeParameterDocs = [],
+        Delegate = new("tap", [], "void", "The side effect to run."),
+        ReturnType = ResultType,
+        ReturnDescription = ReturnReceiverOrFailure,
+        OnReceiverFailed = ctx => ctx.R,
+        FailureFormat = FailureOfResult,
+        Act = ctx => [ctx.CallStatement("tap", string.Empty), $"return {ctx.R};"],
+        GateReceiver = SuccessWithoutValue,
+        OtherReceiver = FailureWithError,
+        Test = Does("tap", []),
+        ThrowingTest = Does("tap", [], BoomThrowStatement),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, AssertTapCalledOnce],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
+    };
+
+    /// <summary>Gets the shape of the conditional tap of a result without a value.</summary>
+    private static TryShape TapIfTryUntypedShape() =>
+    new()
+    {
+        Name = TapIfTryName,
+        Typed = false,
+        Conditional = true,
+        KeepsValue = true,
+        Summary = "Runs a side effect that may throw for a successful result when a condition holds, and returns the result unchanged when it " +
+            "does not throw.",
+        TypeParameters = [],
+        TypeParameterDocs = [],
+        Delegate = new("tap", [], "void", "The side effect to run."),
+        ReturnType = ResultType,
+        ReturnDescription = ReturnReceiverOrFailure,
+        OnReceiverFailed = ctx => ctx.R,
+        FailureFormat = FailureOfResult,
+        Act = ctx => [ctx.CallStatement("tap", string.Empty), $"return {ctx.R};"],
+        GateReceiver = SuccessWithoutValue,
+        OtherReceiver = FailureWithError,
+        Test = Does("tap", []),
+        ThrowingTest = Does("tap", [], BoomThrowStatement),
+        RunAsserts = [AssertTrueOutcomeIsSuccess, AssertTapCalledOnce],
+        SkipAsserts = [AssertNoTapCalls],
+        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
+    };
 
     /// <summary>Gets the operations of the <c>*Try</c> family: every shape with a handler for any exception and with one for a named exception.</summary>
     private static IEnumerable<OperationSpec> TryFamily() => CreateTryShapes().SelectMany(TrySpecs);
@@ -289,44 +329,37 @@ internal static partial class Operations
         }
     }
 
-    private static OperationSpec TrySpec(TryShape shape, bool named, IfCondition? condition)
+    private static OperationSpec TrySpec(TryShape shape, bool named, IfCondition? condition) => new()
     {
-        var stemKind = condition switch
-        {
-            null => string.Empty,
-            IfCondition.Bool => "Bool",
-            IfCondition.Function => "Func",
-            _ => "ValueFunc",
-        };
-        var stem = $"{shape.StemPart ?? shape.Name}{(named ? "OfException" : string.Empty)}{stemKind}From{(shape.Typed ? "ResultOfT" : ResultType)}";
-        var typeParameters = named ? [.. shape.TypeParameters, TExceptionName] : shape.TypeParameters;
-        var typeParameterDocs = named
-            ? [.. shape.TypeParameterDocs, new TypeParameterDoc(TExceptionName, ExceptionTypeDoc)]
-            : shape.TypeParameterDocs;
+        Stem = TryStem(shape, named, condition),
+        Name = shape.Name,
+        KeepsValue = shape.KeepsValue,
+        StateChange = shape.KeepsValue ? StateChange.ToFailure : StateChange.Any,
+        ReceiverType = shape.ReceiverType,
+        ReceiverTestType = shape.ReceiverTestType,
+        ReceiverDescription = shape.ReceiverDescription,
+        TypeParameters = named ? [.. shape.TypeParameters, TExceptionName] : shape.TypeParameters,
+        TypeParameterDocs = TryTypeParameterDocs(shape, named),
+        Constraints = named ? [$"where {TExceptionName} : Exception"] : [],
+        Summary = shape.Summary + ReceiverPassesThrough + (named ? NamedExceptionSentence : DefaultExceptionSentence),
+        LeadingParameters = condition is { } kind ? [TryCondition(kind)] : [],
+        Delegates = [shape.Delegate],
+        ExtraParameters = named ? NamedHandlerParameters() : DefaultHandlerParameters(),
+        ReturnType = shape.ReturnType,
+        ReturnDescription = shape.ReturnDescription,
+        ForwardsTo = condition == IfCondition.Bool ? TapTryName : null,
+        Body = ctx => TryBody(shape, named, condition, ctx),
+        Tests = TryTests(shape, named, condition),
+    };
 
-        return new OperationSpec
-        {
-            Stem = stem,
-            Name = shape.Name,
-            KeepsValue = shape.KeepsValue,
-            StateChange = shape.KeepsValue ? StateChange.ToFailure : StateChange.Any,
-            ReceiverType = shape.Typed ? ResultOfT : ResultType,
-            ReceiverTestType = shape.Typed ? ResultOfInt : ResultType,
-            ReceiverDescription = shape.Typed ? ResultOfTReceiverDescription : ResultReceiverDescription,
-            TypeParameters = typeParameters,
-            TypeParameterDocs = typeParameterDocs,
-            Constraints = named ? [$"where {TExceptionName} : Exception"] : [],
-            Summary = shape.Summary + ReceiverPassesThrough + (named ? NamedExceptionSentence : DefaultExceptionSentence),
-            LeadingParameters = condition is { } kind ? [TryCondition(kind)] : [],
-            Delegates = [shape.Delegate],
-            ExtraParameters = named ? NamedHandlerParameters() : DefaultHandlerParameters(),
-            ReturnType = shape.ReturnType,
-            ReturnDescription = shape.ReturnDescription,
-            ForwardsTo = condition == IfCondition.Bool ? TapTryName : null,
-            Body = ctx => TryBody(shape, named, condition, ctx),
-            Tests = TryTests(shape, named, condition),
-        };
-    }
+    /// <summary>Gets the stem of the file names of a <c>*Try</c> operation.</summary>
+    private static string TryStem(TryShape shape, bool named, IfCondition? condition) =>
+        $"{shape.StemPart ?? shape.Name}{(named ? "OfException" : string.Empty)}{(condition is { } kind ? IfStemKind(kind) : string.Empty)}" +
+        $"From{(shape.Typed ? "ResultOfT" : ResultType)}";
+
+    /// <summary>Gets the documentation of the type parameters of a <c>*Try</c> operation, with the exception type when the handler is named.</summary>
+    private static TypeParameterDoc[] TryTypeParameterDocs(TryShape shape, bool named) =>
+        named ? [.. shape.TypeParameterDocs, new TypeParameterDoc(TExceptionName, ExceptionTypeDoc)] : shape.TypeParameterDocs;
 
     // The condition of a *Try operation. Only a shape with a value has a condition that takes it, so the last arm is the one for a value.
     private static ExtraParameter TryCondition(IfCondition condition) => condition switch
@@ -486,10 +519,9 @@ internal static partial class Operations
         private TryCase ThrowingCase(string name, string[] asserts, string? handler) =>
             new(name, shape.GateReceiver, shape.ThrowingTest, asserts, handler, _yes, 1);
 
-        // Only a test whose delegate is the plain one uses the arrangement of the shape; only one with a handler that refers to it needs `handled`.
-        private TestCaseSpec Make(TryCase test)
+        /// <summary>Gets the lines that arrange one test.</summary>
+        private List<string> SetupLines(TryCase test)
         {
-            var usesTest = test.Test == shape.Test;
             var setup = new List<string>();
 
             if (_counted)
@@ -497,7 +529,7 @@ internal static partial class Operations
                 setup.Add("var conditionCalls = 0;");
             }
 
-            if (usesTest)
+            if (test.Test == shape.Test)
             {
                 setup.AddRange(shape.Setup ?? []);
             }
@@ -507,6 +539,13 @@ internal static partial class Operations
                 setup.Add(HandledSetup);
             }
 
+            return setup;
+        }
+
+        // Only a test whose delegate is the plain one uses the arrangement of the shape; only one with a handler that refers to it needs `handled`.
+        private TestCaseSpec Make(TryCase test)
+        {
+            var setup = SetupLines(test);
             var asserts = _counted ? [.. test.Asserts, $"Assert.Equal({test.ConditionCalls}, conditionCalls);"] : test.Asserts;
             string[] handler = test.Handler is null ? [] : [test.Handler];
             string[]? leading = test.Leading is null ? null : [test.Leading];
@@ -535,6 +574,15 @@ internal static partial class Operations
 
         /// <summary>Gets the summary of the operation, before the sentence about the exception.</summary>
         internal required string Summary { get; init; }
+
+        /// <summary>Gets the type of the receiver.</summary>
+        internal string ReceiverType => Typed ? ResultOfT : ResultType;
+
+        /// <summary>Gets the type of the receiver in the generated tests.</summary>
+        internal string ReceiverTestType => Typed ? ResultOfInt : ResultType;
+
+        /// <summary>Gets the documentation of the receiver.</summary>
+        internal string ReceiverDescription => Typed ? ResultOfTReceiverDescription : ResultReceiverDescription;
 
         /// <summary>Gets the type parameters.</summary>
         internal required string[] TypeParameters { get; init; }

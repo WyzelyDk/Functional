@@ -14,6 +14,13 @@ public sealed class MaybeSuggestionsEdgeCaseTests
             public Holder Next() => this;
             public Maybe<int> Value => default;
         }
+        sealed class Fake
+        {
+            public bool IsSome => true;
+            public bool IsNone => false;
+            public bool Flag => true;
+            public int GetValue() => 1;
+        }
         sealed class Factory
         {
             public Maybe<string> None() => default;
@@ -52,6 +59,14 @@ public sealed class MaybeSuggestionsEdgeCaseTests
     [InlineData("Maybe<string> M(string? s, bool flag) => flag ? Maybe.None<string>() : Maybe.Some(s!);")]
     [InlineData("Maybe<string> M(string? s) => s is not \"a\" ? Maybe.Some(s!) : Maybe.None<string>();")]
     [InlineData("Maybe<string> M(int n, string s) => n < 3 ? Maybe.None<string>() : Maybe.Some(s);")]
+    [InlineData("int M(Fake f) => f.IsSome ? f.GetValue() : 0;")]
+    [InlineData("string M() => nameof(Maybe<int>.IsSome);")]
+    [InlineData("bool M(Maybe<int> m) => m.Filter<int>(x => x > 5).IsSome;")]
+    [InlineData("int M(Fake f) => f.IsNone ? 0 : f.GetValue();")]
+    [InlineData("int M(Fake f) => f.Flag ? 1 : 0;")]
+    [InlineData("Maybe<string> M(string? s) => s is string ? Maybe.None<string>() : Maybe.Some(s!);")]
+    [InlineData("Maybe<string> M(string? s) => s is not string ? Maybe.None<string>() : Maybe.Some(s);")]
+    [InlineData("Maybe<string> M(string? s, string? t) => s == t ? Maybe.None<string>() : Maybe.Some(s!);")]
     internal async Task Shapes_that_only_look_like_a_suggestion_are_left_alone(string method)
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\n" + method, Analyzer);

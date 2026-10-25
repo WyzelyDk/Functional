@@ -70,41 +70,66 @@ public sealed class UncheckedAccessCodeFixProvider : CodeFixProvider
     // The statement to put the guard before, and what the guard returns, or null when a guard clause could change what the code does.
     private static GuardPlan? Plan(InvocationExpressionSyntax call, SemanticModel model)
     {
-        if (call.Expression is not MemberAccessExpressionSyntax { Name.Identifier.ValueText: "GetValue" } access
-            || call.ArgumentList.Arguments.Count != 0
-            || !IsPlainReceiver(access.Expression)
+        if (!IsGetValueOfPlainReceiver(call, out var access)
             || StatementOf(call) is not { Parent: BlockSyntax } statement
-            || statement.Ancestors().FirstOrDefault(IsFunction) is not { } function
-            || function is not (MethodDeclarationSyntax or LocalFunctionStatementSyntax))
+            || EnclosingFunction(statement) is not { } function)
         {
             return null;
         }
 
-        var returnType = ReturnTypeOf(function, model);
         var receiverType = model.GetTypeInfo(access.Expression).Type;
 
-        if (returnType is not INamedTypeSymbol { Name: "Result" } result || !IsLibraryType(result) || receiverType is null)
+        if (LibraryResultOf(function, model) is not { } result || receiverType is null)
         {
             return null;
         }
 
-        ExpressionSyntax returned;
+        return new GuardPlan(statement, access.Expression, FailureToReturn(result, receiverType, access.Expression, model, statement));
+    }
 
+    // The result that the function returns, when it is the Result or Result<T> of the library.
+    private static INamedTypeSymbol? LibraryResultOf(SyntaxNode function, SemanticModel model) =>
+        ReturnTypeOf(function, model) is INamedTypeSymbol { Name: "Result" } result && IsLibraryType(result) ? result : null;
+
+    // A call of GetValue() without arguments on a receiver that can be read twice.
+    private static bool IsGetValueOfPlainReceiver(InvocationExpressionSyntax call, out MemberAccessExpressionSyntax access)
+    {
+        access = (call.Expression as MemberAccessExpressionSyntax)!;
+
+        return call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "GetValue" }
+            && call.ArgumentList.Arguments.Count == 0
+            && IsPlainReceiver(access.Expression);
+    }
+
+    // The method or local function that holds the statement, not a lambda or an accessor, which cannot return the failure.
+    private static SyntaxNode? EnclosingFunction(StatementSyntax statement)
+    {
+        var function = statement.Ancestors().FirstOrDefault(IsFunction);
+
+        return function is MethodDeclarationSyntax or LocalFunctionStatementSyntax ? function : null;
+    }
+
+    // The failure that the guard returns, written for the type of the receiver and the result that the function returns.
+    private static ExpressionSyntax FailureToReturn(
+        INamedTypeSymbol result,
+        ITypeSymbol receiverType,
+        ExpressionSyntax receiver,
+        SemanticModel model,
+        StatementSyntax statement)
+    {
         if (!result.IsGenericType)
         {
-            returned = SyntaxFactory.ParseExpression("Result.Failure(" + access.Expression.WithoutTrivia().ToString() + ".GetError())");
-        }
-        else if (SymbolEqualityComparer.Default.Equals(receiverType, result))
-        {
-            returned = access.Expression.WithoutTrivia();
-        }
-        else
-        {
-            var name = result.TypeArguments[0].ToMinimalDisplayString(model, statement.SpanStart);
-            returned = SyntaxFactory.ParseExpression(access.Expression.WithoutTrivia().ToString() + ".ConvertFailure<" + name + ">()");
+            return SyntaxFactory.ParseExpression("Result.Failure(" + receiver.WithoutTrivia().ToString() + ".GetError())");
         }
 
-        return new GuardPlan(statement, access.Expression, returned);
+        if (SymbolEqualityComparer.Default.Equals(receiverType, result))
+        {
+            return receiver.WithoutTrivia();
+        }
+
+        var name = result.TypeArguments[0].ToMinimalDisplayString(model, statement.SpanStart);
+
+        return SyntaxFactory.ParseExpression(receiver.WithoutTrivia().ToString() + ".ConvertFailure<" + name + ">()");
     }
 
     private static bool IsFunction(SyntaxNode node) =>

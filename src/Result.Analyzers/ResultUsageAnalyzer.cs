@@ -41,19 +41,9 @@ public sealed class ResultUsageAnalyzer : DiagnosticAnalyzer
         var invocation = (IInvocationOperation)context.Operation;
         var method = invocation.TargetMethod;
 
-        if (method.Parameters.Length != 0 || !types.IsResult(method.ContainingType))
-        {
-            return;
-        }
-
-        var needsFailure = method.Name is "GetError" or "ConvertFailure";
-
-        if (!needsFailure && method.Name != "GetValue")
-        {
-            return;
-        }
-
-        if (invocation.Syntax is not InvocationExpressionSyntax call || AccessGuards.IsGuarded(call, needsFailure))
+        if (!ReadsState(method, types, out var needsFailure)
+            || invocation.Syntax is not InvocationExpressionSyntax call
+            || AccessGuards.IsGuarded(call, needsFailure))
         {
             return;
         }
@@ -63,6 +53,14 @@ public sealed class ResultUsageAnalyzer : DiagnosticAnalyzer
         var state = needsFailure ? "failed" : "successful";
 
         context.ReportDiagnostic(Diagnostic.Create(Rules.UncheckedAccess, call.GetLocation(), method.Name + "()", state, flag, alternatives));
+    }
+
+    // GetError(), ConvertFailure() (which need a failed result) and GetValue() (which needs a successful one) of a result.
+    private static bool ReadsState(IMethodSymbol method, ResultTypes types, out bool needsFailure)
+    {
+        needsFailure = method.Name is "GetError" or "ConvertFailure";
+
+        return method.Parameters.Length == 0 && types.IsResult(method.ContainingType) && (needsFailure || method.Name == "GetValue");
     }
 
     private static void AnalyzeExpressionStatement(OperationAnalysisContext context, ResultTypes types)

@@ -61,23 +61,6 @@ internal sealed class NotNullFactoryEmitter(GeneratorProfile profile)
     private static string ParameterType(ValueForm value) =>
         value.Returns == Wrapper.None ? "T?" : string.Format(System.Globalization.CultureInfo.InvariantCulture, value.Type, "T?");
 
-    private static string Present(ValueForm value, bool isStruct) => Wrap(value, isStruct, isStruct ? "5" : "\"a\"");
-
-    private static string Absent(ValueForm value, bool isStruct) => Wrap(value, isStruct, isStruct ? "(int?)null" : "(string?)null");
-
-    // A value as the test passes it: itself, or in a completed task.
-    private static string Wrap(ValueForm value, bool isStruct, string expression)
-    {
-        var type = isStruct ? "int?" : "string?";
-
-        if (value.Returns != Wrapper.None)
-        {
-            return string.Format(System.Globalization.CultureInfo.InvariantCulture, value.Test, type, expression);
-        }
-
-        return expression.StartsWith('(') ? expression : $"({type}){expression}";
-    }
-
     private static string Escaped(string text) => text.Replace("<", "&lt;", StringComparison.Ordinal).Replace(">", "&gt;", StringComparison.Ordinal);
 
     private static string[] Body(ValueForm value, bool isStruct, ErrorForm error)
@@ -117,13 +100,6 @@ internal sealed class NotNullFactoryEmitter(GeneratorProfile profile)
         lines.Add("}");
 
         return [.. lines];
-    }
-
-    private static string TestName(ValueForm value, bool isStruct, ErrorForm error, string behavior)
-    {
-        var article = error.Slug.StartsWith('e') ? "an" : "a";
-
-        return $"{MethodName}_with_a_{(isStruct ? "nullable_value_type" : "reference_type")}_{value.Slug}_and_{article}_{error.Slug}_{behavior}";
     }
 
     private string EmitLibrary(ValueForm value, bool isStruct, ErrorForm error, bool stubs)
@@ -277,67 +253,146 @@ internal sealed class NotNullFactoryEmitter(GeneratorProfile profile)
         return writer.ToString();
     }
 
-    private static IEnumerable<(string Name, string[] Lines)> Tests(ValueForm value, bool isStruct, ErrorForm error)
+    private static List<(string Name, string[] Lines)> Tests(ValueForm value, bool isStruct, ErrorForm error)
     {
-        var awaited = value.Returns == Wrapper.None ? string.Empty : "await ";
-        string[] counter = error.Lazy ? ["var factoryCalls = 0;"] : [];
-        var present = isStruct ? "5" : "\"a\"";
-        string[] noCalls = error.Lazy ? ["Assert.Equal(0, factoryCalls);"] : [];
-        string[] oneCall = error.Lazy ? ["Assert.Equal(1, factoryCalls);"] : [];
-        var failureAssert = error.Type == StringType ? "Assert.Equal(\"Nope.\", outcome.GetError().Message);" : "Assert.Same(error, outcome.GetError());";
-
-        string[] Run(string valueExpression, string[] asserts) =>
-        [
-            .. counter,
-            $"var outcome = {awaited}Result.{MethodName}({valueExpression}, {error.Test});",
-            string.Empty,
-            .. asserts,
-        ];
-
-        yield return (
-            TestName(value, isStruct, error, "returns_a_success_with_the_value_when_it_is_not_null"),
-            Run(Present(value, isStruct), ["Assert.True(outcome.IsSuccess);", $"Assert.Equal({present}, outcome.GetValue());", .. noCalls]));
-
-        yield return (
-            TestName(value, isStruct, error, "returns_a_failure_when_the_value_is_null"),
-            Run(Absent(value, isStruct), [failureAssert, .. oneCall]));
+        var cases = new TestCases(value, isStruct, error);
+        var tests = new List<(string Name, string[] Lines)> { cases.Success(), cases.Failure() };
 
         if (value.Returns == Wrapper.Task)
         {
-            var pending = isStruct ? "Pending.Of((int?)null)" : "Pending.Of((string?)null)";
-
-            yield return (
-                TestName(value, isStruct, error, "returns_a_failure_when_the_value_is_null_and_completes_later"),
-                Run(pending, [failureAssert, .. oneCall]));
+            tests.Add(cases.PendingFailure());
         }
 
-        var nullError = $"var exception = Record.Exception(() => {{ _ = Result.{MethodName}({Present(value, isStruct)}, {NullArgument(error)}); }});";
-
-        yield return (
-            TestName(value, isStruct, error, $"throws_when_the_{error.Parameter}_is_null"),
-            [nullError, string.Empty, $"Assert.Equal(\"{error.Parameter}\", Assert.IsType<ArgumentNullException>(exception).ParamName);"]);
+        tests.Add(cases.NullError());
 
         if (value.Returns == Wrapper.Task)
         {
-            var type = isStruct ? "int?" : "string?";
+            tests.Add(cases.NullTask());
+        }
 
-            yield return (
-                TestName(value, isStruct, error, "throws_when_the_value_task_is_null"),
+        return tests;
+    }
+
+    /// <summary>The test cases for one combination of value and error.</summary>
+    private sealed class TestCases
+    {
+        private readonly ValueForm _value;
+        private readonly bool _isStruct;
+        private readonly ErrorForm _error;
+        private readonly string[] _counter;
+        private readonly string[] _noCalls;
+        private readonly string[] _oneCall;
+        private readonly string _failureAssert;
+
+        /// <summary>Initializes a new instance of the <see cref="TestCases"/> class.</summary>
+        /// <param name="value">How the value is given.</param>
+        /// <param name="isStruct"><see langword="true"/> for a nullable value type, <see langword="false"/> for a reference type.</param>
+        /// <param name="error">How the error is given.</param>
+        internal TestCases(ValueForm value, bool isStruct, ErrorForm error)
+        {
+            _value = value;
+            _isStruct = isStruct;
+            _error = error;
+            _counter = error.Lazy ? ["var factoryCalls = 0;"] : [];
+            _noCalls = error.Lazy ? ["Assert.Equal(0, factoryCalls);"] : [];
+            _oneCall = error.Lazy ? ["Assert.Equal(1, factoryCalls);"] : [];
+            _failureAssert = error.Type == StringType ? "Assert.Equal(\"Nope.\", outcome.GetError().Message);" : "Assert.Same(error, outcome.GetError());";
+        }
+
+        /// <summary>Creates the test for a value that is not null.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) Success()
+        {
+            var present = _isStruct ? "5" : "\"a\"";
+
+            return (
+                Name("returns_a_success_with_the_value_when_it_is_not_null"),
+                Run(Present(), ["Assert.True(outcome.IsSuccess);", $"Assert.Equal({present}, outcome.GetValue());", .. _noCalls]));
+        }
+
+        /// <summary>Creates the test for a value that is null.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) Failure() =>
+            (Name("returns_a_failure_when_the_value_is_null"), Run(Wrap(_isStruct ? "(int?)null" : "(string?)null"), [_failureAssert, .. _oneCall]));
+
+        /// <summary>Creates the test for a task that completes later with null.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) PendingFailure()
+        {
+            var pending = _isStruct ? "Pending.Of((int?)null)" : "Pending.Of((string?)null)";
+
+            return (Name("returns_a_failure_when_the_value_is_null_and_completes_later"), Run(pending, [_failureAssert, .. _oneCall]));
+        }
+
+        /// <summary>Creates the test for an error argument that is null.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) NullError()
+        {
+            var nullError = $"var exception = Record.Exception(() => {{ _ = Result.{MethodName}({Present()}, {NullArgument()}); }});";
+
+            return (
+                Name($"throws_when_the_{_error.Parameter}_is_null"),
+                [nullError, string.Empty, $"Assert.Equal(\"{_error.Parameter}\", Assert.IsType<ArgumentNullException>(exception).ParamName);"]);
+        }
+
+        /// <summary>Creates the test for a value task argument that is null.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) NullTask()
+        {
+            var type = _isStruct ? "int?" : "string?";
+
+            return (
+                Name("throws_when_the_value_task_is_null"),
                 [
-                    .. counter,
-                    $"var exception = Record.Exception(() => {{ _ = Result.{MethodName}((Task<{type}>)null!, {error.Test}); }});",
+                    .. _counter,
+                    $"var exception = Record.Exception(() => {{ _ = Result.{MethodName}((Task<{type}>)null!, {_error.Test}); }});",
                     string.Empty,
                     "Assert.Equal(\"value\", Assert.IsType<ArgumentNullException>(exception).ParamName);",
                 ]);
         }
-    }
 
-    private static string NullArgument(ErrorForm error) => error.Type switch
-    {
-        ErrorType => "(Error)null!",
-        StringType => "(string)null!",
-        _ => "(Func<Error>)null!",
-    };
+        private string Name(string behavior)
+        {
+            var article = _error.Slug.StartsWith('e') ? "an" : "a";
+
+            return $"{MethodName}_with_a_{(_isStruct ? "nullable_value_type" : "reference_type")}_{_value.Slug}_and_{article}_{_error.Slug}_{behavior}";
+        }
+
+        private string Present() => Wrap(_isStruct ? "5" : "\"a\"");
+
+        // A value as the test passes it: itself, or in a completed task.
+        private string Wrap(string expression)
+        {
+            var type = _isStruct ? "int?" : "string?";
+
+            if (_value.Returns != Wrapper.None)
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, _value.Test, type, expression);
+            }
+
+            return expression.StartsWith('(') ? expression : $"({type}){expression}";
+        }
+
+        private string NullArgument() => _error.Type switch
+        {
+            ErrorType => "(Error)null!",
+            StringType => "(string)null!",
+            _ => "(Func<Error>)null!",
+        };
+
+        private string[] Run(string valueExpression, string[] asserts)
+        {
+            var awaited = _value.Returns == Wrapper.None ? string.Empty : "await ";
+
+            return
+            [
+                .. _counter,
+                $"var outcome = {awaited}Result.{MethodName}({valueExpression}, {_error.Test});",
+                string.Empty,
+                .. asserts,
+            ];
+        }
+    }
 
     // How a value is given: itself, in a Task or in a ValueTask. Type and Test are formats of the nullable type (and of the expression, for Test).
     private sealed record ValueForm(string Slug, string FileName, Wrapper Returns, string Type, string Test, string Evaluate);
