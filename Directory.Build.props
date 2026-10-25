@@ -25,6 +25,9 @@
     <IsAnalyzerProject Condition="$(MSBuildProjectName.EndsWith('Analyzers')) or $(MSBuildProjectName.EndsWith('CodeFixes'))">true</IsAnalyzerProject>
     <IsLibraryProject>true</IsLibraryProject>
     <IsLibraryProject Condition="'$(IsTestProject)' == 'true' or '$(IsToolProject)' == 'true' or '$(IsAnalyzerProject)' == 'true'">false</IsLibraryProject>
+    <!-- The tools whose logic decides what the libraries contain: their coverage is measured, unlike that of the tests, samples and benchmarks. -->
+    <IsMeasuredToolProject>false</IsMeasuredToolProject>
+    <IsMeasuredToolProject Condition="$(MSBuildProjectName.EndsWith('CodeGeneration')) or '$(MSBuildProjectName)' == 'Shared'">true</IsMeasuredToolProject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -96,7 +99,8 @@
     <Using Include="$(ProductPrefix).Internal" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsLibraryProject)' == 'false' and '$(TargetFramework)' != 'netstandard2.0'">
+  <!-- The tests, the samples and the benchmarks are not measured. The libraries, the analyzers (netstandard2.0) and the measured tools are. -->
+  <ItemGroup Condition="'$(IsLibraryProject)' == 'false' and '$(IsMeasuredToolProject)' == 'false' and '$(TargetFramework)' != 'netstandard2.0'">
     <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
   </ItemGroup>
 

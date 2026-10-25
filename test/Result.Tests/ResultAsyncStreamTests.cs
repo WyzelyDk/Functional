@@ -236,6 +236,52 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
+    internal async Task SelectEach_can_be_enumerated_again_and_then_runs_the_selector_again_and_also_without_a_token()
+    {
+        var calls = 0;
+        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach(item =>
+        {
+            calls++;
+
+            return Result.Success(item);
+        });
+
+        var first = await AsyncStreams.ToListAsync(stream, Token);
+        var second = await AsyncStreams.ToListAsync(stream, Token);
+        var withoutToken = new List<Result<int>>();
+
+        await foreach (var item in stream)
+        {
+            withoutToken.Add(item);
+        }
+
+        Assert.Multiple(
+            () => Assert.Equal(2, first.Count),
+            () => Assert.Equal(2, second.Count),
+            () => Assert.Equal(2, withoutToken.Count),
+            () => Assert.Equal(6, calls));
+    }
+
+    // SelectEach starts its stream without a token, but the stream is built to combine a token of its own with the one of the consumer.
+    [Fact]
+    internal async Task The_stream_combines_its_own_token_with_the_token_of_the_consumer_and_stops_when_either_is_cancelled()
+    {
+        IEnumerable<int> items = [1, 2, 3];
+        using var own = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var consumer = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var ownCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var consumerCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        await ownCancelled.CancelAsync();
+        await consumerCancelled.CancelAsync();
+
+        var all = await AsyncStreams.ToListAsync(Stream(items, own.Token), consumer.Token);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Stream(items, ownCancelled.Token), consumer.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Stream(items, own.Token), consumerCancelled.Token));
+
+        Assert.Equal(3, all.Count);
+    }
+
+    [Fact]
     internal async Task SelectEach_lets_an_exception_of_the_selector_escape()
     {
         var stream = Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach<int, int>(static _ => throw new InvalidOperationException("boom"));
@@ -347,4 +393,7 @@ public sealed class ResultAsyncStreamTests
             () => Assert.IsType<ArgumentNullException>(nullForEach),
             () => Assert.IsType<ArgumentOutOfRangeException>(degree));
     }
+
+    private static IAsyncEnumerable<Result<int>> Stream(IEnumerable<int> items, CancellationToken own) =>
+        ResultCollectionExtensions.SelectEachCore<int, int>(null, items, static item => new ValueTask<Result<int>>(Result.Success(item)), own);
 }

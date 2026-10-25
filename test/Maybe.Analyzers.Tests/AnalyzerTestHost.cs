@@ -23,14 +23,19 @@ internal static class AnalyzerTestHost
     internal static Task<string[]> AnalyzeAsync(string members) => AnalyzeAsync(members, new MaybeUsageAnalyzer());
 
     // Returns the ids of the diagnostics that the given analyzer reports for the members of a class.
-    internal static async Task<string[]> AnalyzeAsync(string members, DiagnosticAnalyzer analyzer)
-    {
-        var compilation = Compile(members);
-        var withAnalyzers = compilation.WithAnalyzers([analyzer]);
-        var diagnostics = await withAnalyzers.GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken);
+    internal static Task<string[]> AnalyzeAsync(string members, DiagnosticAnalyzer analyzer) =>
+        CodeFixTesting.AnalyzeAsync(Compile(members), analyzer, TestContext.Current.CancellationToken);
 
-        return [.. diagnostics.Select(diagnostic => diagnostic.Id).OrderBy(id => id, StringComparer.Ordinal)];
-    }
+    // Returns the ids that the given analyzer reports for a whole source, for a snippet that needs a type of its own next to the class.
+    internal static Task<string[]> AnalyzeSourceAsync(string source, DiagnosticAnalyzer analyzer) =>
+        CodeFixTesting.AnalyzeAsync(CodeFixTesting.Compile(Header + source, References()), analyzer, TestContext.Current.CancellationToken);
+
+    // Returns the ids that the given analyzer reports for a compilation that does not know the library at all.
+    internal static Task<string[]> AnalyzeWithoutTheLibraryAsync(DiagnosticAnalyzer analyzer) =>
+        CodeFixTesting.AnalyzeAsync(
+            CodeFixTesting.Compile("public class Sample { }", CodeFixTesting.PlatformReferences()),
+            analyzer,
+            TestContext.Current.CancellationToken);
 
     // Returns the ids of the nullable-reference-type warnings that the compiler reports for the members of a class.
     internal static string[] NullabilityWarnings(string members)

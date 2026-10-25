@@ -24,7 +24,7 @@ internal static class OperationShapes
     {
         IdentifierNameSyntax or ThisExpressionSyntax => true,
         MemberAccessExpressionSyntax access when access.IsKind(SyntaxKind.SimpleMemberAccessExpression)
-            => access.Name is IdentifierNameSyntax && IsPlain(access.Expression),
+            => IsPlain(access.Expression),
         _ => false,
     };
 

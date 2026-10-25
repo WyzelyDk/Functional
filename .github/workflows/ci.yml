@@ -281,9 +281,11 @@ jobs:
         if: steps.token.outputs.available == 'true'
         run: dotnet tool restore
 
-      # Coverage is the Cobertura files that the tests write (TestResults/<guid>.cobertura.xml). Samples, benchmarks, the generator tools and
-      # the analyzers are not measured by the tests' coverage, so they are excluded instead of counting as uncovered. The same goes for the scripts and the
-      # documentation hook in .github/. The benchmarks (one scenario per compared library) and the generator tools are left out of the duplication check.
+      # Coverage is the Cobertura files that the tests write (TestResults/<guid>.cobertura.xml). What is measured is the code that the tests are there to
+      # protect: the libraries, the analyzers and their code fixes, and the generator with the engine that it shares. The samples, the benchmarks and the
+      # scripts and the documentation hook in .github/ are excluded, because they are not tested line by line. SonarCloud leaves out generated files
+      # (*.g.cs) on its own: their coverage comes from the generated tests, and the generator that writes them is measured. The benchmarks (one scenario
+      # per compared library) and the generator tools are left out of the duplication check.
       - name: Begin the analysis
         if: steps.token.outputs.available == 'true'
         run: >
@@ -292,7 +294,7 @@ jobs:
           /o:"wyzelydk"
           /d:sonar.token="$SONAR_TOKEN"
           /d:sonar.cs.cobertura.reportsPaths="**/TestResults/*.cobertura.xml"
-          /d:sonar.coverage.exclusions="samples/**,benchmarks/**,src/*.CodeGeneration/**,src/Shared/CodeGeneration/**,src/Shared/Analyzers/**,src/*.Analyzers/**,src/*.Analyzers.CodeFixes/**,.github/**"
+          /d:sonar.coverage.exclusions="samples/**,benchmarks/**,.github/**"
           /d:sonar.cpd.exclusions="benchmarks/**,src/*.CodeGeneration/**"
           /d:sonar.exclusions="assets/**"
           /d:sonar.python.version=3.13

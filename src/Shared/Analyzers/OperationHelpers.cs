@@ -9,25 +9,17 @@ namespace Wyzely.Functional;
 /// </summary>
 internal static class OperationHelpers
 {
-    /// <summary>Strips the implicit conversions and the parentheses around an operation.</summary>
+    /// <summary>Strips the implicit conversions around an operation. The operation tree of C# has no node for parentheses.</summary>
     /// <param name="operation">The operation to unwrap.</param>
     /// <returns>The operation inside.</returns>
     internal static IOperation Unwrap(IOperation operation)
     {
-        while (true)
+        while (operation is IConversionOperation { IsImplicit: true } conversion)
         {
-            switch (operation)
-            {
-                case IConversionOperation { IsImplicit: true } conversion:
-                    operation = conversion.Operand;
-                    break;
-                case IParenthesizedOperation parenthesized:
-                    operation = parenthesized.Operand;
-                    break;
-                default:
-                    return operation;
-            }
+            operation = conversion.Operand;
         }
+
+        return operation;
     }
 
     /// <summary>

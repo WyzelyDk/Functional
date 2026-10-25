@@ -314,7 +314,7 @@ internal static partial class Operations
             TypeParameterDocs = typeParameterDocs,
             Constraints = named ? [$"where {TExceptionName} : Exception"] : [],
             Summary = shape.Summary + ReceiverPassesThrough + (named ? NamedExceptionSentence : DefaultExceptionSentence),
-            LeadingParameters = condition is { } kind ? [TryCondition(shape, kind)] : [],
+            LeadingParameters = condition is { } kind ? [TryCondition(kind)] : [],
             Delegates = [shape.Delegate],
             ExtraParameters = named ? NamedHandlerParameters() : DefaultHandlerParameters(),
             ReturnType = shape.ReturnType,
@@ -325,12 +325,13 @@ internal static partial class Operations
         };
     }
 
-    private static ExtraParameter TryCondition(TryShape shape, IfCondition condition) => condition switch
+    // The condition of a *Try operation. Only a shape with a value has a condition that takes it, so the last arm is the one for a value.
+    private static ExtraParameter TryCondition(IfCondition condition) => condition switch
     {
         IfCondition.Bool => new("bool", ConditionName, BoolConditionDoc, Validated: false),
         IfCondition.Function => new("Func<bool>", ConditionName, "Decides whether the delegate runs. It is called only when the receiver succeeded."),
         _ => new(
-            shape.Typed ? "Func<T, bool>" : "Func<bool>",
+            "Func<T, bool>",
             ConditionName,
             "Decides whether the delegate runs. It is called only when the receiver succeeded, with its value."),
     };

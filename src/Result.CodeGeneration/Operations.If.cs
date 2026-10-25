@@ -314,9 +314,10 @@ internal static partial class Operations
             _ => Failure(ctx),
         };
         var skipped = forwarded ? ctx.Done(ctx.R) : ctx.R;
+
+        // A plain bool forwards to the plain operation and has no body of its own, so only the two kinds of function are written here.
         var holds = condition switch
         {
-            IfCondition.Bool => ConditionName,
             IfCondition.Function => $"{ConditionName}()",
             _ => $"{ConditionName}({(shape.FailureGated ? FailureName : InputName)})",
         };

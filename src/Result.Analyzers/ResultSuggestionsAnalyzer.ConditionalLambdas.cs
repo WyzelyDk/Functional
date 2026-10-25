@@ -108,7 +108,7 @@ public sealed partial class ResultSuggestionsAnalyzer
             context,
             Rules.UseEnsureNotNull,
             invocation,
-            [Flag(LazyProperty, !OperationHelpers.IsCheap(error)), Flag(MessageProperty, error.Type?.SpecialType == SpecialType.System_String)]);
+            [Flag(LazyProperty, !OperationHelpers.IsCheap(error)), Flag(MessageProperty, error.Type!.SpecialType == SpecialType.System_String)]);
     }
 
     private static bool TryGetConditionalLambda(

@@ -13,13 +13,54 @@ namespace Wyzely.Functional.AnalyzerTesting;
 internal static class CodeFixTesting
 {
     // The references of the running platform and of the library under test.
-    internal static ImmutableArray<MetadataReference> References(string libraryAssemblyPath)
-    {
-        var trusted = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
-        var paths = trusted.Split(Path.PathSeparator).ToList();
-        paths.Add(libraryAssemblyPath);
+    internal static ImmutableArray<MetadataReference> References(string libraryAssemblyPath) => References(PlatformPaths().Append(libraryAssemblyPath));
 
-        return [.. paths.Distinct(StringComparer.OrdinalIgnoreCase).Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))];
+    // The references of the running platform alone: a compilation that does not know the library.
+    internal static ImmutableArray<MetadataReference> PlatformReferences() =>
+        References(PlatformPaths().Where(static path => !Path.GetFileName(path).StartsWith("Wyzely.", StringComparison.Ordinal)));
+
+    // Runs the analyzer over the compilation and returns the ids of what it reports, in order.
+    internal static async Task<string[]> AnalyzeAsync(CSharpCompilation compilation, DiagnosticAnalyzer analyzer, CancellationToken token)
+    {
+        var diagnostics = await compilation.WithAnalyzers([analyzer]).GetAnalyzerDiagnosticsAsync(token);
+
+        return [.. diagnostics.Select(diagnostic => diagnostic.Id).OrderBy(id => id, StringComparer.Ordinal)];
+    }
+
+    // Asks the provider for a fix of a diagnostic that is made up: the given id, reported at the first occurrence of the marker in the source. It
+    // returns how many fixes the provider offered, which shows that it does not offer one for a diagnostic that is stale or does not fit the code.
+    internal static async Task<int> OfferedFixesAsync(
+        string source,
+        ImmutableArray<MetadataReference> references,
+        CodeFixProvider provider,
+        string diagnosticId,
+        string marker,
+        CancellationToken token)
+    {
+        using var workspace = new AdhocWorkspace();
+        var projectId = ProjectId.CreateNewId();
+        var projectInfo = ProjectInfo.Create(
+            projectId,
+            VersionStamp.Create(),
+            "Sample",
+            "Sample",
+            LanguageNames.CSharp,
+            compilationOptions: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable),
+            metadataReferences: references);
+        var document = workspace.CurrentSolution
+            .AddProject(projectInfo)
+            .AddDocument(DocumentId.CreateNewId(projectId), "Sample.cs", SourceText.From(source))
+            .Projects.Single().Documents.Single();
+        var tree = (await document.GetSyntaxTreeAsync(token))!;
+        var start = source.IndexOf(marker, StringComparison.Ordinal);
+        Assert.True(start >= 0, "The marker is not in the source: " + marker);
+        var descriptor = new DiagnosticDescriptor(diagnosticId, "Made up", "Made up", "Test", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+        var diagnostic = Diagnostic.Create(descriptor, Location.Create(tree, new TextSpan(start, marker.Length)));
+        var actions = new List<CodeAction>();
+
+        await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostic, (action, _) => actions.Add(action), token));
+
+        return actions.Count;
     }
 
     // Compiles a source against the references, and fails the test when the source does not compile.
@@ -85,4 +126,9 @@ internal static class CodeFixTesting
 
         return await withAnalyzers.GetAnalyzerDiagnosticsAsync(token);
     }
+
+    private static string[] PlatformPaths() => ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+
+    private static ImmutableArray<MetadataReference> References(IEnumerable<string> paths) =>
+        [.. paths.Distinct(StringComparer.OrdinalIgnoreCase).Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))];
 }

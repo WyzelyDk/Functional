@@ -59,10 +59,13 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
     {
         var conditional = (IConditionalOperation)context.Operation;
 
-        if (conditional.Syntax is not ConditionalExpressionSyntax || conditional.WhenFalse is not { } otherwise)
+        if (conditional.Syntax is not ConditionalExpressionSyntax)
         {
             return;
         }
+
+        // A conditional expression, unlike an if statement, always has both branches.
+        var otherwise = conditional.WhenFalse!;
 
         if (IsValueOrShape(conditional, otherwise, types))
         {

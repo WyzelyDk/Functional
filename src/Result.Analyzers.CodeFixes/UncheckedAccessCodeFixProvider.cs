@@ -31,9 +31,11 @@ public sealed class UncheckedAccessCodeFixProvider : CodeFixProvider
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
         var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
         var diagnostic = context.Diagnostics[0];
-        var call = root?.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true).FirstAncestorOrSelf<InvocationExpressionSyntax>();
 
-        if (call is null || model is null || Plan(call, model) is not { } plan)
+        // A C# document always has a syntax root and a semantic model.
+        var call = root!.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+
+        if (call is null || Plan(call, model!) is not { } plan)
         {
             return;
         }
@@ -90,7 +92,7 @@ public sealed class UncheckedAccessCodeFixProvider : CodeFixProvider
 
         if (!result.IsGenericType)
         {
-            returned = SyntaxFactory.ParseExpression("Result.Failure(" + access.Expression.WithoutTrivia() + ".GetError())");
+            returned = SyntaxFactory.ParseExpression("Result.Failure(" + access.Expression.WithoutTrivia().ToString() + ".GetError())");
         }
         else if (SymbolEqualityComparer.Default.Equals(receiverType, result))
         {
@@ -99,7 +101,7 @@ public sealed class UncheckedAccessCodeFixProvider : CodeFixProvider
         else
         {
             var name = result.TypeArguments[0].ToMinimalDisplayString(model, statement.SpanStart);
-            returned = SyntaxFactory.ParseExpression(access.Expression.WithoutTrivia() + ".ConvertFailure<" + name + ">()");
+            returned = SyntaxFactory.ParseExpression(access.Expression.WithoutTrivia().ToString() + ".ConvertFailure<" + name + ">()");
         }
 
         return new GuardPlan(statement, access.Expression, returned);
@@ -111,10 +113,8 @@ public sealed class UncheckedAccessCodeFixProvider : CodeFixProvider
     // The type that a return statement of the function has to return: the result, also inside an async method that returns a task of it.
     private static ITypeSymbol? ReturnTypeOf(SyntaxNode function, SemanticModel model)
     {
-        if (model.GetDeclaredSymbol(function) is not IMethodSymbol method)
-        {
-            return null;
-        }
+        // The function is a method or a local function, so its symbol is a method.
+        var method = (IMethodSymbol)model.GetDeclaredSymbol(function)!;
 
         if (!method.IsAsync)
         {
@@ -131,37 +131,25 @@ public sealed class UncheckedAccessCodeFixProvider : CodeFixProvider
     {
         IdentifierNameSyntax => true,
         ThisExpressionSyntax => true,
-        MemberAccessExpressionSyntax access when access.IsKind(SyntaxKind.SimpleMemberAccessExpression)
-            => access.Name is IdentifierNameSyntax && IsPlainReceiver(access.Expression),
+        MemberAccessExpressionSyntax access when access.IsKind(SyntaxKind.SimpleMemberAccessExpression) => IsPlainReceiver(access.Expression),
         _ => false,
     };
 
     // The statement that holds the call, when the call is evaluated first and always: a declaration, an assignment to a name, an expression or a
     // return, with the call at the start of the expression. Anything evaluated before it, or only sometimes, makes an early return a change.
-    private static StatementSyntax? StatementOf(InvocationExpressionSyntax call)
+    private static StatementSyntax? StatementOf(SyntaxNode node) => node.Parent switch
     {
-        SyntaxNode child = call;
-
-        for (var parent = call.Parent; parent is not null; child = parent, parent = parent.Parent)
-        {
-            switch (parent)
-            {
-                case LocalDeclarationStatementSyntax { IsConst: false, UsingKeyword.RawKind: 0 } or ExpressionStatementSyntax or ReturnStatementSyntax:
-                    return (StatementSyntax)parent;
-                case MemberAccessExpressionSyntax access when access.Expression == child:
-                case InvocationExpressionSyntax invocation when invocation.Expression == child:
-                case ElementAccessExpressionSyntax element when element.Expression == child:
-                case BinaryExpressionSyntax binary when binary.Left == child && !IsShortCircuit(binary):
-                case AssignmentExpressionSyntax { Left: IdentifierNameSyntax } assignment when assignment.Right == child:
-                case ParenthesizedExpressionSyntax or CastExpressionSyntax or EqualsValueClauseSyntax or VariableDeclaratorSyntax or VariableDeclarationSyntax:
-                    continue;
-                default:
-                    return null;
-            }
-        }
-
-        return null;
-    }
+        LocalDeclarationStatementSyntax { IsConst: false, UsingKeyword.RawKind: 0 } or ExpressionStatementSyntax or ReturnStatementSyntax
+            => (StatementSyntax)node.Parent,
+        MemberAccessExpressionSyntax access when access.Expression == node => StatementOf(access),
+        InvocationExpressionSyntax invocation when invocation.Expression == node => StatementOf(invocation),
+        ElementAccessExpressionSyntax element when element.Expression == node => StatementOf(element),
+        BinaryExpressionSyntax binary when binary.Left == node && !IsShortCircuit(binary) => StatementOf(binary),
+        AssignmentExpressionSyntax { Left: IdentifierNameSyntax } assignment when assignment.Right == node => StatementOf(assignment),
+        ParenthesizedExpressionSyntax or CastExpressionSyntax or EqualsValueClauseSyntax or VariableDeclaratorSyntax or VariableDeclarationSyntax
+            => StatementOf(node.Parent),
+        _ => null,
+    };
 
     private static bool IsShortCircuit(BinaryExpressionSyntax binary) =>
         binary.IsKind(SyntaxKind.LogicalAndExpression) || binary.IsKind(SyntaxKind.LogicalOrExpression) || binary.IsKind(SyntaxKind.CoalesceExpression);
