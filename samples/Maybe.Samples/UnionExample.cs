@@ -1,4 +1,6 @@
 #if NET11_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+
 namespace Wyzely.Functional.MaybeSamples;
 
 // SCENARIO: handle a maybe with a switch that the compiler checks for completeness (C# 15 unions, net11.0 only).
@@ -26,12 +28,14 @@ public static class UnionExample
         output.WriteLine($"Switch with a nested pattern, nobody: {Mailability(SampleData.FindCustomer(99))}");
     }
 
+    [SuppressMessage("Sonar", "S2583", Justification = "Sonar does not know that a Maybe<T> is a union on net11.0, and takes the null arm for one that can never match.")]
     private static string Describe(Maybe<Customer> maybe) => maybe switch
     {
         Customer customer => $"found {customer.Name}",
         null => "nobody",
     };
 
+    [SuppressMessage("Sonar", "S2583", Justification = "Sonar does not know that a Maybe<T> is a union on net11.0, and takes the null arm for one that can never match.")]
     private static string Mailability(Maybe<Customer> maybe) => maybe switch
     {
         Customer { IsActive: true } customer => $"{customer.Name} can be mailed",
