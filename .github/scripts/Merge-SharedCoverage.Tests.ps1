@@ -35,7 +35,7 @@ function Test-Case([string] $name, [bool] $condition) {
     }
 }
 
-function Get-Package([string] $name) {
+function Get-CoveragePackage([string] $name) {
     $document = [xml](Get-Content (Join-Path $directory "$name.cobertura.xml") -Raw)
     return $document.SelectNodes('//package')
 }
@@ -49,9 +49,9 @@ try {
 
     & $script -Path $directory
 
-    $windows = Get-Package 'windows'
-    $linux = Get-Package 'linux'
-    $unrelated = Get-Package 'unrelated'
+    $windows = Get-CoveragePackage 'windows'
+    $linux = Get-CoveragePackage 'linux'
+    $unrelated = Get-CoveragePackage 'unrelated'
 
     Test-Case 'a shared class with a Windows path moves to the shared package' (@($windows | Where-Object name -eq 'Wyzely.Functional.Shared' | ForEach-Object { $_.classes.class.name }) -contains 'Wyzely.Functional.Internal.Guard')
     Test-Case 'a shared class with a Linux path moves to the shared package' (@($linux | Where-Object name -eq 'Wyzely.Functional.Shared' | ForEach-Object { $_.classes.class.name }) -contains 'Wyzely.Functional.Internal.Guard')
@@ -60,7 +60,7 @@ try {
 
     & $script -Path $directory
 
-    Test-Case 'running it again changes nothing' (@(Get-Package 'windows' | Where-Object name -eq 'Wyzely.Functional.Shared').Count -eq 1)
+    Test-Case 'running it again changes nothing' (@(Get-CoveragePackage 'windows' | Where-Object name -eq 'Wyzely.Functional.Shared').Count -eq 1)
 }
 finally {
     Remove-Item -Recurse -Force $directory -ErrorAction SilentlyContinue
