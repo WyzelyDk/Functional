@@ -40,7 +40,8 @@ internal static class OperationShapes
     {
         foreach (var argument in invocation.Arguments)
         {
-            if (argument.Parameter?.Name == parameterName)
+            // Every argument of a call of the library is bound to a parameter, so the parameter is never missing.
+            if (argument.Parameter!.Name == parameterName)
             {
                 return OperationHelpers.Unwrap(argument.Value);
             }

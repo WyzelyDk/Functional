@@ -168,6 +168,14 @@ The library is judged by how it feels to use, not only by what it can do.
   behavior (the generator, the size and allocation checks).
 - **Cover the whole matrix.** An operation exists in sync/`Task`/`ValueTask` receiver times delegate variants; the generated matrix tests
   cover them all. Handwritten code that has variants gets tests for each.
+- **Coverage is measured on hand-written code, branches included, and kept at 100%.** That is the libraries, the analyzers and their code fixes, and
+  the generator with the engine that it shares; not the tests, samples, benchmarks or generated files (the generated tests cover those). Cover a gap with
+  a test, and delete a path that cannot be reached instead of testing or excluding it. SonarCloud takes the best branch result of any one test run for a
+  line, so a choice that the two libraries make differently (a profile option, `IsMaybe ? ... : ...`) needs a test in `Shared.Tests` that takes both.
+  Two things leave a branch that no test can take: a method group passed to a LINQ method (the compiler caches the delegate in a field that all call
+  sites share), and `+` between a string and an object (call `ToString()`). A pending asynchronous path is tested with a `TaskCompletionSource` and an
+  assertion that it was pending, not with `Task.Yield()`, which has completed by the time of the check under instrumentation. An entry point that only
+  calls tested code carries `[ExcludeFromCodeCoverage(Justification = "...")]`.
 - **Allocation and size are tested**, not described (`PerformanceTests`): `GC.GetAllocatedBytesForCurrentThread` for the success path,
   `Unsafe.SizeOf` for the layout.
 - **Analyzers and code fixes are tested in a real Roslyn workspace** (`Analyzers.Tests`): snippets that must and must not be reported, and the

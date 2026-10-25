@@ -149,4 +149,52 @@ public sealed class LineWrapperTests
 
         Assert.Equal([text], LineWrapper.Wrap(text, indent: 0, maxWidth: 40, docWidth: 40));
     }
+
+    [Fact]
+    internal void Wrap_keeps_the_leading_white_space_of_the_text_on_every_line()
+    {
+        var lines = LineWrapper.Wrap("    var x = Call(first, second);", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["    var x = Call(", "        first,", "        second);"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_breaks_a_long_condition_without_a_logical_operator_like_a_call_instead_of_before_an_operator()
+    {
+        var lines = LineWrapper.Wrap("if (thisConditionIsOneVeryLongNameWithNoOperatorAndNoCallToBreakAt)", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["if (", "    thisConditionIsOneVeryLongNameWithNoOperatorAndNoCallToBreakAt)"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_does_not_split_at_a_comma_or_a_quote_inside_a_character_literal()
+    {
+        var lines = LineWrapper.Wrap("var x = Call(',', second, '\\'', third);", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["var x = Call(", "    ',',", "    second,", "    '\\'',", "    third);"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_takes_the_brackets_after_an_underscore_and_before_a_tuple_for_type_arguments()
+    {
+        var lines = LineWrapper.Wrap("var x = Call_<(int, int)>(first, second, third);", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["var x = Call_<(int, int)>(", "    first,", "    second,", "    third);"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_does_not_take_a_less_than_that_follows_a_name_and_precedes_a_number_for_type_arguments()
+    {
+        var lines = LineWrapper.Wrap("var x = Call(first<1, second, third);", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["var x = Call(", "    first<1,", "    second,", "    third);"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_does_not_take_a_comparison_for_the_brackets_of_type_arguments()
+    {
+        var lines = LineWrapper.Wrap("var x = Call(first < second, third > fourth, fifth);", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["var x = Call(", "    first < second,", "    third > fourth,", "    fifth);"], lines);
+    }
 }

@@ -25,12 +25,11 @@ public sealed class MaybeSuggestionsCodeFixProvider : RewriteCodeFixProvider
         id == "WYZ0202" ? node is MemberAccessExpressionSyntax : node is ConditionalExpressionSyntax;
 
     /// <inheritdoc />
-    protected override SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic) => (target, diagnostic.Id) switch
+    protected override SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic) => diagnostic.Id switch
     {
-        (MemberAccessExpressionSyntax access, "WYZ0202") => Any(access),
-        (ConditionalExpressionSyntax conditional, "WYZ0203") => ValueOr(conditional),
-        (ConditionalExpressionSyntax conditional, "WYZ0204") => From(conditional),
-        _ => null,
+        "WYZ0202" => Any((MemberAccessExpressionSyntax)target),
+        "WYZ0203" => ValueOr((ConditionalExpressionSyntax)target),
+        _ => From((ConditionalExpressionSyntax)target),
     };
 
     // WYZ0202: maybe.Filter(p).IsSome becomes maybe.Any(p).

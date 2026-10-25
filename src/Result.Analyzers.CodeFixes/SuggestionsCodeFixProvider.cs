@@ -41,23 +41,29 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
     {
         var properties = diagnostic.Properties;
 
-        return (target, diagnostic.Id) switch
+        if (diagnostic.Id == "WYZ0109")
         {
-            (InvocationExpressionSyntax call, "WYZ0103") => SuggestionRewrites.BindIf(call, properties),
-            (InvocationExpressionSyntax call, "WYZ0104") => SuggestionRewrites.MapIf(call, properties),
-            (InvocationExpressionSyntax call, "WYZ0105") => SuggestionRewrites.EnsureNot(call),
-            (InvocationExpressionSyntax call, "WYZ0106") => SuggestionRewrites.EnsureNotNull(call, properties),
-            (InvocationExpressionSyntax call, "WYZ0107") => SuggestionRewrites.BindZip(call),
-            (InvocationExpressionSyntax call, "WYZ0108") => SuggestionRewrites.ConvertFailure(call),
-            (ConditionalExpressionSyntax conditional, "WYZ0109") => SuggestionRewrites.SuccessIf(conditional, properties),
-            (InvocationExpressionSyntax call, "WYZ0110") => SuggestionRewrites.MapTry(call),
-            (InvocationExpressionSyntax call, "WYZ0112") => SuggestionRewrites.BindToMap(call),
-            (InvocationExpressionSyntax call, "WYZ0113") => SuggestionRewrites.MapToTap(call),
-            (InvocationExpressionSyntax call, "WYZ0114") => SuggestionRewrites.MatchToValueOr(call),
-            (InvocationExpressionSyntax call, "WYZ0115") => SuggestionRewrites.RemoveStep(call),
-            (InvocationExpressionSyntax call, "WYZ0116") => SuggestionRewrites.FailureWithMessage(call),
-            (InvocationExpressionSyntax call, "WYZ0117") => SuggestionRewrites.Flatten(call),
-            _ => null,
+            return SuggestionRewrites.SuccessIf((ConditionalExpressionSyntax)target, properties);
+        }
+
+        // Every other rule is about a call, which is what IsTarget looks for.
+        var call = (InvocationExpressionSyntax)target;
+
+        return diagnostic.Id switch
+        {
+            "WYZ0103" => SuggestionRewrites.BindIf(call, properties),
+            "WYZ0104" => SuggestionRewrites.MapIf(call, properties),
+            "WYZ0105" => SuggestionRewrites.EnsureNot(call),
+            "WYZ0106" => SuggestionRewrites.EnsureNotNull(call, properties),
+            "WYZ0107" => SuggestionRewrites.BindZip(call),
+            "WYZ0108" => SuggestionRewrites.ConvertFailure(call),
+            "WYZ0110" => SuggestionRewrites.MapTry(call),
+            "WYZ0112" => SuggestionRewrites.BindToMap(call),
+            "WYZ0113" => SuggestionRewrites.MapToTap(call),
+            "WYZ0114" => SuggestionRewrites.MatchToValueOr(call),
+            "WYZ0115" => SuggestionRewrites.RemoveStep(call),
+            "WYZ0116" => SuggestionRewrites.FailureWithMessage(call),
+            _ => SuggestionRewrites.Flatten(call),
         };
     }
 }

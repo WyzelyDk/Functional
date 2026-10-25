@@ -199,7 +199,17 @@ public static partial class ResultCollectionExtensions
         return SelectEachCore(failure, items, selector);
     }
 
-    private static async IAsyncEnumerable<Result<TResult>> SelectEachCore<TSource, TResult>(
+    /// <summary>The stream behind <c>SelectEach</c>: one result for every item, or a single failure when the receiver failed.</summary>
+    /// <typeparam name="TSource">The type of the items.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results.</typeparam>
+    /// <param name="failure">The error of the receiver, or <see langword="null"/> when it succeeded.</param>
+    /// <param name="items">The items of a receiver that succeeded.</param>
+    /// <param name="selector">The operation to run for an item.</param>
+    /// <param name="cancellationToken">
+    /// A token of the stream itself. <c>SelectEach</c> passes none; the token that a consumer gives to <c>WithCancellation</c> is combined with it.
+    /// </param>
+    /// <returns>The stream of results.</returns>
+    internal static async IAsyncEnumerable<Result<TResult>> SelectEachCore<TSource, TResult>(
         Error? failure,
         IEnumerable<TSource>? items,
         Func<TSource, ValueTask<Result<TResult>>> selector,

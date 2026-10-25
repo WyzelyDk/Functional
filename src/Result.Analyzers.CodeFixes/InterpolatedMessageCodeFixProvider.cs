@@ -25,7 +25,7 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
         var diagnostic = context.Diagnostics[0];
-        var interpolated = root?.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true)
+        var interpolated = root!.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true)
             .AncestorsAndSelf()
             .OfType<InterpolatedStringExpressionSyntax>()
             .FirstOrDefault();
@@ -168,7 +168,7 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
 
         template = SyntaxFactory.LiteralExpression(
             SyntaxKind.StringLiteralExpression,
-            SyntaxFactory.Literal("\"" + text + "\"", text.ToString()));
+            SyntaxFactory.Literal("\"" + text.ToString() + "\"", text.ToString()));
 
         return details.Count > 0;
     }

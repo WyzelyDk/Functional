@@ -1,19 +1,12 @@
-using Wyzely.Functional.ResultCodeGeneration;
+using System.Diagnostics.CodeAnalysis;
+
+namespace Wyzely.Functional.ResultCodeGeneration;
 
 // Usage: dotnet run --project src/Result.CodeGeneration [-- --stubs]
 //   --stubs   write method bodies that do nothing useful, to see the generated tests fail first (test-driven work)
-var stubs = args.Contains("--stubs", StringComparer.Ordinal);
-var root = Generator.FindRoot(Directory.GetCurrentDirectory()) ?? Generator.FindRoot(AppContext.BaseDirectory);
-
-if (root is null)
+internal static class Program
 {
-    await Console.Error.WriteLineAsync($"Could not find {Generator.SolutionFileName} above the current directory.");
-
-    return 1;
+    [ExcludeFromCodeCoverage(Justification = "A thin entry point: GeneratorEngine.RunAsync does the work and is tested.")]
+    private static Task<int> Main(string[] args) =>
+        Generator.RunAsync(args, Directory.GetCurrentDirectory(), AppContext.BaseDirectory, Console.Out, Console.Error);
 }
-
-var files = Generator.Generate(stubs);
-Generator.Write(root, files);
-await Console.Out.WriteLineAsync($"Generated {files.Count} files{(stubs ? " (stubs)" : string.Empty)} in {root}.");
-
-return 0;

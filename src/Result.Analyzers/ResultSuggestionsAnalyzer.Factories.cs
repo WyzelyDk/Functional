@@ -23,13 +23,10 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0109: cond ? Result.Success() : Result.Failure(error) is Result.SuccessIf(cond, error), and the reverse is Result.FailureIf(cond, error).
     private static void CheckSuccessIf(OperationAnalysisContext context, IConditionalOperation conditional)
     {
-        if (conditional.WhenFalse is not { } otherwise)
-        {
-            return;
-        }
-
         var whenTrue = OperationHelpers.Unwrap(conditional.WhenTrue);
-        var whenFalse = OperationHelpers.Unwrap(otherwise);
+
+        // A conditional expression, unlike an if statement, always has both branches.
+        var whenFalse = OperationHelpers.Unwrap(conditional.WhenFalse!);
         var successFirst = IsSuccessWithoutValue(whenTrue);
 
         if (successFirst == IsSuccessWithoutValue(whenFalse))
@@ -39,17 +36,16 @@ public sealed partial class ResultSuggestionsAnalyzer
 
         var failure = successFirst ? whenFalse : whenTrue;
 
-        if (failure is not IInvocationOperation { Arguments.Length: 1 } failed
-            || !OperationShapes.IsResultFactory(failed.TargetMethod, "Failure")
-            || failed.TargetMethod.TypeArguments.Length != 0)
+        // The branch has the type Result, so a failure with a value type (Result<T>) cannot be the other branch.
+        if (failure is not IInvocationOperation { Arguments.Length: 1 } failed || !OperationShapes.IsResultFactory(failed.TargetMethod, "Failure"))
         {
             return;
         }
 
-        var error = OperationShapes.ArgumentOf(failed, "error") ?? OperationShapes.ArgumentOf(failed, "message");
+        var error = (OperationShapes.ArgumentOf(failed, "error") ?? OperationShapes.ArgumentOf(failed, "message"))!;
 
         // Passing the error as a function would allocate a delegate on every call, so an error that is not a constant, a local or a field stays as it is.
-        if (error is null || !OperationHelpers.IsCheap(error))
+        if (!OperationHelpers.IsCheap(error))
         {
             return;
         }

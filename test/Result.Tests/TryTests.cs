@@ -131,6 +131,14 @@ public sealed class TryTests
     }
 
     [Fact]
+    internal async Task Try_turns_an_exception_of_a_value_task_with_a_value_into_a_failure()
+    {
+        var result = await Result.Try(() => ValueTask.FromException<int>(Boom));
+
+        Assert.Same(Boom, result.GetError().Exception);
+    }
+
+    [Fact]
     internal void Try_throws_when_the_function_of_a_task_is_null()
     {
         Func<Task>? nothing = null;

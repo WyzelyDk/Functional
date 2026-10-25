@@ -35,4 +35,14 @@ internal static class Generator
 
     /// <summary>Finds the repository root: the closest directory, starting here and going up, that contains the solution file.</summary>
     internal static string? FindRoot(string start) => GeneratorEngine.FindRoot(start);
+
+    /// <summary>Runs the tool. See <see cref="GeneratorEngine.RunAsync"/>.</summary>
+    /// <param name="args">The arguments of the command line.</param>
+    /// <param name="currentDirectory">The directory to look for the repository root from first.</param>
+    /// <param name="baseDirectory">The directory of the tool, to look from when the current directory is not inside the repository.</param>
+    /// <param name="output">Where the summary is written.</param>
+    /// <param name="error">Where the error is written when the repository root is not found.</param>
+    /// <returns>0 when the files were written, 1 when the repository root was not found.</returns>
+    internal static Task<int> RunAsync(string[] args, string currentDirectory, string baseDirectory, TextWriter output, TextWriter error) =>
+        Engine.RunAsync(args, currentDirectory, baseDirectory, output, error);
 }

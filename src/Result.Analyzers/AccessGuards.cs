@@ -69,30 +69,14 @@ internal static class AccessGuards
     };
 
     // `if (check) { return; }` followed by the call: when execution gets here, the condition was false.
-    private static bool GuardedByEarlierExit(SyntaxNode parent, SyntaxNode child, string receiver, bool needsFailure)
-    {
-        if (parent is not BlockSyntax block || child is not StatementSyntax statement)
-        {
-            return false;
-        }
-
-        foreach (var earlier in block.Statements)
-        {
-            if (earlier == statement)
-            {
-                return false;
-            }
-
-            if (earlier is IfStatementSyntax { Else: null } ifStatement
+    private static bool GuardedByEarlierExit(SyntaxNode parent, SyntaxNode child, string receiver, bool needsFailure) =>
+        parent is BlockSyntax block
+        && child is StatementSyntax statement
+        && block.Statements
+            .TakeWhile(earlier => earlier != statement)
+            .Any(earlier => earlier is IfStatementSyntax { Else: null } ifStatement
                 && Exits(ifStatement.Statement)
-                && Implies(ifStatement.Condition, receiver, needsFailure, whenTrue: false))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+                && Implies(ifStatement.Condition, receiver, needsFailure, whenTrue: false));
 
     private static bool Exits(StatementSyntax statement) => statement switch
     {

@@ -200,6 +200,44 @@ public sealed class MaybeAsyncStreamTests
     }
 
     [Fact]
+    internal async Task Choose_can_be_enumerated_again_and_also_without_a_token()
+    {
+        var stream = AsyncStreams.Of(Maybe.Some(1), Maybe.Some(2)).Choose();
+
+        var first = await AsyncStreams.ToListAsync(stream, Token);
+        var second = await AsyncStreams.ToListAsync(stream, Token);
+        var withoutToken = new List<int>();
+
+        await foreach (var item in stream)
+        {
+            withoutToken.Add(item);
+        }
+
+        Assert.Multiple(
+            () => Assert.Equal([1, 2], first),
+            () => Assert.Equal([1, 2], second),
+            () => Assert.Equal([1, 2], withoutToken));
+    }
+
+    // Choose starts its stream without a token, but the stream is built to combine a token of its own with the one of the consumer.
+    [Fact]
+    internal async Task The_chosen_stream_combines_its_own_token_with_the_token_of_the_consumer_and_stops_when_either_is_cancelled()
+    {
+        using var own = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var consumer = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var ownCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var consumerCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        await ownCancelled.CancelAsync();
+        await consumerCancelled.CancelAsync();
+
+        var all = await AsyncStreams.ToListAsync(Chosen(own.Token), consumer.Token);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Chosen(ownCancelled.Token), consumer.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Chosen(own.Token), consumerCancelled.Token));
+
+        Assert.Equal([1, 2, 3], all);
+    }
+
+    [Fact]
     internal async Task Choose_reads_the_stream_only_as_far_as_the_consumer_goes()
     {
         var pulled = 0;
@@ -253,4 +291,7 @@ public sealed class MaybeAsyncStreamTests
 
     // Passing the call through a parameter of an exact type pins the type the overload returns.
     private static ValueTask<Maybe<int>> AsValueTask(ValueTask<Maybe<int>> task) => task;
+
+    private static IAsyncEnumerable<int> Chosen(CancellationToken own) =>
+        MaybeCollectionExtensions.ChooseCore<int, int>(AsyncStreams.Cancellable([1, 2, 3]), static item => new ValueTask<Maybe<int>>(Maybe.Some(item)), own);
 }

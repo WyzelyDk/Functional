@@ -53,7 +53,7 @@ internal static class SuggestionRewrites
             return null;
         }
 
-        var failure = new[] { conditional.WhenTrue, conditional.WhenFalse }.OfType<InvocationExpressionSyntax>().FirstOrDefault(IsFailureCall);
+        var failure = FailureCallIn(conditional);
 
         if (failure is null || failure.ArgumentList.Arguments.Count != 1)
         {
@@ -123,7 +123,7 @@ internal static class SuggestionRewrites
     /// <returns>The call of <c>SuccessIf</c> or <c>FailureIf</c>, or <see langword="null"/>.</returns>
     internal static SyntaxNode? SuccessIf(ConditionalExpressionSyntax conditional, ImmutableDictionary<string, string?> properties)
     {
-        var failure = new[] { conditional.WhenTrue, conditional.WhenFalse }.OfType<InvocationExpressionSyntax>().FirstOrDefault(IsFailureCall);
+        var failure = FailureCallIn(conditional);
 
         if (failure is null || failure.ArgumentList.Arguments.Count != 1 || !properties.TryGetValue("Method", out var method) || method is null)
         {
@@ -314,6 +314,14 @@ internal static class SuggestionRewrites
             SyntaxKind.LogicalNotExpression,
             simple ? operand : SyntaxFactory.ParenthesizedExpression(operand));
     }
+
+    // The call of Failure in one of the two branches of a conditional expression. It is not a method group passed to FirstOrDefault, because the compiler
+    // caches such a delegate in a field that all call sites share, which makes a branch that only the first call site can ever take.
+    private static InvocationExpressionSyntax? FailureCallIn(ConditionalExpressionSyntax conditional) =>
+        AsFailureCall(conditional.WhenTrue) ?? AsFailureCall(conditional.WhenFalse);
+
+    private static InvocationExpressionSyntax? AsFailureCall(ExpressionSyntax expression) =>
+        expression is InvocationExpressionSyntax call && IsFailureCall(call) ? call : null;
 
     private static bool IsFailureCall(InvocationExpressionSyntax call) => call.Expression is MemberAccessExpressionSyntax
     {

@@ -44,7 +44,8 @@ public sealed class MaybeCollectionExtensionsTests
             () => Assert.True(Array.Empty<int>().SingleOrNone().IsNone),
             () => Assert.True(new[] { 1, 2 }.SingleOrNone().IsNone),
             () => Assert.Equal(2, new[] { 1, 2, 3 }.SingleOrNone(x => x == 2).GetValue()),
-            () => Assert.True(new[] { 2, 4 }.SingleOrNone(x => x % 2 == 0).IsNone));
+            () => Assert.True(new[] { 2, 4 }.SingleOrNone(x => x % 2 == 0).IsNone),
+            () => Assert.True(new[] { 1, 3 }.SingleOrNone(x => x % 2 == 0).IsNone));
     }
 
     [Fact]

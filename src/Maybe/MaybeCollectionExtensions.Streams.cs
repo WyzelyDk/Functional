@@ -304,6 +304,32 @@ public static partial class MaybeCollectionExtensions
         return ChooseCore(source, selector);
     }
 
+    /// <summary>The stream behind <c>Choose</c>: the values of the somes that the selector returns, in order.</summary>
+    /// <typeparam name="T">The type of the elements of the source.</typeparam>
+    /// <typeparam name="TResult">The type of the values.</typeparam>
+    /// <param name="source">The stream to read.</param>
+    /// <param name="selector">The operation to run for an element.</param>
+    /// <param name="cancellationToken">
+    /// A token of the stream itself. <c>Choose</c> passes none; the token that a consumer gives to <c>WithCancellation</c> is combined with it.
+    /// </param>
+    /// <returns>The stream of values.</returns>
+    internal static async IAsyncEnumerable<TResult> ChooseCore<T, TResult>(
+        IAsyncEnumerable<T> source,
+        Func<T, ValueTask<Maybe<TResult>>> selector,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        where TResult : notnull
+    {
+        await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext))
+        {
+            var maybe = await selector(item).ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
+
+            if (maybe.Unpack(out var value))
+            {
+                yield return value;
+            }
+        }
+    }
+
     private static async ValueTask<Maybe<T>> FirstCore<T>(IAsyncEnumerable<T> source, Func<T, ValueTask<bool>>? predicate, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -382,23 +408,6 @@ public static partial class MaybeCollectionExtensions
         }
 
         return default;
-    }
-
-    private static async IAsyncEnumerable<TResult> ChooseCore<T, TResult>(
-        IAsyncEnumerable<T> source,
-        Func<T, ValueTask<Maybe<TResult>>> selector,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        where TResult : notnull
-    {
-        await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext))
-        {
-            var maybe = await selector(item).ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
-
-            if (maybe.Unpack(out var value))
-            {
-                yield return value;
-            }
-        }
     }
 }
 #endif

@@ -20,4 +20,14 @@ internal static class CodeFixTestHost
             diagnosticId,
             analyzer,
             TestContext.Current.CancellationToken);
+
+    // How many fixes the provider offers for a diagnostic that is made up and reported at the marker.
+    internal static Task<int> OfferedFixesAsync(string members, CodeFixProvider provider, string diagnosticId, string marker) =>
+        CodeFixTesting.OfferedFixesAsync(
+            AnalyzerTestHost.Header + "public class Sample\n{\n" + members + "\n}\n",
+            AnalyzerTestHost.References(),
+            provider,
+            diagnosticId,
+            marker,
+            TestContext.Current.CancellationToken);
 }
