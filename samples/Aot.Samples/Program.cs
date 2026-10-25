@@ -103,6 +103,9 @@ catch (InvalidOperationException)
 
 Check("default result is a success", default(Result<int>).IsSuccess);
 
-await Console.Out.WriteLineAsync(failures.Count == 0 ? "AOT OK: all checks passed" : "AOT FAILURES: " + string.Join(", ", failures));
+await Console.Out.WriteLineAsync(Summarize(failures));
 
 return failures.Count;
+
+static string Summarize(List<string> failures) =>
+    failures.Count == 0 ? "AOT OK: all checks passed" : "AOT FAILURES: " + string.Join(", ", failures);
