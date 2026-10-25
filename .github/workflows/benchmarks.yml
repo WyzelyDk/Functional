@@ -1,0 +1,119 @@
+name: Benchmarks
+
+# Runs the benchmarks of Result and Maybe against the other libraries (benchmarks/Result.Benchmarks and benchmarks/Maybe.Benchmarks) and shows the tables
+# in the summary of the run. The raw results (CSV, HTML and Markdown of every scenario) are kept as an artifact.
+#
+# It is NOT part of the CI gate, and it does not run for a pull request or for every push to main. Timings from a shared virtual machine move by tens of percent
+# from one run to the next, so a run after every change could not tell a regression from noise, and a full run takes the better part of an hour. It runs
+# when someone asks for it, once a week, and for every release tag, so that there is a record that belongs to each release. What does not move
+# is the allocation: that is checked by tests on every pull request (PerformanceTests, CompletedTaskReuseTests). See docs/releasing.md.
+#
+# Read a table within one run, as every row of it was measured on the same machine at the same time. Do not compare a number with the number of another run.
+on:
+  schedule:
+    - cron: '17 3 * * 0' # every Sunday, 03:17 UTC
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Which benchmarks to run
+        type: choice
+        options: [all, result, maybe]
+        default: all
+      filter:
+        description: A BenchmarkDotNet filter, for example *SyncSuccess* (the default runs every scenario)
+        type: string
+        default: '*'
+
+# One run at a time, and a run that has started is allowed to finish: a cancelled run leaves no results at all.
+concurrency:
+  group: benchmarks
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # The suites to run: both, unless a manual run asks for one. (The matrix context cannot be used in the condition of a job.)
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      suites: ${{ steps.suites.outputs.suites }}
+    steps:
+      - id: suites
+        env:
+          SUITE: ${{ inputs.suite || 'all' }}
+        run: |
+          case "$SUITE" in
+            result) echo 'suites=["result"]' >> "$GITHUB_OUTPUT" ;;
+            maybe) echo 'suites=["maybe"]' >> "$GITHUB_OUTPUT" ;;
+            *) echo 'suites=["result","maybe"]' >> "$GITHUB_OUTPUT" ;;
+          esac
+
+  benchmarks:
+    name: Benchmarks (${{ matrix.suite }})
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: ${{ fromJSON(needs.plan.outputs.suites) }}
+    steps:
+      # MinVer reads the tags and the history, so the clone must not be shallow.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # global.json pins the SDK that builds everything; the benchmarks run on the runtime of .NET 10.
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          dotnet-version: 10.0.x
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('Directory.Packages.props', 'global.json', 'nuget.config') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Run the benchmarks
+        env:
+          SUITE: ${{ matrix.suite }}
+          FILTER: ${{ inputs.filter || '*' }}
+        run: |
+          project="benchmarks/${SUITE^}.Benchmarks"
+          dotnet run --configuration Release --project "$project" -- --filter "$FILTER" --artifacts "$RUNNER_TEMP/benchmarkdotnet"
+
+      # BenchmarkDotNet writes one Markdown table per scenario; the summary gets all of them, after what is needed to read them: the machine and the runtime.
+      - name: Show the results in the summary
+        if: always()
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: |
+          {
+            echo "## Benchmarks: ${SUITE^}"
+            echo
+            echo "Measured on a GitHub-hosted runner, \`$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)\`, $(nproc) cores, .NET $(dotnet --list-runtimes | grep 'NETCore.App 10' | head -1 | cut -d' ' -f2)."
+            echo "Commit \`${GITHUB_SHA::7}\`. Compare the rows of one table with each other; do not compare a number with a number of another run (see the notes in the workflow file)."
+            echo
+            for report in "$RUNNER_TEMP"/benchmarkdotnet/results/*-report-github.md; do
+              [ -f "$report" ] && { cat "$report"; echo; }
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the raw results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmarks-${{ matrix.suite }}
+          path: ${{ runner.temp }}/benchmarkdotnet/results
+          if-no-files-found: warn
+          retention-days: 90

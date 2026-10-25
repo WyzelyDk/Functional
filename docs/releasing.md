@@ -88,6 +88,33 @@ python -m venv .venv
 .venv/bin/mkdocs serve                                        # http://127.0.0.1:8000/
 ```
 
+## Benchmarks: `.github/workflows/benchmarks.yml`
+
+The workflow runs `benchmarks/Result.Benchmarks` and `benchmarks/Maybe.Benchmarks` (the libraries side by side, with this library as the baseline) and shows the tables
+of every scenario in the summary of the run. The raw results (CSV, HTML and Markdown) are kept for 90 days as the artifact `benchmarks-result` and `benchmarks-maybe`.
+The two suites run as two jobs, so the whole run takes as long as the longer of them (about fifteen minutes for Result and nine for Maybe on a developer machine, longer on a hosted runner).
+
+| When | Why |
+|---|---|
+| a manual run (*Actions* -> *Benchmarks* -> *Run workflow*) | to look at a change; choose the suite and a BenchmarkDotNet filter such as `*SyncSuccess*` |
+| every Sunday | a record over time, and a warning when something has become much slower |
+| every release tag (`v*`) | the numbers that belong to a release |
+
+**It does not run for a pull request, and not after every push to `main`, and that is deliberate:**
+
+- **Timings from a shared virtual machine are not repeatable enough.** Our own repeated full runs differed by a median of 4 % per benchmark and by more than 25 % for some, on
+  a machine of our own; on a hosted runner, which shares its hardware with other jobs, the spread is larger. A run after each change could not tell a regression
+  from noise, and a workflow whose result is noise teaches people to ignore it.
+- **What is exact is already checked on every pull request.** The allocation of the success path, the size of the types and the reuse of completed tasks are
+  tests (`PerformanceTests`, `CompletedTaskReuseTests`), and a pull request that changes them fails. The timings are what the benchmarks add, and they are only
+  meaningful as a comparison within one run: every row of a table is measured on the same machine at the same time, which is why a table must be read as a whole and
+  a number must not be compared with a number from another run.
+- **A full run costs a lot of runner time** and `main` gets many merges, mostly of documentation, tests and analyzers that cannot change a timing.
+
+If a pull request does change the code that the benchmarks measure, run the workflow by hand on its branch and compare the two summaries. To keep a result in the
+documentation, run the suites on your own machine, as described on the performance pages, and note the machine there; the numbers in the documentation are never copied from
+a hosted runner.
+
 ## Releasing: `.github/workflows/publish.yml`
 
 ### Tags

@@ -235,7 +235,7 @@ result.GetError();                      // WYZ0102: not guarded by an IsFailure 
 ## Performance, in short
 
 A `Result` is exactly one pointer wide, and the success path allocates nothing (checked by tests). Benchmarked against eight other libraries, for value and reference types, a four-step
-synchronous chain took about 5 ns without allocating, as it did in CSharpFunctionalExtensions, ErrorOr and OneOf; the others took 2 to 29 times as long and
+synchronous chain took 5 to 6 ns without allocating, as it did in CSharpFunctionalExtensions, ErrorOr and OneOf; the others took 2 to 32 times as long and
 most allocated. Chaining on a completed `Task` allocates in every library, ours included, and awaiting first is cheaper. The differences between
 the four fastest are inside the run-to-run noise, so we do not rank them. [Numbers and caveats](https://github.com/WyzelyDk/Functional/blob/main/docs/result/performance.md).
 

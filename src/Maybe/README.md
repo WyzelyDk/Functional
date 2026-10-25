@@ -232,8 +232,8 @@ dotnet run --project samples/Maybe.Samples -c Release
 
 A `Maybe<int>` is 8 bytes, a `Maybe<string>` is two references wide, a synchronous chain allocates nothing, on success and on none, and a `Task` chain
 over a reference type that stays none allocates nothing either, because one completed task per type is cached (checked by tests, on .NET 8 and later). Timings
-are measurements, not claims: benchmarked against five other libraries, for value and reference types, a four-step synchronous chain took about 5 ns
-without allocating, as it did in LanguageExt and CSharpFunctionalExtensions for an `int`; Funcky and Optional took 1.6 to 4.5 times as long and allocated.
+are measurements, not claims: benchmarked against five other libraries, for value and reference types, a four-step synchronous chain took 4 to 6 ns
+without allocating, as it did in LanguageExt and CSharpFunctionalExtensions for an `int`; Funcky and Optional took 1.8 to 4.3 times as long and allocated.
 [What is claimed and how to run the benchmarks](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/performance.md).
 
 ## Contributing
