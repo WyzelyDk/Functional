@@ -53,7 +53,7 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
     private static ExpressionSyntax? Rewrite(InterpolatedStringExpressionSyntax interpolated)
     {
         if (interpolated is not { Parent: ArgumentSyntax { NameColon: null } argument }
-            || argument.Parent?.Parent is not InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax access } call
+            || argument.Parent!.Parent is not InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax access } call
             || !TryRead(interpolated, out var template, out var details))
         {
             return null;

@@ -50,6 +50,8 @@ public sealed class MaybeSuggestionsEdgeCaseTests
     [InlineData("Maybe<string> M(string? s) => s is null ? Factory.Make() : Maybe.Some(s);")]
     [InlineData("Maybe<string> M(string? s, Factory factory) => s is null ? factory.None() : Maybe.Some(s);")]
     [InlineData("Maybe<string> M(string? s, bool flag) => flag ? Maybe.None<string>() : Maybe.Some(s!);")]
+    [InlineData("Maybe<string> M(string? s) => s is not \"a\" ? Maybe.Some(s!) : Maybe.None<string>();")]
+    [InlineData("Maybe<string> M(int n, string s) => n < 3 ? Maybe.None<string>() : Maybe.Some(s);")]
     internal async Task Shapes_that_only_look_like_a_suggestion_are_left_alone(string method)
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\n" + method, Analyzer);

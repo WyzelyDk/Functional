@@ -65,6 +65,14 @@ public sealed class AnalyzerEdgeCaseTests
     }
 
     [Fact]
+    internal async Task An_unused_value_that_is_not_a_result_is_not_reported_even_when_it_is_an_array()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync("static int[] MakeArray() => []; void M() { MakeArray(); }");
+
+        Assert.Empty(ids);
+    }
+
+    [Fact]
     internal async Task An_awaited_variable_that_is_not_used_is_reported_with_its_own_text()
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync("async Task M(Task<Result<int>> task) { await task; }");

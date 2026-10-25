@@ -94,6 +94,38 @@ public sealed class CodeFixEdgeCaseTests
         Assert.Equal(0, offered);
     }
 
+    [Theory]
+    [InlineData(
+        "Error M(Order order) => Error.Create($\"Of {order.Customer.Name}.\");",
+        "Error.Create(\"Of {Name}.\").WithDetail(\"Name\", order.Customer.Name)")]
+    [InlineData("int Id => 1; Error M() => Error.Create($\"Order {this.Id}.\");", "Error.Create(\"Order {Id}.\").WithDetail(\"Id\", this.Id)")]
+    internal async Task The_values_of_a_message_may_be_a_member_of_a_member_or_a_member_of_this(string method, string expected)
+    {
+        const string types = "record Customer(string Name); record Order(Customer Customer);";
+
+        var outcome = await CodeFixTestHost.FixAsync(types + "\n" + method, new InterpolatedMessageCodeFixProvider(), "WYZ0111", new ResultMessageAnalyzer());
+
+        Assert.Multiple(
+            () => Assert.NotNull(outcome.FixedSource),
+            () => Assert.Contains(expected, outcome.FixedSource, StringComparison.Ordinal),
+            () => Assert.DoesNotContain("WYZ0111", outcome.RemainingIds));
+    }
+
+    [Theory]
+    [InlineData("Error M(Order order) => Error.Create($\"Order {GetOrder().Id}.\");")]
+    [InlineData("Error M(Order order) => Error.Create($\"Order {order?.Id}.\");")]
+    [InlineData("Error M(Order order) => Error.Create($\"Order {order.Get<int>}.\");")]
+    [InlineData("unsafe Error M(Order* order) => Error.Create($\"Order {order->Id}.\");")]
+    internal async Task No_fix_is_offered_for_a_value_that_is_not_a_plain_member_access(string method)
+    {
+        var start = method.IndexOf("$\"", StringComparison.Ordinal);
+        var marker = method[start..(method.LastIndexOf("\")", StringComparison.Ordinal) + 1)];
+
+        var offered = await CodeFixTestHost.OfferedFixesAsync(method, new InterpolatedMessageCodeFixProvider(), "WYZ0111", marker);
+
+        Assert.Equal(0, offered);
+    }
+
     [Fact]
     internal async Task A_message_that_has_to_stay_lazy_is_created_with_Error_Create_inside_the_function()
     {

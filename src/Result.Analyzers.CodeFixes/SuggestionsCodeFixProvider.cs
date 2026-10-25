@@ -49,21 +49,68 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
         // Every other rule is about a call, which is what IsTarget looks for.
         var call = (InvocationExpressionSyntax)target;
 
-        return diagnostic.Id switch
+        // A chain of ifs and not a switch on the text: the compiler turns a switch of this size into a hash table, and the equality check behind it has a
+        // side (the same hash for another text) that no test can take.
+        if (diagnostic.Id == "WYZ0103")
         {
-            "WYZ0103" => SuggestionRewrites.BindIf(call, properties),
-            "WYZ0104" => SuggestionRewrites.MapIf(call, properties),
-            "WYZ0105" => SuggestionRewrites.EnsureNot(call),
-            "WYZ0106" => SuggestionRewrites.EnsureNotNull(call, properties),
-            "WYZ0107" => SuggestionRewrites.BindZip(call),
-            "WYZ0108" => SuggestionRewrites.ConvertFailure(call),
-            "WYZ0110" => SuggestionRewrites.MapTry(call),
-            "WYZ0112" => SuggestionRewrites.BindToMap(call),
-            "WYZ0113" => SuggestionRewrites.MapToTap(call),
-            "WYZ0114" => SuggestionRewrites.MatchToValueOr(call),
-            "WYZ0115" => SuggestionRewrites.RemoveStep(call),
-            "WYZ0116" => SuggestionRewrites.FailureWithMessage(call),
-            _ => SuggestionRewrites.Flatten(call),
-        };
+            return SuggestionRewrites.BindIf(call, properties);
+        }
+
+        if (diagnostic.Id == "WYZ0104")
+        {
+            return SuggestionRewrites.MapIf(call, properties);
+        }
+
+        if (diagnostic.Id == "WYZ0105")
+        {
+            return SuggestionRewrites.EnsureNot(call);
+        }
+
+        if (diagnostic.Id == "WYZ0106")
+        {
+            return SuggestionRewrites.EnsureNotNull(call, properties);
+        }
+
+        if (diagnostic.Id == "WYZ0107")
+        {
+            return SuggestionRewrites.BindZip(call);
+        }
+
+        if (diagnostic.Id == "WYZ0108")
+        {
+            return SuggestionRewrites.ConvertFailure(call);
+        }
+
+        if (diagnostic.Id == "WYZ0110")
+        {
+            return SuggestionRewrites.MapTry(call);
+        }
+
+        if (diagnostic.Id == "WYZ0112")
+        {
+            return SuggestionRewrites.BindToMap(call);
+        }
+
+        if (diagnostic.Id == "WYZ0113")
+        {
+            return SuggestionRewrites.MapToTap(call);
+        }
+
+        if (diagnostic.Id == "WYZ0114")
+        {
+            return SuggestionRewrites.MatchToValueOr(call);
+        }
+
+        if (diagnostic.Id == "WYZ0115")
+        {
+            return SuggestionRewrites.RemoveStep(call);
+        }
+
+        if (diagnostic.Id == "WYZ0116")
+        {
+            return SuggestionRewrites.FailureWithMessage(call);
+        }
+
+        return SuggestionRewrites.Flatten(call);
     }
 }
