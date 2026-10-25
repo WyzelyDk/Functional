@@ -17,4 +17,7 @@ internal enum StateChange
 
     /// <summary>The operation can only move a maybe that has no value to one that has a value.</summary>
     FromNone,
+
+    /// <summary>The operation can only move a result that succeeded to a failure.</summary>
+    ToFailure,
 }

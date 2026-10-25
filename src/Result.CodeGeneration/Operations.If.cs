@@ -107,6 +107,7 @@ internal static partial class Operations
             GateReceiver = SuccessOfTwo,
             OtherReceiver = FailureOfInt,
             Test = Returns(ValidationName, ["x"], "Result.Failure(other)", ResultType),
+            PassTest = Returns(ValidationName, ["x"], SuccessWithoutValue, ResultType),
             Setup = [OtherErrorSetup],
             RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1ValidationCalls],
             SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertNoValidationCalls],
@@ -135,6 +136,7 @@ internal static partial class Operations
             GateReceiver = SuccessOfTwo,
             OtherReceiver = FailureOfInt,
             Test = Returns(ValidationName, ["x"], "Result.Failure<string>(other)", ResultOfString),
+            PassTest = Returns(ValidationName, ["x"], SuccessOfChecked, ResultOfString),
             Setup = [OtherErrorSetup],
             RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1ValidationCalls],
             SkipAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertNoValidationCalls],
@@ -358,7 +360,7 @@ internal static partial class Operations
 
         string[] WithCount(string[] asserts, int calls) => counted ? [.. asserts, $"Assert.Equal({calls}, conditionCalls);"] : asserts;
 
-        return
+        List<TestCaseSpec> cases =
         [
             new(
                 $"runs_the_delegate_when_the_receiver_{gateWord}_and_the_condition_holds",
@@ -371,6 +373,23 @@ internal static partial class Operations
             new(skipName, shape.GateReceiver, [shape.Test], [], WithCount(shape.SkipAsserts, 1), setup, [no]),
             new(otherName, shape.OtherReceiver, [shape.Test], [], WithCount(shape.OtherAsserts, 0), setup, [yes]),
         ];
+
+        if (shape.PassTest is not null)
+        {
+            string[] passAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1ValidationCalls];
+            string[] passSetup = counted ? ["var conditionCalls = 0;"] : [];
+
+            cases.Add(new(
+                "keeps_the_receiver_when_the_validation_succeeded",
+                shape.GateReceiver,
+                [shape.PassTest],
+                [],
+                WithCount(passAsserts, 1),
+                passSetup,
+                [yes]));
+        }
+
+        return [.. cases];
     }
 
     // The argument of a test for a condition that holds or does not: the plain value, or a function that counts its calls.
@@ -402,6 +421,9 @@ internal static partial class Operations
 
         /// <summary>Gets a value indicating whether the operation never changes the value of its receiver.</summary>
         internal bool KeepsValue { get; init; }
+
+        /// <summary>Gets the delegate of the test in which the validation of <c>EnsureIf</c> succeeds, or <see langword="null"/> when there is none.</summary>
+        internal DelegateTest? PassTest { get; init; }
 
         /// <summary>Gets how the operation can change the state of its receiver.</summary>
         internal StateChange StateChange { get; init; }

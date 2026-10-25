@@ -607,4 +607,199 @@ public sealed class EnsureIfTypedBoolFromResultOfTMatrixTests
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
     }
+
+    [Fact]
+    internal void EnsureIf_on_sync_receiver_with_sync_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Result.Success(2);
+        var outcome = receiver.EnsureIf(true, x => { validationCalls++; return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_sync_receiver_with_task_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Result.Success(2);
+        var outcome = await receiver.EnsureIf(true, async x => { validationCalls++; await Task.Yield(); return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_sync_receiver_with_value_task_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Result.Success(2);
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return new ValueTask<Result<string>>(Result.Success("checked")); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_task_receiver_with_sync_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Task.FromResult(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_task_receiver_with_sync_delegate_keeps_the_receiver_when_the_validation_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Pending.Of(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_task_receiver_with_task_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Task.FromResult(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, async x => { validationCalls++; await Task.Yield(); return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_task_receiver_with_task_delegate_keeps_the_receiver_when_the_validation_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Pending.Of(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, async x => { validationCalls++; await Task.Yield(); return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_task_receiver_with_value_task_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Task.FromResult(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return new ValueTask<Result<string>>(Result.Success("checked")); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_task_receiver_with_value_task_delegate_keeps_the_receiver_when_the_validation_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = Pending.Of(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return new ValueTask<Result<string>>(Result.Success("checked")); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_value_task_receiver_with_sync_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_value_task_receiver_with_sync_delegate_keeps_the_receiver_when_the_validation_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_value_task_receiver_with_task_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, async x => { validationCalls++; await Task.Yield(); return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_value_task_receiver_with_task_delegate_keeps_the_receiver_when_the_validation_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
+        var outcome = await receiver.EnsureIf(true, async x => { validationCalls++; await Task.Yield(); return Result.Success("checked"); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_value_task_receiver_with_value_task_delegate_keeps_the_receiver_when_the_validation_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Result.Success(2));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return new ValueTask<Result<string>>(Result.Success("checked")); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
+
+    [Fact]
+    internal async Task EnsureIf_on_value_task_receiver_with_value_task_delegate_keeps_the_receiver_when_the_validation_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var validationCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
+        var outcome = await receiver.EnsureIf(true, x => { validationCalls++; return new ValueTask<Result<string>>(Result.Success("checked")); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(2, outcome.GetValue());
+        Assert.Equal(1, validationCalls);
+    }
 }

@@ -204,6 +204,186 @@ public sealed class BindTryToResultFromResultOfTMatrixTests
     }
 
     [Fact]
+    internal void BindTry_on_sync_receiver_with_sync_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Result.Success(2);
+        var outcome = receiver.BindTry(x => { bindCalls++; return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_sync_receiver_with_task_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Result.Success(2);
+        var outcome = await receiver.BindTry(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_sync_receiver_with_value_task_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Result.Success(2);
+        var outcome = await receiver.BindTry(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_task_receiver_with_sync_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Task.FromResult(Result.Success(2));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_task_receiver_with_sync_delegate_returns_a_success_when_the_delegate_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Pending.Of(Result.Success(2));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_task_receiver_with_task_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Task.FromResult(Result.Success(2));
+        var outcome = await receiver.BindTry(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_task_receiver_with_task_delegate_returns_a_success_when_the_delegate_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Pending.Of(Result.Success(2));
+        var outcome = await receiver.BindTry(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_task_receiver_with_value_task_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Task.FromResult(Result.Success(2));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_task_receiver_with_value_task_delegate_returns_a_success_when_the_delegate_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = Pending.Of(Result.Success(2));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_value_task_receiver_with_sync_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Result.Success(2));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_value_task_receiver_with_sync_delegate_returns_a_success_when_the_delegate_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_value_task_receiver_with_task_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Result.Success(2));
+        var outcome = await receiver.BindTry(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_value_task_receiver_with_task_delegate_returns_a_success_when_the_delegate_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
+        var outcome = await receiver.BindTry(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_value_task_receiver_with_value_task_delegate_returns_a_success_when_the_delegate_succeeded()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Result.Success(2));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
+    internal async Task BindTry_on_value_task_receiver_with_value_task_delegate_returns_a_success_when_the_delegate_succeeded_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var bindCalls = 0;
+        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
+        var outcome = await receiver.BindTry(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(1, bindCalls);
+    }
+
+    [Fact]
     internal void BindTry_on_sync_receiver_with_sync_delegate_returns_the_error_without_running_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");

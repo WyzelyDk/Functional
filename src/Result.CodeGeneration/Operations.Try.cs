@@ -101,6 +101,7 @@ internal static partial class Operations
             GateReceiver = SuccessOfTwo,
             OtherReceiver = FailureOfInt,
             Test = Returns("bind", ["x"], "Result.Failure(other)", ResultType),
+            PassTest = Returns("bind", ["x"], "Result.Success()", ResultType),
             ThrowingTest = Returns("bind", ["x"], "Boom.Throw<Result>()", ResultType),
             Setup = [OtherErrorSetup],
             RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
@@ -211,6 +212,7 @@ internal static partial class Operations
             GateReceiver = SuccessWithoutValue,
             OtherReceiver = FailureWithError,
             Test = Returns("bind", [], "Result.Failure(other)", ResultType),
+            PassTest = Returns("bind", [], "Result.Success()", ResultType),
             ThrowingTest = Returns("bind", [], "Boom.Throw<Result>()", ResultType),
             Setup = [OtherErrorSetup],
             RunAsserts = [AssertSameOtherOutcomeGetError, AssertEqual1BindCalls],
@@ -307,6 +309,7 @@ internal static partial class Operations
             Stem = stem,
             Name = shape.Name,
             KeepsValue = shape.KeepsValue,
+            StateChange = shape.KeepsValue ? StateChange.ToFailure : StateChange.Any,
             ReceiverType = shape.Typed ? ResultOfT : ResultType,
             ReceiverTestType = shape.Typed ? ResultOfInt : ResultType,
             ReceiverDescription = shape.Typed ? ResultOfTReceiverDescription : ResultReceiverDescription,
@@ -423,6 +426,18 @@ internal static partial class Operations
             {
                 new("returns_the_outcome_of_the_delegate_when_the_receiver_succeeded", shape.GateReceiver, shape.Test, shape.RunAsserts, _handler, _yes, 1),
             };
+
+            if (shape.PassTest is not null)
+            {
+                cases.Add(new(
+                    "returns_a_success_when_the_delegate_succeeded",
+                    shape.GateReceiver,
+                    shape.PassTest,
+                    [AssertTrueOutcomeIsSuccess, AssertEqual1BindCalls],
+                    _handler,
+                    _yes,
+                    1));
+            }
 
             if (shape.Conditional)
             {
@@ -556,6 +571,9 @@ internal static partial class Operations
 
         /// <summary>Gets how the delegate behaves in the tests that throw.</summary>
         internal required DelegateTest ThrowingTest { get; init; }
+
+        /// <summary>Gets the delegate of the test in which the operation succeeds, when the failing test alone leaves that outcome untested.</summary>
+        internal DelegateTest? PassTest { get; init; }
 
         /// <summary>Gets the lines that arrange the tests that use <see cref="Test"/>.</summary>
         internal string[]? Setup { get; init; }

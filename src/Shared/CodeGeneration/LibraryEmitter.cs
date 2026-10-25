@@ -301,7 +301,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
     private string ChangedTask(OperationSpec operation) => operation.StateChange switch
     {
         StateChange.ToNone => NoneTask(operation),
-        StateChange.FromNone => "Task.FromResult(completed)",
+        StateChange.FromNone or StateChange.ToFailure => "Task.FromResult(completed)",
         _ => CompletedTask(operation),
     };
 
