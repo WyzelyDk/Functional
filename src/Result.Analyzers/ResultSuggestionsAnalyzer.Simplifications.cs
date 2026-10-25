@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -15,11 +16,8 @@ public sealed partial class ResultSuggestionsAnalyzer
     private static void CheckBindToMap(OperationAnalysisContext context, IInvocationOperation invocation)
     {
         if (!IsPlainMemberCall(invocation)
-            || !OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out var lambda, out var returned)
-            || lambda.Symbol.IsAsync
-            || returned is not IInvocationOperation { Arguments.Length: 1 } success
-            || !OperationShapes.IsResultFactory(success.TargetMethod, "Success")
-            || success.TargetMethod.TypeArguments.Length != 1)
+            || !TryGetSynchronousLambda(invocation, "bind", out var lambda, out var returned)
+            || !TryGetTypedSuccess(returned, out var success))
         {
             return;
         }
@@ -33,15 +31,30 @@ public sealed partial class ResultSuggestionsAnalyzer
         }
     }
 
+    // Result.Success<T>(value) with its type argument.
+    private static bool TryGetTypedSuccess(IOperation operation, out IInvocationOperation success)
+    {
+        success = (operation as IInvocationOperation)!;
+
+        return success is { Arguments.Length: 1 }
+            && OperationShapes.IsResultFactory(success.TargetMethod, "Success")
+            && success.TargetMethod.TypeArguments.Length == 1;
+    }
+
+    // A lambda with one parameter that returns one expression and is not async.
+    private static bool TryGetSynchronousLambda(
+        IInvocationOperation invocation,
+        string parameterName,
+        out IAnonymousFunctionOperation lambda,
+        out IOperation returned) =>
+        OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, parameterName), 1, out lambda, out returned) && !lambda.Symbol.IsAsync;
+
     // WYZ0113: Map(x => { Use(x); return x; }) is Tap(x => { Use(x); }). The statements before the return must not return, and must not change x.
     private static void CheckMapToTap(OperationAnalysisContext context, IInvocationOperation invocation)
     {
         if (!IsPlainMemberCall(invocation)
             || !HasEqualTypeArguments(invocation.TargetMethod)
-            || OperationShapes.ArgumentOf(invocation, "map") is not IDelegateCreationOperation { Target: IAnonymousFunctionOperation lambda }
-            || lambda.Symbol.IsAsync
-            || lambda.Symbol.Parameters.Length != 1
-            || lambda.Body.Operations.Length < 2)
+            || !TryGetStatementLambda(invocation, out var lambda))
         {
             return;
         }
@@ -49,20 +62,46 @@ public sealed partial class ResultSuggestionsAnalyzer
         var statements = lambda.Body.Operations;
         var parameter = lambda.Symbol.Parameters[0];
 
-        if (statements[statements.Length - 1] is not IReturnOperation { ReturnedValue: { } returned } || !OperationShapes.IsParameter(returned, parameter))
+        if (statements[statements.Length - 1] is not IReturnOperation { ReturnedValue: { } returned }
+            || !OperationShapes.IsParameter(returned, parameter)
+            || AnyStatementEscapes(statements, parameter))
         {
             return;
         }
 
+        Report(context, Rules.UseTapInsteadOfMap, invocation, []);
+    }
+
+    // The map is a lambda that is not async, has one parameter and has at least two statements: something to do and the return.
+    private static bool TryGetStatementLambda(IInvocationOperation invocation, out IAnonymousFunctionOperation lambda)
+    {
+        lambda = null!;
+
+        if (OperationShapes.ArgumentOf(invocation, "map") is not IDelegateCreationOperation { Target: IAnonymousFunctionOperation found }
+            || found.Symbol.IsAsync
+            || found.Symbol.Parameters.Length != 1
+            || found.Body.Operations.Length < 2)
+        {
+            return false;
+        }
+
+        lambda = found;
+
+        return true;
+    }
+
+    // Any statement before the last that returns or may change the parameter.
+    private static bool AnyStatementEscapes(ImmutableArray<IOperation> statements, IParameterSymbol parameter)
+    {
         for (var index = 0; index < statements.Length - 1; index++)
         {
             if (OperationShapes.Contains<IReturnOperation>(statements[index]) || OperationShapes.ChangesParameter(statements[index], parameter))
             {
-                return;
+                return true;
             }
         }
 
-        Report(context, Rules.UseTapInsteadOfMap, invocation, []);
+        return false;
     }
 
     // WYZ0114: Match(v => v, _ => fallback) is ValueOr(fallback). ValueOr evaluates the fallback always, so it must be cheap and must not use the error.
@@ -70,12 +109,9 @@ public sealed partial class ResultSuggestionsAnalyzer
     {
         var method = invocation.TargetMethod;
 
-        if (method.Parameters[0].Type is not INamedTypeSymbol { Name: "Result", IsGenericType: true }
-            || !HasEqualTypeArguments(method)
-            || !OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "onSuccess"), 1, out var success, out var value)
-            || !OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "onFailure"), 1, out var failure, out var fallback)
-            || success.Symbol.IsAsync
-            || failure.Symbol.IsAsync
+        if (!IsMatchOfValueResult(method)
+            || !TryGetSynchronousLambda(invocation, "onSuccess", out var success, out var value)
+            || !TryGetSynchronousLambda(invocation, "onFailure", out var failure, out var fallback)
             || !OperationShapes.IsParameter(value, success.Symbol.Parameters[0]))
         {
             return;
@@ -86,6 +122,10 @@ public sealed partial class ResultSuggestionsAnalyzer
             Report(context, Rules.UseValueOr, invocation, []);
         }
     }
+
+    // A Match on a Result<T> whose two type arguments are the same type.
+    private static bool IsMatchOfValueResult(IMethodSymbol method) =>
+        method.Parameters[0].Type is INamedTypeSymbol { Name: "Result", IsGenericType: true } && HasEqualTypeArguments(method);
 
     // WYZ0115: Map(x => x) and Bind(x => Result.Success(x)) return the result they were called on.
     private static void CheckNoOpMap(OperationAnalysisContext context, IInvocationOperation invocation)
@@ -115,17 +155,27 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0116: Result.Failure(Error.Create(message)) is Result.Failure(message). A null message would make the call ambiguous, so it is left alone.
     private static void CheckFailureWithMessage(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (OperationShapes.ArgumentOf(invocation, "error") is IInvocationOperation { TargetMethod: { Name: "Create", IsStatic: true } create } created
-            && create.ContainingType.Name == "Error"
-            && create.Parameters.Length == 1)
+        if (TryGetErrorCreate(invocation, out var created) && IsNotNullMessage(created.Arguments[0].Value))
         {
-            var message = OperationHelpers.Unwrap(created.Arguments[0].Value);
-
-            if (!message.ConstantValue.HasValue || message.ConstantValue.Value is not null)
-            {
-                Report(context, Rules.UseFailureWithMessage, invocation, []);
-            }
+            Report(context, Rules.UseFailureWithMessage, invocation, []);
         }
+    }
+
+    // Error.Create(message) as the error of the call.
+    private static bool TryGetErrorCreate(IInvocationOperation invocation, out IInvocationOperation created)
+    {
+        created = (OperationShapes.ArgumentOf(invocation, "error") as IInvocationOperation)!;
+
+        return created is { TargetMethod: { Name: "Create", IsStatic: true } create }
+            && create.ContainingType.Name == "Error"
+            && create.Parameters.Length == 1;
+    }
+
+    private static bool IsNotNullMessage(IOperation operation)
+    {
+        var message = OperationHelpers.Unwrap(operation);
+
+        return !message.ConstantValue.HasValue || message.ConstantValue.Value is not null;
     }
 
     // WYZ0117: Bind(x => x) on a result of a result is Flatten().

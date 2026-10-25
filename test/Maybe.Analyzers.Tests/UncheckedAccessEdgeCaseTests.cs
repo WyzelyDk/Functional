@@ -55,6 +55,9 @@ public sealed class UncheckedAccessEdgeCaseTests
     [InlineData("int M(Maybe<int> m, Maybe<int> other) { if (m.Equals(other)) { return m.GetValue(); } return 0; }")]
     [InlineData("int M(Maybe<int> m, bool a, bool b) { if (a && b) { return m.GetValue(); } return 0; }")]
     [InlineData("int M(Maybe<int> m, bool a, bool b) { if (a || b) { return 0; } return m.GetValue(); }")]
+    [InlineData("int M(Maybe<bool> m) { return m.GetValue() ? 1 : 0; }")]
+    [InlineData("int M(Maybe<int> m) { return 1 + m.GetValue(); }")]
+    [InlineData("int M(Maybe<int> m) { if (m.IsSome == true) { return m.GetValue(); } return 0; }")]
     internal async Task A_check_that_says_nothing_about_the_value_in_the_branch_does_not_guard_the_access(string method)
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(method);

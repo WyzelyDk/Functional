@@ -81,25 +81,11 @@ public sealed partial class ResultSuggestionsAnalyzer
         }
 
         var parameter = lambda.Symbol.Parameters[0];
-        var isNullWhenTrue = NullCheck(conditional.Condition, parameter);
 
-        if (isNullWhenTrue is null || !(parameter.Type.IsReferenceType || IsNullableValueType(parameter.Type)))
-        {
-            return;
-        }
-
-        var failure = OperationHelpers.Unwrap(isNullWhenTrue.Value ? whenTrue : whenFalse);
-        var success = OperationHelpers.Unwrap(isNullWhenTrue.Value ? whenFalse : whenTrue);
-
-        if (!IsSuccessWithValue(success, parameter) || failure is not IInvocationOperation { Arguments.Length: 1 } failed)
-        {
-            return;
-        }
-
-        var method = failed.TargetMethod;
-        var error = OperationShapes.ArgumentOf(failed, "error") ?? OperationShapes.ArgumentOf(failed, "message");
-
-        if (!OperationShapes.IsResultFactory(method, "Failure") || method.TypeArguments.Length != 1 || error is null)
+        if (!TryGetNullFailure(conditional, whenTrue, whenFalse, parameter, out var failed)
+            || ErrorArgumentOf(failed) is not { } error
+            || !OperationShapes.IsResultFactory(failed.TargetMethod, "Failure")
+            || failed.TargetMethod.TypeArguments.Length != 1)
         {
             return;
         }
@@ -110,6 +96,42 @@ public sealed partial class ResultSuggestionsAnalyzer
             invocation,
             [Flag(LazyProperty, !OperationHelpers.IsCheap(error)), Flag(MessageProperty, error.Type!.SpecialType == SpecialType.System_String)]);
     }
+
+    // The branch that is the failure of a null check of the parameter, when the other branch is Result.Success of the parameter.
+    private static bool TryGetNullFailure(
+        IConditionalOperation conditional,
+        IOperation whenTrue,
+        IOperation whenFalse,
+        IParameterSymbol parameter,
+        out IInvocationOperation failed)
+    {
+        failed = null!;
+
+        var isNullWhenTrue = NullCheck(conditional.Condition, parameter);
+
+        if (isNullWhenTrue is null || !CanBeNull(parameter.Type))
+        {
+            return false;
+        }
+
+        var failure = OperationHelpers.Unwrap(isNullWhenTrue.Value ? whenTrue : whenFalse);
+        var success = OperationHelpers.Unwrap(isNullWhenTrue.Value ? whenFalse : whenTrue);
+
+        if (!IsSuccessWithValue(success, parameter) || failure is not IInvocationOperation { Arguments.Length: 1 } found)
+        {
+            return false;
+        }
+
+        failed = found;
+
+        return true;
+    }
+
+    private static bool CanBeNull(ITypeSymbol type) => type.IsReferenceType || IsNullableValueType(type);
+
+    // The argument that is the error or the message of a call of Failure.
+    private static IOperation? ErrorArgumentOf(IInvocationOperation failed) =>
+        OperationShapes.ArgumentOf(failed, "error") ?? OperationShapes.ArgumentOf(failed, "message");
 
     private static bool TryGetConditionalLambda(
         IInvocationOperation invocation,
@@ -137,31 +159,37 @@ public sealed partial class ResultSuggestionsAnalyzer
     }
 
     // Returns true when the condition is true for null, false when it is true for not null, and null when it is not a null check of the parameter.
-    private static bool? NullCheck(IOperation condition, IParameterSymbol parameter)
+    private static bool? NullCheck(IOperation condition, IParameterSymbol parameter) => OperationHelpers.Unwrap(condition) switch
     {
-        switch (OperationHelpers.Unwrap(condition))
+        IIsPatternOperation pattern when OperationShapes.IsParameter(pattern.Value, parameter) => NullCheckOfPattern(pattern.Pattern),
+        IBinaryOperation { OperatorKind: BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals } binary => NullCheckOfComparison(binary, parameter),
+        _ => null,
+    };
+
+    // `is null` is true for null, `is not null` is true for not null.
+    private static bool? NullCheckOfPattern(IPatternOperation pattern)
+    {
+        if (IsNullPattern(pattern))
         {
-            case IIsPatternOperation pattern when OperationShapes.IsParameter(pattern.Value, parameter):
-                if (pattern.Pattern is IConstantPatternOperation constant && IsNull(constant.Value))
-                {
-                    return true;
-                }
-
-                return pattern.Pattern is INegatedPatternOperation { Pattern: IConstantPatternOperation negated } && IsNull(negated.Value) ? false : null;
-
-            case IBinaryOperation { OperatorKind: BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals } binary:
-                var equals = binary.OperatorKind == BinaryOperatorKind.Equals;
-
-                if (OperationShapes.IsParameter(binary.LeftOperand, parameter) && IsNull(binary.RightOperand))
-                {
-                    return equals;
-                }
-
-                return OperationShapes.IsParameter(binary.RightOperand, parameter) && IsNull(binary.LeftOperand) ? equals : null;
-
-            default:
-                return null;
+            return true;
         }
+
+        return pattern is INegatedPatternOperation negated && IsNullPattern(negated.Pattern) ? false : null;
+    }
+
+    private static bool IsNullPattern(IPatternOperation pattern) => pattern is IConstantPatternOperation constant && IsNull(constant.Value);
+
+    // `x == null` and `null == x` are true for null, `x != null` and `null != x` for not null.
+    private static bool? NullCheckOfComparison(IBinaryOperation binary, IParameterSymbol parameter)
+    {
+        var equals = binary.OperatorKind == BinaryOperatorKind.Equals;
+
+        if (OperationShapes.IsParameter(binary.LeftOperand, parameter) && IsNull(binary.RightOperand))
+        {
+            return equals;
+        }
+
+        return OperationShapes.IsParameter(binary.RightOperand, parameter) && IsNull(binary.LeftOperand) ? equals : null;
     }
 
     private static bool IsNull(IOperation operation) =>
@@ -170,16 +198,13 @@ public sealed partial class ResultSuggestionsAnalyzer
     private static bool IsNullableValueType(ITypeSymbol type) => type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T };
 
     // Result.Success(x) for a reference type, and Result.Success(x.Value) for a nullable value type.
-    private static bool IsSuccessWithValue(IOperation operation, IParameterSymbol parameter)
-    {
-        if (OperationShapes.IsSuccessOf(operation, parameter))
-        {
-            return true;
-        }
+    private static bool IsSuccessWithValue(IOperation operation, IParameterSymbol parameter) =>
+        OperationShapes.IsSuccessOf(operation, parameter) || IsSuccessOfValueProperty(operation, parameter);
 
-        return operation is IInvocationOperation { Arguments.Length: 1 } call
-            && OperationShapes.IsResultFactory(call.TargetMethod, "Success")
-            && OperationHelpers.Unwrap(call.Arguments[0].Value) is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
-            && OperationShapes.IsParameter(instance, parameter);
-    }
+    // Result.Success(x.Value) for a parameter x.
+    private static bool IsSuccessOfValueProperty(IOperation operation, IParameterSymbol parameter) =>
+        operation is IInvocationOperation { Arguments.Length: 1 } call
+        && OperationShapes.IsResultFactory(call.TargetMethod, "Success")
+        && OperationHelpers.Unwrap(call.Arguments[0].Value) is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
+        && OperationShapes.IsParameter(instance, parameter);
 }

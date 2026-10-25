@@ -54,16 +54,36 @@ internal static class AccessGuards
             => ProvesValue(ifStatement.Condition, receiver, whenTrue: true),
         ElseClauseSyntax { Parent: IfStatementSyntax ifStatement }
             => ProvesValue(ifStatement.Condition, receiver, whenTrue: false),
-        ConditionalExpressionSyntax conditional when child == conditional.WhenTrue
-            => ProvesValue(conditional.Condition, receiver, whenTrue: true),
-        ConditionalExpressionSyntax conditional when child == conditional.WhenFalse
-            => ProvesValue(conditional.Condition, receiver, whenTrue: false),
-        BinaryExpressionSyntax binary when binary.IsKind(SyntaxKind.LogicalAndExpression) && child == binary.Right
-            => ProvesValue(binary.Left, receiver, whenTrue: true),
-        BinaryExpressionSyntax binary when binary.IsKind(SyntaxKind.LogicalOrExpression) && child == binary.Right
-            => ProvesValue(binary.Left, receiver, whenTrue: false),
+        ConditionalExpressionSyntax conditional => GuardedByConditional(conditional, child, receiver),
+        BinaryExpressionSyntax binary => GuardedByLogicalOperator(binary, child, receiver),
         _ => false,
     };
+
+    private static bool GuardedByConditional(ConditionalExpressionSyntax conditional, SyntaxNode child, string receiver)
+    {
+        if (child == conditional.WhenTrue)
+        {
+            return ProvesValue(conditional.Condition, receiver, whenTrue: true);
+        }
+
+        return child == conditional.WhenFalse && ProvesValue(conditional.Condition, receiver, whenTrue: false);
+    }
+
+    // The right operand of `&&` runs only when the left one is true, and that of `||` only when it is false.
+    private static bool GuardedByLogicalOperator(BinaryExpressionSyntax binary, SyntaxNode child, string receiver)
+    {
+        if (child != binary.Right)
+        {
+            return false;
+        }
+
+        if (binary.IsKind(SyntaxKind.LogicalAndExpression))
+        {
+            return ProvesValue(binary.Left, receiver, whenTrue: true);
+        }
+
+        return binary.IsKind(SyntaxKind.LogicalOrExpression) && ProvesValue(binary.Left, receiver, whenTrue: false);
+    }
 
     // `if (check) { return; }` followed by the call: when execution gets here, the condition was false.
     private static bool GuardedByEarlierExit(SyntaxNode parent, SyntaxNode child, string receiver) =>
@@ -89,16 +109,30 @@ internal static class AccessGuards
             => ProvesValue(parenthesized.Expression, receiver, whenTrue),
         PrefixUnaryExpressionSyntax negation when negation.IsKind(SyntaxKind.LogicalNotExpression)
             => ProvesValue(negation.Operand, receiver, !whenTrue),
-        BinaryExpressionSyntax conjunction when conjunction.IsKind(SyntaxKind.LogicalAndExpression)
-            => whenTrue && (ProvesValue(conjunction.Left, receiver, true) || ProvesValue(conjunction.Right, receiver, true)),
-        BinaryExpressionSyntax disjunction when disjunction.IsKind(SyntaxKind.LogicalOrExpression)
-            => !whenTrue && (ProvesValue(disjunction.Left, receiver, false) || ProvesValue(disjunction.Right, receiver, false)),
+        BinaryExpressionSyntax binary
+            => ProvesByLogicalOperator(binary, receiver, whenTrue),
         MemberAccessExpressionSyntax member
             => Proves(member.Expression, member.Name.Identifier.Text, receiver, whenTrue),
         InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax member }
             => Proves(member.Expression, member.Name.Identifier.Text, receiver, whenTrue),
         _ => false,
     };
+
+    // `a && b` proves a value when it is true and either operand proves it; `a || b` when it is false and either operand proves it.
+    private static bool ProvesByLogicalOperator(BinaryExpressionSyntax binary, string receiver, bool whenTrue)
+    {
+        if (binary.IsKind(SyntaxKind.LogicalAndExpression))
+        {
+            return whenTrue && (ProvesValue(binary.Left, receiver, true) || ProvesValue(binary.Right, receiver, true));
+        }
+
+        if (binary.IsKind(SyntaxKind.LogicalOrExpression))
+        {
+            return !whenTrue && (ProvesValue(binary.Left, receiver, false) || ProvesValue(binary.Right, receiver, false));
+        }
+
+        return false;
+    }
 
     private static bool Proves(ExpressionSyntax subject, string name, string receiver, bool whenTrue)
     {

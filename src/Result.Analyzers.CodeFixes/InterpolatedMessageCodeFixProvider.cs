@@ -59,6 +59,17 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
             return null;
         }
 
+        return RewriteCall(call, argument, access, template, details);
+    }
+
+    // The call written again with the values as details, for the calls that have a form with details.
+    private static ExpressionSyntax? RewriteCall(
+        InvocationExpressionSyntax call,
+        ArgumentSyntax argument,
+        MemberAccessExpressionSyntax access,
+        LiteralExpressionSyntax template,
+        List<(string Name, ExpressionSyntax Value)> details)
+    {
         var name = access.Name.Identifier.ValueText;
         var receiver = access.Expression is IdentifierNameSyntax identifier ? identifier.Identifier.ValueText : null;
 
@@ -74,18 +85,20 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
 
         if (receiver == "Result" && name == "Failure" && call.ArgumentList.Arguments.Count == 1)
         {
-            var error = SyntaxFactory.InvocationExpression(
-                SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName("Error"),
-                    SyntaxFactory.IdentifierName("Create")),
-                SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(template))));
-
-            return ReplaceArgument(call, argument, AddDetails(error, details));
+            return ReplaceArgument(call, argument, AddDetails(ErrorCreate(template), details));
         }
 
         return null;
     }
+
+    // Error.Create with the template as its message.
+    private static InvocationExpressionSyntax ErrorCreate(ExpressionSyntax template) =>
+        SyntaxFactory.InvocationExpression(
+            SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxFactory.IdentifierName("Error"),
+                SyntaxFactory.IdentifierName("Create")),
+            SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(template))));
 
     private static ExpressionSyntax AddDetails(ExpressionSyntax error, List<(string Name, ExpressionSyntax Value)> details)
     {
@@ -138,7 +151,10 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
         out List<(string Name, ExpressionSyntax Value)> details)
     {
         template = null!;
-        details = [];
+
+        var found = new List<(string Name, ExpressionSyntax Value)>();
+
+        details = found;
 
         if (interpolated.StringStartToken.Text != "$\"")
         {
@@ -147,23 +163,9 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
 
         var text = new StringBuilder();
 
-        foreach (var content in interpolated.Contents)
+        if (!interpolated.Contents.All(content => TryAppend(content, text, found)))
         {
-            if (content is InterpolatedStringTextSyntax part)
-            {
-                text.Append(part.TextToken.Text);
-            }
-            else if (content is InterpolationSyntax { AlignmentClause: null, FormatClause: null } hole
-                && NameOf(hole.Expression) is { } name
-                && !details.Exists(detail => detail.Name == name))
-            {
-                details.Add((name, hole.Expression));
-                text.Append('{').Append(name).Append('}');
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         template = SyntaxFactory.LiteralExpression(
@@ -171,6 +173,29 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
             SyntaxFactory.Literal("\"" + text.ToString() + "\"", text.ToString()));
 
         return details.Count > 0;
+    }
+
+    // Appends the text of a part, or the placeholder of a hole, and adds the hole to the details; false when the hole cannot be a detail.
+    private static bool TryAppend(InterpolatedStringContentSyntax content, StringBuilder text, List<(string Name, ExpressionSyntax Value)> details)
+    {
+        if (content is InterpolatedStringTextSyntax part)
+        {
+            text.Append(part.TextToken.Text);
+
+            return true;
+        }
+
+        if (content is InterpolationSyntax { AlignmentClause: null, FormatClause: null } hole
+            && NameOf(hole.Expression) is { } name
+            && !details.Exists(detail => detail.Name == name))
+        {
+            details.Add((name, hole.Expression));
+            text.Append('{').Append(name).Append('}');
+
+            return true;
+        }
+
+        return false;
     }
 
     private static string? NameOf(ExpressionSyntax expression) => expression switch

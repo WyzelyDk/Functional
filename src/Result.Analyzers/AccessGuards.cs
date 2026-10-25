@@ -61,12 +61,19 @@ internal static class AccessGuards
             => Implies(conditional.Condition, receiver, needsFailure, whenTrue: true),
         ConditionalExpressionSyntax conditional when child == conditional.WhenFalse
             => Implies(conditional.Condition, receiver, needsFailure, whenTrue: false),
-        BinaryExpressionSyntax binary when binary.IsKind(SyntaxKind.LogicalAndExpression) && child == binary.Right
-            => Implies(binary.Left, receiver, needsFailure, whenTrue: true),
-        BinaryExpressionSyntax binary when binary.IsKind(SyntaxKind.LogicalOrExpression) && child == binary.Right
-            => Implies(binary.Left, receiver, needsFailure, whenTrue: false),
+        BinaryExpressionSyntax binary => GuardedByShortCircuit(binary, child, receiver, needsFailure),
         _ => false,
     };
+
+    // `check && a` runs a when the check is true, `check || a` runs a when the check is false.
+    private static bool GuardedByShortCircuit(BinaryExpressionSyntax binary, SyntaxNode child, string receiver, bool needsFailure)
+    {
+        var isAnd = binary.IsKind(SyntaxKind.LogicalAndExpression);
+
+        return (isAnd || binary.IsKind(SyntaxKind.LogicalOrExpression))
+            && child == binary.Right
+            && Implies(binary.Left, receiver, needsFailure, whenTrue: isAnd);
+    }
 
     // `if (check) { return; }` followed by the call: when execution gets here, the condition was false.
     private static bool GuardedByEarlierExit(SyntaxNode parent, SyntaxNode child, string receiver, bool needsFailure) =>
@@ -92,16 +99,23 @@ internal static class AccessGuards
             => Implies(parenthesized.Expression, receiver, needsFailure, whenTrue),
         PrefixUnaryExpressionSyntax negation when negation.IsKind(SyntaxKind.LogicalNotExpression)
             => Implies(negation.Operand, receiver, needsFailure, !whenTrue),
-        BinaryExpressionSyntax conjunction when conjunction.IsKind(SyntaxKind.LogicalAndExpression)
-            => whenTrue && (Implies(conjunction.Left, receiver, needsFailure, true) || Implies(conjunction.Right, receiver, needsFailure, true)),
-        BinaryExpressionSyntax disjunction when disjunction.IsKind(SyntaxKind.LogicalOrExpression)
-            => !whenTrue && (Implies(disjunction.Left, receiver, needsFailure, false) || Implies(disjunction.Right, receiver, needsFailure, false)),
+        BinaryExpressionSyntax binary => ImpliesByOperands(binary, receiver, needsFailure, whenTrue),
         MemberAccessExpressionSyntax member
             => Proves(member.Expression, member.Name.Identifier.Text, receiver, needsFailure, whenTrue),
         InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax member }
             => Proves(member.Expression, member.Name.Identifier.Text, receiver, needsFailure, whenTrue),
         _ => false,
     };
+
+    // `a && b` proves something when it is true and one operand proves it; `a || b` when it is false and one operand proves it.
+    private static bool ImpliesByOperands(BinaryExpressionSyntax binary, string receiver, bool needsFailure, bool whenTrue)
+    {
+        var isAnd = binary.IsKind(SyntaxKind.LogicalAndExpression);
+
+        return (isAnd || binary.IsKind(SyntaxKind.LogicalOrExpression))
+            && whenTrue == isAnd
+            && (Implies(binary.Left, receiver, needsFailure, whenTrue) || Implies(binary.Right, receiver, needsFailure, whenTrue));
+    }
 
     private static bool Proves(ExpressionSyntax subject, string name, string receiver, bool needsFailure, bool whenTrue)
     {

@@ -32,31 +32,37 @@ public sealed partial class Error
 
         while (position < template.Length)
         {
-            var current = template[position];
-
-            if (current == '{' && position + 1 < template.Length && template[position + 1] == '{')
-            {
-                builder.Append('{');
-                position += 2;
-            }
-            else if (current == '}' && position + 1 < template.Length && template[position + 1] == '}')
-            {
-                builder.Append('}');
-                position += 2;
-            }
-            else if (current == '{')
-            {
-                position = AppendPlaceholder(builder, template, position, details, redact);
-            }
-            else
-            {
-                builder.Append(current);
-                position++;
-            }
+            position = AppendNext(builder, template, position, details, redact);
         }
 
         return builder.ToString();
     }
+
+    private static int AppendNext(StringBuilder builder, string template, int position, IReadOnlyList<ErrorDetail> details, bool redact)
+    {
+        var current = template[position];
+
+        if (IsEscapedBrace(template, position))
+        {
+            builder.Append(current);
+
+            return position + 2;
+        }
+
+        if (current == '{')
+        {
+            return AppendPlaceholder(builder, template, position, details, redact);
+        }
+
+        builder.Append(current);
+
+        return position + 1;
+    }
+
+    private static bool IsEscapedBrace(string template, int position) =>
+        (template[position] == '{' || template[position] == '}')
+        && position + 1 < template.Length
+        && template[position + 1] == template[position];
 
     private static int AppendPlaceholder(StringBuilder builder, string template, int start, IReadOnlyList<ErrorDetail> details, bool redact)
     {

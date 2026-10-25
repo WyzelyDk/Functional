@@ -105,10 +105,7 @@ internal static partial class LineWrapper
     // `if (a && b && c)`: one operand per line, the operator first.
     private static List<string>? BreakCondition(string text)
     {
-        var isCondition = text.StartsWith("if (", StringComparison.Ordinal)
-            || text.StartsWith("else if (", StringComparison.Ordinal)
-            || text.StartsWith("while (", StringComparison.Ordinal);
-        var group = isCondition ? FindGroups(text).FirstOrDefault() : default;
+        var group = IsConditionStatement(text) ? FindGroups(text).FirstOrDefault() : default;
 
         if (group == default)
         {
@@ -133,6 +130,11 @@ internal static partial class LineWrapper
 
         return lines;
     }
+
+    private static bool IsConditionStatement(string text) =>
+        text.StartsWith("if (", StringComparison.Ordinal)
+        || text.StartsWith("else if (", StringComparison.Ordinal)
+        || text.StartsWith("while (", StringComparison.Ordinal);
 
     // `Call(first, second)`: one argument per line, wrapped again when an argument is still too wide.
     private static List<string>? BreakArguments(string text, int indent, int maxWidth, int docWidth)
@@ -192,25 +194,33 @@ internal static partial class LineWrapper
 
         foreach (var (index, character) in Significant(text, 0, text.Length))
         {
-            if (character is '(' or '[' or '{')
-            {
-                open = character == '(' && depth == 0 ? index : open;
-                depth++;
-            }
-            else if (character is ')' or ']' or '}' && depth > 0)
-            {
-                depth--;
+            var delta = BracketDelta(character);
 
-                if (depth == 0 && character == ')' && open >= 0)
-                {
-                    groups.Add((open, index));
-                    open = -1;
-                }
+            if (delta > 0)
+            {
+                open = IsOutermostOpeningParenthesis(character, depth) ? index : open;
             }
+            else if (delta < 0 && depth == 1 && character == ')' && open >= 0)
+            {
+                groups.Add((open, index));
+                open = -1;
+            }
+
+            depth = Math.Max(0, depth + delta);
         }
 
         return groups;
     }
+
+    private static bool IsOutermostOpeningParenthesis(char character, int depth) => character == '(' && depth == 0;
+
+    // 1 for an opening bracket, -1 for a closing bracket, 0 for any other character.
+    private static int BracketDelta(char character) => character switch
+    {
+        '(' or '[' or '{' => 1,
+        ')' or ']' or '}' => -1,
+        _ => 0,
+    };
 
     // The positions of the spaces in front of `&&` and `||` that belong to the outermost level of the text between the brackets.
     private static List<int> LogicalOperators(string text, int start, int end)
@@ -220,15 +230,10 @@ internal static partial class LineWrapper
 
         foreach (var (index, character) in Significant(text, start, end))
         {
-            if (character is '(' or '[' or '{')
-            {
-                depth++;
-            }
-            else if (character is ')' or ']' or '}')
-            {
-                depth--;
-            }
-            else if (character == ' ' && depth == 0 && index + 3 < end && IsLogicalOperator(text.AsSpan(index + 1, 3)))
+            var delta = BracketDelta(character);
+            depth += delta;
+
+            if (delta == 0 && IsOperatorCut(text, index, character, depth, end))
             {
                 cuts.Add(index);
             }
@@ -236,6 +241,9 @@ internal static partial class LineWrapper
 
         return cuts;
     }
+
+    private static bool IsOperatorCut(string text, int index, char character, int depth, int end) =>
+        character == ' ' && depth == 0 && index + 3 < end && IsLogicalOperator(text.AsSpan(index + 1, 3));
 
     private static bool IsLogicalOperator(ReadOnlySpan<char> text) => text is "&& " or "|| ";
 
@@ -249,23 +257,17 @@ internal static partial class LineWrapper
 
         foreach (var (index, character) in Significant(text, start, end))
         {
-            if (character is '(' or '[' or '{')
+            var delta = BracketDelta(character);
+            depth += delta;
+
+            if (delta != 0)
             {
-                depth++;
+                continue;
             }
-            else if (character is ')' or ']' or '}')
-            {
-                depth--;
-            }
-            else if (character == '<' && IsTypeArgumentStart(text, index, end))
-            {
-                angle++;
-            }
-            else if (character == '>' && angle > 0 && text[index - 1] != '=')
-            {
-                angle--;
-            }
-            else if (character == ',' && depth == 0 && angle == 0)
+
+            angle += AngleDelta(text, index, end, angle);
+
+            if (character == ',' && depth == 0 && angle == 0)
             {
                 arguments.Add(text[from..index]);
                 from = index + 1;
@@ -276,6 +278,14 @@ internal static partial class LineWrapper
 
         return arguments;
     }
+
+    // 1 for the `<` that opens the type arguments of a generic type, -1 for the `>` that closes them (not the `>` of `=>`), 0 otherwise.
+    private static int AngleDelta(string text, int index, int end, int angle) => text[index] switch
+    {
+        '<' when IsTypeArgumentStart(text, index, end) => 1,
+        '>' when angle > 0 && text[index - 1] != '=' => -1,
+        _ => 0,
+    };
 
     private static bool IsTypeArgumentStart(string text, int index, int end) =>
         index > 0

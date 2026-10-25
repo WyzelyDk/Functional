@@ -32,11 +32,19 @@ public sealed class ResultMessageAnalyzer : DiagnosticAnalyzer
 
         foreach (var argument in invocation.Arguments)
         {
-            if (argument.Parameter is { Name: "message" or "context", Type.SpecialType: SpecialType.System_String }
-                && OperationHelpers.Unwrap(argument.Value) is IInterpolatedStringOperation { ConstantValue.HasValue: false } interpolated)
+            if (TryGetInterpolatedMessage(argument, out var interpolated))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rules.InterpolatedMessage, interpolated.Syntax.GetLocation(), method.Name));
             }
         }
+    }
+
+    // A string parameter named message or context that is given an interpolated string with holes.
+    private static bool TryGetInterpolatedMessage(IArgumentOperation argument, out IInterpolatedStringOperation interpolated)
+    {
+        interpolated = (OperationHelpers.Unwrap(argument.Value) as IInterpolatedStringOperation)!;
+
+        return argument.Parameter is { Name: "message" or "context", Type.SpecialType: SpecialType.System_String }
+            && interpolated is { ConstantValue.HasValue: false };
     }
 }

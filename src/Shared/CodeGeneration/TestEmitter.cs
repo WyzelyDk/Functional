@@ -46,10 +46,7 @@ internal sealed class TestEmitter(GeneratorProfile profile)
 
     private void EmitTest(CodeWriter writer, OperationSpec operation, TestCaseSpec testCase, Variant variant, bool pending)
     {
-        var suffix = pending ? "_when_the_receiver_completes_later" : string.Empty;
-        var delegatePart = operation.Delegates.Length == 0 ? string.Empty : $"with_{variant.Delegate.Slug()}_delegate_";
-        var secondPart = operation.HasIndependentDelegate ? $"and_{variant.Second.Slug()}_second_delegate_" : string.Empty;
-        var name = $"{operation.Name}_on_{variant.Receiver.Slug()}_receiver_{delegatePart}{secondPart}{testCase.Name}{suffix}";
+        var name = TestName(operation, testCase, variant, pending);
         var isAsync = !variant.IsSync;
         var delegates = operation.Delegates
             .Select(spec => (Spec: spec, Test: testCase.Delegates.Single(test => test.DelegateName == spec.Name)))
@@ -75,25 +72,33 @@ internal sealed class TestEmitter(GeneratorProfile profile)
         var arguments = (testCase.LeadingArguments ?? [])
             .Concat(delegates.Select(pair => RenderLambda(pair.Test, variant.WrapperOf(pair.Spec))))
             .Concat(testCase.ExtraArguments);
-        var call = $"receiver.{operation.Name}({string.Join(", ", arguments)})";
-        var awaitPrefix = isAsync ? "await " : string.Empty;
 
-        if (testCase.RecordsException)
-        {
-            writer.Line(RecordException(operation, call, isAsync));
-        }
-        else if (operation.ReturnsVoid)
-        {
-            writer.Line($"{awaitPrefix}{call};");
-        }
-        else
-        {
-            writer.Line($"var outcome = {awaitPrefix}{call};");
-        }
-
+        writer.Line(CallStatement(operation, testCase, $"receiver.{operation.Name}({string.Join(", ", arguments)})", isAsync));
         writer.Line();
         writer.Lines(testCase.Asserts);
         writer.Close();
+    }
+
+    private static string TestName(OperationSpec operation, TestCaseSpec testCase, Variant variant, bool pending)
+    {
+        var suffix = pending ? "_when_the_receiver_completes_later" : string.Empty;
+        var delegatePart = operation.Delegates.Length == 0 ? string.Empty : $"with_{variant.Delegate.Slug()}_delegate_";
+        var secondPart = operation.HasIndependentDelegate ? $"and_{variant.Second.Slug()}_second_delegate_" : string.Empty;
+
+        return $"{operation.Name}_on_{variant.Receiver.Slug()}_receiver_{delegatePart}{secondPart}{testCase.Name}{suffix}";
+    }
+
+    // The statement that makes the call: recorded when an exception is expected, discarded for a void operation, otherwise kept in `outcome`.
+    private static string CallStatement(OperationSpec operation, TestCaseSpec testCase, string call, bool isAsync)
+    {
+        if (testCase.RecordsException)
+        {
+            return RecordException(operation, call, isAsync);
+        }
+
+        var awaitPrefix = isAsync ? "await " : string.Empty;
+
+        return operation.ReturnsVoid ? $"{awaitPrefix}{call};" : $"var outcome = {awaitPrefix}{call};";
     }
 
     // The call of an operation that is expected to throw, with the exception kept in `exception` (null when nothing was thrown).

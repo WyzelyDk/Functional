@@ -175,16 +175,7 @@ internal sealed class ConditionalFactoryEmitter(GeneratorProfile profile)
         return [.. lines];
     }
 
-    private static string TestName(string method, ConditionForm condition, ErrorForm error, string behavior)
-    {
-        var article = error.Slug.StartsWith('e') ? "an" : "a";
-
-        return $"{method}_with_a_{condition.Slug}_condition_and_{article}_{error.Slug}_{behavior}";
-    }
-
     private static string Escaped(string type) => type.Replace("<", "&lt;", StringComparison.Ordinal).Replace(">", "&gt;", StringComparison.Ordinal);
-
-    private static string Argument(string template, string value) => string.Format(System.Globalization.CultureInfo.InvariantCulture, template, value);
 
     private string EmitLibrary(string method, ConditionForm condition, ErrorForm error, bool stubs)
     {
@@ -291,56 +282,125 @@ internal sealed class ConditionalFactoryEmitter(GeneratorProfile profile)
         return writer.ToString();
     }
 
-    private static IEnumerable<(string Name, string[] Lines)> Tests(string method, ConditionForm condition, ErrorForm error)
+    private static List<(string Name, string[] Lines)> Tests(string method, ConditionForm condition, ErrorForm error)
     {
-        var succeedsWhen = method == SuccessIf ? "true" : "false";
-        var failsWhen = method == SuccessIf ? "false" : "true";
-        var holds = method == SuccessIf ? "holds" : "does_not_hold";
-        var fails = method == SuccessIf ? "does_not_hold" : "holds";
-        var awaited = condition.Returns == Wrapper.None ? string.Empty : "await ";
-        var counter = error.Lazy ? new[] { "var factoryCalls = 0;" } : [];
-        var failure = error.Lazy ? new[] { "Assert.Equal(1, factoryCalls);" } : [];
-        var noCalls = error.Lazy ? new[] { "Assert.Equal(0, factoryCalls);" } : [];
-        var failureAssert = error.Type is ErrorType or ErrorFactoryType
-            ? "Assert.Same(error, outcome.GetError());"
-            : "Assert.Equal(\"Nope.\", outcome.GetError().Message);";
-
-        string[] Run(string conditionExpression, params string[] asserts) =>
-        [
-            .. counter,
-            $"var outcome = {awaited}Result.{method}({conditionExpression}, {error.Test});",
-            string.Empty,
-            .. asserts,
-        ];
-
-        yield return (
-            TestName(method, condition, error, $"returns_a_success_when_the_condition_{holds}"),
-            Run(Argument(condition.Test, succeedsWhen), ["Assert.True(outcome.IsSuccess);", .. noCalls]));
-
-        yield return (
-            TestName(method, condition, error, $"returns_a_failure_when_the_condition_{fails}"),
-            Run(Argument(condition.Test, failsWhen), [failureAssert, .. failure]));
+        var cases = new TestCases(method, condition, error);
+        var tests = new List<(string Name, string[] Lines)> { cases.Success(), cases.Failure() };
 
         if (condition.Type == "Task<bool>")
         {
-            yield return (
-                TestName(method, condition, error, $"returns_a_failure_when_the_condition_{fails}_and_completes_later"),
-                Run($"Pending.Of({failsWhen})", [failureAssert, .. failure]));
+            tests.Add(cases.PendingFailure());
         }
 
-        var nullError = $"var exception = Record.Exception(() => {{ _ = Result.{method}({Argument(condition.Test, succeedsWhen)}, {error.NullArgument}); }});";
-
-        yield return (
-            TestName(method, condition, error, $"throws_when_the_{error.Parameter}_is_null"),
-            [nullError, string.Empty, $"Assert.Equal(\"{error.Parameter}\", Assert.IsType<ArgumentNullException>(exception).ParamName);"]);
+        tests.Add(cases.NullError());
 
         if (condition.Guarded)
         {
-            var nullCondition = $"var exception = Record.Exception(() => {{ _ = Result.{method}(({condition.Type})null!, {error.Test}); }});";
+            tests.Add(cases.NullCondition());
+        }
 
-            yield return (
-                TestName(method, condition, error, "throws_when_the_condition_is_null"),
-                [.. counter, nullCondition, string.Empty, "Assert.Equal(\"condition\", Assert.IsType<ArgumentNullException>(exception).ParamName);"]);
+        return tests;
+    }
+
+    /// <summary>The test cases for one combination of method, condition and error.</summary>
+    private sealed class TestCases
+    {
+        private readonly string _method;
+        private readonly ConditionForm _condition;
+        private readonly ErrorForm _error;
+        private readonly bool _isSuccessIf;
+        private readonly string[] _counter;
+        private readonly string[] _failure;
+        private readonly string[] _noCalls;
+        private readonly string _failureAssert;
+
+        /// <summary>Initializes a new instance of the <see cref="TestCases"/> class.</summary>
+        /// <param name="method">The name of the factory method.</param>
+        /// <param name="condition">How the condition is given.</param>
+        /// <param name="error">How the error is given.</param>
+        internal TestCases(string method, ConditionForm condition, ErrorForm error)
+        {
+            _method = method;
+            _condition = condition;
+            _error = error;
+            _isSuccessIf = method == SuccessIf;
+            _counter = error.Lazy ? ["var factoryCalls = 0;"] : [];
+            _failure = error.Lazy ? ["Assert.Equal(1, factoryCalls);"] : [];
+            _noCalls = error.Lazy ? ["Assert.Equal(0, factoryCalls);"] : [];
+            _failureAssert = error.Type is ErrorType or ErrorFactoryType
+                ? "Assert.Same(error, outcome.GetError());"
+                : "Assert.Equal(\"Nope.\", outcome.GetError().Message);";
+        }
+
+        private string SucceedsWhen => _isSuccessIf ? "true" : "false";
+
+        private string FailsWhen => _isSuccessIf ? "false" : "true";
+
+        private string Fails => _isSuccessIf ? "does_not_hold" : "holds";
+
+        /// <summary>Creates the test for a condition that gives a success.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) Success()
+        {
+            var holds = _isSuccessIf ? "holds" : "does_not_hold";
+
+            return (
+                Name($"returns_a_success_when_the_condition_{holds}"),
+                Run(Argument(SucceedsWhen), ["Assert.True(outcome.IsSuccess);", .. _noCalls]));
+        }
+
+        /// <summary>Creates the test for a condition that gives a failure.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) Failure() =>
+            (Name($"returns_a_failure_when_the_condition_{Fails}"), Run(Argument(FailsWhen), [_failureAssert, .. _failure]));
+
+        /// <summary>Creates the test for a condition that gives a failure after it completes later.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) PendingFailure() =>
+            (Name($"returns_a_failure_when_the_condition_{Fails}_and_completes_later"), Run($"Pending.Of({FailsWhen})", [_failureAssert, .. _failure]));
+
+        /// <summary>Creates the test for an error argument that is null.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) NullError()
+        {
+            var nullError = $"var exception = Record.Exception(() => {{ _ = Result.{_method}({Argument(SucceedsWhen)}, {_error.NullArgument}); }});";
+
+            return (
+                Name($"throws_when_the_{_error.Parameter}_is_null"),
+                [nullError, string.Empty, $"Assert.Equal(\"{_error.Parameter}\", Assert.IsType<ArgumentNullException>(exception).ParamName);"]);
+        }
+
+        /// <summary>Creates the test for a condition argument that is null.</summary>
+        /// <returns>The name and the lines of the test.</returns>
+        internal (string Name, string[] Lines) NullCondition()
+        {
+            var nullCondition = $"var exception = Record.Exception(() => {{ _ = Result.{_method}(({_condition.Type})null!, {_error.Test}); }});";
+
+            return (
+                Name("throws_when_the_condition_is_null"),
+                [.. _counter, nullCondition, string.Empty, "Assert.Equal(\"condition\", Assert.IsType<ArgumentNullException>(exception).ParamName);"]);
+        }
+
+        private string Name(string behavior)
+        {
+            var article = _error.Slug.StartsWith('e') ? "an" : "a";
+
+            return $"{_method}_with_a_{_condition.Slug}_condition_and_{article}_{_error.Slug}_{behavior}";
+        }
+
+        private string Argument(string value) => string.Format(System.Globalization.CultureInfo.InvariantCulture, _condition.Test, value);
+
+        private string[] Run(string conditionExpression, params string[] asserts)
+        {
+            var awaited = _condition.Returns == Wrapper.None ? string.Empty : "await ";
+
+            return
+            [
+                .. _counter,
+                $"var outcome = {awaited}Result.{_method}({conditionExpression}, {_error.Test});",
+                string.Empty,
+                .. asserts,
+            ];
         }
     }
 
