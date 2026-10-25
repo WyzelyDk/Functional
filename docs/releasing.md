@@ -73,6 +73,11 @@ After a push to `main`, `build-and-test` builds the documentation site next to t
 `pages` job deploys them. Nothing is built twice. On a pull request nothing is published, but the `docs` job builds the site with `--strict`,
 so a broken anchor or a page missing from the navigation fails the pull request, not the deployment after the merge.
 
+- **The coverage report counts a source file once.** The files under `src/Shared` are compiled into several assemblies, and each test run covers only the copy
+  that it exercises, so the report would show the same class several times, each partly covered. `.github/scripts/Merge-SharedCoverage.ps1` moves those classes
+  into one package before ReportGenerator merges the reports (tested by `Merge-SharedCoverage.Tests.ps1`), and a line or a branch counts as covered when any run
+  covered it. The classes that the regular expression source generator writes are filtered out; they are not our code.
+
 - **The pages stay plain Markdown for GitHub.** A link from a page to a file outside `docs/` (a package README, a sample) is rewritten to the
   file on GitHub by `.github/mkdocs/hooks.py` when the site is built; the source is not changed. A new page must be added to `nav` in
   `mkdocs.yml`, or the strict build fails.

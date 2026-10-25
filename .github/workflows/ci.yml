@@ -120,6 +120,11 @@ jobs:
         shell: pwsh
         run: ./.github/scripts/Test-CodeChanged.Tests.ps1
 
+      # The coverage report counts a shared source file once, however many assemblies compile it, so the script that merges them is tested.
+      - name: Test the merge of the shared coverage
+        shell: pwsh
+        run: ./.github/scripts/Merge-SharedCoverage.Tests.ps1
+
       - name: Lint the workflows
         run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
 
@@ -175,8 +180,15 @@ jobs:
             unzip -l "$package" | awk '{print $4}' | grep -E '\.dll$|README\.md$' || true
           done
 
+      # The files under src/Shared are compiled into several assemblies, and each test run covers only the copy that it exercises. They are moved
+      # into one package first, so that ReportGenerator merges the copies and a file counts as covered when any run covered it.
+      - name: Merge the coverage of the shared source
+        shell: pwsh
+        run: ./.github/scripts/Merge-SharedCoverage.ps1 -Path .
+
       # Each test project and target framework writes TestResults/<guid>.cobertura.xml; ReportGenerator merges them. The summary needs
-      # no account, no token and no permissions, so it also works for pull requests from forks.
+      # no account, no token and no permissions, so it also works for pull requests from forks. The classes that the regular expression
+      # source generator writes are not our code and not measured.
       - name: Merge the coverage reports
         uses: danielpalme/ReportGenerator-GitHub-Action@d3ebf1f760f7d8ab92cc44d9bcfee7ad73722a31 # 5.5.11
         with:
@@ -184,6 +196,7 @@ jobs:
           targetdir: ${{ runner.temp }}/coveragereport
           reporttypes: 'Html;Badges;MarkdownSummaryGithub'
           assemblyfilters: '-*Tests*;-*Benchmarks*'
+          classfilters: '-System.Text.RegularExpressions.Generated*'
 
       - name: Show the coverage in the run summary
         run: cat "${{ runner.temp }}/coveragereport/SummaryGithub.md" >> "$GITHUB_STEP_SUMMARY"

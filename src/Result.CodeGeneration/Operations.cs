@@ -650,6 +650,7 @@ internal static partial class Operations
     {
         Stem = "MapErrorFromResult",
         KeepsValue = true,
+        StateChange = StateChange.ToFailure,
         Name = "MapError",
         ReceiverType = ResultType,
         ReceiverTestType = ResultType,
@@ -984,6 +985,7 @@ internal static partial class Operations
     {
         Stem = withMessage ? "EnsureWithMessageFromResult" : "EnsureFromResult",
         KeepsValue = true,
+        StateChange = StateChange.ToFailure,
         Name = EnsureOperationName,
         ReceiverType = ResultType,
         ReceiverTestType = ResultType,
@@ -1240,6 +1242,12 @@ internal static partial class Operations
                 FailureWithError,
                 [Returns(CompensateName, ["e"], SuccessWithoutValue, ResultType)],
                 [AssertTrueOutcomeIsSuccess, "Assert.Equal(1, compensateCalls);"]),
+            Case(
+                "returns_the_failure_of_the_delegate_when_the_fallback_failed",
+                FailureWithError,
+                [Returns(CompensateName, ["e"], "Result.Failure(other)", ResultType)],
+                [AssertSameOtherOutcomeGetError, "Assert.Equal(1, compensateCalls);"],
+                setup: [OtherErrorSetup]),
             Case(
                 ReceiverSucceeded,
                 SuccessWithoutValue,

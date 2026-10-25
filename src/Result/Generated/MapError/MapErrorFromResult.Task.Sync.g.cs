@@ -34,7 +34,7 @@ public static partial class ResultExtensions
         if (result.Status == TaskStatus.RanToCompletion)
         {
             var completed = MapError(result.Result, mapError);
-            return completed.HasSameStateAs(result.Result) ? result : completed.IsSuccess ? ResultTasks.Success : Task.FromResult(completed);
+            return completed.HasSameStateAs(result.Result) ? result : Task.FromResult(completed);
         }
 
         return Core(result, mapError);

@@ -25,6 +25,7 @@ public sealed class EmitterOptionTests
     [InlineData(StateChange.ToNone, true, "MaybeTasks<T>.None")]
     [InlineData(StateChange.ToNone, false, "Task.FromResult(completed)")]
     [InlineData(StateChange.FromNone, true, "Task.FromResult(completed)")]
+    [InlineData(StateChange.ToFailure, true, "Task.FromResult(completed)")]
     [InlineData(StateChange.Any, true, "completed.IsNone ? MaybeTasks<T>.None : Task.FromResult(completed)")]
     [InlineData(StateChange.Any, false, "Task.FromResult(completed)")]
     internal void A_task_receiver_hands_back_the_task_for_the_state_that_the_operation_can_produce(StateChange stateChange, bool cachesNone, string expected)

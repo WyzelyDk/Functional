@@ -189,6 +189,201 @@ public sealed class CompensateFromResultMatrixTests
     }
 
     [Fact]
+    internal void Compensate_on_sync_receiver_with_sync_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Result.Failure(error);
+        var outcome = receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_sync_receiver_with_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Result.Failure(error);
+        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_sync_receiver_with_value_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Result.Failure(error);
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_task_receiver_with_sync_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Task.FromResult(Result.Failure(error));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_task_receiver_with_sync_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Pending.Of(Result.Failure(error));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_task_receiver_with_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Task.FromResult(Result.Failure(error));
+        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_task_receiver_with_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Pending.Of(Result.Failure(error));
+        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_task_receiver_with_value_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Task.FromResult(Result.Failure(error));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_task_receiver_with_value_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = Pending.Of(Result.Failure(error));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_value_task_receiver_with_sync_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = new ValueTask<Result>(Result.Failure(error));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_value_task_receiver_with_sync_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_value_task_receiver_with_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = new ValueTask<Result>(Result.Failure(error));
+        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_value_task_receiver_with_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
+        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_value_task_receiver_with_value_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = new ValueTask<Result>(Result.Failure(error));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
+    internal async Task Compensate_on_value_task_receiver_with_value_task_delegate_returns_the_failure_of_the_delegate_when_the_fallback_failed_when_the_receiver_completes_later()
+    {
+        var error = Error.Create("Boom.");
+        var other = Error.Create("Other.");
+        var compensateCalls = 0;
+        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
+        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+
+        Assert.Same(other, outcome.GetError());
+        Assert.Equal(1, compensateCalls);
+    }
+
+    [Fact]
     internal void Compensate_on_sync_receiver_with_sync_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");

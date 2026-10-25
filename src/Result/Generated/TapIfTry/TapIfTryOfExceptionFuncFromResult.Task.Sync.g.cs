@@ -48,7 +48,7 @@ public static partial class ResultExtensions
         if (result.Status == TaskStatus.RanToCompletion)
         {
             var completed = TapIfTry(result.Result, condition, tap, onException, when);
-            return completed.HasSameStateAs(result.Result) ? result : completed.IsSuccess ? ResultTasks.Success : Task.FromResult(completed);
+            return completed.HasSameStateAs(result.Result) ? result : Task.FromResult(completed);
         }
 
         return Core(result, condition, tap, onException, when);
