@@ -56,8 +56,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_task_receiver_with_sync_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal(5, outcome.GetValue());
         Assert.Equal(1, alternativeCalls);
@@ -78,8 +82,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_task_receiver_with_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal(5, outcome.GetValue());
         Assert.Equal(1, alternativeCalls);
@@ -100,8 +108,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_task_receiver_with_value_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal(5, outcome.GetValue());
         Assert.Equal(1, alternativeCalls);
@@ -122,8 +134,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_value_task_receiver_with_sync_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal(5, outcome.GetValue());
         Assert.Equal(1, alternativeCalls);
@@ -144,8 +160,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_value_task_receiver_with_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal(5, outcome.GetValue());
         Assert.Equal(1, alternativeCalls);
@@ -166,8 +186,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_value_task_receiver_with_value_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal(5, outcome.GetValue());
         Assert.Equal(1, alternativeCalls);
@@ -221,8 +245,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_task_receiver_with_sync_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, alternativeCalls);
@@ -243,8 +271,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_task_receiver_with_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, alternativeCalls);
@@ -265,8 +297,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_task_receiver_with_value_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, alternativeCalls);
@@ -287,8 +323,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_value_task_receiver_with_sync_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Or(() => { alternativeCalls++; return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, alternativeCalls);
@@ -309,8 +349,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_value_task_receiver_with_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Or(async () => { alternativeCalls++; await Task.Yield(); return Maybe.Some(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, alternativeCalls);
@@ -331,8 +375,12 @@ public sealed class OrMatrixTests
     internal async Task Or_on_value_task_receiver_with_value_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var alternativeCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Or(() => { alternativeCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(5)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, alternativeCalls);

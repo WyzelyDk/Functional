@@ -67,17 +67,48 @@ internal sealed class TestEmitter(GeneratorProfile profile)
             writer.Line($"var {test.DelegateName}Calls = 0;");
         }
 
-        writer.Line($"var receiver = {WrapReceiver(testCase.Receiver, operation.ReceiverTestType, variant.Receiver, pending)};");
+        // A receiver that completes later is a task that the test completes itself, after the call has returned: the call has then awaited it,
+        // so the path of a pending receiver is the one that runs. (A task that completes on its own after a yield may be done before the call
+        // looks at it, depending on how fast the thread that runs the call is; that made the coverage of this path vary from run to run.)
+        // A test that records an exception wraps the call in a lambda, and keeps the yield.
+        var gated = pending && !testCase.RecordsException;
+
+        writer.Lines(ReceiverLines(testCase.Receiver, operation.ReceiverTestType, variant.Receiver, pending, gated));
 
         var arguments = (testCase.LeadingArguments ?? [])
             .Concat(delegates.Select(pair => RenderLambda(pair.Test, variant.WrapperOf(pair.Spec))))
             .Concat(testCase.ExtraArguments);
+        var call = $"receiver.{operation.Name}({string.Join(", ", arguments)})";
 
-        writer.Line(CallStatement(operation, testCase, $"receiver.{operation.Name}({string.Join(", ", arguments)})", isAsync));
+        writer.Lines(gated
+            ? GatedCall(operation, testCase.Receiver, call)
+            : [CallStatement(operation, testCase, call, isAsync)]);
         writer.Line();
         writer.Lines(testCase.Asserts);
         writer.Close();
     }
+
+    // The lines that create the receiver; for a gated one, the source that the test completes later.
+    private static string[] ReceiverLines(string expression, string receiverType, Wrapper receiver, bool pending, bool gated)
+    {
+        if (!gated)
+        {
+            return [$"var receiver = {WrapReceiver(expression, receiverType, receiver, pending)};"];
+        }
+
+        var task = receiver == Wrapper.Task ? "source.Task" : $"new ValueTask<{receiverType}>(source.Task)";
+
+        return [$"var source = new TaskCompletionSource<{receiverType}>();", $"var receiver = {task};"];
+    }
+
+    // Starts the call without awaiting it, checks that it is still pending, completes the receiver and then awaits the call.
+    private static string[] GatedCall(OperationSpec operation, string receiverValue, string call) =>
+    [
+        $"var call = {call};",
+        "Assert.False(call.IsCompleted);",
+        $"source.SetResult({receiverValue});",
+        operation.ReturnsVoid ? "await call;" : "var outcome = await call;",
+    ];
 
     private static string TestName(OperationSpec operation, TestCaseSpec testCase, Variant variant, bool pending)
     {

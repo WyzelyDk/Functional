@@ -70,8 +70,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(7, outcome.GetValue());
@@ -98,8 +102,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(7, outcome.GetValue());
@@ -126,8 +134,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(7, outcome.GetValue());
@@ -154,8 +166,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(7, outcome.GetValue());
@@ -182,8 +198,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(7, outcome.GetValue());
@@ -210,8 +230,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(7, outcome.GetValue());
@@ -276,8 +300,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -302,8 +330,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -328,8 +360,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -354,8 +390,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(() => { mapCalls++; return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -380,8 +420,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return 7; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -406,8 +450,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(7); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -473,8 +521,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapTry(() => { mapCalls++; return Boom.Throw<int>(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(() => { mapCalls++; return Boom.Throw<int>(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, mapCalls);
@@ -501,10 +553,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapTry(
-            async () => { mapCalls++; await Task.Yield(); return Boom.Throw<int>(); },
-            (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return Boom.Throw<int>(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, mapCalls);
@@ -529,8 +583,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(Boom.Throw<int>()); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(Boom.Throw<int>()); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, mapCalls);
@@ -555,8 +613,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return Boom.Throw<int>(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(() => { mapCalls++; return Boom.Throw<int>(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, mapCalls);
@@ -583,10 +645,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapTry(
-            async () => { mapCalls++; await Task.Yield(); return Boom.Throw<int>(); },
-            (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(async () => { mapCalls++; await Task.Yield(); return Boom.Throw<int>(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, mapCalls);
@@ -611,8 +675,12 @@ public sealed class MapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var mapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(Boom.Throw<int>()); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapTry(() => { mapCalls++; return new ValueTask<int>(Boom.Throw<int>()); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, mapCalls);

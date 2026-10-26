@@ -39,8 +39,12 @@ public sealed class EnsureNotNullClassFactoryFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var factoryCalls = 0;
-        var receiver = Pending.Of(Result.Success<string?>("a"));
-        var outcome = await receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>("a"));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal("a", outcome.GetValue());
@@ -65,8 +69,12 @@ public sealed class EnsureNotNullClassFactoryFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var factoryCalls = 0;
-        var receiver = new ValueTask<Result<string?>>(Pending.Of(Result.Success<string?>("a")));
-        var outcome = await receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = new ValueTask<Result<string?>>(source.Task);
+        var call = receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>("a"));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal("a", outcome.GetValue());
@@ -102,8 +110,12 @@ public sealed class EnsureNotNullClassFactoryFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var factoryCalls = 0;
-        var receiver = Pending.Of(Result.Success<string?>(null));
-        var outcome = await receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>(null));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, factoryCalls);
@@ -126,8 +138,12 @@ public sealed class EnsureNotNullClassFactoryFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var factoryCalls = 0;
-        var receiver = new ValueTask<Result<string?>>(Pending.Of(Result.Success<string?>(null)));
-        var outcome = await receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = new ValueTask<Result<string?>>(source.Task);
+        var call = receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>(null));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, factoryCalls);
@@ -165,8 +181,12 @@ public sealed class EnsureNotNullClassFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var factoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<string?>(other));
-        var outcome = await receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<string?>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, factoryCalls);
@@ -191,8 +211,12 @@ public sealed class EnsureNotNullClassFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var factoryCalls = 0;
-        var receiver = new ValueTask<Result<string?>>(Pending.Of(Result.Failure<string?>(other)));
-        var outcome = await receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = new ValueTask<Result<string?>>(source.Task);
+        var call = receiver.EnsureNotNull(() => { factoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<string?>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, factoryCalls);

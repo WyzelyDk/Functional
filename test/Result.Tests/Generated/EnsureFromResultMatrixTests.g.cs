@@ -61,8 +61,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, conditionCalls);
@@ -85,8 +89,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, conditionCalls);
@@ -109,8 +117,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, conditionCalls);
@@ -133,8 +145,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, conditionCalls);
@@ -157,8 +173,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, conditionCalls);
@@ -181,8 +201,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, conditionCalls);
@@ -241,8 +265,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return false; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { conditionCalls++; return false; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, conditionCalls);
@@ -265,8 +293,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return false; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return false; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, conditionCalls);
@@ -289,8 +321,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(false); }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(false); }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, conditionCalls);
@@ -313,8 +349,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return false; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(() => { conditionCalls++; return false; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, conditionCalls);
@@ -337,8 +377,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return false; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return false; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, conditionCalls);
@@ -361,8 +405,12 @@ public sealed class EnsureFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(false); }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(false); }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, conditionCalls);
@@ -426,8 +474,12 @@ public sealed class EnsureFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Failure(other));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, conditionCalls);
@@ -452,8 +504,12 @@ public sealed class EnsureFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Failure(other));
-        var outcome = await receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, conditionCalls);
@@ -478,8 +534,12 @@ public sealed class EnsureFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var conditionCalls = 0;
-        var receiver = Pending.Of(Result.Failure(other));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, conditionCalls);
@@ -504,8 +564,12 @@ public sealed class EnsureFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(other)));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(() => { conditionCalls++; return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, conditionCalls);
@@ -530,8 +594,12 @@ public sealed class EnsureFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(other)));
-        var outcome = await receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(async () => { conditionCalls++; await Task.Yield(); return true; }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, conditionCalls);
@@ -556,8 +624,12 @@ public sealed class EnsureFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var conditionCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(other)));
-        var outcome = await receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Ensure(() => { conditionCalls++; return new ValueTask<bool>(true); }, error);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, conditionCalls);

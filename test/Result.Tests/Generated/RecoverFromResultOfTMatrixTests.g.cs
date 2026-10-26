@@ -65,8 +65,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Recover(e => { recoverCalls++; return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(5, outcome.GetValue());
@@ -91,8 +95,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(5, outcome.GetValue());
@@ -117,8 +125,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(5, outcome.GetValue());
@@ -143,8 +155,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Recover(e => { recoverCalls++; return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(5, outcome.GetValue());
@@ -169,8 +185,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(5, outcome.GetValue());
@@ -195,8 +215,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(5, outcome.GetValue());
@@ -256,8 +280,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Recover(e => { recoverCalls++; return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, recoverCalls);
@@ -280,8 +308,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, recoverCalls);
@@ -304,8 +336,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, recoverCalls);
@@ -328,8 +364,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Recover(e => { recoverCalls++; return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, recoverCalls);
@@ -352,8 +392,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Recover(async e => { recoverCalls++; await Task.Yield(); return 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, recoverCalls);
@@ -376,8 +420,12 @@ public sealed class RecoverFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var recoverCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Recover(e => { recoverCalls++; return new ValueTask<int>(5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, recoverCalls);

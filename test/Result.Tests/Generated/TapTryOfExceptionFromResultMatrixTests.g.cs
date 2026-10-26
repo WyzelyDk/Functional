@@ -66,8 +66,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, tapCalls);
@@ -92,8 +96,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, tapCalls);
@@ -118,8 +126,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, tapCalls);
@@ -144,8 +156,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, tapCalls);
@@ -170,8 +186,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, tapCalls);
@@ -196,8 +216,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, tapCalls);
@@ -261,8 +285,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, tapCalls);
@@ -287,8 +315,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, tapCalls);
@@ -313,8 +345,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, tapCalls);
@@ -339,8 +375,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(() => { tapCalls++; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, tapCalls);
@@ -365,8 +405,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(async () => { tapCalls++; await Task.Yield(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, tapCalls);
@@ -391,8 +435,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(() => { tapCalls++; return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, tapCalls);
@@ -456,8 +504,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapTry(() => { tapCalls++; Boom.Throw(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(() => { tapCalls++; Boom.Throw(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, tapCalls);
@@ -482,8 +534,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapTry(async () => { tapCalls++; Boom.Throw(); await Task.Yield(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(async () => { tapCalls++; Boom.Throw(); await Task.Yield(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, tapCalls);
@@ -508,8 +564,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapTry(() => { tapCalls++; Boom.Throw(); return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapTry(() => { tapCalls++; Boom.Throw(); return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, tapCalls);
@@ -534,8 +594,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapTry(() => { tapCalls++; Boom.Throw(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(() => { tapCalls++; Boom.Throw(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, tapCalls);
@@ -560,8 +624,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapTry(async () => { tapCalls++; Boom.Throw(); await Task.Yield(); }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(async () => { tapCalls++; Boom.Throw(); await Task.Yield(); }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, tapCalls);
@@ -586,8 +654,12 @@ public sealed class TapTryOfExceptionFromResultMatrixTests
         var error = Error.Create("Boom.");
         var handled = Error.Create("Handled.");
         var tapCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapTry(() => { tapCalls++; Boom.Throw(); return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapTry(() => { tapCalls++; Boom.Throw(); return ValueTask.CompletedTask; }, (InvalidOperationException _) => handled);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(handled, outcome.GetError());
         Assert.Equal(1, tapCalls);

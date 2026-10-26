@@ -65,8 +65,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success((1, 2)));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal((1, 2, 10), outcome.GetValue());
@@ -91,8 +95,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success((1, 2)));
-        var outcome = await receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal((1, 2, 10), outcome.GetValue());
@@ -117,8 +125,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success((1, 2)));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal((1, 2, 10), outcome.GetValue());
@@ -143,8 +155,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Success((1, 2))));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal((1, 2, 10), outcome.GetValue());
@@ -169,8 +185,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Success((1, 2))));
-        var outcome = await receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal((1, 2, 10), outcome.GetValue());
@@ -195,8 +215,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Success((1, 2))));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal((1, 2, 10), outcome.GetValue());
@@ -256,8 +280,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success((1, 2)));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return Result.Failure<int>(error); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(t => { bindCalls++; return Result.Failure<int>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -280,8 +308,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success((1, 2)));
-        var outcome = await receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Failure<int>(error); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Failure<int>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -304,8 +336,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success((1, 2)));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Failure<int>(error)); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Failure<int>(error)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -328,8 +364,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Success((1, 2))));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return Result.Failure<int>(error); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(t => { bindCalls++; return Result.Failure<int>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -352,8 +392,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Success((1, 2))));
-        var outcome = await receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Failure<int>(error); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Failure<int>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -376,8 +420,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Success((1, 2))));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Failure<int>(error)); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Failure<int>(error)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success((1, 2)));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -436,8 +484,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure<(int, int)>(error));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<(int, int)>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -460,8 +512,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure<(int, int)>(error));
-        var outcome = await receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<(int, int)>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -484,8 +540,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure<(int, int)>(error));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = source.Task;
+        var call = receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<(int, int)>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -508,8 +568,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Failure<(int, int)>(error)));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(t => { bindCalls++; return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<(int, int)>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -532,8 +596,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Failure<(int, int)>(error)));
-        var outcome = await receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(async t => { bindCalls++; await Task.Yield(); return Result.Success(t.Item1 * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<(int, int)>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -556,8 +624,12 @@ public sealed class BindZipArity2FromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<(int, int)>>(Pending.Of(Result.Failure<(int, int)>(error)));
-        var outcome = await receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        var source = new TaskCompletionSource<Result<(int, int)>>();
+        var receiver = new ValueTask<Result<(int, int)>>(source.Task);
+        var call = receiver.BindZip(t => { bindCalls++; return new ValueTask<Result<int>>(Result.Success(t.Item1 * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<(int, int)>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);

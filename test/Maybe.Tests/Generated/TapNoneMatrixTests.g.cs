@@ -56,8 +56,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_task_receiver_with_sync_delegate_runs_the_delegate_and_returns_the_receiver_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.TapNone(() => { tapNoneCalls++; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, tapNoneCalls);
@@ -78,8 +82,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_task_receiver_with_task_delegate_runs_the_delegate_and_returns_the_receiver_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, tapNoneCalls);
@@ -100,8 +108,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_task_receiver_with_value_task_delegate_runs_the_delegate_and_returns_the_receiver_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, tapNoneCalls);
@@ -122,8 +134,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_value_task_receiver_with_sync_delegate_runs_the_delegate_and_returns_the_receiver_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.TapNone(() => { tapNoneCalls++; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, tapNoneCalls);
@@ -144,8 +160,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_value_task_receiver_with_task_delegate_runs_the_delegate_and_returns_the_receiver_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, tapNoneCalls);
@@ -166,8 +186,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_value_task_receiver_with_value_task_delegate_runs_the_delegate_and_returns_the_receiver_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, tapNoneCalls);
@@ -221,8 +245,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_task_receiver_with_sync_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.TapNone(() => { tapNoneCalls++; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, tapNoneCalls);
@@ -243,8 +271,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_task_receiver_with_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, tapNoneCalls);
@@ -265,8 +297,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_task_receiver_with_value_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, tapNoneCalls);
@@ -287,8 +323,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_value_task_receiver_with_sync_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.TapNone(() => { tapNoneCalls++; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, tapNoneCalls);
@@ -309,8 +349,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_value_task_receiver_with_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.TapNone(async () => { tapNoneCalls++; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, tapNoneCalls);
@@ -331,8 +375,12 @@ public sealed class TapNoneMatrixTests
     internal async Task TapNone_on_value_task_receiver_with_value_task_delegate_returns_the_receiver_without_running_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var tapNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.TapNone(() => { tapNoneCalls++; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(0, tapNoneCalls);

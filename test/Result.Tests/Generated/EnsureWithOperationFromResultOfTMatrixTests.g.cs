@@ -65,8 +65,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -91,8 +95,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -117,8 +125,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -143,8 +155,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -169,8 +185,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -195,8 +215,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -256,8 +280,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { validationCalls++; return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -280,8 +308,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -304,8 +336,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -328,8 +364,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(() => { validationCalls++; return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -352,8 +392,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -376,8 +420,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -436,8 +484,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -460,8 +512,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -484,8 +540,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -508,8 +568,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(() => { validationCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -532,8 +596,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(async () => { validationCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -556,8 +624,12 @@ public sealed class EnsureWithOperationFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(() => { validationCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);

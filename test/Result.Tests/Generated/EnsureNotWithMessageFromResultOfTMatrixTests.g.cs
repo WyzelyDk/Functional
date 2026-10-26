@@ -65,8 +65,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return x > 5; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(x => { predicateCalls++; return x > 5; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -91,8 +95,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 5; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 5; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -117,8 +125,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 5); }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 5); }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -143,8 +155,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return x > 5; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(x => { predicateCalls++; return x > 5; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -169,8 +185,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 5; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 5; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -195,8 +215,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 5); }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 5); }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -256,8 +280,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal("Too small.", outcome.GetError().Message);
         Assert.Equal(1, predicateCalls);
@@ -280,8 +308,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal("Too small.", outcome.GetError().Message);
         Assert.Equal(1, predicateCalls);
@@ -304,8 +336,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal("Too small.", outcome.GetError().Message);
         Assert.Equal(1, predicateCalls);
@@ -328,8 +364,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal("Too small.", outcome.GetError().Message);
         Assert.Equal(1, predicateCalls);
@@ -352,8 +392,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal("Too small.", outcome.GetError().Message);
         Assert.Equal(1, predicateCalls);
@@ -376,8 +420,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal("Too small.", outcome.GetError().Message);
         Assert.Equal(1, predicateCalls);
@@ -441,8 +489,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -467,8 +519,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -493,8 +549,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var predicateCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -519,8 +579,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(x => { predicateCalls++; return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -545,8 +609,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -571,8 +639,12 @@ public sealed class EnsureNotWithMessageFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var predicateCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureNot(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, "Too small.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);

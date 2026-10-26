@@ -69,8 +69,12 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal("some:2", outcome);
         Assert.Equal(1, onSomeCalls);
@@ -97,10 +101,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             async x => { onSomeCalls++; await Task.Yield(); return "some:" + x; },
             async () => { onNoneCalls++; await Task.Yield(); return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal("some:2", outcome);
         Assert.Equal(1, onSomeCalls);
@@ -127,10 +135,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             x => { onSomeCalls++; return new ValueTask<string>("some:" + x); },
             () => { onNoneCalls++; return new ValueTask<string>("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal("some:2", outcome);
         Assert.Equal(1, onSomeCalls);
@@ -155,8 +167,12 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal("some:2", outcome);
         Assert.Equal(1, onSomeCalls);
@@ -183,10 +199,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Match(
             async x => { onSomeCalls++; await Task.Yield(); return "some:" + x; },
             async () => { onNoneCalls++; await Task.Yield(); return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal("some:2", outcome);
         Assert.Equal(1, onSomeCalls);
@@ -213,10 +233,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Match(
             x => { onSomeCalls++; return new ValueTask<string>("some:" + x); },
             () => { onNoneCalls++; return new ValueTask<string>("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal("some:2", outcome);
         Assert.Equal(1, onSomeCalls);
@@ -284,8 +308,12 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal("none", outcome);
         Assert.Equal(0, onSomeCalls);
@@ -312,10 +340,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             async x => { onSomeCalls++; await Task.Yield(); return "some:" + x; },
             async () => { onNoneCalls++; await Task.Yield(); return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal("none", outcome);
         Assert.Equal(0, onSomeCalls);
@@ -342,10 +374,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             x => { onSomeCalls++; return new ValueTask<string>("some:" + x); },
             () => { onNoneCalls++; return new ValueTask<string>("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal("none", outcome);
         Assert.Equal(0, onSomeCalls);
@@ -370,8 +406,12 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Match(x => { onSomeCalls++; return "some:" + x; }, () => { onNoneCalls++; return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal("none", outcome);
         Assert.Equal(0, onSomeCalls);
@@ -398,10 +438,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Match(
             async x => { onSomeCalls++; await Task.Yield(); return "some:" + x; },
             async () => { onNoneCalls++; await Task.Yield(); return "none"; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal("none", outcome);
         Assert.Equal(0, onSomeCalls);
@@ -428,10 +472,14 @@ public sealed class MatchMatrixTests
     {
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Match(
             x => { onSomeCalls++; return new ValueTask<string>("some:" + x); },
             () => { onNoneCalls++; return new ValueTask<string>("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.Equal("none", outcome);
         Assert.Equal(0, onSomeCalls);

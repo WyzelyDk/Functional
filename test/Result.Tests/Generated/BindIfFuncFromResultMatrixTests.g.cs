@@ -79,8 +79,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -111,10 +115,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -145,10 +151,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -177,8 +185,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -209,10 +221,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -243,10 +257,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -324,8 +340,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.BindIf(() => { conditionCalls++; return false; }, () => { bindCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return false; }, () => { bindCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, bindCalls);
@@ -356,10 +376,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return false; },
-            async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return false; }, async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, bindCalls);
@@ -390,10 +412,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return false; },
-            () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return false; }, () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, bindCalls);
@@ -422,8 +446,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.BindIf(() => { conditionCalls++; return false; }, () => { bindCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return false; }, () => { bindCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, bindCalls);
@@ -454,10 +482,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return false; },
-            async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return false; }, async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, bindCalls);
@@ -488,10 +518,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return false; },
-            () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return false; }, () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, bindCalls);
@@ -569,8 +601,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -601,10 +637,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -635,10 +673,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -667,8 +707,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -699,10 +743,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, async () => { bindCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -733,10 +779,12 @@ public sealed class BindIfFuncFromResultMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.BindIf(
-            () => { conditionCalls++; return true; },
-            () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.BindIf(() => { conditionCalls++; return true; }, () => { bindCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);

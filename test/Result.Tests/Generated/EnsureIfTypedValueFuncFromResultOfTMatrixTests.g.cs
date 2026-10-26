@@ -79,8 +79,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -111,10 +115,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             async x => { validationCalls++; await Task.Yield(); return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -145,10 +153,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Failure<string>(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -177,8 +189,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -209,10 +225,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             async x => { validationCalls++; await Task.Yield(); return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -243,10 +263,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Failure<string>(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, validationCalls);
@@ -328,8 +352,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 3; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 3; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -362,10 +390,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 3; },
             async x => { validationCalls++; await Task.Yield(); return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -398,10 +430,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 3; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Failure<string>(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -432,8 +468,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 3; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 3; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -466,10 +506,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 3; },
             async x => { validationCalls++; await Task.Yield(); return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -502,10 +546,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 3; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Failure<string>(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -584,8 +632,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -616,10 +668,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             async x => { validationCalls++; await Task.Yield(); return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -650,10 +706,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Failure<string>(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -682,8 +742,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -714,10 +778,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             async x => { validationCalls++; await Task.Yield(); return Result.Failure<string>(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -748,10 +816,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var conditionCalls = 0;
         var other = Error.Create("Other.");
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Failure<string>(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, validationCalls);
@@ -828,8 +900,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Success("checked"); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Success("checked"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -860,10 +936,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             async x => { validationCalls++; await Task.Yield(); return Result.Success("checked"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -894,10 +974,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var validationCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Success("checked")); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -926,8 +1010,12 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Success("checked"); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(x => { conditionCalls++; return x == 2; }, x => { validationCalls++; return Result.Success("checked"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -958,10 +1046,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             async x => { validationCalls++; await Task.Yield(); return Result.Success("checked"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -992,10 +1084,14 @@ public sealed class EnsureIfTypedValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var validationCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.EnsureIf(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.EnsureIf(
             x => { conditionCalls++; return x == 2; },
             x => { validationCalls++; return new ValueTask<Result<string>>(Result.Success("checked")); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
