@@ -66,8 +66,12 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        await receiver.Switch(x => { onSomeCalls++; log.Add("some:" + x); }, () => { onNoneCalls++; log.Add("none"); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(x => { onSomeCalls++; log.Add("some:" + x); }, () => { onNoneCalls++; log.Add("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        await call;
 
         Assert.Equal(["some:2"], log);
     }
@@ -92,10 +96,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             async x => { onSomeCalls++; log.Add("some:" + x); await Task.Yield(); },
             async () => { onNoneCalls++; log.Add("none"); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        await call;
 
         Assert.Equal(["some:2"], log);
     }
@@ -120,10 +128,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             x => { onSomeCalls++; log.Add("some:" + x); return ValueTask.CompletedTask; },
             () => { onNoneCalls++; log.Add("none"); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        await call;
 
         Assert.Equal(["some:2"], log);
     }
@@ -146,8 +158,12 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        await receiver.Switch(x => { onSomeCalls++; log.Add("some:" + x); }, () => { onNoneCalls++; log.Add("none"); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Switch(x => { onSomeCalls++; log.Add("some:" + x); }, () => { onNoneCalls++; log.Add("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        await call;
 
         Assert.Equal(["some:2"], log);
     }
@@ -172,10 +188,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Switch(
             async x => { onSomeCalls++; log.Add("some:" + x); await Task.Yield(); },
             async () => { onNoneCalls++; log.Add("none"); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        await call;
 
         Assert.Equal(["some:2"], log);
     }
@@ -200,10 +220,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Switch(
             x => { onSomeCalls++; log.Add("some:" + x); return ValueTask.CompletedTask; },
             () => { onNoneCalls++; log.Add("none"); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        await call;
 
         Assert.Equal(["some:2"], log);
     }
@@ -266,8 +290,12 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        await receiver.Switch(x => { onSomeCalls++; log.Add("some"); }, () => { onNoneCalls++; log.Add("none"); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(x => { onSomeCalls++; log.Add("some"); }, () => { onNoneCalls++; log.Add("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        await call;
 
         Assert.Equal(["none"], log);
     }
@@ -292,10 +320,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             async x => { onSomeCalls++; log.Add("some"); await Task.Yield(); },
             async () => { onNoneCalls++; log.Add("none"); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        await call;
 
         Assert.Equal(["none"], log);
     }
@@ -320,10 +352,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             x => { onSomeCalls++; log.Add("some"); return ValueTask.CompletedTask; },
             () => { onNoneCalls++; log.Add("none"); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        await call;
 
         Assert.Equal(["none"], log);
     }
@@ -346,8 +382,12 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        await receiver.Switch(x => { onSomeCalls++; log.Add("some"); }, () => { onNoneCalls++; log.Add("none"); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Switch(x => { onSomeCalls++; log.Add("some"); }, () => { onNoneCalls++; log.Add("none"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        await call;
 
         Assert.Equal(["none"], log);
     }
@@ -372,10 +412,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Switch(
             async x => { onSomeCalls++; log.Add("some"); await Task.Yield(); },
             async () => { onNoneCalls++; log.Add("none"); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        await call;
 
         Assert.Equal(["none"], log);
     }
@@ -400,10 +444,14 @@ public sealed class SwitchMatrixTests
         var log = new List<string>();
         var onSomeCalls = 0;
         var onNoneCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Switch(
             x => { onSomeCalls++; log.Add("some"); return ValueTask.CompletedTask; },
             () => { onNoneCalls++; log.Add("none"); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        await call;
 
         Assert.Equal(["none"], log);
     }

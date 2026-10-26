@@ -29,8 +29,12 @@ public sealed class ContainsMatrixTests
     [Fact]
     internal async Task Contains_on_task_receiver_returns_true_when_the_value_equals_the_given_value_when_the_receiver_completes_later()
     {
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Contains(2);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Contains(2);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome);
     }
@@ -47,8 +51,12 @@ public sealed class ContainsMatrixTests
     [Fact]
     internal async Task Contains_on_value_task_receiver_returns_true_when_the_value_equals_the_given_value_when_the_receiver_completes_later()
     {
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Contains(2);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Contains(2);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome);
     }
@@ -74,8 +82,12 @@ public sealed class ContainsMatrixTests
     [Fact]
     internal async Task Contains_on_task_receiver_returns_false_when_the_value_differs_from_the_given_value_when_the_receiver_completes_later()
     {
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Contains(3);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Contains(3);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.False(outcome);
     }
@@ -92,8 +104,12 @@ public sealed class ContainsMatrixTests
     [Fact]
     internal async Task Contains_on_value_task_receiver_returns_false_when_the_value_differs_from_the_given_value_when_the_receiver_completes_later()
     {
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Contains(3);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Contains(3);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.False(outcome);
     }
@@ -119,8 +135,12 @@ public sealed class ContainsMatrixTests
     [Fact]
     internal async Task Contains_on_task_receiver_returns_false_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Contains(2);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Contains(2);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.False(outcome);
     }
@@ -137,8 +157,12 @@ public sealed class ContainsMatrixTests
     [Fact]
     internal async Task Contains_on_value_task_receiver_returns_false_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Contains(2);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Contains(2);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.False(outcome);
     }

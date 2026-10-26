@@ -72,6 +72,35 @@ public sealed class EmitterOptionTests
             () => Assert.NotEqual(emitter.LibraryPath(arity: 2, selector: true), emitter.LibraryPath(arity: 2, selector: true, nullableStruct: true)));
     }
 
+    [Fact]
+    internal void A_test_for_a_receiver_that_completes_later_completes_it_after_the_call_has_returned()
+    {
+        var delegateTest = new DelegateTest("probe", ["x"], string.Empty, "true", "bool");
+        var operation = Probe(StateChange.Any) with
+        {
+            Tests =
+            [
+                new("keeps_the_value", "Maybe.Some(2)", [delegateTest], [], ["Assert.True(outcome.IsSome);"]),
+                new("throws", "Maybe.Some(2)", [delegateTest], [], ["Assert.NotNull(exception);"], RecordsException: true),
+            ],
+        };
+
+        var tests = new TestEmitter(Profile()).Emit(operation).Split("[Fact]");
+
+        var pending = tests.First(static test => test.Contains("keeps_the_value", StringComparison.Ordinal)
+            && test.Contains("value_task_receiver", StringComparison.Ordinal)
+            && test.Contains("completes_later", StringComparison.Ordinal));
+        var recording = tests.First(static test => test.Contains("throws", StringComparison.Ordinal)
+            && test.Contains("completes_later", StringComparison.Ordinal));
+        Assert.Multiple(
+            () => Assert.Contains("var source = new TaskCompletionSource<Maybe<int>>();", pending, StringComparison.Ordinal),
+            () => Assert.Contains("var receiver = new ValueTask<Maybe<int>>(source.Task);", pending, StringComparison.Ordinal),
+            () => Assert.Contains("Assert.False(call.IsCompleted);", pending, StringComparison.Ordinal),
+            () => Assert.Contains("source.SetResult(Maybe.Some(2));", pending, StringComparison.Ordinal),
+            () => Assert.Contains("var receiver = Pending.Of(Maybe.Some(2));", recording, StringComparison.Ordinal),
+            () => Assert.DoesNotContain("source", recording, StringComparison.Ordinal));
+    }
+
     private static GeneratorProfile Profile(bool cachesNone = false, ZipKind? zip = null) => new(
         ToolNamespace: "Tool",
         ToolProject: "src/Tool",

@@ -34,8 +34,12 @@ public sealed class EnsureNotNullClassMessageFromResultOfTMatrixTests
     internal async Task EnsureNotNull_on_task_receiver_returns_the_value_without_the_annotation_when_it_is_not_null_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var receiver = Pending.Of(Result.Success<string?>("a"));
-        var outcome = await receiver.EnsureNotNull("Missing.");
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNotNull("Missing.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>("a"));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal("a", outcome.GetValue());
@@ -56,8 +60,12 @@ public sealed class EnsureNotNullClassMessageFromResultOfTMatrixTests
     internal async Task EnsureNotNull_on_value_task_receiver_returns_the_value_without_the_annotation_when_it_is_not_null_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var receiver = new ValueTask<Result<string?>>(Pending.Of(Result.Success<string?>("a")));
-        var outcome = await receiver.EnsureNotNull("Missing.");
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = new ValueTask<Result<string?>>(source.Task);
+        var call = receiver.EnsureNotNull("Missing.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>("a"));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal("a", outcome.GetValue());
@@ -87,8 +95,12 @@ public sealed class EnsureNotNullClassMessageFromResultOfTMatrixTests
     internal async Task EnsureNotNull_on_task_receiver_returns_the_failure_when_the_value_is_null_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var receiver = Pending.Of(Result.Success<string?>(null));
-        var outcome = await receiver.EnsureNotNull("Missing.");
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNotNull("Missing.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>(null));
+        var outcome = await call;
 
         Assert.Equal("Missing.", outcome.GetError().Message);
     }
@@ -107,8 +119,12 @@ public sealed class EnsureNotNullClassMessageFromResultOfTMatrixTests
     internal async Task EnsureNotNull_on_value_task_receiver_returns_the_failure_when_the_value_is_null_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var receiver = new ValueTask<Result<string?>>(Pending.Of(Result.Success<string?>(null)));
-        var outcome = await receiver.EnsureNotNull("Missing.");
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = new ValueTask<Result<string?>>(source.Task);
+        var call = receiver.EnsureNotNull("Missing.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success<string?>(null));
+        var outcome = await call;
 
         Assert.Equal("Missing.", outcome.GetError().Message);
     }
@@ -140,8 +156,12 @@ public sealed class EnsureNotNullClassMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
-        var receiver = Pending.Of(Result.Failure<string?>(other));
-        var outcome = await receiver.EnsureNotNull("Missing.");
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = source.Task;
+        var call = receiver.EnsureNotNull("Missing.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<string?>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
     }
@@ -162,8 +182,12 @@ public sealed class EnsureNotNullClassMessageFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
-        var receiver = new ValueTask<Result<string?>>(Pending.Of(Result.Failure<string?>(other)));
-        var outcome = await receiver.EnsureNotNull("Missing.");
+        var source = new TaskCompletionSource<Result<string?>>();
+        var receiver = new ValueTask<Result<string?>>(source.Task);
+        var call = receiver.EnsureNotNull("Missing.");
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<string?>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
     }

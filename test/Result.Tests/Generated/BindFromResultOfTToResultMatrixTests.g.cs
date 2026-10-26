@@ -61,8 +61,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, bindCalls);
@@ -85,8 +89,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, bindCalls);
@@ -109,8 +117,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, bindCalls);
@@ -133,8 +145,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, bindCalls);
@@ -157,8 +173,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, bindCalls);
@@ -181,8 +201,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, bindCalls);
@@ -241,8 +265,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -265,8 +293,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -289,8 +321,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -313,8 +349,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -337,8 +377,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Failure(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Failure(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -361,8 +405,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Failure(error)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, bindCalls);
@@ -421,8 +469,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -445,8 +497,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -469,8 +525,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -493,8 +553,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -517,8 +581,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);
@@ -541,8 +609,12 @@ public sealed class BindFromResultOfTToResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var bindCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, bindCalls);

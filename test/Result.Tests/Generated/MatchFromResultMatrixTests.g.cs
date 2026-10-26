@@ -74,8 +74,12 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Equal("ok", outcome);
         Assert.Equal(1, onSuccessCalls);
@@ -104,10 +108,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             async () => { onSuccessCalls++; await Task.Yield(); return "ok"; },
             async e => { onFailureCalls++; await Task.Yield(); return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Equal("ok", outcome);
         Assert.Equal(1, onSuccessCalls);
@@ -136,10 +144,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             () => { onSuccessCalls++; return new ValueTask<string>("ok"); },
             e => { onFailureCalls++; return new ValueTask<string>("fail:" + e.Message); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Equal("ok", outcome);
         Assert.Equal(1, onSuccessCalls);
@@ -166,8 +178,12 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Equal("ok", outcome);
         Assert.Equal(1, onSuccessCalls);
@@ -196,10 +212,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Match(
             async () => { onSuccessCalls++; await Task.Yield(); return "ok"; },
             async e => { onFailureCalls++; await Task.Yield(); return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Equal("ok", outcome);
         Assert.Equal(1, onSuccessCalls);
@@ -228,10 +248,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Match(
             () => { onSuccessCalls++; return new ValueTask<string>("ok"); },
             e => { onFailureCalls++; return new ValueTask<string>("fail:" + e.Message); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.Equal("ok", outcome);
         Assert.Equal(1, onSuccessCalls);
@@ -304,8 +328,12 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal("fail:Boom.", outcome);
         Assert.Equal(0, onSuccessCalls);
@@ -334,10 +362,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             async () => { onSuccessCalls++; await Task.Yield(); return "ok"; },
             async e => { onFailureCalls++; await Task.Yield(); return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal("fail:Boom.", outcome);
         Assert.Equal(0, onSuccessCalls);
@@ -366,10 +398,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Match(
             () => { onSuccessCalls++; return new ValueTask<string>("ok"); },
             e => { onFailureCalls++; return new ValueTask<string>("fail:" + e.Message); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal("fail:Boom.", outcome);
         Assert.Equal(0, onSuccessCalls);
@@ -396,8 +432,12 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Match(() => { onSuccessCalls++; return "ok"; }, e => { onFailureCalls++; return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal("fail:Boom.", outcome);
         Assert.Equal(0, onSuccessCalls);
@@ -426,10 +466,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Match(
             async () => { onSuccessCalls++; await Task.Yield(); return "ok"; },
             async e => { onFailureCalls++; await Task.Yield(); return "fail:" + e.Message; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal("fail:Boom.", outcome);
         Assert.Equal(0, onSuccessCalls);
@@ -458,10 +502,14 @@ public sealed class MatchFromResultMatrixTests
         var error = Error.Create("Boom.");
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Match(
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Match(
             () => { onSuccessCalls++; return new ValueTask<string>("ok"); },
             e => { onFailureCalls++; return new ValueTask<string>("fail:" + e.Message); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal("fail:Boom.", outcome);
         Assert.Equal(0, onSuccessCalls);

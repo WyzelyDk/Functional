@@ -32,8 +32,12 @@ public sealed class GetValueOrThrowWithFactoryMatrixTests
     internal async Task GetValueOrThrow_on_task_receiver_returns_the_value_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var thrown = new InvalidOperationException("Thrown.");
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.GetValueOrThrow(() => thrown);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.GetValueOrThrow(() => thrown);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome);
     }
@@ -52,8 +56,12 @@ public sealed class GetValueOrThrowWithFactoryMatrixTests
     internal async Task GetValueOrThrow_on_value_task_receiver_returns_the_value_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var thrown = new InvalidOperationException("Thrown.");
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.GetValueOrThrow(() => thrown);
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.GetValueOrThrow(() => thrown);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome);
     }

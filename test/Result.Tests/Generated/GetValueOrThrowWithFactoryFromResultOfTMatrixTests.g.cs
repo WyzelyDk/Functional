@@ -35,8 +35,12 @@ public sealed class GetValueOrThrowWithFactoryFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var thrown = new InvalidOperationException("Thrown.");
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.GetValueOrThrow(_ => thrown);
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.GetValueOrThrow(_ => thrown);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome);
     }
@@ -57,8 +61,12 @@ public sealed class GetValueOrThrowWithFactoryFromResultOfTMatrixTests
     {
         var error = Error.Create("Boom.");
         var thrown = new InvalidOperationException("Thrown.");
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.GetValueOrThrow(_ => thrown);
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.GetValueOrThrow(_ => thrown);
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome);
     }

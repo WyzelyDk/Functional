@@ -60,8 +60,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_sync_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSome);
         Assert.Equal(20, outcome.GetValue());
@@ -84,8 +88,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSome);
         Assert.Equal(20, outcome.GetValue());
@@ -108,8 +116,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_value_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSome);
         Assert.Equal(20, outcome.GetValue());
@@ -132,8 +144,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_sync_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSome);
         Assert.Equal(20, outcome.GetValue());
@@ -156,8 +172,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSome);
         Assert.Equal(20, outcome.GetValue());
@@ -180,8 +200,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_value_task_delegate_returns_the_maybe_of_the_delegate_when_the_receiver_has_a_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSome);
         Assert.Equal(20, outcome.GetValue());
@@ -236,8 +260,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_sync_delegate_returns_none_when_the_delegate_returns_none_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Maybe.None<int>(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return Maybe.None<int>(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, bindCalls);
@@ -258,8 +286,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_task_delegate_returns_none_when_the_delegate_returns_none_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.None<int>(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.None<int>(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, bindCalls);
@@ -280,8 +312,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_value_task_delegate_returns_none_when_the_delegate_returns_none_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.None<int>()); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.None<int>()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, bindCalls);
@@ -302,8 +338,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_sync_delegate_returns_none_when_the_delegate_returns_none_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Maybe.None<int>(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return Maybe.None<int>(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, bindCalls);
@@ -324,8 +364,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_task_delegate_returns_none_when_the_delegate_returns_none_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.None<int>(); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.None<int>(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, bindCalls);
@@ -346,8 +390,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_value_task_delegate_returns_none_when_the_delegate_returns_none_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.None<int>()); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.None<int>()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, bindCalls);
@@ -401,8 +449,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_sync_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, bindCalls);
@@ -423,8 +475,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, bindCalls);
@@ -445,8 +501,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_task_receiver_with_value_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, bindCalls);
@@ -467,8 +527,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_sync_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, bindCalls);
@@ -489,8 +553,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(async x => { bindCalls++; await Task.Yield(); return Maybe.Some(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, bindCalls);
@@ -511,8 +579,12 @@ public sealed class BindMatrixTests
     internal async Task Bind_on_value_task_receiver_with_value_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var bindCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Bind(x => { bindCalls++; return new ValueTask<Maybe<int>>(Maybe.Some(x * 10)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, bindCalls);

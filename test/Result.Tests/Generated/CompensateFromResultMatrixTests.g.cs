@@ -61,8 +61,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(e => { compensateCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, compensateCalls);
@@ -85,8 +89,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, compensateCalls);
@@ -109,8 +117,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, compensateCalls);
@@ -133,8 +145,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Success(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(e => { compensateCalls++; return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, compensateCalls);
@@ -157,8 +173,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Success(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Success(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, compensateCalls);
@@ -181,8 +201,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Success()); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Success()); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(1, compensateCalls);
@@ -246,8 +270,12 @@ public sealed class CompensateFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, compensateCalls);
@@ -272,8 +300,12 @@ public sealed class CompensateFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, compensateCalls);
@@ -298,8 +330,12 @@ public sealed class CompensateFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, compensateCalls);
@@ -324,8 +360,12 @@ public sealed class CompensateFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(e => { compensateCalls++; return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, compensateCalls);
@@ -350,8 +390,12 @@ public sealed class CompensateFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(other); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, compensateCalls);
@@ -376,8 +420,12 @@ public sealed class CompensateFromResultMatrixTests
         var error = Error.Create("Boom.");
         var other = Error.Create("Other.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(other)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(1, compensateCalls);
@@ -436,8 +484,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(e); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(e => { compensateCalls++; return Result.Failure(e); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, compensateCalls);
@@ -460,8 +512,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(e); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(e); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, compensateCalls);
@@ -484,8 +540,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(e)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(e)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, compensateCalls);
@@ -508,8 +568,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return Result.Failure(e); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(e => { compensateCalls++; return Result.Failure(e); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, compensateCalls);
@@ -532,8 +596,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(e); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(async e => { compensateCalls++; await Task.Yield(); return Result.Failure(e); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, compensateCalls);
@@ -556,8 +624,12 @@ public sealed class CompensateFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var compensateCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(e)); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.Compensate(e => { compensateCalls++; return new ValueTask<Result>(Result.Failure(e)); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, compensateCalls);

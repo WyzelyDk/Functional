@@ -22,8 +22,12 @@ public sealed class GetValueOrThrowFromResultOfTMatrixTests
     internal async Task GetValueOrThrow_on_task_receiver_returns_the_value_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.GetValueOrThrow();
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.GetValueOrThrow();
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome);
     }
@@ -42,8 +46,12 @@ public sealed class GetValueOrThrowFromResultOfTMatrixTests
     internal async Task GetValueOrThrow_on_value_task_receiver_returns_the_value_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.GetValueOrThrow();
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.GetValueOrThrow();
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome);
     }

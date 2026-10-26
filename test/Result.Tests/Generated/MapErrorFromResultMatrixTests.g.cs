@@ -61,8 +61,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));
         Assert.Equal(1, mapErrorCalls);
@@ -85,8 +89,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));
         Assert.Equal(1, mapErrorCalls);
@@ -109,8 +117,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));
         Assert.Equal(1, mapErrorCalls);
@@ -133,8 +145,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));
         Assert.Equal(1, mapErrorCalls);
@@ -157,8 +173,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));
         Assert.Equal(1, mapErrorCalls);
@@ -181,8 +201,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Equal(["Checkout"], outcome.GetError().Context.Select(frame => frame.Message));
         Assert.Equal(1, mapErrorCalls);
@@ -241,8 +265,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, mapErrorCalls);
@@ -265,8 +293,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, mapErrorCalls);
@@ -289,8 +321,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, mapErrorCalls);
@@ -313,8 +349,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapError(e => { mapErrorCalls++; return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, mapErrorCalls);
@@ -337,8 +377,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapError(async e => { mapErrorCalls++; await Task.Yield(); return e.WithContext("Checkout"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, mapErrorCalls);
@@ -361,8 +405,12 @@ public sealed class MapErrorFromResultMatrixTests
     {
         var error = Error.Create("Boom.");
         var mapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.MapError(e => { mapErrorCalls++; return new ValueTask<Error>(e.WithContext("Checkout")); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, mapErrorCalls);

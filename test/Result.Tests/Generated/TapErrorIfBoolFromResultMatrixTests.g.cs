@@ -70,8 +70,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Same(error, seen);
@@ -98,8 +102,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Same(error, seen);
@@ -126,8 +134,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Same(error, seen);
@@ -154,8 +166,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Same(error, seen);
@@ -182,8 +198,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Same(error, seen);
@@ -210,8 +230,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Same(error, seen);
@@ -280,8 +304,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Null(seen);
@@ -308,8 +336,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapErrorIf(false, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(false, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Null(seen);
@@ -336,8 +368,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Failure(error));
-        var outcome = await receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Null(seen);
@@ -364,8 +400,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Null(seen);
@@ -392,8 +432,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapErrorIf(false, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(false, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Null(seen);
@@ -420,8 +464,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Failure(error)));
-        var outcome = await receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(false, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Null(seen);
@@ -486,8 +534,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, tapErrorCalls);
@@ -512,8 +564,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, tapErrorCalls);
@@ -538,8 +594,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = Pending.Of(Result.Success());
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = source.Task;
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, tapErrorCalls);
@@ -564,8 +624,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, tapErrorCalls);
@@ -590,8 +654,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(true, async e => { tapErrorCalls++; seen = e; await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, tapErrorCalls);
@@ -616,8 +684,12 @@ public sealed class TapErrorIfBoolFromResultMatrixTests
         var error = Error.Create("Boom.");
         Error? seen = null;
         var tapErrorCalls = 0;
-        var receiver = new ValueTask<Result>(Pending.Of(Result.Success()));
-        var outcome = await receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        var source = new TaskCompletionSource<Result>();
+        var receiver = new ValueTask<Result>(source.Task);
+        var call = receiver.TapErrorIf(true, e => { tapErrorCalls++; seen = e; return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success());
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(0, tapErrorCalls);

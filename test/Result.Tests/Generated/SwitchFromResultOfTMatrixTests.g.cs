@@ -71,8 +71,12 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        await receiver.Switch(x => { onSuccessCalls++; log.Add("ok:" + x); }, e => { onFailureCalls++; log.Add("fail"); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(x => { onSuccessCalls++; log.Add("ok:" + x); }, e => { onFailureCalls++; log.Add("fail"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        await call;
 
         Assert.Equal(["ok:2"], log);
     }
@@ -99,10 +103,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             async x => { onSuccessCalls++; log.Add("ok:" + x); await Task.Yield(); },
             async e => { onFailureCalls++; log.Add("fail"); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        await call;
 
         Assert.Equal(["ok:2"], log);
     }
@@ -129,10 +137,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             x => { onSuccessCalls++; log.Add("ok:" + x); return ValueTask.CompletedTask; },
             e => { onFailureCalls++; log.Add("fail"); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        await call;
 
         Assert.Equal(["ok:2"], log);
     }
@@ -157,8 +169,12 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        await receiver.Switch(x => { onSuccessCalls++; log.Add("ok:" + x); }, e => { onFailureCalls++; log.Add("fail"); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Switch(x => { onSuccessCalls++; log.Add("ok:" + x); }, e => { onFailureCalls++; log.Add("fail"); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        await call;
 
         Assert.Equal(["ok:2"], log);
     }
@@ -185,10 +201,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Switch(
             async x => { onSuccessCalls++; log.Add("ok:" + x); await Task.Yield(); },
             async e => { onFailureCalls++; log.Add("fail"); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        await call;
 
         Assert.Equal(["ok:2"], log);
     }
@@ -215,10 +235,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Switch(
             x => { onSuccessCalls++; log.Add("ok:" + x); return ValueTask.CompletedTask; },
             e => { onFailureCalls++; log.Add("fail"); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        await call;
 
         Assert.Equal(["ok:2"], log);
     }
@@ -286,8 +310,12 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        await receiver.Switch(x => { onSuccessCalls++; log.Add("ok"); }, e => { onFailureCalls++; log.Add("fail:" + e.Message); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(x => { onSuccessCalls++; log.Add("ok"); }, e => { onFailureCalls++; log.Add("fail:" + e.Message); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        await call;
 
         Assert.Equal(["fail:Boom."], log);
     }
@@ -314,10 +342,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             async x => { onSuccessCalls++; log.Add("ok"); await Task.Yield(); },
             async e => { onFailureCalls++; log.Add("fail:" + e.Message); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        await call;
 
         Assert.Equal(["fail:Boom."], log);
     }
@@ -344,10 +376,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Switch(
             x => { onSuccessCalls++; log.Add("ok"); return ValueTask.CompletedTask; },
             e => { onFailureCalls++; log.Add("fail:" + e.Message); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        await call;
 
         Assert.Equal(["fail:Boom."], log);
     }
@@ -372,8 +408,12 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        await receiver.Switch(x => { onSuccessCalls++; log.Add("ok"); }, e => { onFailureCalls++; log.Add("fail:" + e.Message); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Switch(x => { onSuccessCalls++; log.Add("ok"); }, e => { onFailureCalls++; log.Add("fail:" + e.Message); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        await call;
 
         Assert.Equal(["fail:Boom."], log);
     }
@@ -400,10 +440,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Switch(
             async x => { onSuccessCalls++; log.Add("ok"); await Task.Yield(); },
             async e => { onFailureCalls++; log.Add("fail:" + e.Message); await Task.Yield(); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        await call;
 
         Assert.Equal(["fail:Boom."], log);
     }
@@ -430,10 +474,14 @@ public sealed class SwitchFromResultOfTMatrixTests
         var log = new List<string>();
         var onSuccessCalls = 0;
         var onFailureCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        await receiver.Switch(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Switch(
             x => { onSuccessCalls++; log.Add("ok"); return ValueTask.CompletedTask; },
             e => { onFailureCalls++; log.Add("fail:" + e.Message); return ValueTask.CompletedTask; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        await call;
 
         Assert.Equal(["fail:Boom."], log);
     }

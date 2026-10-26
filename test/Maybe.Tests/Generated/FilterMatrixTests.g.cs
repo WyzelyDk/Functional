@@ -56,8 +56,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_sync_delegate_returns_the_receiver_when_the_value_satisfies_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(x => { predicateCalls++; return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(1, predicateCalls);
@@ -78,8 +82,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_task_delegate_returns_the_receiver_when_the_value_satisfies_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(1, predicateCalls);
@@ -100,8 +108,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_value_task_delegate_returns_the_receiver_when_the_value_satisfies_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(1, predicateCalls);
@@ -122,8 +134,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_sync_delegate_returns_the_receiver_when_the_value_satisfies_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(x => { predicateCalls++; return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(1, predicateCalls);
@@ -144,8 +160,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_task_delegate_returns_the_receiver_when_the_value_satisfies_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(1, predicateCalls);
@@ -166,8 +186,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_value_task_delegate_returns_the_receiver_when_the_value_satisfies_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.Equal(2, outcome.GetValue());
         Assert.Equal(1, predicateCalls);
@@ -221,8 +245,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_sync_delegate_returns_none_when_the_value_does_not_satisfy_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return x > 5; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(x => { predicateCalls++; return x > 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, predicateCalls);
@@ -243,8 +271,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_task_delegate_returns_none_when_the_value_does_not_satisfy_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 5; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, predicateCalls);
@@ -265,8 +297,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_value_task_delegate_returns_none_when_the_value_does_not_satisfy_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.Some(2));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, predicateCalls);
@@ -287,8 +323,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_sync_delegate_returns_none_when_the_value_does_not_satisfy_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return x > 5; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(x => { predicateCalls++; return x > 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, predicateCalls);
@@ -309,8 +349,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_task_delegate_returns_none_when_the_value_does_not_satisfy_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 5; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 5; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, predicateCalls);
@@ -331,8 +375,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_value_task_delegate_returns_none_when_the_value_does_not_satisfy_the_condition_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(2)));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 5); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 5); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.Some(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(1, predicateCalls);
@@ -386,8 +434,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_sync_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Filter(x => { predicateCalls++; return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(x => { predicateCalls++; return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, predicateCalls);
@@ -408,8 +460,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, predicateCalls);
@@ -430,8 +486,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_task_receiver_with_value_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = Pending.Of(Maybe.None<int>());
-        var outcome = await receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = source.Task;
+        var call = receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, predicateCalls);
@@ -452,8 +512,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_sync_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(x => { predicateCalls++; return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, predicateCalls);
@@ -474,8 +538,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(async x => { predicateCalls++; await Task.Yield(); return x > 1; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, predicateCalls);
@@ -496,8 +564,12 @@ public sealed class FilterMatrixTests
     internal async Task Filter_on_value_task_receiver_with_value_task_delegate_returns_none_without_running_the_delegate_when_the_receiver_has_no_value_when_the_receiver_completes_later()
     {
         var predicateCalls = 0;
-        var receiver = new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>()));
-        var outcome = await receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        var source = new TaskCompletionSource<Maybe<int>>();
+        var receiver = new ValueTask<Maybe<int>>(source.Task);
+        var call = receiver.Filter(x => { predicateCalls++; return new ValueTask<bool>(x > 1); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Maybe.None<int>());
+        var outcome = await call;
 
         Assert.True(outcome.IsNone);
         Assert.Equal(0, predicateCalls);

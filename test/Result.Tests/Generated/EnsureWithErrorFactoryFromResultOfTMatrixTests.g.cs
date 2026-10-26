@@ -172,8 +172,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -202,8 +206,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -232,8 +240,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -262,8 +274,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -294,10 +310,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -328,10 +348,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -360,8 +384,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -392,10 +420,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -426,10 +458,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -458,8 +494,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -488,8 +528,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -518,8 +562,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -548,8 +596,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -580,10 +632,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -614,10 +670,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -646,8 +706,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -678,10 +742,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -712,10 +780,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -906,8 +978,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 5; }, x => { errorFactoryCalls++; seen = x; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 5; }, x => { errorFactoryCalls++; seen = x; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -940,10 +1016,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
-            x => { predicateCalls++; return x > 5; },
-            async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 5; }, async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -976,10 +1054,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
-            x => { predicateCalls++; return x > 5; },
-            x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 5; }, x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1012,10 +1092,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
-            async x => { predicateCalls++; await Task.Yield(); return x > 5; },
-            x => { errorFactoryCalls++; seen = x; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 5; }, x => { errorFactoryCalls++; seen = x; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1048,10 +1130,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 5; },
             async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1084,10 +1170,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 5; },
             x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1120,10 +1210,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
-            x => { predicateCalls++; return new ValueTask<bool>(x > 5); },
-            x => { errorFactoryCalls++; seen = x; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 5); }, x => { errorFactoryCalls++; seen = x; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1156,10 +1248,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 5); },
             async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1192,10 +1288,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 5); },
             x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1226,8 +1326,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 5; }, x => { errorFactoryCalls++; seen = x; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 5; }, x => { errorFactoryCalls++; seen = x; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1260,10 +1364,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
-            x => { predicateCalls++; return x > 5; },
-            async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 5; }, async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1296,10 +1402,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
-            x => { predicateCalls++; return x > 5; },
-            x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 5; }, x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1332,10 +1440,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
-            async x => { predicateCalls++; await Task.Yield(); return x > 5; },
-            x => { errorFactoryCalls++; seen = x; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 5; }, x => { errorFactoryCalls++; seen = x; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1368,10 +1478,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 5; },
             async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1404,10 +1518,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 5; },
             x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1440,10 +1558,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
-            x => { predicateCalls++; return new ValueTask<bool>(x > 5); },
-            x => { errorFactoryCalls++; seen = x; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 5); }, x => { errorFactoryCalls++; seen = x; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1476,10 +1596,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 5); },
             async x => { errorFactoryCalls++; seen = x; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1512,10 +1636,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var seen = 0;
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 5); },
             x => { errorFactoryCalls++; seen = x; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(1, predicateCalls);
@@ -1688,8 +1816,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1718,8 +1850,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1748,8 +1884,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1778,8 +1918,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1810,10 +1954,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1844,10 +1992,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1876,8 +2028,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1908,10 +2064,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1942,10 +2102,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(other));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -1974,8 +2138,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2004,8 +2172,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2034,8 +2206,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return x > 1; }, x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2064,8 +2240,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(async x => { predicateCalls++; await Task.Yield(); return x > 1; }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2096,10 +2276,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2130,10 +2314,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             async x => { predicateCalls++; await Task.Yield(); return x > 1; },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2162,8 +2350,12 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(x => { predicateCalls++; return new ValueTask<bool>(x > 1); }, x => { errorFactoryCalls++; return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2194,10 +2386,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             async x => { errorFactoryCalls++; await Task.Yield(); return error; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);
@@ -2228,10 +2424,14 @@ public sealed class EnsureWithErrorFactoryFromResultOfTMatrixTests
         var other = Error.Create("Other.");
         var predicateCalls = 0;
         var errorFactoryCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(other)));
-        var outcome = await receiver.Ensure(
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.Ensure(
             x => { predicateCalls++; return new ValueTask<bool>(x > 1); },
             x => { errorFactoryCalls++; return new ValueTask<Error>(error); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(other));
+        var outcome = await call;
 
         Assert.Same(other, outcome.GetError());
         Assert.Equal(0, predicateCalls);

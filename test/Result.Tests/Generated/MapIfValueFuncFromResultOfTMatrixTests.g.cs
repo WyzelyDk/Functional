@@ -74,8 +74,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(20, outcome.GetValue());
@@ -104,8 +108,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(20, outcome.GetValue());
@@ -134,8 +142,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(20, outcome.GetValue());
@@ -164,8 +176,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(20, outcome.GetValue());
@@ -194,8 +210,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(20, outcome.GetValue());
@@ -224,8 +244,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(20, outcome.GetValue());
@@ -299,8 +323,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -329,8 +357,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 3; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 3; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -359,8 +391,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Success(2));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -389,8 +425,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -419,8 +459,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 3; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 3; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -449,8 +493,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Success(2)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 3; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Success(2));
+        var outcome = await call;
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal(2, outcome.GetValue());
@@ -520,8 +568,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -548,8 +600,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -576,8 +632,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = Pending.Of(Result.Failure<int>(error));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = source.Task;
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -604,8 +664,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -632,8 +696,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, async x => { mapCalls++; await Task.Yield(); return x * 10; });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
@@ -660,8 +728,12 @@ public sealed class MapIfValueFuncFromResultOfTMatrixTests
         var error = Error.Create("Boom.");
         var conditionCalls = 0;
         var mapCalls = 0;
-        var receiver = new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>(error)));
-        var outcome = await receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        var source = new TaskCompletionSource<Result<int>>();
+        var receiver = new ValueTask<Result<int>>(source.Task);
+        var call = receiver.MapIf(x => { conditionCalls++; return x == 2; }, x => { mapCalls++; return new ValueTask<int>(x * 10); });
+        Assert.False(call.IsCompleted);
+        source.SetResult(Result.Failure<int>(error));
+        var outcome = await call;
 
         Assert.Same(error, outcome.GetError());
         Assert.Equal(0, mapCalls);
