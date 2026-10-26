@@ -143,8 +143,8 @@ A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org a
    ```shell
    git switch main
    git pull
-   git tag v0.1.0
-   git push origin v0.1.0
+   git tag v1.2.3
+   git push origin v1.2.3
    ```
 
 3. In GitHub, open the *Publish* run and **approve the deployment** to the `nuget` environment.
