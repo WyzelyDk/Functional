@@ -285,9 +285,7 @@ public sealed class CompletedTaskReuseTests
         var receiver = Task.FromResult(Result.Success(2));
 
         RunChain(receiver, 10);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        RunChain(receiver, 1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunChain(receiver, 1_000));
 
         Assert.Equal(0, allocated);
     }

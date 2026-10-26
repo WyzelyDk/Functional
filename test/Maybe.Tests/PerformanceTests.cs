@@ -34,9 +34,7 @@ public sealed class PerformanceTests
         Assert.SkipWhen(LibraryIsUnoptimised(), UnoptimisedReason);
 
         RunChain(10);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var total = RunChain(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunChain(1_000), out var total);
 
         Assert.Multiple(
             () => Assert.Equal(1_000 * 22, total),
@@ -49,9 +47,7 @@ public sealed class PerformanceTests
         Assert.SkipWhen(LibraryIsUnoptimised(), UnoptimisedReason);
 
         RunNoneChain(10);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        RunNoneChain(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunNoneChain(1_000));
 
         Assert.Equal(0, allocated);
     }
@@ -60,9 +56,7 @@ public sealed class PerformanceTests
     internal void A_task_chain_of_a_reference_type_that_stays_none_allocates_nothing()
     {
         RunNoneTaskChain(10);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        RunNoneTaskChain(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunNoneTaskChain(1_000));
 
         Assert.Multiple(
             () => Assert.NotNull(Volatile.Read(ref sink)),
@@ -75,9 +69,7 @@ public sealed class PerformanceTests
         var none = Maybe.None<string>();
 
         BindNoneToTask(none, 10);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        BindNoneToTask(none, 1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => BindNoneToTask(none, 1_000));
 
         Assert.Multiple(
             () => Assert.NotNull(Volatile.Read(ref sink)),

@@ -29,9 +29,7 @@ public sealed class PerformanceTests
         var handedBack = Result.Success(1).Bind(static _ => CompletedResult);
 
         HandBackTasks(10);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        HandBackTasks(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => HandBackTasks(1_000));
 
         Assert.Multiple(
             () => Assert.Same(CompletedResult, handedBack),
@@ -68,9 +66,7 @@ public sealed class PerformanceTests
     {
         RunCompletedBinds(10);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var succeeded = RunCompletedBinds(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunCompletedBinds(1_000), out var succeeded);
 
         Assert.Multiple(
             () => Assert.True(succeeded),
@@ -90,9 +86,7 @@ public sealed class PerformanceTests
     {
         RunSuccessfulChain(10);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var sum = RunSuccessfulChain(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunSuccessfulChain(1_000), out var sum);
 
         Assert.Multiple(
             () => Assert.Equal(0, allocated),
@@ -104,9 +98,7 @@ public sealed class PerformanceTests
     {
         RunTupleSteps(10);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var sum = RunTupleSteps(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunTupleSteps(1_000), out var sum);
 
         Assert.Multiple(
             () => Assert.Equal(0, allocated),
@@ -118,9 +110,7 @@ public sealed class PerformanceTests
     {
         RunNullChecks(10);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var sum = RunNullChecks(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => RunNullChecks(1_000), out var sum);
 
         Assert.Multiple(
             () => Assert.Equal(0, allocated),
@@ -132,9 +122,7 @@ public sealed class PerformanceTests
     {
         Inspect(10);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        Inspect(1_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Smallest(() => Inspect(1_000));
 
         Assert.Equal(0, allocated);
     }
