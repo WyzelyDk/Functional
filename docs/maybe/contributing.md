@@ -12,7 +12,7 @@ without it; that is the fastest way to a decision.
 
 ## Building
 
-Run these from the repository root. They need the .NET 11 SDK (a release candidate for now; `global.json` pins the exact version) and the .NET 8
+Run these from the repository root. They need the .NET 11 SDK (`global.json` pins the exact version) and the .NET 8
 and 10 runtimes. The library targets `netstandard2.0`, `net8.0`, `net10.0` and `net11.0` (which adds C# 15 union support, see
 [C# 15 unions](unions.md)); the tests run on `net8.0`, `net10.0` and `net11.0`.
 

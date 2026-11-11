@@ -33,9 +33,8 @@ arm is how the language spells "the union has no case value", and the library te
 
 - It needs the **`net11.0` target** (and a C# 15 compiler). The package has a `net11.0` asset that carries the union members; a project that
   targets `net10.0` or older gets the same library without them and cannot use the form above.
-- It was built, and its tests (`MaybeUnionTests`, 7 of them) pass, with SDK `11.0.100-rc.2`, which was the C# 15 and .NET 11 release
-  candidate when this was written. Unions were still in preview in the language then, so re-check after the final release. The
-  implementation follows the documented shape of custom unions
+- It was built, and its tests (`MaybeUnionTests`, 7 of them) pass, with the final SDK `11.0.100` (earlier with `11.0.100-rc.2`, the
+  release candidate), without a `LangVersion` setting or a preview opt-in. The implementation follows the documented shape of custom unions
   ([language reference](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/union)), in the *union member
   provider* form: a `[Union]` type with a nested `IUnionMembers` interface that the compiler reads, because a maybe is created through the
   factory methods and not through public constructors. No `LangVersion` setting was needed.

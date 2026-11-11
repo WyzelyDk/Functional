@@ -98,7 +98,7 @@ the loss explicit: `Result.Try(...).ToMaybe()` drops the error, and the name say
 On `net11.0` a `Maybe<T>` is a union of `T` and the absence of a value (the `null` pattern), so a `switch` over it can be checked for
 completeness. It uses the *union member provider* form (a nested `IUnionMembers` interface), because maybes are created through factory methods and not
 through public constructors. The cost is that it exists only for a build with the
-.NET 11 SDK, and that the language feature was still in preview when it was written. [Details](unions.md).
+.NET 11 SDK. [Details](unions.md).
 
 ## Shared internals, per-package behavior
 

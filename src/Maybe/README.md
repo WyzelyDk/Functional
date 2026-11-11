@@ -198,7 +198,7 @@ string Describe(Maybe<int> maybe) => maybe switch
 };                                      // no discard arm: the compiler knows the two cases; the none is the null case
 ```
 
-This needs a package built with the .NET 11 SDK, was built and tested with SDK `11.0.100-rc.2` (7 tests), and may change with the final language release:
+This needs a package built with the .NET 11 SDK, was built and tested with SDK `11.0.100` (7 tests):
 [C# 15 unions](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/unions.md).
 
 ## Samples
