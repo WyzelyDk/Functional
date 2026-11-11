@@ -40,7 +40,7 @@ Six more suggestions (info) point at code that does more than it has to. A rewri
 |---|---|---|---|
 | [`WYZ0112`](analyzers/WYZ0112.md) | `Bind(x => Result.Success(f(x)))` | `Map(x => f(x))` | yes |
 | [`WYZ0113`](analyzers/WYZ0113.md) | `Map(x => { Use(x); return x; })` | `Tap(x => { Use(x); })` | yes |
-| [`WYZ0114`](analyzers/WYZ0114.md) | `Match(v => v, _ => fallback)` with a cheap fallback | `ValueOr(fallback)` | yes |
+| [`WYZ0114`](analyzers/WYZ0114.md) | `Match(v => v, onFailure)` on a result, or on a `Task` or `ValueTask` of one | `ValueOr(fallback)` for a cheap fallback that ignores the error, otherwise `ValueOr(onFailure)` | yes |
 | [`WYZ0115`](analyzers/WYZ0115.md) | `Map(x => x)` and `Bind(x => Result.Success(x))` | remove the step | yes |
 | [`WYZ0116`](analyzers/WYZ0116.md) | `Result.Failure(Error.Create(message))` | `Result.Failure(message)` | yes |
 | [`WYZ0117`](analyzers/WYZ0117.md) | `Bind(x => x)` on a result of a result | `Flatten()` | yes |

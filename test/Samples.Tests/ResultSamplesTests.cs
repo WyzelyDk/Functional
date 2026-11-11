@@ -19,6 +19,7 @@ public sealed class ResultSamplesTests
             () => Assert.Contains("Match on the success: value 42", lines),
             () => Assert.Contains("Match on the failure: error Order 7 was not found.", lines),
             () => Assert.Contains("ValueOr on the failure: -1", lines),
+            () => Assert.Contains("ValueOr with a function: 0", lines),
             () => Assert.Contains("GetValue on the failure throws ResultFailedException: The result failed: Order 7 was not found.", lines),
             () => Assert.Contains("GetError on the success throws InvalidOperationException.", lines),
             () => Assert.Contains("Deconstruct of the success: value=42, error=none", lines),

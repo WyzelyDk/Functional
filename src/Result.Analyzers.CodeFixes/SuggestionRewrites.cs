@@ -191,23 +191,33 @@ internal static class SuggestionRewrites
         return Renamed(invocation, "Tap").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(tapped)]));
     }
 
-    /// <summary>WYZ0114: <c>Match(v => v, _ => fallback)</c> becomes <c>ValueOr(fallback)</c>.</summary>
+    /// <summary>
+    /// WYZ0114: <c>Match(v => v, _ => fallback)</c> becomes <c>ValueOr(fallback)</c>,
+    /// and when the fallback is not cheap or uses the error, <c>Match(v => v, onFailure)</c> becomes <c>ValueOr(onFailure)</c>.
+    /// </summary>
     /// <param name="invocation">The call of <c>Match</c>.</param>
+    /// <param name="properties">The properties of the diagnostic.</param>
     /// <returns>The call of <c>ValueOr</c>, or <see langword="null"/>.</returns>
-    internal static SyntaxNode? MatchToValueOr(InvocationExpressionSyntax invocation)
+    internal static SyntaxNode? MatchToValueOr(InvocationExpressionSyntax invocation, ImmutableDictionary<string, string?> properties)
     {
         var arguments = invocation.ArgumentList.Arguments;
 
         if (invocation.Expression is not MemberAccessExpressionSyntax
             || arguments.Count != 2
             || arguments.Any(argument => argument.NameColon is not null)
-            || arguments[1].Expression is not LambdaExpressionSyntax failure
-            || ReturnedExpression(failure) is not { } fallback)
+            || arguments[1].Expression is not LambdaExpressionSyntax failure)
         {
             return null;
         }
 
-        return Renamed(invocation, "ValueOr").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(fallback.WithoutTrivia())]));
+        if (IsTrue(properties, "Lazy"))
+        {
+            return Renamed(invocation, "ValueOr").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(failure.WithoutTrivia())]));
+        }
+
+        return ReturnedExpression(failure) is { } fallback
+            ? Renamed(invocation, "ValueOr").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(fallback.WithoutTrivia())]))
+            : null;
     }
 
     /// <summary>WYZ0115: <c>result.Map(x => x)</c> and <c>result.Bind(x => Result.Success(x))</c> become <c>result</c>.</summary>

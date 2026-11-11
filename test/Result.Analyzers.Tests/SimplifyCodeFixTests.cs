@@ -7,6 +7,7 @@ public sealed class SimplifyCodeFixTests
 {
     private const string Sources = """
         static Result<int> Twice(int x) => Result.Success(x * 2);
+        static int Compute() => 42;
         """;
 
     private static readonly SuggestionsCodeFixProvider Provider = new();
@@ -22,6 +23,12 @@ public sealed class SimplifyCodeFixTests
         "r.Tap(l => { l.Add(1); })")]
     [InlineData("WYZ0114", "int M(Result<int> r) => r.Match(v => v, _ => 0);", "r.ValueOr(0)")]
     [InlineData("WYZ0114", "string M(Result<string> r, string fallback) => r.Match(v => v, e => fallback);", "r.ValueOr(fallback)")]
+    [InlineData("WYZ0114", "int M(Result<int> r) => r.Match(v => v, _ => Compute());", "r.ValueOr(_ => Compute())")]
+    [InlineData("WYZ0114", "int M(Result<int> r) => r.Match(v => v, e => e.Message.Length);", "r.ValueOr(e => e.Message.Length)")]
+    [InlineData("WYZ0114", "Task<int> M(Task<Result<int>> r) => r.Match(v => v, _ => 0);", "r.ValueOr(0)")]
+    [InlineData("WYZ0114", "Task<int> M(Task<Result<int>> r) => r.Match(v => v, e => e.Message.Length);", "r.ValueOr(e => e.Message.Length)")]
+    [InlineData("WYZ0114", "ValueTask<int> M(ValueTask<Result<int>> r) => r.Match(v => v, _ => 0);", "r.ValueOr(0)")]
+    [InlineData("WYZ0114", "Error M(Result<Error> r) => r.Match(v => v, e => e);", "r.ValueOr(e => e)")]
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Map(x => x);", "=> r;")]
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Bind(x => Result.Success(x));", "=> r;")]
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Bind(Twice).Map(x => x).Map(x => x + 1);", "r.Bind(Twice).Map(x => x + 1)")]

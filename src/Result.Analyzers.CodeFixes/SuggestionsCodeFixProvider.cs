@@ -91,11 +91,11 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
             return SuggestionRewrites.MapTry(call);
         }
 
-        return RewriteStepRules(call, id);
+        return RewriteStepRules(call, id, properties);
     }
 
     // The rules that replace a step of a chain by another step or remove it.
-    private static SyntaxNode? RewriteStepRules(InvocationExpressionSyntax call, string id)
+    private static SyntaxNode? RewriteStepRules(InvocationExpressionSyntax call, string id, ImmutableDictionary<string, string?> properties)
     {
         if (id == "WYZ0112")
         {
@@ -109,7 +109,7 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
 
         if (id == "WYZ0114")
         {
-            return SuggestionRewrites.MatchToValueOr(call);
+            return SuggestionRewrites.MatchToValueOr(call, properties);
         }
 
         if (id == "WYZ0115")

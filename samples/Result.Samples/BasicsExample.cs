@@ -45,6 +45,9 @@ public static class BasicsExample
         // ValueOr is the shortest way to say "or else this".
         output.WriteLine($"ValueOr on the failure: {failed.ValueOr(-1)}");
 
+        // Pass a function to compute the fallback only for a failure; it can read the error.
+        output.WriteLine($"ValueOr with a function: {failed.ValueOr(static problem => problem.Kind == ErrorKind.NotFound ? 0 : -1)}");
+
         // GetValue() on a failure throws, and the exception carries the error. The text is redacted: sensitive details never end up in an exception message.
         try
         {
