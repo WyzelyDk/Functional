@@ -117,7 +117,7 @@ What this package adds, each point checked against the source or a test:
 - **Interop with Maybe:** the umbrella package `Wyzely.Functional` adds `ToResult` and `ToMaybe` between the two types.
 
 **The cost of the dependency, honestly.** A package to keep updated, an API you do not control (it can change before 1.0), a vocabulary the team has to learn,
-and an opinion (nothing converts implicitly, `default` throws) that you may not share. **Write your own when** the application is small,
+and an opinion (no value or error converts implicitly, `default` throws) that you may not share. **Write your own when** the application is small,
 has few layers, never aggregates errors, and never mixes `Task` and `ValueTask`. **Use a library when** several teams or services share the type,
 when errors must be logged safely and grouped, or when you would otherwise hand-write the async variants.
 

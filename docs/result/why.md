@@ -56,8 +56,9 @@ What this library adds, point by point (each checked against the source or a tes
 | Size and allocation | probably the same, if you use a struct | tested: `Result` is one reference wide, `Result<T>` is `T` plus one reference, the success path of the main operations allocates 0 bytes with `static` lambdas (`PerformanceTests`) |
 | Language and ecosystem | none | C# 15 union support on `net11.0`; `ToResult` / `ToMaybe` with `Maybe` through the umbrella package `Wyzely.Functional` |
 
-**The honest cost.** A dependency to update; an API that can still change before 1.0; a vocabulary and a set of opinions (no implicit conversion,
-`default` throws) that the whole team must accept; and no public track record as a package yet. **Write your own** when the application is small,
+**The honest cost.** A dependency to update; an API that can still change before 1.0;
+a vocabulary and a set of opinions (no implicit conversion of a value or an error, `default` throws) that the whole team must accept;
+and no public track record as a package yet. **Write your own** when the application is small,
 the error is a message, nobody mixes `Task` and `ValueTask`, and one team owns the code. **Use a library** when the type is shared,
 when errors must be logged safely and grouped, or when you would otherwise hand-write nine variants of every operation.
 

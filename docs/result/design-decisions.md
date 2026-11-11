@@ -12,6 +12,7 @@
   a success, as in CSharpFunctionalExtensions; `Combine`, `Partition` and `SelectInParallel` exist so that you do not fill an array yourself.
 - **Explicit, not implicit.**
   No conversion creates a result from a value or an error, and `GetValue()`/`GetError()` are methods that an analyzer checks, not properties that throw.
+  The one implicit conversion is `Result<T>` to `Result`: it keeps the state and drops the value, so it can never turn a failure into a success.
 - **`Try` does not catch cancellation by default.** Cancellation is control flow, not a failure. `ShouldCatch` changes that.
 - **Message templates, not codes only.** The template is the stable identity, the details are the data, and `Message` is what humans read.
 - **Configurable defaults, one global switch.**
@@ -34,7 +35,7 @@ Decisions that were revised after a measurement, so that the reasoning is visibl
   Receivers are by value, and a test keeps it that way.
 - **Argument checks stay.** Each method checks its delegate and `Task` arguments up front. Measured with and without, that costs about 0.5 ns per call;
   without them a `null` delegate throws late inside a returned task, or never, depending on the data.
-- **No implicit conversions.** `return false;` in a method returning `Result<bool>` would compile as a success holding `false`.
-  Results are created with `Result.Success(...)` and `Result.Failure(...)`.
+- **No implicit conversion from a value or an error.** `return false;` in a method returning `Result<bool>` would compile as a success holding `false`.
+  Results are created with `Result.Success(...)` and `Result.Failure(...)`. The exception is `Result<T>` to `Result`, which keeps the state and drops the value.
 - **Parallel helpers use `Parallel.ForEachAsync` with an explicit limit.**
   Its default of `-1` means "the number of processors", which would have silently throttled I/O-bound work that was asked to run without a limit.

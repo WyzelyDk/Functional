@@ -29,10 +29,12 @@ The library is judged by how it feels to use, not only by what it can do.
 - **Conversions are named by what they do.** `As...`
   re-presents the same data under another type without creating a new object and without losing information (`AsNullable`, like `AsEnumerable`); `To...`
   builds something new or drops information (`ToResult`, `ToMaybe`, `ToEnumerable`).
-- **Explicit over implicit.** No implicit conversions into a result. No property that throws for the wrong state: `GetValue()` and
-  `GetError()` are methods, and an analyzer checks that they are guarded. The one deliberate exception is `Maybe<T>`: a plain value
-  converts to it implicitly and a `null` reference becomes none, because absence is exactly what `null` means (`ImplicitConversionTests`
-  in `Maybe.Tests` pins that this is the only conversion, and that nothing converts out of a maybe).
+- **Explicit over implicit.** The library defines no implicit conversion from a value or an error to a result. No property that throws for the
+  wrong state: `GetValue()` and `GetError()` are methods, and an analyzer checks that they are guarded. There are two deliberate exceptions.
+  A plain value converts to `Maybe<T>` implicitly and a `null` reference becomes none, because absence is exactly what `null` means
+  (`ImplicitConversionTests` in `Maybe.Tests` pins that this is the only conversion, and that nothing converts out of a maybe). A `Result<T>`
+  converts to `Result` implicitly: the state is kept (a success, or a failure with the same error) and only the value is dropped, so it can
+  never turn a failure into a success (`ImplicitConversionTests` in `Result.Tests` pins that this is the only conversion).
 - **Make the wrong thing hard, and say how to do the right thing.** Prefer an analyzer (with a code fix when a mechanical fix is safe) to
   a documentation warning. Exception and diagnostic messages state what to do next ("Check IsFailure first, or use TryGetError").
 - **Nullability is part of the API.** Annotate precisely (`[NotNullWhen]`, `[MaybeNullWhen]`, honest `?`).
