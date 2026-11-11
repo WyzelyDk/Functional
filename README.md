@@ -102,7 +102,7 @@ These libraries are opinionated, and it is better to say so up front than for yo
 - **Explicit where it matters.** `GetValue()` and `GetError()` are methods, not properties that throw, and a `default` result is a success by design.
   Conversions follow C# 15 unions: a value or an error converts to a `Result<T>` implicitly, so `return false;` in a method that returns `Result<bool>`
   is a success; use `Result.Success` and `Result.Failure` when the intent should be visible
-  ([why](docs/result/design-decisions.md#implicit-conversions-follow-c-15-unions-on-every-target)).
+  ([why](docs/result/design-decisions.md)).
   A plain value also converts to a `Maybe`, where `null` means none ([why](docs/maybe/design-decisions.md#an-implicit-conversion-where-null-means-none)).
 - **Make the wrong thing hard.** Mistakes such as ignoring a result or reading the error of a success or the value of a none are flagged by analyzers,
   and where possible a code fix is offered.
