@@ -41,8 +41,8 @@ public static class RailwayExample
         output.WriteLine($"Or, alternative used: {bob.Bind(SampleData.FindEmail).Or(() => Maybe.Some("support@example.com"))}");
         output.WriteLine($"Or, alternative not needed: {ada.Bind(SampleData.FindEmail).Or(() => Maybe.Some("support@example.com"))}");
 
-        // ValueOr with a delegate leaves the railway: the value, or what the delegate computes (only when it is needed). The instance
-        // method ValueOr("text") takes a plain value instead.
+        // ValueOr with a delegate leaves the railway: the value, or what the delegate computes (only when it is needed).
+        // The instance method ValueOr("text") takes a plain value instead.
         output.WriteLine($"ValueOr(Func): {bob.Bind(SampleData.FindEmail).ValueOr(() => "no email on file")}");
 
         // Match leaves the railway with one value out; both cases are handled, so nothing is forgotten.
@@ -55,8 +55,8 @@ public static class RailwayExample
             customer => output.WriteLine($"Switch, some: found {customer.Name}"),
             () => output.WriteLine("Switch, none: nobody found"));
 
-        // The whole railway, for four different customers. The method below has no null check and no early return; every way to find
-        // nothing (no such customer, inactive, no email) ends in the same "Nobody to mail".
+        // The whole railway, for four different customers. The method below has no null check and no early return; every way to find nothing (no such customer,
+        // inactive, no email) ends in the same "Nobody to mail".
         output.WriteLine($"Whole chain, customer 1: {MailMessage(1)}");
         output.WriteLine($"Whole chain, customer 2 (no email): {MailMessage(2)}");
         output.WriteLine($"Whole chain, customer 3 (inactive): {MailMessage(3)}");

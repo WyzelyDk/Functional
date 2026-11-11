@@ -15,19 +15,19 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Transforms the value of a successful result. A failed result passes through unchanged: its error is kept and the delegate is not
-    /// called. The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization
-    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a
-    /// <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Transforms the value of a successful result. A failed result passes through unchanged:
+    /// its error is kept and the delegate is not called. The receiver is a <see cref="ValueTask"/> that produces the result;
+    /// it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
+    /// otherwise. The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization
+    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value that the delegate produces.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <param name="map">Computes the new value from the value of the successful result.</param>
     /// <returns>
-    /// A successful result that holds the value computed by the delegate, or a failed result with the error of the receiver. The value is
-    /// returned in a <see cref="ValueTask{TResult}"/>.
+    /// A successful result that holds the value computed by the delegate, or a failed result with the error of the receiver.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="map"/> is <see langword="null"/>.</exception>
     public static ValueTask<Result<TResult>> Map<T, TResult>(this ValueTask<Result<T>> result, Func<T, ValueTask<TResult>> map)

@@ -3,19 +3,17 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <summary>
-/// Runs an operation that returns a result for every item of a sequence, with a bounded degree of parallelism, and combines
-/// the results.
+/// Runs an operation that returns a result for every item of a sequence, with a bounded degree of parallelism, and combines the results.
 /// </summary>
 /// <remarks>
 /// <para>
-/// These methods replace the array-of-results-filled-in-a-loop pattern, which is error prone (an unfilled slot is a
-/// <see langword="default"/> result). They always attempt every item, so a failure does not hide the failures of the other
-/// items; the errors of the failed items are aggregated in the order of the source, not the order in which they completed.
+/// These methods replace the array-of-results-filled-in-a-loop pattern, which is error prone (an unfilled slot is a <see langword="default"/> result).
+/// They always attempt every item, so a failure does not hide the failures of the other items; the errors of the failed items are aggregated in the order of
+/// the source, not the order in which they completed.
 /// </para>
 /// <para>
-/// An exception thrown by the operation is not turned into a result (use <see cref="Result.Try(Func{Task}, Func{Exception, Error}?)"/>
-/// inside the operation for that). Cancellation stops items that have not started yet and surfaces as an
-/// <see cref="OperationCanceledException"/>.
+/// An exception thrown by the operation is not turned into a result (use <see cref="Result.Try(Func{Task}, Func{Exception, Error}?)"/> inside the operation for
+/// that). Cancellation stops items that have not started yet and surfaces as an <see cref="OperationCanceledException"/>.
 /// </para>
 /// </remarks>
 public static partial class ResultParallelExtensions
@@ -33,8 +31,8 @@ public static partial class ResultParallelExtensions
     /// </param>
     /// <param name="cancellationToken">A token that stops items that have not started yet.</param>
     /// <returns>
-    /// A task that produces a successful result with the values in the order of the source when every operation succeeded, or a
-    /// failed result with the error (or the aggregate of the errors, in source order) of the failed items.
+    /// A task that produces a successful result with the values in the order of the source when every operation succeeded,
+    /// or a failed result with the error (or the aggregate of the errors, in source order) of the failed items.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="operation"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxDegreeOfParallelism"/> is zero or less than <c>-1</c>.</exception>
@@ -91,8 +89,8 @@ public static partial class ResultParallelExtensions
     /// </param>
     /// <param name="cancellationToken">A token that stops items that have not started yet.</param>
     /// <returns>
-    /// A task that produces a successful result when every operation succeeded, or a failed result with the error (or the
-    /// aggregate of the errors, in source order) of the failed items.
+    /// A task that produces a successful result when every operation succeeded, or a failed result with the error (or the aggregate of the errors,
+    /// in source order) of the failed items.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="operation"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxDegreeOfParallelism"/> is zero or less than <c>-1</c>.</exception>
@@ -120,8 +118,7 @@ public static partial class ResultParallelExtensions
     /// </param>
     /// <param name="cancellationToken">A token that stops items that have not started yet.</param>
     /// <returns>
-    /// See
-    /// <see cref="ForEachInParallel{TSource}(IEnumerable{TSource}, Func{TSource, CancellationToken, Task{Result}}, int?, CancellationToken)"/>.
+    /// See <see cref="ForEachInParallel{TSource}(IEnumerable{TSource}, Func{TSource, CancellationToken, Task{Result}}, int?, CancellationToken)"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="operation"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxDegreeOfParallelism"/> is zero or less than <c>-1</c>.</exception>
@@ -242,8 +239,8 @@ public static partial class ResultParallelExtensions
         var limit = maxDegreeOfParallelism == Unbounded ? count : Math.Min(maxDegreeOfParallelism, count);
 
 #if NET6_0_OR_GREATER
-        // The limit is always explicit: Parallel.ForEachAsync treats the default of -1 as the number of processors, which would
-        // silently throttle I/O-bound work that was asked to run without a limit.
+        // The limit is always explicit: Parallel.ForEachAsync treats the default of -1 as the number of processors,
+        // which would silently throttle I/O-bound work that was asked to run without a limit.
         var options = new ParallelOptions { MaxDegreeOfParallelism = limit, CancellationToken = cancellationToken };
 
         await Parallel.ForEachAsync(Enumerable.Range(0, count), options, (index, _) => new ValueTask(body(index)))

@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// ConvertFailure passes a failure on as a failure of another type, FirstFailureOrSuccess stops at the first failure, and CombineInOrder runs the tasks
-// of a sequence one at a time. Combine, by contrast, starts every task first and looks at every result.
+// ConvertFailure passes a failure on as a failure of another type, FirstFailureOrSuccess stops at the first failure,
+// and CombineInOrder runs the tasks of a sequence one at a time. Combine, by contrast, starts every task first and looks at every result.
 public sealed class FailureHelpersTests
 {
     private static readonly Error First = Error.Create("First.");

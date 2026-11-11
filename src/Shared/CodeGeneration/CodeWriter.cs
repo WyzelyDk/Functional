@@ -11,8 +11,8 @@ internal sealed class CodeWriter
     private int _depth;
 
     /// <summary>
-    /// Writes one line at the current indentation. An empty text writes an empty line. A line that would be wider than
-    /// <see cref="GeneratorSettings.MaxLineWidth"/> is wrapped (see <see cref="LineWrapper"/>).
+    /// Writes one line at the current indentation. An empty text writes an empty line.
+    /// A line that would be wider than <see cref="GeneratorSettings.MaxLineWidth"/> is wrapped (see <see cref="LineWrapper"/>).
     /// </summary>
     internal void Line(string text = "")
     {

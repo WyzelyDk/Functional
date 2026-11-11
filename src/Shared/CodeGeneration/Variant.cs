@@ -13,8 +13,7 @@ internal readonly record struct Variant(Wrapper Receiver, Wrapper Delegate, Wrap
     internal static IReadOnlyList<Variant> AllWithSecond { get; } = CreateAll(independent: true);
 
     /// <summary>
-    /// Gets the three combinations of an operation without a delegate: only the receiver can be wrapped, because a delegate that does not
-    /// exist has no kind.
+    /// Gets the three combinations of an operation without a delegate: only the receiver can be wrapped, because a delegate that does not exist has no kind.
     /// </summary>
     internal static IReadOnlyList<Variant> ReceiverOnly { get; } = [.. CreateAll(independent: false).Where(variant => variant.Delegate == Wrapper.None)];
 

@@ -2,9 +2,9 @@ using Wyzely.Functional.FunctionalSamples;
 
 namespace Wyzely.Functional.SamplesTests;
 
-// Each example of the umbrella package prints labelled lines; these tests pin the lines that matter, so a sample cannot silently stop
-// saying what its comments claim. One class, so that the example that changes the process-wide settings of both packages never overlaps
-// with the others of this class.
+// Each example of the umbrella package prints labelled lines; these tests pin the lines that matter,
+// so a sample cannot silently stop saying what its comments claim.
+// One class, so that the example that changes the process-wide settings of both packages never overlaps with the others of this class.
 public sealed class FunctionalSamplesTests
 {
     [Fact]

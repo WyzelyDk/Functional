@@ -1,5 +1,5 @@
-// Counts how many operations ran, and the most that ran at the same time, so that the parallel examples can show
-// that the limit is respected. It is plain thread-safe counting code and has nothing to do with results.
+// Counts how many operations ran, and the most that ran at the same time, so that the parallel examples can show that the limit is respected.
+// It is plain thread-safe counting code and has nothing to do with results.
 namespace Wyzely.Functional.ResultSamples;
 
 internal sealed class ConcurrencyGauge

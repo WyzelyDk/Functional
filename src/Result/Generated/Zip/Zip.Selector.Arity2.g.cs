@@ -19,8 +19,8 @@ public static partial class ResultExtensions
     /// <param name="second">The second result.</param>
     /// <param name="selector">Combines the values.</param>
     /// <returns>
-    /// A successful result with the combined value, or a failed result with the error of the one that failed, or an aggregate of the errors
-    /// (in argument order) when several failed.
+    /// A successful result with the combined value, or a failed result with the error of the one that failed,
+    /// or an aggregate of the errors (in argument order) when several failed.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
     public static Result<TResult> Zip<T1, T2, TResult>(this Result<T1> first, Result<T2> second, Func<T1, T2, TResult> selector)

@@ -127,8 +127,8 @@ public sealed class PerformanceTests
         Assert.Equal(0, allocated);
     }
 
-    // A completed receiver and a synchronous delegate: the library answers with a completed task of a result without a value, which is the same
-    // task every time.
+    // A completed receiver and a synchronous delegate: the library answers with a completed task of a result without a value,
+    // which is the same task every time.
     private static bool RunCompletedBinds(int iterations)
     {
         var succeeded = true;

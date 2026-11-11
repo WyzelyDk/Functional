@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Runs a side effect for a successful result when a condition holds, and returns the result unchanged. The delegate is not called for
-    /// a failed result or when the condition does not hold.
+    /// Runs a side effect for a successful result when a condition holds, and returns the result unchanged.
+    /// The delegate is not called for a failed result or when the condition does not hold.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="condition">Whether the delegate runs. When it is <see langword="false"/> the receiver is returned as it was.</param>

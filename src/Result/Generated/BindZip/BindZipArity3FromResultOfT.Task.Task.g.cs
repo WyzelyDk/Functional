@@ -15,12 +15,12 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and adds its value to the tuple of the receiver, which becomes a tuple of 4 values. The delegate
-    /// runs only when the receiver succeeded; a failed result passes through with its error. The receiver is a <see cref="Task"/> that
-    /// produces the result; it is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a <see cref="Task"/>)
-    /// and is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
-    /// otherwise.
+    /// Chains an operation that can fail and adds its value to the tuple of the receiver, which becomes a tuple of 4 values.
+    /// The delegate runs only when the receiver succeeded; a failed result passes through with its error.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T1">The type of value number 1 of the receiver result.</typeparam>
     /// <typeparam name="T2">The type of value number 2 of the receiver result.</typeparam>
@@ -29,8 +29,8 @@ public static partial class ResultExtensions
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="bind">The operation to run with the value of the successful result.</param>
     /// <returns>
-    /// A successful result that holds the value of the receiver and the value of the delegate, or a failed result with the error of the
-    /// receiver or of the delegate. The value is returned in a <see cref="Task{TResult}"/>.
+    /// A successful result that holds the value of the receiver and the value of the delegate,
+    /// or a failed result with the error of the receiver or of the delegate. The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

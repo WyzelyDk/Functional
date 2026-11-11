@@ -44,8 +44,7 @@ internal sealed record DelegateSpec(string Name, string[] ParameterTypes, string
 /// <param name="Name">The name of the parameter.</param>
 /// <param name="Description">The documentation of the parameter.</param>
 /// <param name="Validated">
-/// <see langword="false"/> for a parameter that must not be checked for <see langword="null"/>, for example a value of an unconstrained
-/// type parameter.
+/// <see langword="false"/> for a parameter that must not be checked for <see langword="null"/>, for example a value of an unconstrained type parameter.
 /// </param>
 /// <param name="DefaultValue">The default value of the parameter, for a parameter the caller may leave out, or <see langword="null"/>.</param>
 internal sealed record ExtraParameter(string Type, string Name, string Description, bool Validated = true, string? DefaultValue = null);
@@ -60,9 +59,8 @@ internal sealed record BodyContext(Variant Variant, string ReturnType, Generator
     internal string R => Variant.Receiver == Wrapper.None ? Profile.ReceiverParameter : "outcome";
 
     /// <summary>
-    /// Renders an already completed task (or value task) that holds a value, for a body that returns the task of the delegate
-    /// itself and only needs to create one when it short-circuits. It is the kind of the delegate: <c>Task.FromResult</c> or a
-    /// <c>ValueTask</c> constructor call.
+    /// Renders an already completed task (or value task) that holds a value, for a body that returns the task of the delegate itself and only needs to create
+    /// one when it short-circuits. It is the kind of the delegate: <c>Task.FromResult</c> or a <c>ValueTask</c> constructor call.
     /// </summary>
     internal string Done(string expression) => Variant.Delegate switch
     {
@@ -121,8 +119,7 @@ internal sealed record OperationSpec
     internal string[] NotNull { get; init; } = [];
 
     /// <summary>
-    /// Gets the names of the type parameters that carry a <c>struct</c> constraint, for the overload that accepts a delegate returning a
-    /// nullable value type.
+    /// Gets the names of the type parameters that carry a <c>struct</c> constraint, for the overload that accepts a delegate returning a nullable value type.
     /// </summary>
     internal string[] Structs { get; init; } = [];
 
@@ -139,8 +136,8 @@ internal sealed record OperationSpec
 
     /// <summary>
     /// Gets the name of the operation that every variant forwards to when its first leading parameter, a <c>bool</c>, is <see langword="true"/>.
-    /// When it is <see langword="false"/> the variant returns the receiver as it was, which for a task is the task it received. The operation
-    /// then has no body of its own.
+    /// When it is <see langword="false"/> the variant returns the receiver as it was, which for a task is the task it received.
+    /// The operation then has no body of its own.
     /// </summary>
     internal string? ForwardsTo { get; init; }
 
@@ -154,8 +151,8 @@ internal sealed record OperationSpec
     internal bool HasIndependentDelegate => Delegates.Any(@delegate => @delegate.Independent);
 
     /// <summary>
-    /// Gets the variants to generate: nine for an operation with a delegate, 27 when a second delegate has a kind of its own, three (one
-    /// per receiver) for an operation without a delegate.
+    /// Gets the variants to generate: nine for an operation with a delegate, 27 when a second delegate has a kind of its own,
+    /// three (one per receiver) for an operation without a delegate.
     /// </summary>
     internal IReadOnlyList<Variant> Variants
     {
@@ -173,14 +170,14 @@ internal sealed record OperationSpec
     }
 
     /// <summary>
-    /// Gets a value indicating whether the operation exists only for a <c>Task</c> or <c>ValueTask</c> receiver, because the synchronous one is
-    /// an instance method of the receiver type.
+    /// Gets a value indicating whether the operation exists only for a <c>Task</c> or <c>ValueTask</c> receiver,
+    /// because the synchronous one is an instance method of the receiver type.
     /// </summary>
     internal bool SkipsSyncReceiver { get; init; }
 
     /// <summary>
-    /// Gets a value indicating whether the operation never takes the shortcut for a receiver that has already completed. It is for an operation that
-    /// throws as part of its work: for a task, that exception belongs in the task that is returned, not in the call.
+    /// Gets a value indicating whether the operation never takes the shortcut for a receiver that has already completed.
+    /// It is for an operation that throws as part of its work: for a task, that exception belongs in the task that is returned, not in the call.
     /// </summary>
     internal bool SkipsCompletedFastPath { get; init; }
 
@@ -194,16 +191,15 @@ internal sealed record OperationSpec
     internal required Func<BodyContext, string[]> Body { get; init; }
 
     /// <summary>
-    /// Gets the optional body for a synchronous receiver with an asynchronous delegate. It is for operations that return the
-    /// result of the delegate as it is: the body hands the task of the delegate back instead of awaiting it, which saves the
-    /// state machine and a second task.
+    /// Gets the optional body for a synchronous receiver with an asynchronous delegate.
+    /// It is for operations that return the result of the delegate as it is: the body hands the task of the delegate back instead of awaiting it,
+    /// which saves the state machine and a second task.
     /// </summary>
     internal Func<BodyContext, string[]>? ForwardBody { get; init; }
 
     /// <summary>
-    /// Gets a value indicating whether the operation never changes the value of its receiver: it returns the receiver as it was or a
-    /// result in another state (a failure, none). On a completed task such an operation hands back the task it received when the state
-    /// is the same, instead of allocating a new one.
+    /// Gets a value indicating whether the operation never changes the value of its receiver: it returns the receiver as it was or a result in another state (a
+    /// failure, none). On a completed task such an operation hands back the task it received when the state is the same, instead of allocating a new one.
     /// </summary>
     internal bool KeepsValue { get; init; }
 

@@ -1,8 +1,8 @@
 namespace Wyzely.Functional;
 
 /// <content>
-/// Value equality: two successes are equal when their values are, and two failures are equal when their errors are. A
-/// <see langword="default"/> result is a success holding <c>default(T)</c>, so it equals <c>Result.Success(default(T))</c>.
+/// Value equality: two successes are equal when their values are, and two failures are equal when their errors are.
+/// A <see langword="default"/> result is a success holding <c>default(T)</c>, so it equals <c>Result.Success(default(T))</c>.
 /// </content>
 public readonly partial struct Result<T>
 {

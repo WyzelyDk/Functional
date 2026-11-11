@@ -12,8 +12,7 @@ public static partial class ResultCollectionExtensions
     public static Result Combine(this IEnumerable<Result> results) => Result.Combine(results);
 
     /// <summary>
-    /// Combines results that carry a value into one result with the list of the values. See
-    /// <see cref="Result.Combine{T}(IEnumerable{Result{T}})"/>.
+    /// Combines results that carry a value into one result with the list of the values. See <see cref="Result.Combine{T}(IEnumerable{Result{T}})"/>.
     /// </summary>
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">The results to combine.</param>
@@ -28,8 +27,8 @@ public static partial class ResultCollectionExtensions
     public static Task<Result> Combine(this IEnumerable<Task<Result>> results) => Result.Combine(results);
 
     /// <summary>
-    /// Waits for all tasks and combines their results into one result with the list of the values. See
-    /// <see cref="Result.Combine{T}(IEnumerable{Task{Result{T}}})"/>.
+    /// Waits for all tasks and combines their results into one result with the list of the values.
+    /// See <see cref="Result.Combine{T}(IEnumerable{Task{Result{T}}})"/>.
     /// </summary>
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">The tasks that produce the results.</param>
@@ -44,8 +43,8 @@ public static partial class ResultCollectionExtensions
     public static ValueTask<Result> Combine(this IEnumerable<ValueTask<Result>> results) => Result.Combine(results);
 
     /// <summary>
-    /// Waits for all value tasks and combines their results into one result with the list of the values. See
-    /// <see cref="Result.Combine{T}(IEnumerable{ValueTask{Result{T}}})"/>.
+    /// Waits for all value tasks and combines their results into one result with the list of the values.
+    /// See <see cref="Result.Combine{T}(IEnumerable{ValueTask{Result{T}}})"/>.
     /// </summary>
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">The value tasks that produce the results.</param>
@@ -57,8 +56,8 @@ public static partial class ResultCollectionExtensions
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">The results to split.</param>
     /// <returns>
-    /// A tuple of the values of all successful results and the errors of all failed results. Unlike <c>Combine</c>, this keeps
-    /// the successes when something failed, which suits batch work where partial success is acceptable.
+    /// A tuple of the values of all successful results and the errors of all failed results.
+    /// Unlike <c>Combine</c>, this keeps the successes when something failed, which suits batch work where partial success is acceptable.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is <see langword="null"/>.</exception>
     public static (IReadOnlyList<T> Values, IReadOnlyList<Error> Errors) Partition<T>(this IEnumerable<Result<T>> results)

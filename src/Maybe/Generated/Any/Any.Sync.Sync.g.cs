@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Leaves the railway: returns whether a maybe has a value that satisfies a condition. A maybe without a value gives false and the
-    /// predicate is not called.
+    /// Leaves the railway: returns whether a maybe has a value that satisfies a condition.
+    /// A maybe without a value gives false and the predicate is not called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>

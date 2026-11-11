@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Runs a side effect that may throw for a successful result, and returns the result unchanged when it does not. A failed receiver
-    /// passes through and the delegate is not called. Only an exception of type <typeparamref name="TException"/>, or one derived from it,
-    /// becomes a failed result; any other exception keeps travelling. The receiver is a <see cref="ValueTask"/> that produces the result;
+    /// Runs a side effect that may throw for a successful result, and returns the result unchanged when it does not.
+    /// A failed receiver passes through and the delegate is not called.
+    /// Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed result;
+    /// any other exception keeps travelling. The receiver is a <see cref="ValueTask"/> that produces the result;
     /// it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
     /// otherwise. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization
     /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.

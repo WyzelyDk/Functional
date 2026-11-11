@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Replaces the error of a failed result, for example to add context. A successful result passes through unchanged and the delegate is
-    /// not called.
+    /// Replaces the error of a failed result, for example to add context.
+    /// A successful result passes through unchanged and the delegate is not called.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="mapError">Computes the new error from the error of the failed result.</param>

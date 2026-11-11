@@ -28,7 +28,10 @@ try {
         Set-Content -Path $path -Value $content
     }
 
-    foreach ($path in 'README.md', 'LICENSE', 'docs/guide.md', 'src/Library/Class.cs', 'src/Analyzers/AnalyzerReleases.Unshipped.md', 'global.json', '.github/workflows/ci.yml') {
+    $initialFiles = 'README.md', 'LICENSE', 'docs/guide.md', 'src/Library/Class.cs', 'src/Analyzers/AnalyzerReleases.Unshipped.md',
+        'global.json', '.github/workflows/ci.yml'
+
+    foreach ($path in $initialFiles) {
         Add-File $path
     }
 
@@ -71,7 +74,10 @@ try {
     Test-Case 'global.json is code' { Add-File 'global.json' 'changed' } 'true'
     Test-Case 'an unknown kind of file is code' { Add-File 'something.unknown' } 'true'
     Test-Case 'documentation and code together are code' { Add-File 'README.md' 'changed'; Add-File 'src/Library/Class.cs' 'changed' } 'true'
-    Test-Case 'a code file renamed into docs is still code' { New-Item -ItemType Directory -Force docs | Out-Null; git mv src/Library/Class.cs docs/Class.md } 'true'
+    Test-Case 'a code file renamed into docs is still code' {
+        New-Item -ItemType Directory -Force docs | Out-Null
+        git mv src/Library/Class.cs docs/Class.md
+    } 'true'
     Test-Case 'a deleted source file is code' { git rm -q src/Library/Class.cs } 'true'
 
     # No base commit: always run everything.

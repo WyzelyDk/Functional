@@ -2,8 +2,8 @@ using System.Reflection;
 
 namespace Wyzely.Functional.ResultTests;
 
-// A value or an error never becomes a result by accident: `return false;` in a method that returns Result<bool> must not compile as
-// a success, so the only implicit conversion left is the lossless one that drops the value of a typed result.
+// A value or an error never becomes a result by accident: `return false;` in a method that returns Result<bool> must not compile as a success,
+// so the only implicit conversion left is the lossless one that drops the value of a typed result.
 public sealed class ImplicitConversionTests
 {
     [Fact]

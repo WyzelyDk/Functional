@@ -15,18 +15,19 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure when a condition does not hold. A failed result passes through with its own error and the
-    /// condition is not evaluated. The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous
-    /// (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Turns a successful result into a failure when a condition does not hold.
+    /// A failed result passes through with its own error and the condition is not evaluated.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <param name="condition">The condition that must hold for the result to stay a success.</param>
     /// <param name="error">The error of the failed result that is returned when the condition does not hold.</param>
     /// <returns>
-    /// The receiver when it failed or the condition holds, otherwise a failed result with <paramref name="error"/>. The value is returned
-    /// in a <see cref="ValueTask{TResult}"/>.
+    /// The receiver when it failed or the condition holds, otherwise a failed result with <paramref name="error"/>.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="error"/> is <see langword="null"/>.</exception>
     public static ValueTask<Result> Ensure(this ValueTask<Result> result, Func<ValueTask<bool>> condition, Error error)

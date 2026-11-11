@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Leaves the railway for side effects only: runs one of two delegates, depending on whether the result succeeded. The delegate is
-    /// asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// Leaves the railway for side effects only: runs one of two delegates, depending on whether the result succeeded.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>

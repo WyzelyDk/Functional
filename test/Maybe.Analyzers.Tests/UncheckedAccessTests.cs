@@ -280,8 +280,8 @@ public sealed class UncheckedAccessTests
     [Fact]
     internal async Task GetValue_inside_a_local_function_with_its_own_check_is_not_reported()
     {
-        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nint M(Maybe<int> m) { int Read() { if (m.IsNone) { return 0; } return " +
-            "m.GetValue(); } return Read(); }");
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nint M(Maybe<int> m) { int Read() { if (m.IsNone) { return 0; } " +
+            "return m.GetValue(); } return Read(); }");
 
         Assert.Empty(ids);
     }
@@ -289,8 +289,8 @@ public sealed class UncheckedAccessTests
     [Fact]
     internal async Task A_check_in_one_method_does_not_guard_another_method()
     {
-        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nint A(Maybe<int> m) { if (m.IsNone) { return 0; } return 1; }\nint B(Maybe<int> " +
-            "m) => m.GetValue();");
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nint A(Maybe<int> m) { if (m.IsNone) { return 0; } return 1; }\n" +
+            "int B(Maybe<int> m) => m.GetValue();");
 
         Assert.Equal(["WYZ0201"], ids);
     }
@@ -298,8 +298,8 @@ public sealed class UncheckedAccessTests
     [Fact]
     internal async Task A_default_maybe_is_not_reported()
     {
-        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nMaybe<int> M() => default;\nMaybe<int> N() => default(Maybe<int>);\nMaybe<int> " +
-            "O() => new Maybe<int>();");
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nMaybe<int> M() => default;\nMaybe<int> N() => default(Maybe<int>);\n" +
+            "Maybe<int> O() => new Maybe<int>();");
 
         Assert.Empty(ids);
     }

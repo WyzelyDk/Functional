@@ -7,8 +7,8 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Wyzely.Functional.MaybeAnalyzers;
 
 /// <summary>
-/// Finds the way a <c>Maybe</c> is commonly misused: reading its value without checking that it has one. A default maybe is a valid
-/// none and ignoring a maybe is harmless, so neither is reported.
+/// Finds the way a <c>Maybe</c> is commonly misused: reading its value without checking that it has one.
+/// A default maybe is a valid none and ignoring a maybe is harmless, so neither is reported.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MaybeUsageAnalyzer : DiagnosticAnalyzer

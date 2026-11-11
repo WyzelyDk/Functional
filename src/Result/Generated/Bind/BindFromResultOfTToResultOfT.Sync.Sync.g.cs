@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and returns a value. The delegate runs only when the receiver succeeded; a failed result passes
-    /// through with its error.
+    /// Chains an operation that can fail and returns a value.
+    /// The delegate runs only when the receiver succeeded; a failed result passes through with its error.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value of the result that the delegate returns.</typeparam>

@@ -22,8 +22,8 @@ public static partial class MaybeExtensions
     /// <param name="maybe">The value task that produces the maybe to operate on.</param>
     /// <param name="value">The value to look for.</param>
     /// <returns>
-    /// <see langword="true"/> when the receiver has a value that equals <paramref name="value"/>, otherwise <see langword="false"/>. The
-    /// value is returned in a <see cref="ValueTask{TResult}"/>.
+    /// <see langword="true"/> when the receiver has a value that equals <paramref name="value"/>, otherwise <see langword="false"/>.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     public static ValueTask<bool> Contains<T>(this ValueTask<Maybe<T>> maybe, T value)
         where T : notnull

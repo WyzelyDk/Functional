@@ -49,8 +49,8 @@ public sealed class ProcessSettingsTests : IDisposable
         Assert.Equal("CONFIGURED 1", seen);
     }
 
-    // Runs one chain with a context that counts the continuations posted to it. The receiver and the delegate both complete later, so every
-    // await of the library is a real one.
+    // Runs one chain with a context that counts the continuations posted to it.
+    // The receiver and the delegate both complete later, so every await of the library is a real one.
     private static async Task<int> PostsAsync(Func<Task<Maybe<int>>, Func<int, Task<Maybe<int>>>, Task<Maybe<int>>> run)
     {
         var previous = SynchronizationContext.Current;
@@ -75,8 +75,8 @@ public sealed class ProcessSettingsTests : IDisposable
             receiver.SetResult(Maybe.Some(1));
             await entered.Task.ConfigureAwait(false);
 
-            // The callback that ran the delegate is still busy until the library has awaited the task that the delegate returned. Completing
-            // that task earlier would let the await finish synchronously, without a post, and the count would depend on timing.
+            // The callback that ran the delegate is still busy until the library has awaited the task that the delegate returned.
+            // Completing that task earlier would let the await finish synchronously, without a post, and the count would depend on timing.
             context.WaitUntilIdle();
             inner.SetResult(Maybe.Some(1));
             await task.ConfigureAwait(false);
@@ -89,8 +89,8 @@ public sealed class ProcessSettingsTests : IDisposable
         }
     }
 
-    // Like a UI thread: it counts what is posted to it and is the current context while it runs the callback, so that a second await
-    // inside the chain finds it too.
+    // Like a UI thread: it counts what is posted to it and is the current context while it runs the callback,
+    // so that a second await inside the chain finds it too.
     private sealed class PostingContext : SynchronizationContext
     {
         private int _posts;

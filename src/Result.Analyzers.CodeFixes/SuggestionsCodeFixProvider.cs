@@ -6,8 +6,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Wyzely.Functional.ResultAnalyzers;
 
 /// <summary>
-/// Rewrites the code that the suggestion rules (WYZ0103 to WYZ0110 and WYZ0112 to WYZ0117) point at into the method of the library that says what
-/// it does, or into the simpler form.
+/// Rewrites the code that the suggestion rules (WYZ0103 to WYZ0110 and WYZ0112 to WYZ0117) point at into the method of the library that says what it does,
+/// or into the simpler form.
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SuggestionsCodeFixProvider))]
 [System.Composition.Shared]
@@ -52,8 +52,8 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
         return RewriteConditionalRules(call, diagnostic.Id, properties);
     }
 
-    // A chain of ifs and not a switch on the text: the compiler turns a switch of this size into a hash table, and the equality check behind it has a
-    // side (the same hash for another text) that no test can take.
+    // A chain of ifs and not a switch on the text: the compiler turns a switch of this size into a hash table,
+    // and the equality check behind it has a side (the same hash for another text) that no test can take.
     private static SyntaxNode? RewriteConditionalRules(InvocationExpressionSyntax call, string id, ImmutableDictionary<string, string?> properties)
     {
         if (id == "WYZ0103")

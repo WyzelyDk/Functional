@@ -15,8 +15,8 @@ internal static class OperationShapes
         method.ContainingType.Name == "MaybeExtensions" && method.ContainingNamespace.ToDisplayString() == "Wyzely.Functional";
 
     /// <summary>
-    /// Determines whether an expression is a name, or names joined by dots: an expression whose evaluation has no effect, so that two
-    /// copies of it read the same value.
+    /// Determines whether an expression is a name, or names joined by dots: an expression whose evaluation has no effect,
+    /// so that two copies of it read the same value.
     /// </summary>
     /// <param name="node">The expression.</param>
     /// <returns><see langword="true"/> for a plain read.</returns>
@@ -71,8 +71,8 @@ internal static class OperationShapes
     };
 
     /// <summary>
-    /// Determines whether an operation is <c>Maybe.Some</c> of the value that was compared with <see langword="null"/>: the expression itself for a
-    /// reference, or its <c>Value</c> for a nullable value type.
+    /// Determines whether an operation is <c>Maybe.Some</c> of the value that was compared with <see langword="null"/>: the expression itself for a reference,
+    /// or its <c>Value</c> for a nullable value type.
     /// </summary>
     /// <param name="operation">The operation, without conversions.</param>
     /// <param name="checkedOperation">The expression that was compared with <see langword="null"/>.</param>

@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// MapTry, BindTry, TapTry and TapIfTry run a delegate that may throw and turn the exception into a failure, like Result.Try. The matrix tests cover
-// every combination; these pin what a caller can write and what keeps travelling.
+// MapTry, BindTry, TapTry and TapIfTry run a delegate that may throw and turn the exception into a failure, like Result.Try.
+// The matrix tests cover every combination; these pin what a caller can write and what keeps travelling.
 public sealed class TryFamilyTests
 {
     private static readonly Error Handled = Error.Create("Handled.");

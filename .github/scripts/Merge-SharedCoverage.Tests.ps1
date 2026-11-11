@@ -53,9 +53,13 @@ try {
     $linux = Get-CoveragePackage 'linux'
     $unrelated = Get-CoveragePackage 'unrelated'
 
-    Test-Case 'a shared class with a Windows path moves to the shared package' (@($windows | Where-Object name -eq 'Wyzely.Functional.Shared' | ForEach-Object { $_.classes.class.name }) -contains 'Wyzely.Functional.Internal.Guard')
-    Test-Case 'a shared class with a Linux path moves to the shared package' (@($linux | Where-Object name -eq 'Wyzely.Functional.Shared' | ForEach-Object { $_.classes.class.name }) -contains 'Wyzely.Functional.Internal.Guard')
-    Test-Case 'a class of the assembly itself stays where it was' (@($windows | Where-Object name -eq 'Wyzely.Functional.Result' | ForEach-Object { $_.classes.class.name }) -contains 'Own.Class')
+    $windowsShared = @($windows | Where-Object name -eq 'Wyzely.Functional.Shared' | ForEach-Object { $_.classes.class.name })
+    $linuxShared = @($linux | Where-Object name -eq 'Wyzely.Functional.Shared' | ForEach-Object { $_.classes.class.name })
+    $windowsResult = @($windows | Where-Object name -eq 'Wyzely.Functional.Result' | ForEach-Object { $_.classes.class.name })
+
+    Test-Case 'a shared class with a Windows path moves to the shared package' ($windowsShared -contains 'Wyzely.Functional.Internal.Guard')
+    Test-Case 'a shared class with a Linux path moves to the shared package' ($linuxShared -contains 'Wyzely.Functional.Internal.Guard')
+    Test-Case 'a class of the assembly itself stays where it was' ($windowsResult -contains 'Own.Class')
     Test-Case 'a file without a shared class is not given a shared package' (@($unrelated | Where-Object name -eq 'Wyzely.Functional.Shared').Count -eq 0)
 
     & $script -Path $directory

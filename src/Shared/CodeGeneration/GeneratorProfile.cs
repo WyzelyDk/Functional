@@ -1,8 +1,8 @@
 namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>
-/// Everything that differs between the libraries that share the generator: the names in the generated code, the places it is written
-/// to, and the setting its awaits follow. A library owns one profile and one operation catalog; the rest is shared.
+/// Everything that differs between the libraries that share the generator: the names in the generated code, the places it is written to,
+/// and the setting its awaits follow. A library owns one profile and one operation catalog; the rest is shared.
 /// </summary>
 /// <param name="ToolNamespace">The namespace of the generator, named in the header comment of every generated file.</param>
 /// <param name="ToolProject">The path of the generator project, named in the header comment.</param>
@@ -24,8 +24,7 @@ namespace Wyzely.Functional.CodeGeneration;
 /// generated fast paths should hand out.
 /// </param>
 /// <param name="ConditionalFactories">
-/// <see langword="true"/> when the library has the generated <c>SuccessIf</c> and <c>FailureIf</c> factories (a result type does, a maybe type
-/// writes its own).
+/// <see langword="true"/> when the library has the generated <c>SuccessIf</c> and <c>FailureIf</c> factories (a result type does, a maybe type writes its own).
 /// </param>
 internal sealed record GeneratorProfile(
     string ToolNamespace,

@@ -2,8 +2,8 @@
 
 [Back to the Maybe overview](../../src/Maybe/README.md)
 
-These extension methods turn the "maybe there is one" questions about sequences and dictionaries into a `Maybe<T>`, instead of an
-exception (`First`, `Single`, `ElementAt`, the dictionary indexer) or a `null` (`FirstOrDefault` on a reference type).
+These extension methods turn the "maybe there is one" questions about sequences and dictionaries into a `Maybe<T>`, instead of an exception (`First`, `Single`,
+`ElementAt`, the dictionary indexer) or a `null` (`FirstOrDefault` on a reference type).
 
 | API | Returns |
 |---|---|

@@ -1,15 +1,15 @@
 namespace Wyzely.Functional;
 
 /// <content>
-/// <c>CombineInOrder</c>: like <c>Combine</c> for a sequence of tasks, but one task at a time. <c>Combine</c> starts every task of a lazy sequence
-/// before it waits for any of them; these start the next task only when the previous one has finished, so that the work runs in the order of the
-/// sequence.
+/// <c>CombineInOrder</c>: like <c>Combine</c> for a sequence of tasks, but one task at a time.
+/// <c>Combine</c> starts every task of a lazy sequence before it waits for any of them; these start the next task only when the previous one has finished,
+/// so that the work runs in the order of the sequence.
 /// </content>
 public static partial class ResultCollectionExtensions
 {
     /// <summary>
-    /// Runs the tasks of a sequence one after another, in order, and combines their results, which carry no value, into one result. See
-    /// <see cref="Combine(IEnumerable{Result})"/>.
+    /// Runs the tasks of a sequence one after another, in order, and combines their results, which carry no value, into one result.
+    /// See <see cref="Combine(IEnumerable{Result})"/>.
     /// </summary>
     /// <param name="results">
     /// The tasks that produce the results. A lazy sequence creates a task when the previous one has finished, which is what makes the work run in order.
@@ -37,8 +37,8 @@ public static partial class ResultCollectionExtensions
     }
 
     /// <summary>
-    /// Runs the tasks of a sequence one after another, in order, and combines their results into one result with the list of the values. See
-    /// <see cref="Combine{T}(IEnumerable{Result{T}})"/>.
+    /// Runs the tasks of a sequence one after another, in order, and combines their results into one result with the list of the values.
+    /// See <see cref="Combine{T}(IEnumerable{Result{T}})"/>.
     /// </summary>
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">

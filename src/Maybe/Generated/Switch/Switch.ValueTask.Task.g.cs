@@ -15,11 +15,11 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Leaves the railway for side effects only: runs one of two delegates, depending on whether the maybe has a value. The receiver is a
-    /// <see cref="ValueTask"/> that produces the maybe; it is awaited without capturing the synchronization context unless
-    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a <see cref="Task"/>)
-    /// and is awaited without capturing the synchronization context unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says
-    /// otherwise.
+    /// Leaves the railway for side effects only: runs one of two delegates, depending on whether the maybe has a value.
+    /// The receiver is a <see cref="ValueTask"/> that produces the maybe; it is awaited without capturing the synchronization context
+    /// unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The value task that produces the maybe to operate on.</param>

@@ -20,7 +20,8 @@ function New-Fixture([string] $name, [hashtable[]] $projects) {
     $root = Join-Path $work $name
     New-Item -ItemType Directory -Path (Join-Path $root '.github' 'scripts') | Out-Null
     Copy-Item (Join-Path $PSScriptRoot 'Resolve-Package.ps1') (Join-Path $root '.github' 'scripts')
-    Set-Content -Path (Join-Path $root 'Directory.Build.props') -Value '<Project><PropertyGroup><MinVerTagPrefix>v</MinVerTagPrefix><IsPackable>false</IsPackable></PropertyGroup></Project>'
+    $props = '<Project><PropertyGroup><MinVerTagPrefix>v</MinVerTagPrefix><IsPackable>false</IsPackable></PropertyGroup></Project>'
+    Set-Content -Path (Join-Path $root 'Directory.Build.props') -Value $props
 
     foreach ($project in $projects) {
         $directory = Join-Path $root 'src' $project.Id
@@ -28,7 +29,9 @@ function New-Fixture([string] $name, [hashtable[]] $projects) {
         $prefix = if ($project.Prefix) { "<MinVerTagPrefix>$($project.Prefix)</MinVerTagPrefix>" } else { '' }
         $references = ($project.References | ForEach-Object { "<ProjectReference Include=`"..\$_\$_.csproj`" />" }) -join ''
         $packable = if ($project.Packable) { 'true' } else { 'false' }
-        Set-Content -Path (Join-Path $directory "$($project.Id).csproj") -Value "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup><TargetFramework>netstandard2.0</TargetFramework><IsPackable>$packable</IsPackable><PackageId>$($project.Id)</PackageId>$prefix</PropertyGroup><ItemGroup>$references</ItemGroup></Project>"
+        $properties = "<TargetFramework>netstandard2.0</TargetFramework><IsPackable>$packable</IsPackable><PackageId>$($project.Id)</PackageId>$prefix"
+        $content = "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup>$properties</PropertyGroup><ItemGroup>$references</ItemGroup></Project>"
+        Set-Content -Path (Join-Path $directory "$($project.Id).csproj") -Value $content
     }
 
     return $root
@@ -85,11 +88,16 @@ try {
     Show-CaseResult 'the version is the tag without the prefix' ($release.Values['version'] -eq '0.1.0') "got '$($release.Values['version'])'"
     Show-CaseResult 'a version without a hyphen is not a prerelease' ($release.Values['prerelease'] -eq 'false') "got '$($release.Values['prerelease'])'"
     Show-CaseResult 'the tag is passed on' ($release.Values['tag'] -eq 'v0.1.0') "got '$($release.Values['tag'])'"
-    Show-CaseResult 'every packable project is released, a package after the packages it references' ($release.Values['packageIds'] -eq 'Beta.Core,Gamma.Extras,Alpha.Umbrella') "got '$($release.Values['packageIds'])'"
-    Show-CaseResult 'the projects come in the same order' ($release.Values['projects'] -eq 'src/Beta.Core/Beta.Core.csproj,src/Gamma.Extras/Gamma.Extras.csproj,src/Alpha.Umbrella/Alpha.Umbrella.csproj') "got '$($release.Values['projects'])'"
+    $releaseProjects = 'src/Beta.Core/Beta.Core.csproj,src/Gamma.Extras/Gamma.Extras.csproj,src/Alpha.Umbrella/Alpha.Umbrella.csproj'
+    Show-CaseResult 'every packable project is released, a package after the packages it references' `
+        ($release.Values['packageIds'] -eq 'Beta.Core,Gamma.Extras,Alpha.Umbrella') `
+        "got '$($release.Values['packageIds'])'"
+    Show-CaseResult 'the projects come in the same order' ($release.Values['projects'] -eq $releaseProjects) "got '$($release.Values['projects'])'"
 
     $preview = Invoke-Resolve $good @('-Tag', 'v1.2.3-preview.1')
-    Show-CaseResult 'a version with a hyphen is a prerelease' ($preview.Code -eq 0 -and $preview.Values['prerelease'] -eq 'true' -and $preview.Values['version'] -eq '1.2.3-preview.1') "exit code $($preview.Code), got '$($preview.Values['version'])' / '$($preview.Values['prerelease'])'"
+    $isPrerelease = $preview.Code -eq 0 -and $preview.Values['prerelease'] -eq 'true' -and $preview.Values['version'] -eq '1.2.3-preview.1'
+    Show-CaseResult 'a version with a hyphen is a prerelease' $isPrerelease `
+        "exit code $($preview.Code), got '$($preview.Values['version'])' / '$($preview.Values['prerelease'])'"
 
     foreach ($tag in 'result-v0.1.0', 'v0.1', 'v1.2.3.4', '0.1.0', 'V0.1.0', 'v', 'vx.y.z') {
         $rejected = Invoke-Resolve $good @('-Tag', $tag)
@@ -115,8 +123,10 @@ try {
 
     $real = Invoke-Resolve $realRoot @('-Tag', 'v0.1.0')
     $realIds = @(($real.Values['packageIds'] -split ',') | Where-Object { $_ })
-    Show-CaseResult 'this repository releases its three packages with one tag' ($real.Code -eq 0 -and $realIds.Count -eq 3) "exit code $($real.Code), packages: $($real.Values['packageIds'])"
-    Show-CaseResult 'the umbrella package is pushed last' ($realIds.Count -gt 0 -and $realIds[-1] -eq 'Wyzely.Functional') "packages: $($real.Values['packageIds'])"
+    Show-CaseResult 'this repository releases its three packages with one tag' ($real.Code -eq 0 -and $realIds.Count -eq 3) `
+        "exit code $($real.Code), packages: $($real.Values['packageIds'])"
+    Show-CaseResult 'the umbrella package is pushed last' ($realIds.Count -gt 0 -and $realIds[-1] -eq 'Wyzely.Functional') `
+        "packages: $($real.Values['packageIds'])"
 
     $realValidation = Invoke-Resolve $realRoot @('-Validate')
     Show-CaseResult 'this repository passes the validation' ($realValidation.Code -eq 0) "exit code $($realValidation.Code)"

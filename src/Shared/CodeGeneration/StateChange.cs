@@ -1,8 +1,8 @@
 namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>
-/// How an operation that keeps the value of its receiver can change the state of the receiver (a maybe that has a value or none, a result
-/// that succeeded or failed). The generated code for a completed task only contains the outcomes that can happen.
+/// How an operation that keeps the value of its receiver can change the state of the receiver (a maybe that has a value or none,
+/// a result that succeeded or failed). The generated code for a completed task only contains the outcomes that can happen.
 /// </summary>
 internal enum StateChange
 {

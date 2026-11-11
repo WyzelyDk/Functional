@@ -15,11 +15,11 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Leaves the railway: turns a maybe into a single value by running one of two delegates, depending on whether it has a value. The
-    /// receiver is a <see cref="ValueTask"/> that produces the maybe; it is awaited without capturing the synchronization context unless
-    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a <see cref="Task"/>)
-    /// and is awaited without capturing the synchronization context unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says
-    /// otherwise.
+    /// Leaves the railway: turns a maybe into a single value by running one of two delegates, depending on whether it has a value.
+    /// The receiver is a <see cref="ValueTask"/> that produces the maybe; it is awaited without capturing the synchronization context
+    /// unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <typeparam name="TResult">The type of the value that both delegates produce.</typeparam>
@@ -27,8 +27,8 @@ public static partial class MaybeExtensions
     /// <param name="onSome">Produces the value from the value of the maybe.</param>
     /// <param name="onNone">Produces the value when the maybe has no value.</param>
     /// <returns>
-    /// The value produced by <paramref name="onSome"/> or <paramref name="onNone"/>. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// The value produced by <paramref name="onSome"/> or <paramref name="onNone"/>.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="onSome"/>, <paramref name="onNone"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

@@ -63,8 +63,8 @@ public static class CombiningExample
             $"Partition: {values.Count} values ({string.Join(", ", values.Select(order => order.Id))}), " +
             $"{errors.Count} errors ({string.Join("; ", errors.Select(error => error.Message))})");
 
-        // LINQ query syntax: the same as Bind, so it STOPS at the first failure. Use it when each step needs
-        // the values of the earlier ones, and it reads better than nested lambdas.
+        // LINQ query syntax: the same as Bind, so it STOPS at the first failure.
+        // Use it when each step needs the values of the earlier ones, and it reads better than nested lambdas.
         var placed = from customer in SampleShop.FindCustomer(1)
                      from order in SampleShop.FindOrder(7)
                      select $"{customer.Name} placed order {order.Id}";

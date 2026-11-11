@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// A context frame is a message template with details of its own, like the message of an error: a value that a layer adds is structured and can be
-// redacted, instead of being baked into text.
+// A context frame is a message template with details of its own, like the message of an error: a value that a layer adds is structured and can be redacted,
+// instead of being baked into text.
 public sealed class ErrorFrameTests
 {
     private static readonly Error Upload = Error.Create("Upload failed.");

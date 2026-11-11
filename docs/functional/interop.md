@@ -4,10 +4,9 @@
 
 The umbrella package `Wyzely.Functional` references [`Wyzely.Functional.Result`](../../src/Result/README.md) and
 [`Wyzely.Functional.Maybe`](../../src/Maybe/README.md), and adds the two methods between them. They are the only code in the umbrella package.
-Where this code comes from is the same for every package of the repository (see
-[where this code comes from](../../README.md#where-this-code-comes-from)). For a guided tour see [Getting started](getting-started.md),
-and for the reasoning [Why an umbrella package](why.md). Runnable versions of everything on this page are in
-[`samples/Functional.Samples`](../../samples/Functional.Samples).
+Where this code comes from is the same for every package of the repository (see [where this code comes from](../../README.md#where-this-code-comes-from)).
+For a guided tour see [Getting started](getting-started.md), and for the reasoning [Why an umbrella package](why.md).
+Runnable versions of everything on this page are in [`samples/Functional.Samples`](../../samples/Functional.Samples).
 
 All of it is in the namespace `Wyzely.Functional`, in the static class `MaybeResultExtensions`.
 
@@ -53,12 +52,12 @@ var failure = missing.ToResult(Error.NotFound("No such customer."));        // f
 var lazy = missing.ToResult(() => Error.NotFound("No such customer."));     // the same, but the error is created only when needed
 ```
 
-- A maybe with a value becomes a **success with that value**; a maybe without one becomes a **failure with the error you give**. The library
-  does not invent an error, because "not found", "not configured" and "not allowed" are different things that only the caller knows.
-- **`Func<Error>` runs only for none**, and only once. Use it when the error carries details that are costly to build, or when you would
-  otherwise allocate an error for every success. The `Error` overload takes an error you already hold.
-- A `null` `error`, and a `Func<Error>` that is `null`, throw `ArgumentNullException`; so does a `Func<Error>` that returns `null`. These checks happen when you call the
-  method, not when you await. A `null` `Task` receiver throws as well.
+- A maybe with a value becomes a **success with that value**; a maybe without one becomes a **failure with the error you give**.
+  The library does not invent an error, because "not found", "not configured" and "not allowed" are different things that only the caller knows.
+- **`Func<Error>` runs only for none**, and only once. Use it when the error carries details that are costly to build,
+  or when you would otherwise allocate an error for every success. The `Error` overload takes an error you already hold.
+- A `null` `error`, and a `Func<Error>` that is `null`, throw `ArgumentNullException`; so does a `Func<Error>` that returns `null`.
+  These checks happen when you call the method, not when you await. A `null` `Task` receiver throws as well.
 
 ## `ToMaybe`: from a result to "is there a value"
 
@@ -70,18 +69,19 @@ var noValue = Result.Failure<int>("It broke.").ToMaybe();         // None: the e
 var nullValue = Result.Success<string>(null!).ToMaybe();          // None: a Maybe cannot hold null
 ```
 
-- A **success becomes a maybe with the value**. A **failure becomes none, and its error is dropped on purpose**: `ToMaybe()` is for the place
-  where only "is there a value" matters. If you need to know why there is none, stay with the `Result`.
-- A **success whose value is `null` becomes none**, because a `Maybe<T>` cannot hold `null`. (A `Result<T>` can hold a `null`, for example when it was created
-  with `Result.Success<string>(null!)`; the conversion does not throw for it.)
-- A **`default` `Result<T>` is a success holding `default(T)`**, so its `ToMaybe()` is a maybe with that value (none for a reference type, whose `default` is `null`). This is tested for the plain receiver.
-- There is no `ToMaybe` that keeps the error, and no `Maybe.Try`; `Result.Try(...).ToMaybe()` is the explicit form of "an exception means no
-  value" ([why](../maybe/design-decisions.md#no-maybetry)).
+- A **success becomes a maybe with the value**. A **failure becomes none, and its error is dropped on purpose**:
+  `ToMaybe()` is for the place where only "is there a value" matters. If you need to know why there is none, stay with the `Result`.
+- A **success whose value is `null` becomes none**, because a `Maybe<T>` cannot hold `null`.
+  (A `Result<T>` can hold a `null`, for example when it was created with `Result.Success<string>(null!)`; the conversion does not throw for it.)
+- A **`default` `Result<T>` is a success holding `default(T)`**, so its `ToMaybe()` is a maybe with that value (none for a reference type,
+  whose `default` is `null`). This is tested for the plain receiver.
+- There is no `ToMaybe` that keeps the error, and no `Maybe.Try`;
+  `Result.Try(...).ToMaybe()` is the explicit form of "an exception means no value" ([why](../maybe/design-decisions.md#no-maybetry)).
 
 ## `ToInvertedResult`: when finding something is the problem
 
-`ToResult` treats a value as the good news. Some checks are the other way around: "no user may have this email yet". There, finding a user is the
-failure and finding nothing lets the chain continue. `ToInvertedResult` turns the maybe around:
+`ToResult` treats a value as the good news. Some checks are the other way around: "no user may have this email yet".
+There, finding a user is the failure and finding nothing lets the chain continue. `ToInvertedResult` turns the maybe around:
 
 ```csharp
 using Wyzely.Functional;
@@ -95,10 +95,10 @@ var allowed = free.ToInvertedResult(Error.Conflict("The email is already registe
 var detailed = taken.ToInvertedResult(email => Error.Conflict($"{email} is already registered."));   // the error is built from what was found
 ```
 
-- A maybe **with** a value becomes a **failure with the error you give**, and a maybe **without** one becomes a **success**. The result is an
-  untyped `Result`, because a success carries no value: nothing was found, so there is nothing to carry.
-- The `Func<T, Error>` overload receives the value that was found, so that the error can say what exists already (an id, a name). It runs only
-  when there is a value, and a factory that returns `null` throws `ArgumentNullException`, like the other overloads.
+- A maybe **with** a value becomes a **failure with the error you give**, and a maybe **without** one becomes a **success**.
+  The result is an untyped `Result`, because a success carries no value: nothing was found, so there is nothing to carry.
+- The `Func<T, Error>` overload receives the value that was found, so that the error can say what exists already (an id, a name).
+  It runs only when there is a value, and a factory that returns `null` throws `ArgumentNullException`, like the other overloads.
 - The usual shape is a lookup followed by a chain that continues only when nothing was found:
 
 ```csharp
@@ -125,10 +125,10 @@ var outcome = await FindCustomerAsync(7)
     .Map(receipt => receipt.Number);                  // Result<string>: "R-7", or the NotFound failure
 ```
 
-- A receiver that has **already completed successfully** is converted directly, with no state machine. Otherwise the conversion waits for it
-  by using the `Match` of the package that owns the receiver.
-- A **faulted** task keeps travelling as it is: its exception surfaces when you await the converted task (tested for a faulted
-  `Task<Maybe<T>>`). Nothing is turned into a failure or into none.
+- A receiver that has **already completed successfully** is converted directly, with no state machine.
+  Otherwise the conversion waits for it by using the `Match` of the package that owns the receiver.
+- A **faulted** task keeps travelling as it is: its exception surfaces when you await the converted task (tested for a faulted `Task<Maybe<T>>`).
+  Nothing is turned into a failure or into none.
 - **`ConfigureAwait` follows the settings of the two packages.** Because the waiting is done by the `Match` of the receiver's package, `ToResult` on a task that
   is not yet complete follows `MaybeConfiguration`'s `ContinueOnCapturedContext`, and `ToMaybe` follows `ResultConfiguration`'s. Both default to `false`
   (the context is not captured); see the configuration pages of [Maybe](../maybe/configuration.md) and [Result](../result/configuration.md).

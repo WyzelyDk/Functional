@@ -26,8 +26,8 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        // The tuple of the original has the elements named after the lambda parameters; BindZip names them First and Second. Only when the
-        // very next call is a lambda that does not read those names is the rewrite sure to keep compiling.
+        // The tuple of the original has the elements named after the lambda parameters; BindZip names them First and Second.
+        // Only when the very next call is a lambda that does not read those names is the rewrite sure to keep compiling.
         if (!NextCallIgnoresNames(invocation, first.Name, second.Name))
         {
             return;

@@ -2,9 +2,9 @@
 
 namespace Wyzely.Functional.MaybeTests;
 
-// These tests need the C# 15 compiler and the .NET 11 runtime types, so they exist only for the net11.0 target. The exhaustive
-// switch expressions below are part of what is tested: with warnings as errors, a maybe that was not recognised as a union
-// (or that needed a discard arm) would not compile.
+// These tests need the C# 15 compiler and the .NET 11 runtime types, so they exist only for the net11.0 target.
+// The exhaustive switch expressions below are part of what is tested: with warnings as errors,
+// a maybe that was not recognised as a union (or that needed a discard arm) would not compile.
 public sealed class MaybeUnionTests
 {
     [Fact]

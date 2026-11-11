@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; a
-    /// successful result passes through unchanged and the delegate is not called.
+    /// Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result;
+    /// a successful result passes through unchanged and the delegate is not called.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="compensate">The fallback operation to run with the error of the failed result.</param>

@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Leaves the railway: returns the value of a maybe, or computes a fallback when there is none. The delegate is not called when there
-    /// is a value.
+    /// Leaves the railway: returns the value of a maybe, or computes a fallback when there is none.
+    /// The delegate is not called when there is a value.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>

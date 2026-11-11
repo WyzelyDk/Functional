@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace Wyzely.Functional;
 
 /// <content>
-/// The factory methods that create results. Results are always created here (or by the railway methods), never with
-/// <see langword="default"/> or <c>new Result()</c>.
+/// The factory methods that create results. Results are always created here (or by the railway methods),
+/// never with <see langword="default"/> or <c>new Result()</c>.
 /// </content>
 public readonly partial struct Result
 {

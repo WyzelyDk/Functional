@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Transforms the value of a successful result. A failed result passes through unchanged: its error is kept and the delegate is not
-    /// called.
+    /// Transforms the value of a successful result. A failed result passes through unchanged:
+    /// its error is kept and the delegate is not called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value that the delegate produces.</typeparam>

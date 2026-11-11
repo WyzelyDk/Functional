@@ -14,8 +14,8 @@ public readonly partial struct Result
 {
     /// <summary>Creates a failed result when a condition holds and a successful one otherwise.</summary>
     /// <param name="condition">The condition that makes the result fail, as a function that is called once.</param>
-    /// <param name="errorFactory">Creates the error of the failed result. It is called only when <paramref name="condition"/> is
-    /// <see langword="true"/>.</param>
+    /// <param name="errorFactory">Creates the error of the failed result.
+    /// It is called only when <paramref name="condition"/> is <see langword="true"/>.</param>
     /// <returns>A failed result that holds <paramref name="errorFactory"/>, or a successful result.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="errorFactory"/> is <see langword="null"/>.</exception>
     public static Result FailureIf(Func<bool> condition, Func<Error> errorFactory)

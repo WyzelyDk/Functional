@@ -161,8 +161,8 @@ internal static partial class Operations
         Typed = true,
         Conditional = true,
         KeepsValue = true,
-        Summary = "Runs a side effect that may throw with the value of a successful result when a condition holds, and returns the result " +
-            "unchanged when it does not throw.",
+        Summary = "Runs a side effect that may throw with the value of a successful result when a condition holds, " +
+            "and returns the result unchanged when it does not throw.",
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         Delegate = new("tap", ["T"], "void", "The side effect to run with the value of the successful result."),
@@ -286,8 +286,8 @@ internal static partial class Operations
         Typed = false,
         Conditional = true,
         KeepsValue = true,
-        Summary = "Runs a side effect that may throw for a successful result when a condition holds, and returns the result unchanged when it " +
-            "does not throw.",
+        Summary = "Runs a side effect that may throw for a successful result when a condition holds, " +
+            "and returns the result unchanged when it does not throw.",
         TypeParameters = [],
         TypeParameterDocs = [],
         Delegate = new("tap", [], "void", "The side effect to run."),

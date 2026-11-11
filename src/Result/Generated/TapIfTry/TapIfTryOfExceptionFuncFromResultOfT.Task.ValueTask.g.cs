@@ -15,13 +15,13 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Runs a side effect that may throw with the value of a successful result when a condition holds, and returns the result unchanged
-    /// when it does not throw. A failed receiver passes through and the delegate is not called. Only an exception of type
-    /// <typeparamref name="TException"/>, or one derived from it, becomes a failed result; any other exception keeps travelling. The
-    /// receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a
-    /// <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Runs a side effect that may throw with the value of a successful result when a condition holds,
+    /// and returns the result unchanged when it does not throw. A failed receiver passes through and the delegate is not called.
+    /// Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed result;
+    /// any other exception keeps travelling. The receiver is a <see cref="Task"/> that produces the result;
+    /// it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
+    /// otherwise. The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization
+    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TException">The type of the exception to catch, which is the type of the parameter of <paramref name="onException"/>.</typeparam>
@@ -32,8 +32,8 @@ public static partial class ResultExtensions
     /// <param name="when">A condition that the exception must also meet to be caught; an exception that does not meet it keeps travelling.</param>
     /// <returns>The receiver, or a failed result when the delegate throws. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException">
-    /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="tap"/>, <paramref name="onException"/> is
-    /// <see langword="null"/>.
+    /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="tap"/>,
+    /// <paramref name="onException"/> is <see langword="null"/>.
     /// </exception>
     public static Task<Result<T>> TapIfTry<T, TException>(
         this Task<Result<T>> result,

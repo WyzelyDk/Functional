@@ -9,14 +9,14 @@ and [Performance](performance.md)); they describe the versions named there, not 
 
 ## Do you need a `Maybe` at all?
 
-Often the honest answer is no. With nullable reference types enabled, `User?` already tells the reader that a value may be missing, the compiler
-warns about a missing check, and `?.`, `??` and `is not null` are built in and known to every C# developer. `int?` does the same for value
-types. If that is enough for your code, a library type adds a concept without adding much.
+Often the honest answer is no. With nullable reference types enabled, `User?` already tells the reader that a value may be missing,
+the compiler warns about a missing check, and `?.`, `??` and `is not null` are built in and known to every C# developer. `int?` does the same for value types.
+If that is enough for your code, a library type adds a concept without adding much.
 
 A `Maybe<T>` starts to pay off when:
 
-- **You chain.** Several steps that each may find nothing (`FindCustomer`, then its email, then its address) read as one chain with
-  `Bind` and `Map`, instead of a ladder of `if (x is null) return null;`.
+- **You chain.** Several steps that each may find nothing (`FindCustomer`, then its email, then its address) read as one chain with `Bind` and `Map`,
+  instead of a ladder of `if (x is null) return null;`.
 - **Some steps are asynchronous.** The chain keeps its shape when a step returns a `Task` or a `ValueTask`.
 - **`null` is a legitimate value in your domain** or an unreliable signal (a generic method that must tell "found nothing" from "found
   `null`" is the classic case); a `Maybe<T>` with `where T : notnull` never holds `null`.
@@ -51,62 +51,59 @@ public readonly struct HandWrittenMaybe<T>
 }
 ```
 
-Note what this already gets right: it is a struct, so it allocates nothing, and with a flag the `default` value is a perfectly good "no
-value". So the library's advantage is **not** the core idea. It is everything around the core. Each point below was checked against the source
-and, where it says so, is pinned by a test:
+Note what this already gets right: it is a struct, so it allocates nothing, and with a flag the `default` value is a perfectly good "no value".
+So the library's advantage is **not** the core idea. It is everything around the core.
+Each point below was checked against the source and, where it says so, is pinned by a test:
 
 - **`Some` rejects `null`, and `T : notnull` keeps one way to be empty.** The sketch above accepts `Some(null)` and `HandWrittenMaybe<string?>`,
-  so it has a "some that holds null", and every reader has to ask which empty they got. Here `Maybe.Some(null)` throws
-  `ArgumentNullException`, `Maybe.From(x)` turns a `null` into none, and `Maybe<string?>` is reported against the `notnull` constraint
-  (CS8714; `ConsumerNullabilityTests`).
+  so it has a "some that holds null", and every reader has to ask which empty they got. Here `Maybe.Some(null)` throws `ArgumentNullException`,
+  `Maybe.From(x)` turns a `null` into none, and `Maybe<string?>` is reported against the `notnull` constraint (CS8714; `ConsumerNullabilityTests`).
 - **The conversions are decided and pinned.** A `T` (and a `null` reference) converts to a `Maybe<T>` implicitly, so `return user;` works,
   and nothing converts out of a maybe; `ImplicitConversionTests` pins that this is the only conversion.
 - **The whole railway, in every sync / `Task` / `ValueTask` combination.** `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `Or`, `ValueOr`,
-  `Match` and `Switch` exist for a maybe, a `Task<Maybe<T>>` and a `ValueTask<Maybe<T>>` receiver, times a synchronous, `Task` or
-  `ValueTask` delegate: eleven operations times nine variants, plus the three of `Contains`, is **111 methods** (with the nullable-value form of `Map`), generated from one catalog (111 files under
-  `src/Maybe/Generated`, plus 12 more for `Zip`), each variant with a generated test. Writing and testing those by hand is the part that is
-  not twenty lines.
-- **No `await` in the middle of a chain.** Because the variants share one name, `FindAsync(...).Filter(...).Bind(...).Map(...)` reads
-  top to bottom, with the first `await` where you read the result. An already completed `Task`/`ValueTask` receiver is read without a
-  state machine ([Async](async.md)).
+  `Match` and `Switch` exist for a maybe, a `Task<Maybe<T>>` and a `ValueTask<Maybe<T>>` receiver, times a synchronous, `Task` or `ValueTask` delegate:
+  eleven operations times nine variants, plus the three of `Contains`, is **111 methods** (with the nullable-value form of `Map`),
+  generated from one catalog (111 files under `src/Maybe/Generated`, plus 12 more for `Zip`), each variant with a generated test.
+  Writing and testing those by hand is the part that is not twenty lines.
+- **No `await` in the middle of a chain.** Because the variants share one name, `FindAsync(...).Filter(...).Bind(...).Map(...)` reads top to bottom,
+  with the first `await` where you read the result. An already completed `Task`/`ValueTask` receiver is read without a state machine ([Async](async.md)).
 - **Collection and dictionary lookups.** `FirstOrNone`, `LastOrNone`, `SingleOrNone` (none when there are none *or several*),
   `ElementAtOrNone`, `GetValueOrNone` for read-only dictionaries, and `Choose` (two overloads) ([Collections](collections.md)).
-- **LINQ query syntax, `Zip` and `Flatten`.** `Select`, `SelectMany` and `Where`; `Zip` for two to five maybes, as a tuple or with a
-  selector; `Flatten` for a `Maybe<Maybe<T>>`, also on `Task` and `ValueTask` receivers ([The railway](the-railway.md)).
+- **LINQ query syntax, `Zip` and `Flatten`.** `Select`, `SelectMany` and `Where`; `Zip` for two to five maybes, as a tuple or with a selector;
+  `Flatten` for a `Maybe<Maybe<T>>`, also on `Task` and `ValueTask` receivers ([The railway](the-railway.md)).
 - **An analyzer and honest nullability.** `GetValue()` is a method, and the analyzer `WYZ0201` reports a call that is not guarded by a check
   ([Safety and analyzers](safety-and-analyzers.md)). `TryGetValue` is annotated `[MaybeNullWhen(false)]`, a `Map` delegate may return a
   nullable reference without a warning, and the annotations are pinned by tests that compile consumer code.
-- **Configuration.** How a maybe prints, the message of `GetValue()` on none, whether the value may appear in logs, and the
-  `ConfigureAwait` behavior are settings with defaults ([Configuration](configuration.md)).
-- **Equality, ordering and formatting done once.** Two somes are equal when their values are, every none equals every other none and
-  `default`, none sorts before every some; there are `==`, `!=`, `<`, `<=`, `>`, `>=`, `IEquatable<Maybe<T>>` and `IComparable<Maybe<T>>`,
-  and `ToString()` never throws and can redact the value so that it does not reach logs.
-- **Measured size and allocation, and only those.** `Maybe<int>` is 8 bytes and `Maybe<string>` is two references wide; a synchronous
-  chain allocates 0 bytes on success and on none; a `Task` chain over a reference type that stays none allocates 0 bytes too, because the
-  fast paths hand out one cached completed task per type. These are tests (`PerformanceTests`), and [Performance](performance.md) lists what
-  is *not* claimed, which includes every timing.
-- **Interop with `Result`.** With the umbrella package `Wyzely.Functional`, `ToResult(error)` and `ToMaybe()` move between the two inside
-  one chain, for all three receiver kinds ([Interop](../functional/interop.md)).
+- **Configuration.** How a maybe prints, the message of `GetValue()` on none, whether the value may appear in logs,
+  and the `ConfigureAwait` behavior are settings with defaults ([Configuration](configuration.md)).
+- **Equality, ordering and formatting done once.**
+  Two somes are equal when their values are, every none equals every other none and `default`, none sorts before every some; there are `==`, `!=`, `<`, `<=`,
+  `>`, `>=`, `IEquatable<Maybe<T>>` and `IComparable<Maybe<T>>`, and `ToString()` never throws and can redact the value so that it does not reach logs.
+- **Measured size and allocation, and only those.**
+  `Maybe<int>` is 8 bytes and `Maybe<string>` is two references wide; a synchronous chain allocates 0 bytes on success and on none;
+  a `Task` chain over a reference type that stays none allocates 0 bytes too, because the fast paths hand out one cached completed task per type.
+  These are tests (`PerformanceTests`), and [Performance](performance.md) lists what is *not* claimed, which includes every timing.
+- **Interop with `Result`.** With the umbrella package `Wyzely.Functional`, `ToResult(error)` and `ToMaybe()` move between the two inside one chain,
+  for all three receiver kinds ([Interop](../functional/interop.md)).
 - **C# 15 union support on `net11.0`.** A `switch` with a `T` arm and a `null` arm is exhaustive ([C# 15 unions](unions.md)).
 
 ### What a dependency costs
 
-- **You adopt a vocabulary and a release cadence.** Your team has to learn `Bind`, `Match` and `Or`, and you follow our releases and our
-  breaking changes.
-- **There is generated code you did not write.** A stack trace through `Map.Task.ValueTask` is longer than one through your own twenty
-  lines. The generated files are in the repository and readable, but there are 123 of them.
+- **You adopt a vocabulary and a release cadence.** Your team has to learn `Bind`, `Match` and `Or`, and you follow our releases and our breaking changes.
+- **There is generated code you did not write.** A stack trace through `Map.Task.ValueTask` is longer than one through your own twenty lines.
+  The generated files are in the repository and readable, but there are 123 of them.
 - **An extra package in every project that uses it.** The library has no dependencies outside the BCL (except
   `System.Threading.Tasks.Extensions` on `netstandard2.0`); it still is one more thing to restore, scan and update.
-- **It is opinionated** (`where T : notnull`, a guarded `GetValue()`, a `null` that becomes none); if you disagree, your own type is
-  yours to shape ([Design decisions](design-decisions.md)).
+- **It is opinionated** (`where T : notnull`, a guarded `GetValue()`, a `null` that becomes none); if you disagree,
+  your own type is yours to shape ([Design decisions](design-decisions.md)).
 
 ### When writing your own is the better choice
 
 - **You need it in one place**, with a handful of call sites and synchronous steps. The sketch above, plus a `TryGetValue`, is enough.
-- **You need behavior this library declined** (arithmetic on options, folds, `Sequence`/`Traverse`, JSON or EF Core integration): see
-  [Scope](scope.md); write it, or use a larger library.
-- **You cannot take a dependency**, for example in a code base that vendors everything. The code is MIT-licensed, but copying 102 generated
-  files is a worse deal than writing the part you need.
+- **You need behavior this library declined** (arithmetic on options, folds, `Sequence`/`Traverse`, JSON or EF Core integration): see [Scope](scope.md);
+  write it, or use a larger library.
+- **You cannot take a dependency**, for example in a code base that vendors everything.
+  The code is MIT-licensed, but copying 102 generated files is a worse deal than writing the part you need.
 - **You are happy with `T?`.** If your chains are short and your team knows `?.` and `??`, there is no gap to fill.
 
 ## The short version
@@ -127,28 +124,26 @@ We wanted one specific combination of properties:
 
 Be clear-eyed: the established libraries have things this one does not. The facts below come from inspecting the packages, not from experience of using them.
 
-- **CSharpFunctionalExtensions** has a `Maybe<T>` in the same package as its `Result` types, with Task and ValueTask forms for many of its
-  operations, conversions to its result types, and years of use in many codebases. If you already use it, its `Maybe` is the natural
-  choice and there is no reason to add this one next to it.
-- **LanguageExt** has a very large `Option<A>` with a wide surface: folds, applicative and traversal helpers, arithmetic on options, and
-  conversions to many of its other types. If you want a full functional-programming toolbox, that is the library for it; it is a different scale
-  of commitment, and this package deliberately stays small.
-- **Funcky** has an `Option<T>` with the widest set of helpers on sequences (`MaxOrNone`, `AverageOrNone`, `Traverse` and more), ships analyzers
-  and is actively maintained. If you want those, or already use Funcky for its other types, its `Option` is the natural choice.
-- **Optional** has an `Option<T>` with a compact, readable API and collection helpers whose names we borrowed (`FirstOrNone`,
-  `SingleOrNone`, ...). The probe found no `Task`/`ValueTask` extension methods on it. If you want a small option type and your chains are
-  synchronous, it is a good choice.
+- **CSharpFunctionalExtensions** has a `Maybe<T>` in the same package as its `Result` types,
+  with Task and ValueTask forms for many of its operations, conversions to its result types, and years of use in many codebases.
+  If you already use it, its `Maybe` is the natural choice and there is no reason to add this one next to it.
+- **LanguageExt** has a very large `Option<A>` with a wide surface: folds, applicative and traversal helpers, arithmetic on options,
+  and conversions to many of its other types. If you want a full functional-programming toolbox, that is the library for it;
+  it is a different scale of commitment, and this package deliberately stays small.
+- **Funcky** has an `Option<T>` with the widest set of helpers on sequences (`MaxOrNone`, `AverageOrNone`, `Traverse` and more),
+  ships analyzers and is actively maintained. If you want those, or already use Funcky for its other types, its `Option` is the natural choice.
+- **Optional** has an `Option<T>` with a compact, readable API and collection helpers whose names we borrowed (`FirstOrNone`, `SingleOrNone`, ...).
+  The probe found no `Task`/`ValueTask` extension methods on it. If you want a small option type and your chains are synchronous, it is a good choice.
 
 ## What you give up with this library
 
-- **Where it comes from, and what that does not guarantee.** Like the other packages of this repository it is built on code that has been in
-  production use in many codebases, then expanded, improved and documented with Claude Code (see the
-  [main README](../../README.md#where-this-code-comes-from)). It has not been run in production *as this package*, so treat
-  the lineage as background, not as a guarantee. What backs the claims is the tests.
-- **It does less.** No `Apply`, `Sequence`, `Traverse` or arithmetic, no folds, no JSON, EF Core or ASP.NET Core integrations
-  ([Scope](scope.md)).
-- **It is one team's opinion.** `where T : notnull`, `GetValue()` as a guarded method, and a `null` that becomes none in `Map` and in the
-  implicit conversion are choices you may disagree with ([Design decisions](design-decisions.md)).
+- **Where it comes from, and what that does not guarantee.**
+  Like the other packages of this repository it is built on code that has been in production use in many codebases,
+  then expanded, improved and documented with Claude Code (see the [main README](../../README.md#where-this-code-comes-from)).
+  It has not been run in production *as this package*, so treat the lineage as background, not as a guarantee. What backs the claims is the tests.
+- **It does less.** No `Apply`, `Sequence`, `Traverse` or arithmetic, no folds, no JSON, EF Core or ASP.NET Core integrations ([Scope](scope.md)).
+- **It is one team's opinion.** `where T : notnull`, `GetValue()` as a guarded method,
+  and a `null` that becomes none in `Map` and in the implicit conversion are choices you may disagree with ([Design decisions](design-decisions.md)).
 - **Some paths are lighter on tests than others.** The `netstandard2.0` build is compile-checked, but the test suite runs on `net8.0`,
   `net10.0` and `net11.0`.
 - **There is no community yet**: no Stack Overflow answers, no ecosystem of add-ons.

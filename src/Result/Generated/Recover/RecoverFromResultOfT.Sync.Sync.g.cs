@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a failed result into a success by computing a replacement value from the error. A successful result passes through unchanged
-    /// and the delegate is not called.
+    /// Turns a failed result into a success by computing a replacement value from the error.
+    /// A successful result passes through unchanged and the delegate is not called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>

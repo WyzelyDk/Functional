@@ -15,17 +15,17 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Validates a successful result with an operation that returns a result and does not need the value, and keeps the original value when
-    /// that operation succeeds. A failed result passes through and the delegate is not called. The delegate is asynchronous (it returns a
-    /// <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// Validates a successful result with an operation that returns a resultand does not need the value,
+    /// and keeps the original value when that operation succeeds. A failed result passes through and the delegate is not called.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
     /// <param name="validation">The validation to run when the receiver succeeded. It gets no value.</param>
     /// <returns>
-    /// The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation. The value is
-    /// returned in a <see cref="Task{TResult}"/>.
+    /// The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="validation"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

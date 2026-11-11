@@ -14,9 +14,9 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Leaves the railway: returns the value of a maybe, or throws an <see cref="InvalidOperationException"/> when it has none. It is the
-    /// explicit form of <see cref="Maybe{T}.GetValue"/> for a maybe that is still to come. The receiver is a <see cref="Task"/> that
-    /// produces the maybe; it is awaited without capturing the synchronization context unless
+    /// Leaves the railway: returns the value of a maybe, or throws an <see cref="InvalidOperationException"/> when it has none.
+    /// It is the explicit form of <see cref="Maybe{T}.GetValue"/> for a maybe that is still to come.
+    /// The receiver is a <see cref="Task"/> that produces the maybe; it is awaited without capturing the synchronization context unless
     /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>

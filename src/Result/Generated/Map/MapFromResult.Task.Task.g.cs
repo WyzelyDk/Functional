@@ -15,18 +15,19 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result without a value into a result with a value. A failed result passes through unchanged: its error is kept
-    /// and the delegate is not called. The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous
-    /// (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// Turns a successful result without a value into a result with a value.
+    /// A failed result passes through unchanged: its error is kept and the delegate is not called.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="TResult">The type of the value that the delegate produces.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="map">Produces the value of the new result.</param>
     /// <returns>
-    /// A successful result that holds the value produced by the delegate, or a failed result with the error of the receiver. The value is
-    /// returned in a <see cref="Task{TResult}"/>.
+    /// A successful result that holds the value produced by the delegate, or a failed result with the error of the receiver.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="map"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

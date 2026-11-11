@@ -15,8 +15,9 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure when its value does not satisfy a condition. The message of the error is created from the
-    /// value, and only when the condition does not hold. A failed result passes through with its own error and neither delegate is called.
+    /// Turns a successful result into a failure when its value does not satisfy a condition.
+    /// The message of the error is created from the value, and only when the condition does not hold.
+    /// A failed result passes through with its own error and neither delegate is called.
     /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>

@@ -1,8 +1,8 @@
 namespace Wyzely.Functional;
 
 /// <summary>
-/// LINQ query syntax for <see cref="Maybe{T}"/> (<c>from a in ... from b in ... where ... select ...</c>). <c>Zip</c>, which combines
-/// independent maybes, is generated into <see cref="MaybeExtensions"/>, and <c>Flatten</c> lives there too.
+/// LINQ query syntax for <see cref="Maybe{T}"/> (<c>from a in ... from b in ... where ... select ...</c>).
+/// <c>Zip</c>, which combines independent maybes, is generated into <see cref="MaybeExtensions"/>, and <c>Flatten</c> lives there too.
 /// </summary>
 /// <remarks>
 /// Query syntax short-circuits at the first maybe without a value, like <see cref="MaybeExtensions"/> <c>Bind</c> does.
@@ -21,8 +21,8 @@ public static class MaybeLinqExtensions
         where TResult : notnull => source.Map(selector);
 
     /// <summary>
-    /// Transforms the value of a maybe with a selector that returns a nullable value type. A <see langword="null"/> result becomes none, so
-    /// the result is a <c>Maybe&lt;TResult&gt;</c>, never a <c>Maybe&lt;TResult?&gt;</c>.
+    /// Transforms the value of a maybe with a selector that returns a nullable value type.
+    /// A <see langword="null"/> result becomes none, so the result is a <c>Maybe&lt;TResult&gt;</c>, never a <c>Maybe&lt;TResult?&gt;</c>.
     /// </summary>
     /// <typeparam name="T">The type of the value of the source.</typeparam>
     /// <typeparam name="TResult">The value type of the transformed value.</typeparam>
@@ -46,8 +46,7 @@ public static class MaybeLinqExtensions
         where TResult : notnull => source.Bind(selector);
 
     /// <summary>
-    /// Chains an operation that may produce no value and combines both values. The compiler uses this for a query with two <c>from</c>
-    /// clauses.
+    /// Chains an operation that may produce no value and combines both values. The compiler uses this for a query with two <c>from</c> clauses.
     /// </summary>
     /// <typeparam name="T">The type of the value of the source.</typeparam>
     /// <typeparam name="TCollection">The type of the value of the intermediate maybe.</typeparam>
@@ -81,8 +80,8 @@ public static class MaybeLinqExtensions
     }
 
     /// <summary>
-    /// Chains an operation that may produce no value and combines both values with a selector that returns a nullable value type. A
-    /// <see langword="null"/> result becomes none.
+    /// Chains an operation that may produce no value and combines both values with a selector that returns a nullable value type.
+    /// A <see langword="null"/> result becomes none.
     /// </summary>
     /// <typeparam name="T">The type of the value of the source.</typeparam>
     /// <typeparam name="TCollection">The type of the value of the intermediate maybe.</typeparam>

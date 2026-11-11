@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// Ensure with an operation that returns a result exists for an untyped result and for a typed one. A lambda binds to either, but a method
-// group can only bind to the form whose return type it matches exactly, so the tests pin what a caller can write.
+// Ensure with an operation that returns a result exists for an untyped result and for a typed one.
+// A lambda binds to either, but a method group can only bind to the form whose return type it matches exactly, so the tests pin what a caller can write.
 public sealed class EnsureWithResultTests
 {
     private static readonly Error Rejected = Error.Create("Rejected.");

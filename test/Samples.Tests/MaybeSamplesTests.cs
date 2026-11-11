@@ -2,8 +2,8 @@ using Wyzely.Functional.MaybeSamples;
 
 namespace Wyzely.Functional.SamplesTests;
 
-// Each Maybe example prints labelled lines; these tests pin the lines that matter, so a sample cannot silently stop saying what its
-// comments claim. One class, so that the examples that change the process-wide MaybeConfiguration never overlap with the others.
+// Each Maybe example prints labelled lines; these tests pin the lines that matter, so a sample cannot silently stop saying what its comments claim.
+// One class, so that the examples that change the process-wide MaybeConfiguration never overlap with the others.
 public sealed class MaybeSamplesTests
 {
     [Fact]

@@ -2,8 +2,8 @@ using Wyzely.Functional.ResultAnalyzers;
 
 namespace Wyzely.Functional.ResultAnalyzersTests;
 
-// The one fix for WYZ0102 is a guard clause: when GetValue() is read in a method that returns a result, the failure is returned first. It is
-// offered only where adding the early return cannot change what else the statement does.
+// The one fix for WYZ0102 is a guard clause: when GetValue() is read in a method that returns a result, the failure is returned first.
+// It is offered only where adding the early return cannot change what else the statement does.
 public sealed class UncheckedAccessCodeFixTests
 {
     private const string Sources = """

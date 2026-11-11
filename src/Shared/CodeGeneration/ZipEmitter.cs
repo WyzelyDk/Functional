@@ -1,9 +1,9 @@
 namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>
-/// Writes the <c>Zip</c> overloads of one library: for every count from 2 up to <see cref="GeneratorSettings.MaxZipArity"/>, one method that
-/// combines the values into a tuple and one that combines them with a selector, plus the tests of both. A <c>Maybe</c> gets a third
-/// overload whose selector returns a nullable value type.
+/// Writes the <c>Zip</c> overloads of one library: for every count from 2 up to <see cref="GeneratorSettings.MaxZipArity"/>,
+/// one method that combines the values into a tuple and one that combines them with a selector, plus the tests of both.
+/// A <c>Maybe</c> gets a third overload whose selector returns a nullable value type.
 /// </summary>
 /// <param name="profile">What differs between the libraries that share the generator.</param>
 /// <param name="kind">Whether the values are maybes or results.</param>
@@ -321,8 +321,8 @@ internal sealed class ZipEmitter(GeneratorProfile profile, ZipKind kind)
 
         if (nullableStruct)
         {
-            what += " The selector returns a nullable value type; a <see langword=\"null\"/> result becomes none, so the result is a " +
-                "<c>Maybe&lt;TResult&gt;</c> and never a <c>Maybe&lt;TResult?&gt;</c>.";
+            what += " The selector returns a nullable value type; a <see langword=\"null\"/> result becomes none, " +
+                "so the result is a <c>Maybe&lt;TResult&gt;</c> and never a <c>Maybe&lt;TResult?&gt;</c>.";
         }
 
         return what;

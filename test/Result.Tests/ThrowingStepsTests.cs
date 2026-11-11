@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// GetValueOrThrow and ThrowIfFailure are the explicit ways to leave the railway with an exception. The matrix tests cover every receiver; these pin
-// where the exception comes out for a task, and the exceptions of the factory.
+// GetValueOrThrow and ThrowIfFailure are the explicit ways to leave the railway with an exception.
+// The matrix tests cover every receiver; these pin where the exception comes out for a task, and the exceptions of the factory.
 public sealed class ThrowingStepsTests
 {
     private static readonly Error Rejected = Error.Create("Rejected.");

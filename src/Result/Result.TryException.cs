@@ -3,20 +3,20 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <content>
-/// <c>Try</c> for one kind of exception: code that may throw an exception of a named type, which becomes a failure, while every other
-/// exception keeps travelling.
+/// <c>Try</c> for one kind of exception: code that may throw an exception of a named type, which becomes a failure,
+/// while every other exception keeps travelling.
 /// </content>
 /// <remarks>
 /// <para>
-/// The exception type is the type of the parameter of the handler, so write <c>(JsonException exception) =&gt; Error.FromException(exception)</c>
-/// and both the type of the value and the type of the exception are inferred. An exception of that type, or of a type derived from it, is caught
-/// when the optional <c>when</c> condition also holds.
+/// The exception type is the type of the parameter of the handler, so write <c>(JsonException exception) =&gt; Error.FromException(exception)</c> and both the
+/// type of the value and the type of the exception are inferred.
+/// An exception of that type, or of a type derived from it, is caught when the optional <c>when</c> condition also holds.
 /// </para>
 /// <para>
-/// Naming the type is the decision, so <see cref="ResultOptions.ShouldCatch"/> is not consulted: this is also how a cancellation is caught on
-/// purpose, for example <c>(OperationCanceledException exception) =&gt; ...</c> with <c>when: _ =&gt; !cancellationToken.IsCancellationRequested</c>
-/// to turn a timeout, but not a cancellation by the caller, into a failure. A handler that takes an <see cref="Exception"/> is the
-/// <c>Try</c> without a type, which does follow the setting.
+/// Naming the type is the decision, so <see cref="ResultOptions.ShouldCatch"/> is not consulted: this is also how a cancellation is caught on purpose,
+/// for example <c>(OperationCanceledException exception) =&gt; ...</c> with <c>when: _ =&gt; !cancellationToken.IsCancellationRequested</c> to turn a timeout,
+/// but not a cancellation by the caller, into a failure. A handler that takes an <see cref="Exception"/> is the <c>Try</c> without a type,
+/// which does follow the setting.
 /// </para>
 /// </remarks>
 public readonly partial struct Result
@@ -162,8 +162,7 @@ public readonly partial struct Result
     }
 
     /// <summary>
-    /// Runs a function that returns a <see cref="ValueTask{TResult}"/> and returns its value, or a failed result when it throws an exception of
-    /// the named type.
+    /// Runs a function that returns a <see cref="ValueTask{TResult}"/> and returns its value, or a failed result when it throws an exception of the named type.
     /// </summary>
     /// <typeparam name="T">The type of the value of the function.</typeparam>
     /// <typeparam name="TException">The type of the exception to catch, which is the type of the parameter of <paramref name="onException"/>.</typeparam>

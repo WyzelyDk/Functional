@@ -15,20 +15,20 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Validates the value of a successful result with an operation that returns a result of any value type, and keeps the original value
-    /// when that operation succeeds. A failed result passes through and the delegate is not called. The receiver is a <see cref="Task"/>
-    /// that produces the result; it is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a <see cref="Task"/>)
-    /// and is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
-    /// otherwise.
+    /// Validates the value of a successful result with an operation that returns a result of any value type,
+    /// and keeps the original value when that operation succeeds. A failed result passes through and the delegate is not called.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value of the validation result, which is ignored.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="validation">The validation to run with the value of the successful result. The value of its result is ignored.</param>
     /// <returns>
-    /// The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation. The value is
-    /// returned in a <see cref="Task{TResult}"/>.
+    /// The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="validation"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

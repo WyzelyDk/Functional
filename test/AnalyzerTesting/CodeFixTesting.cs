@@ -27,8 +27,8 @@ internal static class CodeFixTesting
         return [.. diagnostics.Select(diagnostic => diagnostic.Id).OrderBy(id => id, StringComparer.Ordinal)];
     }
 
-    // Asks the provider for a fix of a diagnostic that is made up: the given id, reported at the first occurrence of the marker in the source. It
-    // returns how many fixes the provider offered, which shows that it does not offer one for a diagnostic that is stale or does not fit the code.
+    // Asks the provider for a fix of a diagnostic that is made up: the given id, reported at the first occurrence of the marker in the source.
+    // It returns how many fixes the provider offered, which shows that it does not offer one for a diagnostic that is stale or does not fit the code.
     internal static async Task<int> OfferedFixesAsync(
         string source,
         ImmutableArray<MetadataReference> references,

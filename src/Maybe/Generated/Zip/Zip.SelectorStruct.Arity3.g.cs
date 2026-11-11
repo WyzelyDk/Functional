@@ -12,9 +12,9 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Combines the values of 3 independent maybes with a function, when all of them have a value. The selector returns a nullable value
-    /// type; a <see langword="null"/> result becomes none, so the result is a <c>Maybe&lt;TResult&gt;</c> and never a
-    /// <c>Maybe&lt;TResult?&gt;</c>.
+    /// Combines the values of 3 independent maybes with a function, when all of them have a value.
+    /// The selector returns a nullable value type; a <see langword="null"/> result becomes none,
+    /// so the result is a <c>Maybe&lt;TResult&gt;</c> and never a <c>Maybe&lt;TResult?&gt;</c>.
     /// </summary>
     /// <typeparam name="T1">The type of the value of the first maybe.</typeparam>
     /// <typeparam name="T2">The type of the value of the second maybe.</typeparam>

@@ -9,9 +9,9 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace Wyzely.Functional.ResultAnalyzers;
 
 /// <summary>
-/// Offers a guard clause for <c>GetValue()</c> (WYZ0102) in a method that returns a result: the failure is returned before the statement that reads
-/// the value. There is no fix for <c>GetError()</c> and <c>ConvertFailure()</c>, which need a failed result, because nothing says what the code
-/// should do for a success, and none where the early return could change what else the statement does.
+/// Offers a guard clause for <c>GetValue()</c> (WYZ0102) in a method that returns a result: the failure is returned before the statement that reads the value.
+/// There is no fix for <c>GetError()</c> and <c>ConvertFailure()</c>, which need a failed result, because nothing says what the code should do for a success,
+/// and none where the early return could change what else the statement does.
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UncheckedAccessCodeFixProvider))]
 [System.Composition.Shared]
@@ -160,8 +160,8 @@ public sealed class UncheckedAccessCodeFixProvider : CodeFixProvider
         _ => false,
     };
 
-    // The statement that holds the call, when the call is evaluated first and always: a declaration, an assignment to a name, an expression or a
-    // return, with the call at the start of the expression. Anything evaluated before it, or only sometimes, makes an early return a change.
+    // The statement that holds the call, when the call is evaluated first and always: a declaration, an assignment to a name, an expression or a return,
+    // with the call at the start of the expression. Anything evaluated before it, or only sometimes, makes an early return a change.
     private static StatementSyntax? StatementOf(SyntaxNode node) => node.Parent switch
     {
         LocalDeclarationStatementSyntax { IsConst: false, UsingKeyword.RawKind: 0 } or ExpressionStatementSyntax or ReturnStatementSyntax

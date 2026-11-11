@@ -42,8 +42,8 @@ public readonly record struct SimpleResult<T>(T? Value, string? Error)
 }
 ```
 
-For a small application, **use that**. It has no dependency and everybody can read it. What this library adds, point by point (each checked against the
-source or a test):
+For a small application, **use that**. It has no dependency and everybody can read it.
+What this library adds, point by point (each checked against the source or a test):
 
 | Point | Your sketch | This library |
 |---|---|---|
@@ -57,35 +57,37 @@ source or a test):
 | Language and ecosystem | none | C# 15 union support on `net11.0`; `ToResult` / `ToMaybe` with `Maybe` through the umbrella package `Wyzely.Functional` |
 
 **The honest cost.** A dependency to update; an API that can still change before 1.0; a vocabulary and a set of opinions (no implicit conversion,
-`default` throws) that the whole team must accept; and no public track record as a package yet. **Write your own** when the application is small, the
-error is a message, nobody mixes `Task` and `ValueTask`, and one team owns the code. **Use a library** when the type is shared, when errors must be
-logged safely and grouped, or when you would otherwise hand-write nine variants of every operation.
+`default` throws) that the whole team must accept; and no public track record as a package yet. **Write your own** when the application is small,
+the error is a message, nobody mixes `Task` and `ValueTask`, and one team owns the code. **Use a library** when the type is shared,
+when errors must be logged safely and grouped, or when you would otherwise hand-write nine variants of every operation.
 
 ## What already exists, and where it is better
 
 Be clear-eyed: the established libraries have things this one does not.
 
-- **CSharpFunctionalExtensions** is mature and widely adopted. It has `Maybe`, a very large set of extension methods, separate add-on
-  packages for testing, Web API and analyzers, and years of production use. If you rely on any of that, use it.
-- **FluentResults** has a rich model of "reasons" and successes attached to results, and a configurable logger. If you want to attach
-  many typed reasons to a result and you are fine with classes, it fits.
+- **CSharpFunctionalExtensions** is mature and widely adopted. It has `Maybe`, a very large set of extension methods, separate add-on packages for testing,
+  Web API and analyzers, and years of production use. If you rely on any of that, use it.
+- **FluentResults** has a rich model of "reasons" and successes attached to results, and a configurable logger.
+  If you want to attach many typed reasons to a result and you are fine with classes, it fits.
 - **ErrorOr** is small and pleasant, with a struct and a compact error. If you want exactly that and no `ValueTask`, it is a good choice.
-- **Ardalis.Result** returns an HTTP-like status from a service (`NotFound`, `Forbidden`, `Conflict` and so on). If that is the model you want, it fits; it is a class,
-  and its last package is from October 2024.
-- **Funcky** is an active, broad functional library with built-in analyzers. Its `Result<T>` carries an `Exception`, which suits code that
-  already works with exceptions.
-- **LanguageExt**, **OneOf** and **Optional** are not result libraries in the first place: a complete functional toolbox, a union library and
-  an option library. The [comparison](comparison.md) lists what each gives you when you use it as a result.
+- **Ardalis.Result** returns an HTTP-like status from a service (`NotFound`, `Forbidden`, `Conflict` and so on).
+  If that is the model you want, it fits; it is a class, and its last package is from October 2024.
+- **Funcky** is an active, broad functional library with built-in analyzers.
+  Its `Result<T>` carries an `Exception`, which suits code that already works with exceptions.
+- **LanguageExt**, **OneOf** and **Optional** are not result libraries in the first place: a complete functional toolbox, a union library and an option library.
+  The [comparison](comparison.md) lists what each gives you when you use it as a result.
 
 ## What you give up with this library
 
-- **It is a young package.** The code it grew from has been in production use in many codebases, then expanded, improved and documented with Claude Code (the [main README](../../README.md#where-this-code-comes-from) explains what that does and does not mean). It has not been published to NuGet yet, so it has no track record *as a package*, and the API can change before 1.0.
-- **It does less.** `Maybe` is a separate package ([`Wyzely.Functional.Maybe`](../maybe/why.md)) and not part of this one. There are no value objects
-  and no JSON, EF Core or ASP.NET Core integrations; those are not part of this package either.
+- **It is a young package.** The code it grew from has been in production use in many codebases, then expanded,
+  improved and documented with Claude Code (the [main README](../../README.md#where-this-code-comes-from) explains what that does and does not mean).
+  It has not been published to NuGet yet, so it has no track record *as a package*, and the API can change before 1.0.
+- **It does less.** `Maybe` is a separate package ([`Wyzely.Functional.Maybe`](../maybe/why.md)) and not part of this one.
+  There are no value objects and no JSON, EF Core or ASP.NET Core integrations; those are not part of this package either.
 - **It is one team's opinion.** Conversions are explicit, `default` throws, and `GetValue()`/`GetError()` are guarded by an analyzer.
   If you prefer `return value;` to compile as a success, this library will annoy you on purpose.
-- **Some paths are lighter on tests than others.** The `netstandard2.0` build is compile-checked but the test suite does not run on
-  it, and the C# 15 union support exists only in the `net11.0` build.
+- **Some paths are lighter on tests than others.**
+  The `netstandard2.0` build is compile-checked but the test suite does not run on it, and the C# 15 union support exists only in the `net11.0` build.
 - **There is no community yet**: no Stack Overflow answers, no ecosystem of add-ons.
 
 ## Should you use it?
@@ -102,6 +104,5 @@ Be clear-eyed: the established libraries have things this one does not.
 
 - Claims about behavior are tests; claims about speed are benchmarks with their limits stated ([Performance](performance.md)).
 - The README examples are compiled and run as tests.
-- When a measurement turned out wrong we changed the code and the text, not just the text (the history is in
-  [Design decisions](design-decisions.md)).
+- When a measurement turned out wrong we changed the code and the text, not just the text (the history is in [Design decisions](design-decisions.md)).
 - What we have *not* verified says so, including in the [comparison](comparison.md).

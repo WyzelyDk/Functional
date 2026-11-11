@@ -1,9 +1,9 @@
 namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>
-/// Writes the <c>SuccessIfNotNull</c> factories of a library: a result that holds a value that is not <see langword="null"/>, and a failure
-/// otherwise. The value is given as it is, in a <c>Task</c> or in a <c>ValueTask</c>, for a reference type and for a nullable value type, and the
-/// error as an error, a message, or a function that creates the error only when it is needed. The tests are generated with them.
+/// Writes the <c>SuccessIfNotNull</c> factories of a library: a result that holds a value that is not <see langword="null"/>, and a failure otherwise.
+/// The value is given as it is, in a <c>Task</c> or in a <c>ValueTask</c>, for a reference type and for a nullable value type, and the error as an error,
+/// a message, or a function that creates the error only when it is needed. The tests are generated with them.
 /// </summary>
 /// <param name="profile">What differs between the libraries that share the generator.</param>
 internal sealed class NotNullFactoryEmitter(GeneratorProfile profile)

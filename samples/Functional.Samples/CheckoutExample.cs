@@ -60,9 +60,9 @@ public static class CheckoutExample
             .Combine()
             .Map(totals => totals.Sum());
 
-        // Zip reports the failures of BOTH sides when both failed (an aggregate, in argument order). Bind charges through a
-        // ValueTask<Result<string>> step, so the chain becomes asynchronous there without an await. MapError is the one place to say
-        // where it happened (a context frame), and TapError logs the error without its sensitive details.
+        // Zip reports the failures of BOTH sides when both failed (an aggregate, in argument order).
+        // Bind charges through a ValueTask<Result<string>> step, so the chain becomes asynchronous there without an await.
+        // MapError is the one place to say where it happened (a context frame), and TapError logs the error without its sensitive details.
         return await customer
             .Zip(total, (who, amount) => (Customer: who, Amount: amount))
             .Bind(order => ChargeAsync(order.Customer, order.Amount))

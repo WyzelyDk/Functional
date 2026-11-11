@@ -51,8 +51,8 @@ public static class RailwayExample
         var guest = SampleShop.FindCustomer(99).Recover(_ => new Customer(0, "Guest", string.Empty, IsBlocked: false));
         output.WriteLine("Recover: " + guest.Match(customer => customer.Name, error => error.Message));
 
-        // Compensate: a failure triggers a fallback OPERATION, which can itself fail. Only a transient failure is
-        // compensated here (the gateway is down); a blocked customer stays a failure.
+        // Compensate: a failure triggers a fallback OPERATION, which can itself fail.
+        // Only a transient failure is compensated here (the gateway is down); a blocked customer stays a failure.
         foreach (var orderId in new[] { 12, 9 })
         {
             var paid = SampleShop.FindOrder(orderId).Bind(order => SampleShop.Charge(order).Compensate(
@@ -65,8 +65,8 @@ public static class RailwayExample
         var empty = Result.Success(new Order(20, 1, [], IsOpen: true)).Ensure(order => order.Lines.Count > 0, "The order has no lines.");
         output.WriteLine("Ensure with a message: " + empty.Match(_ => "ok", error => error.Message));
 
-        // Ensure with an operation: validate with an operation that returns a Result, and KEEP the original value. Compare with
-        // Bind(ReserveStock), which would replace the value with what ReserveStock returns (nothing).
+        // Ensure with an operation: validate with an operation that returns a Result, and KEEP the original value.
+        // Compare with Bind(ReserveStock), which would replace the value with what ReserveStock returns (nothing).
         var reservedOrder = SampleShop.FindOrder(7).Ensure(SampleShop.ReserveStock).Map(order => order.Id);
         output.WriteLine($"Ensure with an operation keeps the order: {reservedOrder.ValueOr(-1)}");
 
@@ -78,8 +78,8 @@ public static class RailwayExample
             order => output.WriteLine($"Switch: success {order.Id}"),
             error => output.WriteLine($"Switch: failure {error.Message}"));
 
-        // Flatten: a Result<Result<T>> becomes a Result<T>. It appears when a Map delegate returns a Result
-        // (use Bind to avoid that), or when you meet a nested result from somewhere else.
+        // Flatten: a Result<Result<T>> becomes a Result<T>. It appears when a Map delegate returns a Result (use Bind to avoid that),
+        // or when you meet a nested result from somewhere else.
         var nested = Result.Success(Result.Success(5));
         output.WriteLine($"Flatten: {nested.Flatten()}");
     }

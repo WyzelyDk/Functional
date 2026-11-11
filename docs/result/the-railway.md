@@ -26,8 +26,8 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
 | `Switch(onSuccess, onFailure)` | always | leaves the railway for side effects |
 
-A step that is only sometimes needed does not have to leave the chain. The condition is a `bool` you already have, or a function that is
-evaluated only when the result succeeded (a function of the value gets it). When it does not hold, the result passes through as it was:
+A step that is only sometimes needed does not have to leave the chain. The condition is a `bool` you already have,
+or a function that is evaluated only when the result succeeded (a function of the value gets it). When it does not hold, the result passes through as it was:
 
 ```csharp
 var price = Result.Success(100)
@@ -36,18 +36,18 @@ var price = Result.Success(100)
     .EnsureIf(static value => value > 50, static value => Result.SuccessIf(value < 1000, "Needs approval."));
 ```
 
-A delegate that may throw does not need a `try`/`catch` in the chain. `MapTry`, `BindTry`, `TapTry` and `TapIfTry` turn the exception into a
-failure, as `Result.Try` does, so a cancellation keeps travelling unless `ShouldCatch` says otherwise. Name the exception type with the parameter of the
-handler to catch only that type; any other exception keeps travelling:
+A delegate that may throw does not need a `try`/`catch` in the chain. `MapTry`, `BindTry`, `TapTry` and `TapIfTry` turn the exception into a failure,
+as `Result.Try` does, so a cancellation keeps travelling unless `ShouldCatch` says otherwise.
+Name the exception type with the parameter of the handler to catch only that type; any other exception keeps travelling:
 
 ```csharp
 var address = Result.Success("not a web address")
     .MapTry(static text => new Uri(text), static (UriFormatException exception) => Error.Validation("The address is not valid."));
 ```
 
-Where a failure has to become an exception, say which one. `GetValueOrThrow` and `ThrowIfFailure` take a function that creates the exception from the
-error, and the form without it works on a `Task` or a `ValueTask`, so the end of a chain needs no `await` in the middle. Unlike `GetValue()` they are
-the deliberate way out, so the analyzer does not ask for a check first:
+Where a failure has to become an exception, say which one. `GetValueOrThrow` and `ThrowIfFailure` take a function that creates the exception from the error,
+and the form without it works on a `Task` or a `ValueTask`, so the end of a chain needs no `await` in the middle.
+Unlike `GetValue()` they are the deliberate way out, so the analyzer does not ask for a check first:
 
 ```csharp
 var id = Result.Success(7)
@@ -58,8 +58,8 @@ var code = await Task.FromResult(Result.Success("A12"))
     .GetValueOrThrow();                                                             // "a12", or a ResultFailedException
 ```
 
-A failure that has to travel on as a failure of another type is passed with `ConvertFailure<T>()`. It reads the error like `GetError()` does, so it
-belongs behind a check of `IsFailure`, and the analyzer asks for one (WYZ0102):
+A failure that has to travel on as a failure of another type is passed with `ConvertFailure<T>()`.
+It reads the error like `GetError()` does, so it belongs behind a check of `IsFailure`, and the analyzer asks for one (WYZ0102):
 
 ```csharp
 Result<string> Describe(Result<int> found)
@@ -73,17 +73,17 @@ Result<string> Describe(Result<int> found)
 }
 ```
 
-A value that may be `null` becomes a value that is not, and the type says so. `EnsureNotNull` turns a `Result<T?>` into a `Result<T>`, for a reference
-type and for a nullable value type, and fails with your error when the value is `null`:
+A value that may be `null` becomes a value that is not, and the type says so.
+`EnsureNotNull` turns a `Result<T?>` into a `Result<T>`, for a reference type and for a nullable value type, and fails with your error when the value is `null`:
 
 ```csharp
 var name = Result.Success<string?>(null)
     .EnsureNotNull(Error.NotFound("No such customer."));    // a Result<string>, no longer a Result<string?>
 ```
 
-A step often needs a value from an earlier one. `BindZip` keeps the value next to the value of the next step, and `Map` and `Bind` take the values of
-such a tuple as separate parameters, so no `Item1` or lambda that closes over a variable is needed. `Zip` returns the same kind of tuple. A tuple result that is
-given a `BindZip` grows by one value, up to five:
+A step often needs a value from an earlier one. `BindZip` keeps the value next to the value of the next step,
+and `Map` and `Bind` take the values of such a tuple as separate parameters, so no `Item1` or lambda that closes over a variable is needed.
+`Zip` returns the same kind of tuple. A tuple result that is given a `BindZip` grows by one value, up to five:
 
 ```csharp
 var line = Result.Success(3)
@@ -106,4 +106,6 @@ var flat = Result.Success(Result.Success(5)).Flatten();   // Result<int>: Result
 ```
 
 
-`Zip` combines 2 to 5 independent results (tuple elements are named `First` to `Fifth`, or pass a selector), reports every failure (the single error, or an aggregate in argument order), and is generated into `ResultExtensions`. `Flatten` exists for plain, `Task` and `ValueTask` receivers. Both are used in the [samples](../../samples/Result.Samples).
+`Zip` combines 2 to 5 independent results (tuple elements are named `First` to `Fifth`, or pass a selector), reports every failure (the single error,
+or an aggregate in argument order), and is generated into `ResultExtensions`. `Flatten` exists for plain, `Task` and `ValueTask` receivers.
+Both are used in the [samples](../../samples/Result.Samples).

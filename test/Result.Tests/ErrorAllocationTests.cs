@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Wyzely.Functional.ResultTests;
 
-// An error is immutable, so every With... method copies it. The factories must therefore build their error in one go and not by
-// creating one and copying it: a ready-made error costs exactly one object.
+// An error is immutable, so every With... method copies it.
+// The factories must therefore build their error in one go and not by creating one and copying it: a ready-made error costs exactly one object.
 public sealed class ErrorAllocationTests
 {
     private const int Iterations = 1_000;

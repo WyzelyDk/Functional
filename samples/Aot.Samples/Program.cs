@@ -2,8 +2,8 @@ using System.Globalization;
 using Wyzely.Functional;
 using Wyzely.Functional.AotSamples;
 
-// Exercises every kind of code path the libraries have, so that the AOT compiler must compile and keep all of it. The exit code is
-// the number of checks that failed.
+// Exercises every kind of code path the libraries have, so that the AOT compiler must compile and keep all of it.
+// The exit code is the number of checks that failed.
 var failures = new List<string>();
 
 void Check(string name, bool ok)

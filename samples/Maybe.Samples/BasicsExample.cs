@@ -45,8 +45,8 @@ public static class BasicsExample
         output.WriteLine($"Implicit conversion of a value: {converted}");
         output.WriteLine($"Implicit conversion of null: {convertedNull}");
 
-        // default is none. A struct always has a default value, and here that value is a perfectly good "no value", so a field or an
-        // array slot that was never assigned is not an error.
+        // default is none. A struct always has a default value, and here that value is a perfectly good "no value",
+        // so a field or an array slot that was never assigned is not an error.
         Maybe<int> unassigned = default;
         output.WriteLine($"default(Maybe<int>) is none: {unassigned.IsNone}");
 
@@ -70,10 +70,10 @@ public static class BasicsExample
 
         // ---- GetValue: the one reading that can throw ----------------------------------------------------------------------
 
-        // GetValue is a method, not a property, because it can throw: a property that throws for a state the caller can reach is a
-        // trap. When the package is installed, the analyzer WYZ0201 reports a GetValue() that is not guarded by IsSome / IsNone of the
-        // same maybe. (This project references the source of the library, so the analyzer, which ships inside the NuGet package, does not
-        // run on this file; in your own project the unguarded call below would be a warning.)
+        // GetValue is a method, not a property, because it can throw: a property that throws for a state the caller can reach is a trap.
+        // When the package is installed, the analyzer WYZ0201 reports a GetValue() that is not guarded by IsSome / IsNone of the same maybe.
+        // (This project references the source of the library, so the analyzer, which ships inside the NuGet package, does not run on this file;
+        // in your own project the unguarded call below would be a warning.)
         if (some.IsSome)
         {
             output.WriteLine($"GetValue after an IsSome check: {some.GetValue()}");

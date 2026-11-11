@@ -15,9 +15,9 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Transforms the value of a maybe with a delegate that returns a nullable value type. A <see langword="null"/> result becomes none, so
-    /// the result is a <c>Maybe&lt;TResult&gt;</c> and never a <c>Maybe&lt;TResult?&gt;</c>. A maybe without a value stays without a value
-    /// and the delegate is not called.
+    /// Transforms the value of a maybe with a delegate that returns a nullable value type.
+    /// A <see langword="null"/> result becomes none, so the result is a <c>Maybe&lt;TResult&gt;</c> and never a
+    /// <c>Maybe&lt;TResult?&gt;</c>. A maybe without a value stays without a value and the delegate is not called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <typeparam name="TResult">The value type that the delegate produces, when it is not <see langword="null"/>.</typeparam>

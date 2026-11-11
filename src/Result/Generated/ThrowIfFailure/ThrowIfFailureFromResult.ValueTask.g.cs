@@ -14,10 +14,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Leaves the railway: throws a <see cref="ResultFailedException"/> that carries the error of a failed result. A successful result does
-    /// nothing. It is the explicit form of <see cref="Result.ThrowIfFailure"/> for a result that is still to come. The receiver is a
-    /// <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Leaves the railway: throws a <see cref="ResultFailedException"/> that carries the error of a failed result.
+    /// A successful result does nothing. It is the explicit form of <see cref="Result.ThrowIfFailure"/> for a result that is still to come.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <returns>Nothing.</returns>

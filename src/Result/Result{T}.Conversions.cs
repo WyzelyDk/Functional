@@ -1,9 +1,9 @@
 namespace Wyzely.Functional;
 
 /// <content>
-/// The conversion to an untyped result. A value or an <see cref="Error"/> never becomes a result implicitly: use
-/// <see cref="Result.Success{T}(T)"/> and <see cref="Result.Failure{T}(Error)"/>, so that <c>return false;</c> in a method that
-/// returns <c>Result&lt;bool&gt;</c> cannot be mistaken for a failure.
+/// The conversion to an untyped result. A value or an <see cref="Error"/> never becomes a result implicitly:
+/// use <see cref="Result.Success{T}(T)"/> and <see cref="Result.Failure{T}(Error)"/>, so that <c>return false;</c> in a method that returns
+/// <c>Result&lt;bool&gt;</c> cannot be mistaken for a failure.
 /// </content>
 public readonly partial struct Result<T>
 {

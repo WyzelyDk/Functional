@@ -8,15 +8,15 @@ namespace Wyzely.Functional;
 /// <typeparam name="T">The type of the value. It must not be nullable, because absence is what <c>None</c> is for.</typeparam>
 /// <remarks>
 /// <para>
-/// A maybe is a <see langword="readonly"/> struct: the value is stored inline next to a flag, so creating, passing and chaining
-/// maybes allocates nothing. The <see langword="default"/> value is none, so an unassigned field, an array element or
-/// <c>default(Maybe&lt;T&gt;)</c> is a valid "no value" and never an error.
+/// A maybe is a <see langword="readonly"/> struct: the value is stored inline next to a flag, so creating, passing and chaining maybes allocates nothing.
+/// The <see langword="default"/> value is none, so an unassigned field, an array element or <c>default(Maybe&lt;T&gt;)</c> is a valid "no value" and never an
+/// error.
 /// </para>
 /// <para>
-/// Read it with <see cref="IsSome"/> and <see cref="IsNone"/>, or leave it with <c>Match</c>, <c>ValueOr</c> or
-/// <see cref="TryGetValue(out T)"/>. <see cref="GetValue"/> is for the place where the state is known, and an analyzer (WYZ0201) reports
-/// it anywhere else. A plain value converts to a maybe implicitly, and a <see langword="null"/> reference becomes none, so
-/// <c>return user;</c> in a method that returns <c>Maybe&lt;User&gt;</c> does the right thing.
+/// Read it with <see cref="IsSome"/> and <see cref="IsNone"/>, or leave it with <c>Match</c>, <c>ValueOr</c> or <see cref="TryGetValue(out T)"/>.
+/// <see cref="GetValue"/> is for the place where the state is known, and an analyzer (WYZ0201) reports it anywhere else.
+/// A plain value converts to a maybe implicitly, and a <see langword="null"/> reference becomes none,
+/// so <c>return user;</c> in a method that returns <c>Maybe&lt;User&gt;</c> does the right thing.
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]
@@ -46,16 +46,16 @@ public readonly partial struct Maybe<T> : IEquatable<Maybe<T>>, IComparable<Mayb
     internal static Maybe<T> Of(T? value) => value is null ? default : new Maybe<T>(value);
 
     /// <summary>
-    /// Returns whether another maybe is in the same state: both hold a value or both are none. The generated task methods use it for
-    /// steps that never change a value, to hand back the task they received instead of allocating a new one.
+    /// Returns whether another maybe is in the same state: both hold a value or both are none.
+    /// The generated task methods use it for steps that never change a value, to hand back the task they received instead of allocating a new one.
     /// </summary>
     /// <param name="other">The maybe to compare with.</param>
     /// <returns><see langword="true"/> when both maybes are in the same state.</returns>
     internal bool HasSameStateAs(Maybe<T> other) => IsSome == other.IsSome;
 
     /// <summary>
-    /// Splits the maybe into its state and its value. The railway methods use it instead of asking <see cref="IsSome"/> and then
-    /// <see cref="GetValue"/>, which check twice.
+    /// Splits the maybe into its state and its value. The railway methods use it instead of asking <see cref="IsSome"/> and then <see cref="GetValue"/>,
+    /// which check twice.
     /// </summary>
     /// <param name="value">The value of a maybe that has one, or <see langword="default"/> for none.</param>
     /// <returns><see langword="true"/> when the maybe holds a value.</returns>

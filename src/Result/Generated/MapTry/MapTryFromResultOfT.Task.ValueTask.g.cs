@@ -15,12 +15,13 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Transforms the value of a successful result with a function that may throw. A failed receiver passes through and the delegate is not
-    /// called. A thrown exception becomes a failed result unless <see cref="ResultOptions.ShouldCatch"/> excludes it, as a cancellation is
-    /// by default. The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization
-    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a
-    /// <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Transforms the value of a successful result with a function that may throw.
+    /// A failed receiver passes through and the delegate is not called.
+    /// A thrown exception becomes a failed result unless <see cref="ResultOptions.ShouldCatch"/> excludes it,
+    /// as a cancellation is by default. The receiver is a <see cref="Task"/> that produces the result;
+    /// it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
+    /// otherwise. The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization
+    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value that the delegate produces.</typeparam>
@@ -28,8 +29,8 @@ public static partial class ResultExtensions
     /// <param name="map">Computes the new value from the value of the successful result.</param>
     /// <param name="onException">Creates the error from the exception. When omitted, <see cref="Error.FromException(Exception, string?)"/> is used.</param>
     /// <returns>
-    /// A successful result that holds the value computed by the delegate, or a failed result. The value is returned in a
-    /// <see cref="Task{TResult}"/>.
+    /// A successful result that holds the value computed by the delegate, or a failed result.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="map"/> is <see langword="null"/>.</exception>
     public static Task<Result<TResult>> MapTry<T, TResult>(

@@ -1,8 +1,8 @@
 namespace Wyzely.Functional.FunctionalSamples;
 
-// The small domain that the examples share: customers who can be looked up (a lookup may find nothing, so it returns a Maybe) and a
-// payment gateway that may fail (so it returns a Result). Everything is in memory, so the examples run anywhere and print the same lines
-// every time.
+// The small domain that the examples share: customers who can be looked up (a lookup may find nothing,
+// so it returns a Maybe) and a payment gateway that may fail (so it returns a Result).
+// Everything is in memory, so the examples run anywhere and print the same lines every time.
 internal sealed record Customer(int Id, string Name, string Email, bool IsActive, int CreditLimit);
 
 internal sealed record Receipt(string Number, int Amount);

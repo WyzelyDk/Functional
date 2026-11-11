@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// Tap without a value, EnsureNot, EnsureNotNull and SuccessIfNotNull. The matrix tests cover every combination; these pin what a caller can write,
-// which overload a call binds to, and the guards.
+// Tap without a value, EnsureNot, EnsureNotNull and SuccessIfNotNull.
+// The matrix tests cover every combination; these pin what a caller can write, which overload a call binds to, and the guards.
 public sealed class ConveniencesTests
 {
     private static readonly Error Missing = Error.Create("Missing.");

@@ -37,8 +37,8 @@ public static class AsyncExample
         await output.WriteLineAsync($"Mixed chain, customer 3 (inactive): {await MailMessageAsync(3)}");
         await output.WriteLineAsync($"Mixed chain, customer 99 (unknown): {await MailMessageAsync(99)}");
 
-        // An async lambda converts to both a Task and a ValueTask delegate. The library marks the Task overloads with
-        // [OverloadResolutionPriority], so with C# 13 or later this compiles without ambiguity.
+        // An async lambda converts to both a Task and a ValueTask delegate.
+        // The library marks the Task overloads with [OverloadResolutionPriority], so with C# 13 or later this compiles without ambiguity.
         var doubled = await Maybe.Some(21).Bind(async number =>
         {
             await Task.Yield();

@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure when its value satisfies a condition that must not hold. A failed result passes through
-    /// with its own error and the predicate is not called.
+    /// Turns a successful result into a failure when its value satisfies a condition that must not hold.
+    /// A failed result passes through with its own error and the predicate is not called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>

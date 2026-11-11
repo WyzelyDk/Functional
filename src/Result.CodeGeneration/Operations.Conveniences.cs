@@ -3,8 +3,8 @@ using Wyzely.Functional.CodeGeneration;
 namespace Wyzely.Functional.ResultCodeGeneration;
 
 /// <content>
-/// Small conveniences on the railway: <c>Tap</c> for a side effect that needs no value, <c>EnsureNot</c> for a condition that must not hold, and
-/// <c>EnsureNotNull</c> for a value that must not be <see langword="null"/>, which also changes the type from <c>Result&lt;T?&gt;</c> to
+/// Small conveniences on the railway: <c>Tap</c> for a side effect that needs no value, <c>EnsureNot</c> for a condition that must not hold,
+/// and <c>EnsureNotNull</c> for a value that must not be <see langword="null"/>, which also changes the type from <c>Result&lt;T?&gt;</c> to
 /// <c>Result&lt;T&gt;</c>.
 /// </content>
 internal static partial class Operations
@@ -63,8 +63,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Runs a side effect that needs no value for a successful result and returns the result unchanged. The delegate is not called " +
-            "for a failed result.",
+        Summary = "Runs a side effect that needs no value for a successful result and returns the result unchanged. " +
+            "The delegate is not called for a failed result.",
         Delegates = [new("tap", [], "void", "The side effect to run.")],
         ReturnType = ResultOfT,
         ReturnDescription = ReceiverUnchangedDescription,
@@ -109,8 +109,8 @@ internal static partial class Operations
             ReceiverDescription = ResultOfTReceiverDescription,
             TypeParameters = ["T"],
             TypeParameterDocs = [new("T", TDoc)],
-            Summary = "Turns a successful result into a failure when its value satisfies a condition that must not hold. A failed result passes " +
-                "through with its own error and the predicate is not called.",
+            Summary = "Turns a successful result into a failure when its value satisfies a condition that must not hold. " +
+                "A failed result passes through with its own error and the predicate is not called.",
             Delegates = [new(PredicateName, ["T"], "bool", "The condition the value must not satisfy.")],
             ExtraParameters = [EnsureNotParameter(message)],
             ReturnType = ResultOfT,
@@ -166,8 +166,8 @@ internal static partial class Operations
         ];
     }
 
-    // Result<T?> becomes Result<T>: a null value is the failure, and what remains is known to be there. A reference type only changes its
-    // annotation; a nullable value type is unwrapped, which needs a second overload with its own constraint.
+    // Result<T?> becomes Result<T>: a null value is the failure, and what remains is known to be there.
+    // A reference type only changes its annotation; a nullable value type is unwrapped, which needs a second overload with its own constraint.
     private static OperationSpec EnsureNotNullSpec(NullKind kind, NullError form)
     {
         var isStruct = kind == NullKind.Struct;
@@ -184,8 +184,8 @@ internal static partial class Operations
             TypeParameterDocs = [new("T", "The type of the value, without the nullable annotation.")],
             Structs = isStruct ? ["T"] : [],
             Constraints = isStruct ? [] : ["where T : class"],
-            Summary = "Turns a successful result whose value is <see langword=\"null\"/> into a failure, and returns a result of the same value " +
-                "without the nullable annotation otherwise. A failed result passes through with its own error.",
+            Summary = "Turns a successful result whose value is <see langword=\"null\"/> into a failure, " +
+                "and returns a result of the same value without the nullable annotation otherwise. A failed result passes through with its own error.",
             ExtraParameters = [EnsureNotNullParameter(form)],
             ReturnType = "Result<T>",
             ReturnDescription = "The result with a value that is not null, or a failed result.",

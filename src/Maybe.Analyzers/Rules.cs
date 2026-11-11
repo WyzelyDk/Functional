@@ -54,12 +54,14 @@ internal static class Rules
     private const string SuggestionCategory = "Design";
 
     private const string UseValueOrDescription =
-        "maybe.IsSome ? maybe.GetValue() : fallback is maybe.ValueOr(fallback). ValueOr evaluates the fallback on every call and the " +
-        "conditional only for none, so the rule reports it only when the fallback is a constant, a local, a parameter or a field.";
+        "maybe.IsSome ? maybe.GetValue() : fallback is maybe.ValueOr(fallback). " +
+        "ValueOr evaluates the fallback on every call and the conditional only for none, so the rule reports it only when the fallback is a constant, " +
+        "a local, a parameter or a field.";
 
     private const string UncheckedAccessDescription =
-        "GetValue() throws InvalidOperationException when the maybe has no value. Call it only where a value is known: inside an if " +
-        "on IsSome or IsNone, after an early return, or after TryGetValue. TryGetValue, ValueOr, Match and the railway methods need no check.";
+        "GetValue() throws InvalidOperationException when the maybe has no value. " +
+        "Call it only where a value is known: inside an if on IsSome or IsNone, after an early return, or after TryGetValue. " +
+        "TryGetValue, ValueOr, Match and the railway methods need no check.";
 
     private const string HelpLinkBase = "https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/analyzers/";
 }

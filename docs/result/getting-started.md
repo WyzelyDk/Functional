@@ -45,9 +45,9 @@ Both are `readonly struct`s. A result is in exactly one of two states:
 | **Success** | `Result.Success()`, `Result.Success(value)`, and a `default` result: `default(Result)`, `new Result()`, an array element or field that was never assigned | `GetValue()`; `GetError()` throws |
 | **Failure** | `Result.Failure(error)`, `Result.Failure<T>("message")`, `Result.FromException(ex)`, `Result.Try(...)` | `GetError()`; `GetValue()` throws |
 
-A `default` result is a success: `default(Result)` is the same as `Result.Success()`, and `default(Result<T>)` is the same as
-`Result.Success(default(T))`. A field or an array slot that nobody assigned therefore counts as "it worked", which is why results are collected
-with `Combine`, `Partition` or `SelectInParallel` and not in an array that you fill yourself.
+A `default` result is a success: `default(Result)` is the same as `Result.Success()`, and `default(Result<T>)` is the same as `Result.Success(default(T))`.
+A field or an array slot that nobody assigned therefore counts as "it worked", which is why results are collected with `Combine`,
+`Partition` or `SelectInParallel` and not in an array that you fill yourself.
 
 | Create | |
 |---|---|
@@ -58,9 +58,9 @@ with `Combine`, `Partition` or `SelectInParallel` and not in an array that you f
 | `Result.SuccessIfNotNull(value, error)` | a result that holds a value that is not `null`; the value can be a reference, a nullable value type, or a `Task` or `ValueTask` of one, and the error a message or a function as above |
 | `Result.Try(...)` | run code that may throw (see below) |
 
-Nothing converts to a result **implicitly**. `return false;` in a method that returns `Result<bool>` would otherwise compile as a
-*success* holding `false`, which reads like a failure; with explicit factories a reader sees what happens. (The one implicit
-conversion is the lossless `Result<T>` to `Result`, which only drops the value.)
+Nothing converts to a result **implicitly**. `return false;` in a method that returns `Result<bool>` would otherwise compile as a *success* holding `false`,
+which reads like a failure; with explicit factories a reader sees what happens.
+(The one implicit conversion is the lossless `Result<T>` to `Result`, which only drops the value.)
 
 | Read | |
 |---|---|
@@ -78,13 +78,12 @@ var result = Result.Try(() => int.Parse(text, CultureInfo.InvariantCulture));   
 var saved  = await Result.Try(() => file.WriteAsync(bytes));                    // Task<Result>
 ```
 
-`Try` turns an exception into a failure (`Error.FromException`, or your own mapping as the second argument) and keeps the exception
-as the cause. By default an `OperationCanceledException` is **not** turned into a result: cancellation is a request from the caller
-and keeps travelling as an exception. Both the default mapping and which exceptions are caught can be changed, see
-[Configuration](configuration.md).
+`Try` turns an exception into a failure (`Error.FromException`, or your own mapping as the second argument) and keeps the exception as the cause.
+By default an `OperationCanceledException` is **not** turned into a result: cancellation is a request from the caller and keeps travelling as an exception.
+Both the default mapping and which exceptions are caught can be changed, see [Configuration](configuration.md).
 
-To catch **one kind of exception** and let every other kind keep travelling, name its type with the parameter of the handler, and narrow it
-further with `when` if you need to. Both the type of the value and the type of the exception are inferred:
+To catch **one kind of exception** and let every other kind keep travelling, name its type with the parameter of the handler,
+and narrow it further with `when` if you need to. Both the type of the value and the type of the exception are inferred:
 
 ```csharp
 var order = Result.Try(
@@ -97,9 +96,11 @@ var response = await Result.Try(
     when: _ => !cancellationToken.IsCancellationRequested);   // a timeout, not a cancellation by the caller
 ```
 
-Naming the type is the decision, so `ShouldCatch` does not apply to this form, which is also how a cancellation is caught on purpose. A
-handler that takes a plain `Exception` is the `Try` above, which does follow the setting.
+Naming the type is the decision, so `ShouldCatch` does not apply to this form, which is also how a cancellation is caught on purpose.
+A handler that takes a plain `Exception` is the `Try` above, which does follow the setting.
 
 ## Samples
 
-[`samples/Result.Samples`](../../samples/Result.Samples) is a runnable project with one heavily commented file per theme: basics, errors, the railway, async, combining, exceptions, parallel, configuration, untyped results and C# 15 unions. Run it with `dotnet run --project samples/Result.Samples`. The examples are run as tests.
+[`samples/Result.Samples`](../../samples/Result.Samples) is a runnable project with one heavily commented file per theme: basics, errors, the railway,
+async, combining, exceptions, parallel, configuration, untyped results and C# 15 unions. Run it with `dotnet run --project samples/Result.Samples`.
+The examples are run as tests.

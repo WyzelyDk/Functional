@@ -2,8 +2,8 @@ using Wyzely.Functional.MaybeAnalyzers;
 
 namespace Wyzely.Functional.MaybeAnalyzersTests;
 
-// The shapes around the guards of GetValue that the main tests do not reach: what cannot be analyzed, what only looks like a guard, and the
-// forms of a check that are written with parentheses or with more than one operand.
+// The shapes around the guards of GetValue that the main tests do not reach: what cannot be analyzed, what only looks like a guard,
+// and the forms of a check that are written with parentheses or with more than one operand.
 public sealed class UncheckedAccessEdgeCaseTests
 {
     [Fact]

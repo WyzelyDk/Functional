@@ -4,19 +4,18 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <summary>
-/// The outcome of an operation that returns a value of type <typeparamref name="T"/>: it either succeeded with a value or
-/// failed with an <see cref="Error"/>.
+/// The outcome of an operation that returns a value of type <typeparamref name="T"/>: it either succeeded with a value or failed with an <see cref="Error"/>.
 /// </summary>
 /// <typeparam name="T">The type of the value of a successful result.</typeparam>
 /// <remarks>
 /// <para>
-/// A result is a <see langword="readonly"/> struct. The value is stored inline (no boxing, no allocation) next to a single
-/// reference that holds the error, and the value of a failed result is simply <see langword="default"/>.
+/// A result is a <see langword="readonly"/> struct. The value is stored inline (no boxing, no allocation) next to a single reference that holds the error,
+/// and the value of a failed result is simply <see langword="default"/>.
 /// </para>
 /// <para>
-/// The <see langword="default"/> value is a success that holds <c>default(T)</c>: <c>default(Result&lt;int&gt;)</c> is the same as
-/// <c>Result.Success(0)</c>, so a field or an array element that was never assigned holds a success. A success may hold a
-/// <see langword="null"/> value. Create a failure with <see cref="Result.Failure{T}(Error)"/>.
+/// The <see langword="default"/> value is a success that holds <c>default(T)</c>: <c>default(Result&lt;int&gt;)</c> is the same as <c>Result.Success(0)</c>,
+/// so a field or an array element that was never assigned holds a success. A success may hold a <see langword="null"/> value.
+/// Create a failure with <see cref="Result.Failure{T}(Error)"/>.
 /// </para>
 /// <para>
 /// Read the outcome with <see cref="IsSuccess"/> and <see cref="IsFailure"/>; <see cref="GetValue"/> and
@@ -53,8 +52,8 @@ public readonly partial struct Result<T> : IEquatable<Result<T>>
     /// <param name="value">The value.</param>
     /// <returns>A success that holds the value.</returns>
     /// <remarks>
-    /// Forced to inline: without it the JIT stops inlining the railway methods that call it into their callers, and a step of a chain on a
-    /// <see cref="ValueTask{TResult}"/> costs several nanoseconds more.
+    /// Forced to inline: without it the JIT stops inlining the railway methods that call it into their callers,
+    /// and a step of a chain on a <see cref="ValueTask{TResult}"/> costs several nanoseconds more.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static Result<T> Succeeded(T value) => new(value, null);
@@ -67,8 +66,8 @@ public readonly partial struct Result<T> : IEquatable<Result<T>>
     internal static Result<T> Failed(Error error) => new(default!, error);
 
     /// <summary>
-    /// Returns whether another result is in the same state: both are a success, or both hold the same error. The generated task
-    /// methods use it for steps that never change a value, to hand back the task they received instead of allocating a new one.
+    /// Returns whether another result is in the same state: both are a success, or both hold the same error.
+    /// The generated task methods use it for steps that never change a value, to hand back the task they received instead of allocating a new one.
     /// </summary>
     /// <param name="other">The result to compare with.</param>
     /// <returns><see langword="true"/> when both results are in the same state.</returns>

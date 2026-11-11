@@ -2,8 +2,8 @@ using Wyzely.Functional.ResultAnalyzers;
 
 namespace Wyzely.Functional.ResultAnalyzersTests;
 
-// The edges of the rules: the guards of an access that are written in other ways, code that cannot be analyzed, shapes that look like a suggestion
-// and are not, and a compilation that does not know the library.
+// The edges of the rules: the guards of an access that are written in other ways, code that cannot be analyzed, shapes that look like a suggestion and are not,
+// and a compilation that does not know the library.
 public sealed class AnalyzerEdgeCaseTests
 {
     private const string Sources = """

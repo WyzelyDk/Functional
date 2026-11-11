@@ -3,10 +3,11 @@
 [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional.Maybe)](https://www.nuget.org/packages/Wyzely.Functional.Maybe)
 [![Downloads](https://img.shields.io/nuget/dt/Wyzely.Functional.Maybe)](https://www.nuget.org/packages/Wyzely.Functional.Maybe)
 
-**A `Maybe` type for .NET: a value that may be absent, without `null`. A struct that allocates nothing, whose `default` is simply "no value", and that chains with synchronous and asynchronous steps alike.**
+**A `Maybe` type for .NET: a value that may be absent, without `null`.
+A struct that allocates nothing, whose `default` is simply "no value", and that chains with synchronous and asynchronous steps alike.**
 
-> **Not published yet.** None of the packages of this repository has been released to NuGet at the time of writing, so the NuGet badges above show
-> "not found" until the first release, and the install command below works from then on.
+> **Not published yet.** None of the packages of this repository has been released to NuGet at the time of writing,
+> so the NuGet badges above show "not found" until the first release, and the install command below works from then on.
 
 ```csharp
 using Wyzely.Functional;
@@ -30,30 +31,31 @@ One chain, no `await` in the middle, no `null` check between the steps: the firs
 
 ## Fluent from first step to last
 
-The whole railway is available as chained calls: `Map`, `Bind`, `Filter`, `Tap`, `TapNone` and `Or` continue the chain; `ValueOr`, `Match`
-and `Switch` leave it. Each accepts a synchronous, `Task` or `ValueTask` receiver and delegate in any mix, so the chain above needs no
-`await` in the middle, and LINQ query syntax, `Zip` (two to five maybes) and `Flatten` follow the same rules.
+The whole railway is available as chained calls: `Map`, `Bind`, `Filter`, `Tap`, `TapNone` and `Or` continue the chain;
+`ValueOr`, `Match` and `Switch` leave it. Each accepts a synchronous, `Task` or `ValueTask` receiver and delegate in any mix,
+so the chain above needs no `await` in the middle, and LINQ query syntax, `Zip` (two to five maybes) and `Flatten` follow the same rules.
 [The full list](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/the-railway.md).
 
 ## Why this exists
 
-"There may be no customer" is an ordinary situation, and `null` says it badly: nothing in the type tells the reader, and a missing check is
-found at run time. C#'s nullable reference types help for references and `int?` exists for value types, but neither gives you a chain
-you can write without a check between the steps, or one vocabulary that reads the same for `string` and `int`.
+"There may be no customer" is an ordinary situation, and `null` says it badly: nothing in the type tells the reader, and a missing check is found at run time.
+C#'s nullable reference types help for references and `int?` exists for value types,
+but neither gives you a chain you can write without a check between the steps, or one vocabulary that reads the same for `string` and `int`.
 
-There are good libraries for this already (CSharpFunctionalExtensions, LanguageExt, Optional and others). This one exists because we
-wanted a specific combination, and we wanted it to sit next to the [`Result` type](https://github.com/WyzelyDk/Functional/blob/main/src/Result/README.md) of the same family:
+There are good libraries for this already (CSharpFunctionalExtensions, LanguageExt, Optional and others).
+This one exists because we wanted a specific combination,
+and we wanted it to sit next to the [`Result` type](https://github.com/WyzelyDk/Functional/blob/main/src/Result/README.md) of the same family:
 
-- **`default` is none.** A struct always has a default value; here that value is a perfectly good "no value", so an unassigned field or array slot
-  is never an error.
+- **`default` is none.**
+  A struct always has a default value; here that value is a perfectly good "no value", so an unassigned field or array slot is never an error.
 - **`where T : notnull`.** Absence is what `None` is for, so a `Maybe<string?>` with two ways to be empty is not something you meet by accident.
 - **Every sync / `Task` / `ValueTask` combination under the same method name**, so chains never need an `await` in the middle.
 - **An analyzer in the package** for the one mistake that matters: `GetValue()` without a check.
 - **No dependencies** outside the BCL, and **performance that is measured**: nothing allocated on the synchronous path.
 
-It also gives something up: it is not published yet and has not been run in production as this package, it does less than the larger libraries
-(no arithmetic on options, no `Sequence`/`Traverse`, no JSON or EF Core integration), and it is opinionated. If you already use one of the libraries
-above and are happy, there is little reason to switch.
+It also gives something up: it is not published yet and has not been run in production as this package,
+it does less than the larger libraries (no arithmetic on options, no `Sequence`/`Traverse`, no JSON or EF Core integration), and it is opinionated.
+If you already use one of the libraries above and are happy, there is little reason to switch.
 [The honest long version, including when to use something else.](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/why.md)
 
 ## Why use a library when writing your own Maybe is easy?
@@ -64,16 +66,17 @@ What the library adds is everything around that core, and each item is checked a
 
 - **One way to be empty.** `Maybe.Some(null)` throws, `Maybe.From(x)` turns `null` into none, `Maybe<string?>` is reported against `notnull`.
 - **Decided conversions.** A `T` or a `null` reference converts to a maybe implicitly; nothing converts out of one (pinned by tests).
-- **The generated railway:** twelve operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three), **111 methods** (`Map` has a second form for nullable value types), each with a generated test, and no
-  `await` in the middle of a chain.
+- **The generated railway:** twelve operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three),
+  **111 methods** (`Map` has a second form for nullable value types), each with a generated test, and no `await` in the middle of a chain.
 - **Lookups:** `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose`; and LINQ, `Zip` and `Flatten`.
-- **Analyzers and code fixes (`WYZ0201` and the suggestions `WYZ0202` to `WYZ0204`) and nullability annotations** that are pinned by tests which compile consumer code.
+- **Analyzers and code fixes (`WYZ0201` and the suggestions `WYZ0202` to `WYZ0204`) and nullability annotations** that are pinned by tests which compile
+  consumer code.
 - **Configuration, equality, ordering and formatting**, including redaction of values in `ToString()`.
 - **Measured size and allocation** (only what `PerformanceTests` checks), **interop with `Result`** in the umbrella package, and **C# 15 union support**.
 
 A library costs something too: a vocabulary your team has to learn, generated code you did not write (123 files), one more package to keep updated,
-and an API that can still change before 1.0. When your use is one corner of one project, with synchronous steps and a handful of call sites, writing
-your own is the better choice. [The whole argument, with the cost of a dependency.](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/why.md)
+and an API that can still change before 1.0. When your use is one corner of one project, with synchronous steps and a handful of call sites,
+writing your own is the better choice. [The whole argument, with the cost of a dependency.](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/why.md)
 
 ## Install
 
@@ -89,9 +92,9 @@ dotnet add package Wyzely.Functional.Maybe
 | `net11.0` | none; adds [C# 15 union support](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/unions.md) |
 
 The analyzer comes with the package. Use **C# 13 or later** to write `async` lambdas without ambiguity
-([why](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/async.md#async-lambdas-and-the-language-version)). All public types are in the namespace
-`Wyzely.Functional`. If you use `Result` as well, install the umbrella package
-[`Wyzely.Functional`](https://github.com/WyzelyDk/Functional/blob/main/src/Functional/README.md) instead.
+([why](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/async.md#async-lambdas-and-the-language-version)).
+All public types are in the namespace `Wyzely.Functional`. If you use `Result` as well,
+install the umbrella package [`Wyzely.Functional`](https://github.com/WyzelyDk/Functional/blob/main/src/Functional/README.md) instead.
 
 ## A five-minute tour
 
@@ -115,10 +118,10 @@ nobody.ValueOr("nobody");                               // "nobody"
 name.TryGetValue(out var value);                        // true, and value is "Ada"
 ```
 
-A plain value converts to a maybe implicitly, and a `null` reference becomes none, so `return user;` in a method that returns
-`Maybe<User>` does the right thing. That is a deliberate exception to the rule that nothing converts to a `Result` implicitly:
-there, `return false;` would read like a failure, whereas here the absence of a value is exactly what `null` means
-([why](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/design-decisions.md)).
+A plain value converts to a maybe implicitly, and a `null` reference becomes none,
+so `return user;` in a method that returns `Maybe<User>` does the right thing.
+That is a deliberate exception to the rule that nothing converts to a `Result` implicitly: there, `return false;` would read like a failure,
+whereas here the absence of a value is exactly what `null` means ([why](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/design-decisions.md)).
 
 ### Chain steps; the first missing value skips the rest
 
@@ -142,8 +145,8 @@ becomes none; the result is a `Maybe<string>` or a `Maybe<int>`, never a `Maybe<
 
 ### Mix synchronous and asynchronous steps freely
 
-The receiver can be a maybe, a `Task<Maybe<T>>` or a `ValueTask<Maybe<T>>`, and each delegate can be synchronous, return a `Task`, or return
-a `ValueTask`. All nine combinations exist under the same name, which is why the example at the top has no `await` between the steps.
+The receiver can be a maybe, a `Task<Maybe<T>>` or a `ValueTask<Maybe<T>>`, and each delegate can be synchronous, return a `Task`, or return a `ValueTask`.
+All nine combinations exist under the same name, which is why the example at the top has no `await` between the steps.
 [Async in detail](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/async.md).
 
 ### Ask a collection a question
@@ -203,9 +206,9 @@ This needs a package built with the .NET 11 SDK, was built and tested with SDK `
 
 ## Samples
 
-[`samples/Maybe.Samples`](https://github.com/WyzelyDk/Functional/tree/main/samples/Maybe.Samples) is a runnable console project with one file per theme (basics, the
-railway, async, collections, LINQ/`Zip`/`Flatten`, nullability, equality and formatting, configuration, and the C# 15 union), in a small customer and order
-domain. Each file says what the scenario is and why, and prints labelled lines; the same lines are checked by tests.
+[`samples/Maybe.Samples`](https://github.com/WyzelyDk/Functional/tree/main/samples/Maybe.Samples) is a runnable console project with one file per theme (basics,
+the railway, async, collections, LINQ/`Zip`/`Flatten`, nullability, equality and formatting, configuration, and the C# 15 union),
+in a small customer and order domain. Each file says what the scenario is and why, and prints labelled lines; the same lines are checked by tests.
 
 ```shell
 dotnet run --project samples/Maybe.Samples -c Release

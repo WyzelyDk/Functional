@@ -107,8 +107,8 @@ public static class ExceptionsExample
             var caught = Result.Try(ThrowCancelled);
             await output.WriteLineAsync($"ShouldCatch lets Try catch cancellation: kind {ErrorOf(caught)?.Kind}");
 
-            // The default mapping is a setting too. Here every exception becomes the same user-facing error with a
-            // code, and the exception stays the cause for the logs.
+            // The default mapping is a setting too. Here every exception becomes the same user-facing error with a code,
+            // and the exception stays the cause for the logs.
             ResultConfiguration.Configure(options => options.ExceptionMapper = static exception =>
                 Error.Unexpected("Something went wrong.").WithCode("E_UNEXPECTED").WithException(exception));
             var mapped = Result.Try(() => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture));

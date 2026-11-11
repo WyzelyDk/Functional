@@ -29,8 +29,8 @@ public static partial class ResultCollectionExtensions
     }
 
     /// <summary>
-    /// Reads a stream of results that carry a value and combines them into one result with the list of the values. See
-    /// <see cref="Result.Combine{T}(IEnumerable{Result{T}})"/>.
+    /// Reads a stream of results that carry a value and combines them into one result with the list of the values.
+    /// See <see cref="Result.Combine{T}(IEnumerable{Result{T}})"/>.
     /// </summary>
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">The stream of results to combine.</param>
@@ -48,8 +48,7 @@ public static partial class ResultCollectionExtensions
     }
 
     /// <summary>
-    /// Reads a stream of results and splits it into the values of the successful ones and the errors of the failed ones, both in the order of the
-    /// stream.
+    /// Reads a stream of results and splits it into the values of the successful ones and the errors of the failed ones, both in the order of the stream.
     /// </summary>
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">The stream of results to split.</param>
@@ -90,8 +89,8 @@ public static partial class ResultCollectionExtensions
     }
 
     /// <summary>
-    /// Turns the result of a list into a stream of results: one for every item, as the selector produces it, and a single failure when the receiver
-    /// failed. The selector runs for an item when the stream is read up to it, not before.
+    /// Turns the result of a list into a stream of results: one for every item, as the selector produces it, and a single failure when the receiver failed.
+    /// The selector runs for an item when the stream is read up to it, not before.
     /// </summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
     /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>
@@ -110,8 +109,8 @@ public static partial class ResultCollectionExtensions
     }
 
     /// <summary>
-    /// Turns the result of a list into a stream of results with an asynchronous selector. See
-    /// <see cref="SelectEach{TSource, TResult}(Result{IReadOnlyList{TSource}}, Func{TSource, Result{TResult}})"/>.
+    /// Turns the result of a list into a stream of results with an asynchronous selector.
+    /// See <see cref="SelectEach{TSource, TResult}(Result{IReadOnlyList{TSource}}, Func{TSource, Result{TResult}})"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
     /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>

@@ -3,12 +3,11 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <content>
-/// <c>Try</c>: runs code that may throw and turns the exception into a failed result. This is the bridge from exception-based
-/// code to results.
+/// <c>Try</c>: runs code that may throw and turns the exception into a failed result. This is the bridge from exception-based code to results.
 /// </content>
 /// <remarks>
-/// By default a <see cref="OperationCanceledException"/> is not turned into a result: cancellation is a request from the caller, so
-/// it keeps travelling as an exception. Use <see cref="Error.Cancelled(string?)"/> explicitly when a cancellation should become a failure,
+/// By default a <see cref="OperationCanceledException"/> is not turned into a result: cancellation is a request from the caller,
+/// so it keeps travelling as an exception. Use <see cref="Error.Cancelled(string?)"/> explicitly when a cancellation should become a failure,
 /// or change which exceptions are caught with <see cref="ResultOptions.ShouldCatch"/>.
 /// </remarks>
 public readonly partial struct Result

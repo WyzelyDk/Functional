@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that returns no value after another one, and may throw. A failed receiver passes through and the delegate is not
-    /// called. A thrown exception becomes a failed result unless <see cref="ResultOptions.ShouldCatch"/> excludes it, as a cancellation is
-    /// by default.
+    /// Chains an operation that returns no value after another one, and may throw.
+    /// A failed receiver passes through and the delegate is not called.
+    /// A thrown exception becomes a failed result unless <see cref="ResultOptions.ShouldCatch"/> excludes it,
+    /// as a cancellation is by default.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="bind">The operation to run.</param>

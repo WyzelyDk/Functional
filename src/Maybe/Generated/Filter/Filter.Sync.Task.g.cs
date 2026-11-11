@@ -15,16 +15,17 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Turns a maybe into none when its value does not satisfy a condition. A maybe without a value stays without a value and the predicate
-    /// is not called. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization
-    /// context unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Turns a maybe into none when its value does not satisfy a condition.
+    /// A maybe without a value stays without a value and the predicate is not called.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>
     /// <param name="predicate">The condition the value must satisfy.</param>
     /// <returns>
-    /// The receiver when it has a value that satisfies the condition, otherwise none. The value is returned in a
-    /// <see cref="Task{TResult}"/>.
+    /// The receiver when it has a value that satisfies the condition, otherwise none.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="predicate"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

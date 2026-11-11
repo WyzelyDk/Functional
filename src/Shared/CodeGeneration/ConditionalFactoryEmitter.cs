@@ -1,10 +1,10 @@
 namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>
-/// Writes the <c>SuccessIf</c> and <c>FailureIf</c> factories of a library: every kind of condition (a value, a function, a <c>Task</c> or a
-/// <c>ValueTask</c>, and the functions of those) combined with every way to give the error (an error, a message, or a function that creates
-/// either, called only when the result fails), plus the tests of all of them. They are static methods of the result type, not extension
-/// methods, so they do not go through the operation catalog.
+/// Writes the <c>SuccessIf</c> and <c>FailureIf</c> factories of a library: every kind of condition (a value, a function, a <c>Task</c> or a <c>ValueTask</c>,
+/// and the functions of those) combined with every way to give the error (an error, a message, or a function that creates either,
+/// called only when the result fails), plus the tests of all of them.
+/// They are static methods of the result type, not extension methods, so they do not go through the operation catalog.
 /// </summary>
 /// <param name="profile">What differs between the libraries that share the generator.</param>
 internal sealed class ConditionalFactoryEmitter(GeneratorProfile profile)

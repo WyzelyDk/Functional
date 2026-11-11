@@ -14,8 +14,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Leaves the railway: throws the exception that a function creates from the error of a failed result, so that a failure can become an
-    /// exception of your own type. A successful result does nothing.
+    /// Leaves the railway: throws the exception that a function creates from the error of a failed result,
+    /// so that a failure can become an exception of your own type. A successful result does nothing.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="exceptionFactory">Creates the exception to throw from the error of the failed result.</param>

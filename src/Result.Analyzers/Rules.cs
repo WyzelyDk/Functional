@@ -197,42 +197,38 @@ internal static class Rules
     private const string SuggestionCategory = "Design";
 
     private const string UseBindIfDescription =
-        "A Bind whose delegate returns Result.Success(x) for one branch of a condition and another result for the other " +
-        "branch is a BindIf. BindIf takes the condition as a function that runs only for a successful result, so the " +
-        "behavior is the same.";
+        "A Bind whose delegate returns Result.Success(x) for one branch of a condition and another result for the other branch is a BindIf. " +
+        "BindIf takes the condition as a function that runs only for a successful result, so the behavior is the same.";
 
     private const string UseMapIfDescription =
-        "A Map whose delegate returns the value itself for one branch of a condition and a new value of the same type " +
-        "for the other branch is a MapIf. MapIf takes the condition as a function that runs only for a successful " +
-        "result, so the behavior is the same.";
+        "A Map whose delegate returns the value itself for one branch of a condition and a new value of the same type for the other branch is a MapIf. " +
+        "MapIf takes the condition as a function that runs only for a successful result, so the behavior is the same.";
 
     private const string UseEnsureNotNullDescription =
-        "A Bind that fails for a null value and succeeds with the value otherwise is EnsureNotNull, which also turns a " +
-        "Result<T?> into a Result<T>.";
+        "A Bind that fails for a null value and succeeds with the value otherwise is EnsureNotNull, which also turns a Result<T?> into a Result<T>.";
 
     private const string UseSuccessIfDescription =
-        "cond ? Result.Success() : Result.Failure(e) is Result.SuccessIf(cond, e), and the reverse is " +
-        "Result.FailureIf(cond, e). The rule reports it only when the error is a constant, a local or a field, because " +
-        "passing the error as a function would allocate a delegate on every call.";
+        "cond ? Result.Success() : Result.Failure(e) is Result.SuccessIf(cond, e), and the reverse is Result.FailureIf(cond, e). " +
+        "The rule reports it only when the error is a constant, a local or a field, " +
+        "because passing the error as a function would allocate a delegate on every call.";
 
     private const string UseValueOrDescription =
-        "Match(v => v, _ => fallback) is ValueOr(fallback). Match evaluates the fallback only for a failure and ValueOr always does, so the rule " +
-        "reports it only when the fallback is a constant, a local, a parameter or a field, and the failure delegate does not read the error.";
+        "Match(v => v, _ => fallback) is ValueOr(fallback). Match evaluates the fallback only for a failure and ValueOr always does, " +
+        "so the rule reports it only when the fallback is a constant, a local, a parameter or a field, and the failure delegate does not read the error.";
 
     private const string InterpolatedMessageDescription =
-        "An interpolated message is built every time the line runs, also when the result succeeds, and the values become part of the " +
-        "text. A message template with {Name} placeholders and the values as details costs nothing until the message is read, keeps " +
-        "the template the same for every value (so errors can be grouped), and lets a detail be marked as sensitive so that redacted " +
-        "output hides it.";
+        "An interpolated message is built every time the line runs, also when the result succeeds, and the values become part of the text. " +
+        "A message template with {Name} placeholders and the values as details costs nothing until the message is read, " +
+        "keeps the template the same for every value (so errors can be grouped), and lets a detail be marked as sensitive so that redacted output hides it.";
 
     private const string UnusedResultDescription =
-        "A Result (or a Task or ValueTask of a Result) that is neither awaited and used nor assigned means a failed operation can be " +
-        "ignored silently. Handle the result, return it, or write '_ = ...' to show that ignoring it is intended.";
+        "A Result (or a Task or ValueTask of a Result) that is neither awaited and used nor assigned means a failed operation can be ignored silently. " +
+        "Handle the result, return it, or write '_ = ...' to show that ignoring it is intended.";
 
     private const string UncheckedAccessDescription =
-        "GetError() and ConvertFailure() throw when the result succeeded and GetValue() throws when it failed. Call them only where the state is known: " +
-        "inside an if on IsFailure or IsSuccess, after an early return, or after TryGetError or TryGetValue. Match, ValueOr and the railway " +
-        "methods need no check.";
+        "GetError() and ConvertFailure() throw when the result succeeded and GetValue() throws when it failed. " +
+        "Call them only where the state is known: inside an if on IsFailure or IsSuccess, after an early return, or after TryGetError or TryGetValue. " +
+        "Match, ValueOr and the railway methods need no check.";
 
     private const string HelpLinkBase = "https://github.com/WyzelyDk/Functional/blob/main/docs/result/analyzers/";
 }

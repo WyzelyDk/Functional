@@ -1,8 +1,8 @@
 namespace Wyzely.Functional.ResultTests;
 
-// Ensure takes an error or a message that is created from the value, and only when the condition does not hold. The condition and the factory
-// are asynchronous independently of each other. The matrix tests cover every combination; these pin what a caller can write: lambdas, async
-// lambdas and method groups, and what happens when a factory misbehaves.
+// Ensure takes an error or a message that is created from the value, and only when the condition does not hold.
+// The condition and the factory are asynchronous independently of each other. The matrix tests cover every combination; these pin what a caller can write:
+// lambdas, async lambdas and method groups, and what happens when a factory misbehaves.
 public sealed class EnsureErrorFactoryTests
 {
     private static readonly Error Rejected = Error.Create("Rejected.");

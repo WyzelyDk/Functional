@@ -1,8 +1,8 @@
 namespace Wyzely.Functional.Internal;
 
 /// <summary>
-/// Combines hash codes. It uses <c>System.HashCode</c> where the runtime has it and a simple fold on netstandard2.0, where
-/// the type is not available without another package.
+/// Combines hash codes. It uses <c>System.HashCode</c> where the runtime has it and a simple fold on netstandard2.0,
+/// where the type is not available without another package.
 /// </summary>
 internal static class HashCodeHelper
 {

@@ -15,10 +15,11 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure when its value does not satisfy a condition. A failed result passes through with its own
-    /// error and the predicate is not called. The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without
-    /// capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is
-    /// asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// Turns a successful result into a failure when its value does not satisfy a condition.
+    /// A failed result passes through with its own error and the predicate is not called.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
@@ -26,8 +27,8 @@ public static partial class ResultExtensions
     /// <param name="predicate">The condition the value must satisfy.</param>
     /// <param name="error">The error of the failed result that is returned when the condition does not hold.</param>
     /// <returns>
-    /// The receiver when it failed or its value satisfies the condition, otherwise a failed result with <paramref name="error"/>. The value
-    /// is returned in a <see cref="ValueTask{TResult}"/>.
+    /// The receiver when it failed or its value satisfies the condition, otherwise a failed result with <paramref name="error"/>.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="error"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

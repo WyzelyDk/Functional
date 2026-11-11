@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Validates the value of a successful result with an operation that returns a result of any value type, and keeps the original value
-    /// when that operation succeeds. A failed result passes through and the delegate is not called.
+    /// Validates the value of a successful result with an operation that returns a result of any value type,
+    /// and keeps the original value when that operation succeeds. A failed result passes through and the delegate is not called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value of the validation result, which is ignored.</typeparam>

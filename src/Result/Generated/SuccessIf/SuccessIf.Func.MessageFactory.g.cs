@@ -14,8 +14,8 @@ public readonly partial struct Result
 {
     /// <summary>Creates a successful result when a condition holds and a failed one otherwise.</summary>
     /// <param name="condition">The condition that must hold for the result to succeed, as a function that is called once.</param>
-    /// <param name="messageFactory">Creates the message of the error of the failed result. It is called only when
-    /// <paramref name="condition"/> is <see langword="false"/>.</param>
+    /// <param name="messageFactory">Creates the message of the error of the failed result.
+    /// It is called only when <paramref name="condition"/> is <see langword="false"/>.</param>
     /// <returns>A successful result, or a failed result whose error was created from <paramref name="messageFactory"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="messageFactory"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException">

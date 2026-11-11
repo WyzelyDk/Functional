@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <content>
-/// The same questions for an asynchronous stream: the first, last or only element, the element at an index, and keeping the values of the maybes
-/// that have one. A stream is read once, in order, and only as far as the answer needs; the reading stops when the cancellation token is cancelled.
+/// The same questions for an asynchronous stream: the first, last or only element, the element at an index, and keeping the values of the maybes that have one.
+/// A stream is read once, in order, and only as far as the answer needs; the reading stops when the cancellation token is cancelled.
 /// A predicate may be asynchronous.
 /// </content>
 public static partial class MaybeCollectionExtensions
@@ -203,8 +203,8 @@ public static partial class MaybeCollectionExtensions
     }
 
     /// <summary>
-    /// Returns the only element that satisfies a condition that returns a <see cref="ValueTask{TResult}"/>, or none when there is no such element
-    /// or there are several.
+    /// Returns the only element that satisfies a condition that returns a <see cref="ValueTask{TResult}"/>,
+    /// or none when there is no such element or there are several.
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
     /// <param name="source">The stream to look in.</param>

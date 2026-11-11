@@ -15,8 +15,9 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure when its value does not satisfy a condition. The error is created from the value, and only
-    /// when the condition does not hold. A failed result passes through with its own error and neither delegate is called.
+    /// Turns a successful result into a failure when its value does not satisfy a condition.
+    /// The error is created from the value, and only when the condition does not hold.
+    /// A failed result passes through with its own error and neither delegate is called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>

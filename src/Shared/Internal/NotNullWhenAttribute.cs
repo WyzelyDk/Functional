@@ -10,8 +10,7 @@ namespace System.Diagnostics.CodeAnalysis;
 internal sealed class NotNullWhenAttribute(bool returnValue) : Attribute
 {
     /// <summary>
-    /// Gets a value indicating whether the method must return <see langword="true"/> (rather than <see langword="false"/>) for the
-    /// guarantee to hold.
+    /// Gets a value indicating whether the method must return <see langword="true"/> (rather than <see langword="false"/>) for the guarantee to hold.
     /// </summary>
     public bool ReturnValue { get; } = returnValue;
 }

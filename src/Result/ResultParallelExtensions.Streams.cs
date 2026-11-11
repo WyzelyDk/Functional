@@ -5,8 +5,7 @@ namespace Wyzely.Functional;
 
 /// <content>
 /// The same helpers for an asynchronous stream of items. The stream is read to the end first, once and in order, and then the operations run,
-/// as they do for a sequence that is enumerated once before any operation starts: it does not feed work to the operations while it is still
-/// being read.
+/// as they do for a sequence that is enumerated once before any operation starts: it does not feed work to the operations while it is still being read.
 /// </content>
 public static partial class ResultParallelExtensions
 {
@@ -23,8 +22,8 @@ public static partial class ResultParallelExtensions
     /// </param>
     /// <param name="cancellationToken">A token that stops the reading of the stream and the items that have not started yet.</param>
     /// <returns>
-    /// A task that produces a successful result with the values in the order of the stream, or a failed result with the error (or the aggregate
-    /// of the errors, in the order of the stream) of the failed items.
+    /// A task that produces a successful result with the values in the order of the stream, or a failed result with the error (or the aggregate of the errors,
+    /// in the order of the stream) of the failed items.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="operation"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxDegreeOfParallelism"/> is zero or less than <c>-1</c>.</exception>
@@ -78,8 +77,8 @@ public static partial class ResultParallelExtensions
     /// </param>
     /// <param name="cancellationToken">A token that stops the reading of the stream and the items that have not started yet.</param>
     /// <returns>
-    /// A task that produces a successful result when every operation succeeded, or a failed result with the error (or the aggregate of the
-    /// errors, in the order of the stream) of the failed items.
+    /// A task that produces a successful result when every operation succeeded, or a failed result with the error (or the aggregate of the errors,
+    /// in the order of the stream) of the failed items.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="operation"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxDegreeOfParallelism"/> is zero or less than <c>-1</c>.</exception>

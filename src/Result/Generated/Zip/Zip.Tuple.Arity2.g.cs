@@ -17,8 +17,8 @@ public static partial class ResultExtensions
     /// <param name="first">The first result.</param>
     /// <param name="second">The second result.</param>
     /// <returns>
-    /// A successful result with all the values, or a failed result with the error of the one that failed, or an aggregate of the errors (in
-    /// argument order) when several failed.
+    /// A successful result with all the values, or a failed result with the error of the one that failed,
+    /// or an aggregate of the errors (in argument order) when several failed.
     /// </returns>
     public static Result<(T1 First, T2 Second)> Zip<T1, T2>(this Result<T1> first, Result<T2> second)
     {

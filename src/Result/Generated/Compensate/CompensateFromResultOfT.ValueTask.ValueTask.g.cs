@@ -15,11 +15,12 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; a
-    /// successful result passes through unchanged and the delegate is not called. The receiver is a <see cref="ValueTask"/> that produces
-    /// the result; it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/>
-    /// says otherwise. The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result;
+    /// a successful result passes through unchanged and the delegate is not called.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>

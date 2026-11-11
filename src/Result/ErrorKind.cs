@@ -8,16 +8,16 @@ namespace Wyzely.Functional;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The set of kinds is open: the well-known kinds below cover the common cases, and any other kind can be created with
-/// <see cref="ErrorKind(string)"/>. Two kinds are equal when their names are equal (ordinal comparison).
+/// The set of kinds is open: the well-known kinds below cover the common cases, and any other kind can be created with <see cref="ErrorKind(string)"/>.
+/// Two kinds are equal when their names are equal (ordinal comparison).
 /// </para>
 /// <para>
 /// <c>default(ErrorKind)</c> is <see cref="Failure"/>, so a default value is always a meaningful kind.
 /// </para>
 /// </remarks>
 /// <param name="name">
-/// The name of the kind, for example <c>RateLimited</c>. It must not be empty: <see langword="null"/> throws
-/// <see cref="ArgumentNullException"/>, empty or white space throws <see cref="ArgumentException"/>.
+/// The name of the kind, for example <c>RateLimited</c>. It must not be empty: <see langword="null"/> throws <see cref="ArgumentNullException"/>,
+/// empty or white space throws <see cref="ArgumentException"/>.
 /// </param>
 [DebuggerDisplay("{Name}")]
 public readonly struct ErrorKind(string name) : IEquatable<ErrorKind>

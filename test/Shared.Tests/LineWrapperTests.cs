@@ -197,4 +197,68 @@ public sealed class LineWrapperTests
 
         Assert.Equal(["var x = Call(", "    first < second,", "    third > fourth,", "    fifth);"], lines);
     }
+
+    [Fact]
+    internal void Wrap_breaks_a_comment_after_the_end_of_a_sentence_when_the_line_is_full()
+    {
+        var lines = LineWrapper.Wrap("// Alpha beta gamma delta. Epsilon zeta eta theta iota kappa lambda.", indent: 0, maxWidth: 40, docWidth: 40);
+
+        Assert.Equal(["// Alpha beta gamma delta.", "// Epsilon zeta eta theta iota kappa", "// lambda."], lines);
+    }
+
+    [Fact]
+    internal void Wrap_breaks_a_comment_after_a_comma_when_there_is_no_end_of_a_sentence()
+    {
+        var lines = LineWrapper.Wrap("// one two three four, five six seven eight nine ten", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["// one two three four,", "// five six seven eight nine", "// ten"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_prefers_the_end_of_a_sentence_to_a_comma()
+    {
+        var lines = LineWrapper.Wrap("// Hi there you friends. Two three, four five six seven eight nine ten", indent: 0, maxWidth: 40, docWidth: 40);
+
+        Assert.Equal(["// Hi there you friends.", "// Two three, four five six seven eight", "// nine ten"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_keeps_the_text_of_a_code_element_in_one_piece()
+    {
+        var lines = LineWrapper.Wrap("// one two three <c>four five six</c> seven eight nine", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["// one two three", "// <c>four five six</c> seven", "// eight nine"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_does_not_take_an_abbreviation_for_the_end_of_a_sentence()
+    {
+        var lines = LineWrapper.Wrap("// Aaa bbb ccc e.g. ddd eee fff ggg hhh iii", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["// Aaa bbb ccc e.g. ddd eee", "// fff ggg hhh iii"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_does_not_take_a_lone_punctuation_mark_for_the_end_of_a_sentence()
+    {
+        var lines = LineWrapper.Wrap("// Aaa bbb ccc ddd ! eee fff ggg hhh iii", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["// Aaa bbb ccc ddd ! eee fff", "// ggg hhh iii"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_does_not_break_at_a_sentence_end_that_leaves_the_line_nearly_empty()
+    {
+        var lines = LineWrapper.Wrap("// A. bbb ccc ddd eee fff ggg hhh iii jjj", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["// A. bbb ccc ddd eee fff ggg", "// hhh iii jjj"], lines);
+    }
+
+    [Fact]
+    internal void Wrap_breaks_again_when_the_words_carried_over_and_the_next_word_do_not_fit_together()
+    {
+        var lines = LineWrapper.Wrap("// Aaaa bbbb cccc dddd. eeee Xxxxxxxxxxxxxxxxxxxxxxxxx", indent: 0, maxWidth: 30, docWidth: 30);
+
+        Assert.Equal(["// Aaaa bbbb cccc dddd.", "// eeee", "// Xxxxxxxxxxxxxxxxxxxxxxxxx"], lines);
+    }
 }

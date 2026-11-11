@@ -1,8 +1,8 @@
 namespace Wyzely.Functional.ResultTests;
 
-// The *If operations run their delegate only when a condition holds. The matrix tests cover every combination; these pin what a caller can
-// write: a bool, a function without parameters, a function of the value, method groups and async lambdas, and that a false condition hands
-// back the receiver (the very task, for a task receiver).
+// The *If operations run their delegate only when a condition holds.
+// The matrix tests cover every combination; these pin what a caller can write: a bool, a function without parameters, a function of the value,
+// method groups and async lambdas, and that a false condition hands back the receiver (the very task, for a task receiver).
 public sealed class IfFamilyTests
 {
     private static readonly Error Rejected = Error.Create("Rejected.");

@@ -30,8 +30,9 @@ var lengths = await new[] { "a", "bb", "ccc" }.SelectInParallel(
     maxDegreeOfParallelism: 2);                   // Result<IReadOnlyList<int>> with 1, 2, 3
 ```
 
-A stream of results does not need a list in between. `SelectEach` makes one from the result of a list, running the operation for an item when the stream is read up to it, and
-`Combine` or `Partition` collects a stream (they stop when the cancellation token is cancelled):
+A stream of results does not need a list in between.
+`SelectEach` makes one from the result of a list, running the operation for an item when the stream is read up to it,
+and `Combine` or `Partition` collects a stream (they stop when the cancellation token is cancelled):
 
 ```csharp
 var found = Result.Success<IReadOnlyList<string>>(["a.txt", "bb.txt"]);
@@ -49,8 +50,8 @@ var lengths = await found
 `SelectInParallel` and `ForEachInParallel` accept an `IAsyncEnumerable<T>` as well. They read the stream to the end first and then run the operations,
 as they do for a sequence that is enumerated before any operation starts; they do not feed work to the operations while the stream is still being read.
 
-`Combine` of tasks starts every task of a lazy sequence before it waits for any of them. Where the work has to happen in order, because each step
-depends on a side effect of the one before, use `CombineInOrder`. It still looks at every result and aggregates the errors, in order:
+`Combine` of tasks starts every task of a lazy sequence before it waits for any of them. Where the work has to happen in order,
+because each step depends on a side effect of the one before, use `CombineInOrder`. It still looks at every result and aggregates the errors, in order:
 
 ```csharp
 var log = new List<string>();

@@ -6,8 +6,8 @@ namespace Wyzely.Functional;
 public static partial class ResultCollectionExtensions
 {
     /// <summary>
-    /// Returns the first failed result of a sequence, or a successful result when none failed. The sequence is not enumerated further than the
-    /// first failure, unlike <c>Combine</c>, which looks at every result and aggregates their errors.
+    /// Returns the first failed result of a sequence, or a successful result when none failed.
+    /// The sequence is not enumerated further than the first failure, unlike <c>Combine</c>, which looks at every result and aggregates their errors.
     /// </summary>
     /// <param name="results">The results to look at. A lazy sequence runs only as far as the first failure.</param>
     /// <returns>The first failed result, or a successful result when every result succeeded (or the sequence is empty).</returns>
@@ -29,8 +29,8 @@ public static partial class ResultCollectionExtensions
 
 #if NET8_0_OR_GREATER
     /// <summary>
-    /// Reads a stream of results up to the first failed one and returns it, or returns a successful result when none failed. The stream is not read
-    /// further than the first failure.
+    /// Reads a stream of results up to the first failed one and returns it, or returns a successful result when none failed.
+    /// The stream is not read further than the first failure.
     /// </summary>
     /// <param name="results">The stream of results to look at.</param>
     /// <param name="cancellationToken">A token that stops the reading of the stream.</param>

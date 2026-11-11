@@ -14,10 +14,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result whose value is <see langword="null"/> into a failure, and returns a result of the same value without the
-    /// nullable annotation otherwise. A failed result passes through with its own error. The receiver is a <see cref="ValueTask"/> that
-    /// produces the result; it is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Turns a successful result whose value is <see langword="null"/> into a failure,
+    /// and returns a result of the same value without the nullable annotation otherwise. A failed result passes through with its own error.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value, without the nullable annotation.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>

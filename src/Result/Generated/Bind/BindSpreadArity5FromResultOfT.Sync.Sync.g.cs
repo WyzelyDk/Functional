@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and takes the 5 values of the tuple of the receiver as separate parameters. The delegate runs only
-    /// when the receiver succeeded; a failed result passes through with its error.
+    /// Chains an operation that can fail and takes the 5 values of the tuple of the receiver as separate parameters.
+    /// The delegate runs only when the receiver succeeded; a failed result passes through with its error.
     /// </summary>
     /// <typeparam name="T1">The type of value number 1 of the receiver result.</typeparam>
     /// <typeparam name="T2">The type of value number 2 of the receiver result.</typeparam>

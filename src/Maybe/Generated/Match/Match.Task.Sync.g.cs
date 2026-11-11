@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Leaves the railway: turns a maybe into a single value by running one of two delegates, depending on whether it has a value. The
-    /// receiver is a <see cref="Task"/> that produces the maybe; it is awaited without capturing the synchronization context unless
+    /// Leaves the railway: turns a maybe into a single value by running one of two delegates, depending on whether it has a value.
+    /// The receiver is a <see cref="Task"/> that produces the maybe; it is awaited without capturing the synchronization context unless
     /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>

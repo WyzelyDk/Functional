@@ -14,8 +14,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result whose value is <see langword="null"/> into a failure, and returns a result of the same value without the
-    /// nullable annotation otherwise. A failed result passes through with its own error.
+    /// Turns a successful result whose value is <see langword="null"/> into a failure,
+    /// and returns a result of the same value without the nullable annotation otherwise. A failed result passes through with its own error.
     /// </summary>
     /// <typeparam name="T">The type of the value, without the nullable annotation.</typeparam>
     /// <param name="result">The result to operate on.</param>

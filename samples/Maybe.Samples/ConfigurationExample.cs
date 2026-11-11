@@ -56,9 +56,9 @@ public static class ConfigurationExample
         ShowContinueOnCapturedContext(output);
     }
 
-    // ContinueOnCapturedContext: by default the awaits inside the library do not return to the synchronization context that the caller
-    // had (right for a library, avoids deadlocks). An application that needs the context (a UI thread) inside its own delegates can
-    // switch it on. A counting context makes the difference visible: it counts how often a continuation is posted to it.
+    // ContinueOnCapturedContext: by default the awaits inside the library do not return to the synchronization context that the caller had (right for a
+    // library, avoids deadlocks). An application that needs the context (a UI thread) inside its own delegates can switch it on.
+    // A counting context makes the difference visible: it counts how often a continuation is posted to it.
     private static void ShowContinueOnCapturedContext(TextWriter output)
     {
         var withDefault = PostsToTheContext();

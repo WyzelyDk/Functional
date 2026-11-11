@@ -3,7 +3,8 @@
 [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional)](https://www.nuget.org/packages/Wyzely.Functional)
 [![Downloads](https://img.shields.io/nuget/dt/Wyzely.Functional)](https://www.nuget.org/packages/Wyzely.Functional)
 
-**`Result`, `Maybe` and the methods that connect them, in one package: "not found" becomes an error with `ToResult`, and a failure becomes "no value" with `ToMaybe`.**
+**`Result`, `Maybe` and the methods that connect them, in one package: "not found" becomes an error with `ToResult`,
+and a failure becomes "no value" with `ToMaybe`.**
 
 ```csharp
 using Wyzely.Functional;
@@ -21,20 +22,20 @@ outcome.GetValue();                                    // "R-7"   (for an unknow
 
 One chain from "maybe there is a customer" to "the charge went through", with no `await` in the middle.
 
-> **Lineage:** this is not code written from scratch. These libraries are built on code that has already been in production use in many
-> codebases, and for this repository that code was expanded, improved and documented with Claude Code. The package depends on the two
-> packages and adds only the methods between them. **Nothing is published on NuGet yet.**
+> **Lineage:** this is not code written from scratch. These libraries are built on code that has already been in production use in many codebases,
+> and for this repository that code was expanded, improved and documented with Claude Code.
+> The package depends on the two packages and adds only the methods between them. **Nothing is published on NuGet yet.**
 > [What that does and does not mean](https://github.com/WyzelyDk/Functional#where-this-code-comes-from).
 
 ## When to install this instead of the two packages
 
-Install **`Wyzely.Functional`** when you use both `Result` and `Maybe` and move between them (a lookup that may find nothing, then an operation
-that may fail). It references [`Wyzely.Functional.Result`](https://github.com/WyzelyDk/Functional/blob/main/src/Result/README.md) and
+Install **`Wyzely.Functional`** when you use both `Result` and `Maybe` and move between them (a lookup that may find nothing, then an operation that may fail).
+It references [`Wyzely.Functional.Result`](https://github.com/WyzelyDk/Functional/blob/main/src/Result/README.md) and
 [`Wyzely.Functional.Maybe`](https://github.com/WyzelyDk/Functional/blob/main/src/Maybe/README.md), so both arrive as dependencies, with the analyzers of both,
 and it adds `ToResult` and `ToMaybe`.
 
-Install **only one of the two** when you need only that one: the packages are independent, and neither references the other. `Wyzely.Functional`
-is the only package that connects them, so taking `Result` never makes you take `Maybe`.
+Install **only one of the two** when you need only that one: the packages are independent, and neither references the other.
+`Wyzely.Functional` is the only package that connects them, so taking `Result` never makes you take `Maybe`.
 
 All public types are in the namespace `Wyzely.Functional`, so one `using Wyzely.Functional;` gives you everything.
 
@@ -50,10 +51,11 @@ dotnet add package Wyzely.Functional
 | `net8.0` (also used by .NET 9) | `Wyzely.Functional.Result`, `Wyzely.Functional.Maybe` |
 | `netstandard2.0` (.NET Framework 4.6.1+, Unity, ...) | the same two, which bring `System.Threading.Tasks.Extensions` because `ValueTask` is not part of `netstandard2.0` |
 
-The analyzers of both packages (`WYZ0101` and `WYZ0102` for `Result`, `WYZ0201` for `Maybe`) come with the dependencies; there is nothing else to install. (Checked once by packing the three packages and building a project that references only `Wyzely.Functional`:
-`WYZ0201` and `WYZ0102` were reported. That check is not part of the automated tests.)
-Use **C# 13 or later** to write `async` lambdas without ambiguity: under `LangVersion` 12 the compiler reports `CS0121` (an ambiguous call) for
-some of them, and under 13 it does not (verified by compiling a scratch project with both language versions).
+The analyzers of both packages (`WYZ0101` and `WYZ0102` for `Result`, `WYZ0201` for `Maybe`) come with the dependencies; there is nothing else to install.
+(Checked once by packing the three packages and building a project that references only `Wyzely.Functional`: `WYZ0201` and `WYZ0102` were reported.
+That check is not part of the automated tests.)
+Use **C# 13 or later** to write `async` lambdas without ambiguity: under `LangVersion` 12 the compiler reports `CS0121` (an ambiguous call) for some of them,
+and under 13 it does not (verified by compiling a scratch project with both language versions).
 
 ## The interop methods
 
@@ -77,8 +79,8 @@ var someValue = Result.Success(5).ToMaybe();                  // Some(5)
 var noValue = Result.Failure<int>("It broke.").ToMaybe();     // None: the error is dropped, on purpose
 ```
 
-`EnsureSome` is for a step that returns a result of a maybe, such as a lookup that can fail and can come back empty. It is to `Result<Maybe<T>>` what
-`EnsureNotNull` is to `Result<T?>`:
+`EnsureSome` is for a step that returns a result of a maybe, such as a lookup that can fail and can come back empty.
+It is to `Result<Maybe<T>>` what `EnsureNotNull` is to `Result<T?>`:
 
 ```csharp
 var lookup = Result.Success(Maybe.None<string>());
@@ -103,8 +105,9 @@ the details are in [Interop](https://github.com/WyzelyDk/Functional/blob/main/do
 
 ## Contributing
 
-Bug reports and ideas are welcome. The scope of the interop is the same as that of the packages it connects: [Result](https://github.com/WyzelyDk/Functional/blob/main/docs/result/scope.md),
-[Maybe](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/scope.md). [Building and testing](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/contributing.md).
+Bug reports and ideas are welcome. The scope of the interop is the same as that of the packages it connects:
+[Result](https://github.com/WyzelyDk/Functional/blob/main/docs/result/scope.md), [Maybe](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/scope.md).
+[Building and testing](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/contributing.md).
 
 ## License
 
