@@ -23,7 +23,7 @@ Things to know:
   ([language reference](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/union)). No `LangVersion` setting was needed.
 - A `default` result is a success holding `default(T)`, so a `switch` over it matches the value case.
 - A union gives the language an **implicit conversion from each case type**,
-  so on `net11.0` a `T` or an `Error` converts to a `Result<T>` even though the library itself defines no implicit conversions.
+  so on `net11.0` a `T` or an `Error` converts to a `Result<T>` even though the library itself defines no implicit conversion from a value or an error.
   That is a property of C# unions, not of this library. Use the factories if you want to stay explicit.
 - A `Result<Error>` cannot be used as a union, because both cases are the same type.
 

@@ -60,7 +60,8 @@ A field or an array slot that nobody assigned therefore counts as "it worked", w
 
 Nothing converts to a result **implicitly**. `return false;` in a method that returns `Result<bool>` would otherwise compile as a *success* holding `false`,
 which reads like a failure; with explicit factories a reader sees what happens.
-(The one implicit conversion is the lossless `Result<T>` to `Result`, which only drops the value.)
+(The one implicit conversion is `Result<T>` to `Result`: it keeps the state, a success or the same error, and drops the value,
+so it can never turn a failure into a success.)
 
 | Read | |
 |---|---|
