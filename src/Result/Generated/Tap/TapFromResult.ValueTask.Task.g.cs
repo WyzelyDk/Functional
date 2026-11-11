@@ -15,11 +15,11 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Runs a side effect for a successful result and returns the result unchanged. The delegate is not called for a failed result. The
-    /// receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a <see cref="Task"/>)
-    /// and is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
-    /// otherwise.
+    /// Runs a side effect for a successful result and returns the result unchanged. The delegate is not called for a failed result.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <param name="tap">The side effect to run.</param>

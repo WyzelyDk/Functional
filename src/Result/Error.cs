@@ -9,14 +9,14 @@ namespace Wyzely.Functional;
 /// </summary>
 /// <remarks>
 /// <para>
-/// An error carries a human-readable message, an optional stable <see cref="Code"/>, a <see cref="Kind"/>, a
-/// <see cref="IsTransient"/> flag for retry decisions, an optional cause (<see cref="Exception"/>), structured
-/// <see cref="Details"/> and <see cref="Context"/> frames that tell where the failure travelled through.
+/// An error carries a human-readable message, an optional stable <see cref="Code"/>, a <see cref="Kind"/>,
+/// a <see cref="IsTransient"/> flag for retry decisions, an optional cause (<see cref="Exception"/>),
+/// structured <see cref="Details"/> and <see cref="Context"/> frames that tell where the failure travelled through.
 /// </para>
 /// <para>
-/// The message of an error is a template: <c>"Upload to {Path} failed"</c> combined with
-/// <c>.WithDetail("Path", path)</c> renders as <c>Upload to a/b.json failed</c>. The template stays available as a stable
-/// identity for grouping and logging, and the values stay available as structured data.
+/// The message of an error is a template: <c>"Upload to {Path} failed"</c> combined with <c>.WithDetail("Path", path)</c> renders as
+/// <c>Upload to a/b.json failed</c>. The template stays available as a stable identity for grouping and logging,
+/// and the values stay available as structured data.
 /// </para>
 /// <para>
 /// Several failures are represented by one error as well: <see cref="Aggregate(IEnumerable{Error})"/> returns an error whose
@@ -65,9 +65,9 @@ public sealed partial class Error : IEquatable<Error>
 
     /// <summary>Gets the message of the error with every placeholder replaced by the value of the detail with the same name.</summary>
     /// <remarks>
-    /// A placeholder without a matching detail is kept as written. <c>{{</c> and <c>}}</c> produce a single brace. The context
-    /// frames are not part of the message; <see cref="ToString"/> includes them. For an aggregate error the message joins the
-    /// descriptions of the children with <see cref="ResultOptions.ChildSeparator"/> (<c>, </c> by default).
+    /// A placeholder without a matching detail is kept as written. <c>{{</c> and <c>}}</c> produce a single brace.
+    /// The context frames are not part of the message; <see cref="ToString"/> includes them.
+    /// For an aggregate error the message joins the descriptions of the children with <see cref="ResultOptions.ChildSeparator"/> (<c>, </c> by default).
     /// </remarks>
     public string Message => _message ??= BuildMessage(redact: false);
 
@@ -94,8 +94,8 @@ public sealed partial class Error : IEquatable<Error>
 
     /// <summary>Gets the context frames of the error, outermost first.</summary>
     /// <remarks>
-    /// A frame is added by <see cref="WithContext(string)"/> each time the error passes a layer that knows more about the situation. A frame is a
-    /// message template with details of its own, so a value that a layer adds is structured, and can be redacted, like the details of the error.
+    /// A frame is added by <see cref="WithContext(string)"/> each time the error passes a layer that knows more about the situation.
+    /// A frame is a message template with details of its own, so a value that a layer adds is structured, and can be redacted, like the details of the error.
     /// </remarks>
     public IReadOnlyList<ErrorFrame> Context { get; }
 

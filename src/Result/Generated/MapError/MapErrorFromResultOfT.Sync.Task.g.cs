@@ -15,16 +15,17 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Replaces the error of a failed result, for example to add context. A successful result passes through unchanged and the delegate is
-    /// not called. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization
-    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Replaces the error of a failed result, for example to add context.
+    /// A successful result passes through unchanged and the delegate is not called.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
     /// <param name="mapError">Computes the new error from the error of the failed result.</param>
     /// <returns>
-    /// A failed result with the error computed by the delegate, or the successful receiver. The value is returned in a
-    /// <see cref="Task{TResult}"/>.
+    /// A failed result with the error computed by the delegate, or the successful receiver.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="mapError"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

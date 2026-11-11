@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace Wyzely.Functional;
 
 /// <summary>
-/// One frame of the context of an <see cref="Error"/>: what a layer was doing when the error passed it, written as a message template with
-/// details of its own, like the message of an error.
+/// One frame of the context of an <see cref="Error"/>: what a layer was doing when the error passed it, written as a message template with details of its own,
+/// like the message of an error.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -14,8 +14,8 @@ namespace Wyzely.Functional;
 /// <see cref="ResultOptions.RedactedValue"/> in <see cref="RedactedMessage"/>, which is what <see cref="Error.ToRedactedString"/> prints.
 /// </para>
 /// <para>
-/// The placeholders of a frame are filled from the details of the frame only, never from the details of the error, so two layers can use
-/// the same name for different values.
+/// The placeholders of a frame are filled from the details of the frame only, never from the details of the error,
+/// so two layers can use the same name for different values.
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]

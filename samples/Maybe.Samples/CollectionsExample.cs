@@ -16,8 +16,8 @@ public static class CollectionsExample
         output.WriteLine($"FirstOrNone() on an empty sequence: {Array.Empty<int>().FirstOrNone()}");
         output.WriteLine($"LastOrNone(): {numbers.LastOrNone()}");
 
-        // SingleOrNone is none when there are NONE or SEVERAL matches. Single would throw in both cases, and the two cases mean
-        // different things, so use it only when "not exactly one" is one answer for you.
+        // SingleOrNone is none when there are NONE or SEVERAL matches.
+        // Single would throw in both cases, and the two cases mean different things, so use it only when "not exactly one" is one answer for you.
         output.WriteLine($"SingleOrNone(n > 15): {numbers.SingleOrNone(n => n > 15)}");
         output.WriteLine($"SingleOrNone(n > 10), two match: {numbers.SingleOrNone(n => n > 10)}");
         output.WriteLine($"SingleOrNone(n > 100), none match: {numbers.SingleOrNone(n => n > 100)}");
@@ -27,8 +27,8 @@ public static class CollectionsExample
         output.WriteLine($"ElementAtOrNone(10): {numbers.ElementAtOrNone(10)}");
         output.WriteLine($"ElementAtOrNone(-1): {numbers.ElementAtOrNone(-1)}");
 
-        // GetValueOrNone: a dictionary lookup that does not throw and does not need the "out" variable of TryGetValue. The price is in
-        // cents, so the line below does not depend on the culture of the machine.
+        // GetValueOrNone: a dictionary lookup that does not throw and does not need the "out" variable of TryGetValue.
+        // The price is in cents, so the line below does not depend on the culture of the machine.
         var priceInCents = new Dictionary<string, int> { ["tea"] = 350, ["coffee"] = 400 };
         output.WriteLine($"GetValueOrNone(\"tea\"): {priceInCents.GetValueOrNone("tea")}");
         output.WriteLine($"GetValueOrNone(\"water\"): {priceInCents.GetValueOrNone("water")}");
@@ -37,8 +37,8 @@ public static class CollectionsExample
         IEnumerable<Maybe<int>> lookups = [Maybe.Some(1), Maybe.None<int>(), Maybe.Some(3)];
         output.WriteLine($"Choose(): {string.Join(", ", lookups.Choose())}");
 
-        // Choose with a selector maps every element to a Maybe first. Here: the emails of all the customers that have one. It is the
-        // loop "foreach, look up, if found add" written as one line, and it is lazy like LINQ's Select.
+        // Choose with a selector maps every element to a Maybe first. Here: the emails of all the customers that have one.
+        // It is the loop "foreach, look up, if found add" written as one line, and it is lazy like LINQ's Select.
         var emails = SampleData.AllCustomers.Choose(SampleData.FindEmail);
         output.WriteLine($"Choose(selector), emails of all customers: {string.Join(", ", emails)}");
     }

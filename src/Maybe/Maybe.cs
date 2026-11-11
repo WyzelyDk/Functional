@@ -5,8 +5,7 @@ namespace Wyzely.Functional;
 /// may be <see langword="null"/>, and the conditional factories.
 /// </summary>
 /// <remarks>
-/// The factories live in a static class, so that <c>Maybe.Some(5)</c> can infer the type of the value. The members are in
-/// <c>Maybe.Factories.cs</c>.
+/// The factories live in a static class, so that <c>Maybe.Some(5)</c> can infer the type of the value. The members are in <c>Maybe.Factories.cs</c>.
 /// </remarks>
 public static partial class Maybe
 {

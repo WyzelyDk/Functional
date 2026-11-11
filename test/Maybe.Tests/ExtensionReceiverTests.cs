@@ -3,9 +3,9 @@ using System.Runtime.CompilerServices;
 
 namespace Wyzely.Functional.MaybeTests;
 
-// The receivers are passed by value on purpose: a chain passes the maybe returned by the previous call, a temporary, and taking its
-// address (`in`) forces it into memory. The same was measured for Result (see its ParameterPassing benchmark); this test keeps someone
-// from "optimising" it back.
+// The receivers are passed by value on purpose: a chain passes the maybe returned by the previous call,
+// a temporary, and taking its address (`in`) forces it into memory.
+// The same was measured for Result (see its ParameterPassing benchmark); this test keeps someone from "optimising" it back.
 public sealed class ExtensionReceiverTests
 {
     [Fact]

@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace Wyzely.Functional;
 
 /// <content>
-/// <c>EnsureSome</c>: from a result that holds a maybe to a result that holds the value, where an absent value becomes the error you give. It
-/// does for <c>Result&lt;Maybe&lt;T&gt;&gt;</c> what <c>EnsureNotNull</c> does for <c>Result&lt;T?&gt;</c>.
+/// <c>EnsureSome</c>: from a result that holds a maybe to a result that holds the value, where an absent value becomes the error you give.
+/// It does for <c>Result&lt;Maybe&lt;T&gt;&gt;</c> what <c>EnsureNotNull</c> does for <c>Result&lt;T?&gt;</c>.
 /// </content>
 public static partial class MaybeResultExtensions
 {

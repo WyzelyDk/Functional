@@ -69,14 +69,14 @@ public static class ErrorsExample
         output.WriteLine($"Unavailable is transient: {Error.Unavailable("The payment gateway is down.").IsTransient}");
         output.WriteLine($"Validation is transient: {Error.Validation("Bad input.").IsTransient}");
 
-        // FromException keeps the exception as the cause and chooses a kind: Timeout for a TimeoutException
-        // (transient), Cancelled for an OperationCanceledException, Unexpected for everything else.
+        // FromException keeps the exception as the cause and chooses a kind: Timeout for a TimeoutException (transient),
+        // Cancelled for an OperationCanceledException, Unexpected for everything else.
         var timeout = Error.FromException(new TimeoutException("Gateway timed out."));
         output.WriteLine($"FromException(TimeoutException): kind {timeout.Kind}, transient {timeout.IsTransient}");
         output.WriteLine($"FromException keeps the cause: {timeout.Exception?.GetType().Name}");
 
-        // An exception message may contain braces (JSON, for example). They are escaped, so they are never
-        // mistaken for placeholders: the template shows them doubled, the message reads as the exception did.
+        // An exception message may contain braces (JSON, for example).
+        // They are escaped, so they are never mistaken for placeholders: the template shows them doubled, the message reads as the exception did.
         var braces = Error.FromException(new InvalidOperationException("Bad {json}"));
         output.WriteLine($"FromException escapes braces, template: {braces.Template}");
         output.WriteLine($"FromException message: {braces.Message}");

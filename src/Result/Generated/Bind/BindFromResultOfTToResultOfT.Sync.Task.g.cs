@@ -15,17 +15,18 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and returns a value. The delegate runs only when the receiver succeeded; a failed result passes
-    /// through with its error. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Chains an operation that can fail and returns a value.
+    /// The delegate runs only when the receiver succeeded; a failed result passes through with its error.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value of the result that the delegate returns.</typeparam>
     /// <param name="result">The result to operate on.</param>
     /// <param name="bind">The operation to run with the value of the successful result.</param>
     /// <returns>
-    /// The result of the delegate, or a failed result with the error of the receiver. The value is returned in a
-    /// <see cref="Task{TResult}"/>.
+    /// The result of the delegate, or a failed result with the error of the receiver.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

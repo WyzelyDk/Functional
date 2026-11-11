@@ -49,8 +49,8 @@ public sealed class ProcessSettingsTests : IDisposable
         Assert.Equal("k=CONFIGURED", seen);
     }
 
-    // Runs one chain with a context that counts the continuations posted to it. The receiver and the delegate both complete later, so every
-    // await of the library is a real one.
+    // Runs one chain with a context that counts the continuations posted to it.
+    // The receiver and the delegate both complete later, so every await of the library is a real one.
     private static async Task<int> PostsAsync(Func<Task<Result<int>>, Func<int, Task<Result<int>>>, Task<Result<int>>> run)
     {
         var previous = SynchronizationContext.Current;
@@ -75,8 +75,8 @@ public sealed class ProcessSettingsTests : IDisposable
             receiver.SetResult(Result.Success(1));
             await entered.Task.ConfigureAwait(false);
 
-            // The callback that ran the delegate is still busy until the library has awaited the task that the delegate returned. Completing
-            // that task earlier would let the await finish synchronously, without a post, and the count would depend on timing.
+            // The callback that ran the delegate is still busy until the library has awaited the task that the delegate returned.
+            // Completing that task earlier would let the await finish synchronously, without a post, and the count would depend on timing.
             context.WaitUntilIdle();
             inner.SetResult(Result.Success(1));
             await task.ConfigureAwait(false);

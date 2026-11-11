@@ -1,8 +1,8 @@
 namespace Wyzely.Functional;
 
 /// <content>
-/// <c>Combine</c>: turns many results into one. Every result is looked at (there is no short-circuit), so a combined failure
-/// carries the errors of all failed results, in the order of the sequence.
+/// <c>Combine</c>: turns many results into one. Every result is looked at (there is no short-circuit),
+/// so a combined failure carries the errors of all failed results, in the order of the sequence.
 /// </content>
 public readonly partial struct Result
 {
@@ -19,8 +19,8 @@ public readonly partial struct Result
     /// <typeparam name="T">The type of the values.</typeparam>
     /// <param name="results">The results to combine.</param>
     /// <returns>
-    /// A successful result that holds the values in sequence order when every result succeeded (an empty list for an empty
-    /// sequence). Otherwise a failed result whose error is the only error, or an aggregate of all errors in sequence order.
+    /// A successful result that holds the values in sequence order when every result succeeded (an empty list for an empty sequence).
+    /// Otherwise a failed result whose error is the only error, or an aggregate of all errors in sequence order.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is <see langword="null"/>.</exception>
     public static Result<IReadOnlyList<T>> Combine<T>(IEnumerable<Result<T>> results) => CombineCore(Guard.NotNull(results, nameof(results)));

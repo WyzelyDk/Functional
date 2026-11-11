@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure when a condition does not hold. A failed result passes through with its own error and the
-    /// condition is not evaluated.
+    /// Turns a successful result into a failure when a condition does not hold.
+    /// A failed result passes through with its own error and the condition is not evaluated.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="condition">The condition that must hold for the result to stay a success.</param>

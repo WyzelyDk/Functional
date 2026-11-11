@@ -7,12 +7,12 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Wyzely.Functional.ResultAnalyzers;
 
 /// <summary>
-/// Suggests the method of the library that says what a piece of code does: a condition inside <c>Bind</c> is <c>BindIf</c>, a negated
-/// <c>Ensure</c> is <c>EnsureNot</c>, and so on. Every suggestion is an exact shape that can be rewritten without changing the behavior.
+/// Suggests the method of the library that says what a piece of code does: a condition inside <c>Bind</c> is <c>BindIf</c>,
+/// a negated <c>Ensure</c> is <c>EnsureNot</c>, and so on. Every suggestion is an exact shape that can be rewritten without changing the behavior.
 /// </summary>
 /// <remarks>
-/// A diagnostic carries a few properties (whether the condition has to be negated, whether an error has to stay lazy) so that the code fix, which
-/// lives in another assembly, can rewrite the code from its syntax without asking the questions again.
+/// A diagnostic carries a few properties (whether the condition has to be negated, whether an error has to stay lazy) so that the code fix,
+/// which lives in another assembly, can rewrite the code from its syntax without asking the questions again.
 /// </remarks>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
@@ -21,8 +21,7 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
     internal const string NegateProperty = "Negate";
 
     /// <summary>
-    /// The property that tells whether a condition reads the value of the lambda, which decides between <c>Func&lt;bool&gt;</c> and
-    /// <c>Func&lt;T, bool&gt;</c>.
+    /// The property that tells whether a condition reads the value of the lambda, which decides between <c>Func&lt;bool&gt;</c> and <c>Func&lt;T, bool&gt;</c>.
     /// </summary>
     internal const string UsesParameterProperty = "UsesParameter";
 

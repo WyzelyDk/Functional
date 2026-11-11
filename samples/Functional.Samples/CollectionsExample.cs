@@ -39,8 +39,8 @@ public static class CollectionsExample
         var expensive = orders.FirstOrNone(order => order.Total > 1000).Match(order => order.Id.ToString(CultureInfo.InvariantCulture), () => "none");
         output.WriteLine($"FirstOrNone, order above 1000: {expensive}");
 
-        // When a step already returns a Maybe, Map would give a Maybe<Maybe<T>>. Flatten makes it one Maybe (Bind does the same in one
-        // step). Result<Result<T>> has a Flatten too.
+        // When a step already returns a Maybe, Map would give a Maybe<Maybe<T>>. Flatten makes it one Maybe (Bind does the same in one step).
+        // Result<Result<T>> has a Flatten too.
         var nested = firstUnpaid.Map(order => directory.FindByEmail(order.CustomerEmail));
         output.WriteLine($"Flatten, Maybe<Maybe<Customer>>: {nested.Flatten().Match(customer => customer.Name, () => "none")}");
 
@@ -66,8 +66,8 @@ public static class CollectionsExample
         var combinedText = combined.Match(totals => $"{string.Join(", ", totals)} (total {totals.Sum()})", error => error.Message);
         output.WriteLine($"Combine, all lines priced: {combinedText}");
 
-        // Combine does not stop at the first failure: the error is an aggregate of all of them, in the order of the lines. Its kind is
-        // the kind the children share (here NotFound), or the plain Failure kind when they differ.
+        // Combine does not stop at the first failure: the error is an aggregate of all of them, in the order of the lines.
+        // Its kind is the kind the children share (here NotFound), or the plain Failure kind when they differ.
         var badResults = BadLines.Select(PriceOf).ToList();
         var badCombined = badResults.Combine();
 

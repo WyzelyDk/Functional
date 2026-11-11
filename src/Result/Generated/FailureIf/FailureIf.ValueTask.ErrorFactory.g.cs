@@ -13,13 +13,13 @@ namespace Wyzely.Functional;
 public readonly partial struct Result
 {
     /// <summary>
-    /// Creates a failed result when a condition holds and a successful one otherwise. The condition is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise, and the result is returned in a
-    /// <see cref="ValueTask"/>.
+    /// Creates a failed result when a condition holds and a successful one otherwise.
+    /// The condition is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/>
+    /// says otherwise, and the result is returned in a <see cref="ValueTask"/>.
     /// </summary>
     /// <param name="condition">The condition that makes the result fail, as an operation that produces it.</param>
-    /// <param name="errorFactory">Creates the error of the failed result. It is called only when <paramref name="condition"/> is
-    /// <see langword="true"/>.</param>
+    /// <param name="errorFactory">Creates the error of the failed result.
+    /// It is called only when <paramref name="condition"/> is <see langword="true"/>.</param>
     /// <returns>A failed result that holds <paramref name="errorFactory"/>, or a successful result, in a <see cref="ValueTask"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="errorFactory"/> is <see langword="null"/>.</exception>
     public static ValueTask<Result> FailureIf(ValueTask<bool> condition, Func<Error> errorFactory)

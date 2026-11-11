@@ -5,21 +5,19 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <content>
-/// C# 15 union support. A <see cref="Result{T}"/> is a union of its two case types, <typeparamref name="T"/> (a success) and
-/// <see cref="Error"/> (a failure), so that a <see langword="switch"/> can match on them and the compiler can check that both
-/// are handled: <c>result switch { int value =&gt; ..., Error error =&gt; ... }</c>.
-/// This is the union member provider form of a custom union type, because the creation of a result goes through the factory
-/// methods rather than through public constructors; it adds no members to the type apart from the nested
-/// <see cref="IUnionMembers"/> interface that the compiler reads. A <see langword="default"/> result is a success, so a
-/// <see langword="switch"/> over it matches the value case. A <c>Result&lt;Error&gt;</c> cannot be used as a union, because both case types
-/// are the same.
+/// C# 15 union support. A <see cref="Result{T}"/> is a union of its two case types, <typeparamref name="T"/> (a success) and <see cref="Error"/> (a failure),
+/// so that a <see langword="switch"/> can match on them and the compiler can check that both are handled:
+/// <c>result switch { int value =&gt; ..., Error error =&gt; ... }</c>.
+/// This is the union member provider form of a custom union type, because the creation of a result goes through the factory methods rather than through public
+/// constructors; it adds no members to the type apart from the nested <see cref="IUnionMembers"/> interface that the compiler reads.
+/// A <see langword="default"/> result is a success, so a <see langword="switch"/> over it matches the value case.
+/// A <c>Result&lt;Error&gt;</c> cannot be used as a union, because both case types are the same.
 /// </content>
 [Union]
 public readonly partial struct Result<T> : Result<T>.IUnionMembers
 {
     /// <summary>
-    /// The members that the C# compiler uses to treat <see cref="Result{T}"/> as a union. They are not meant to be called
-    /// directly: use pattern matching.
+    /// The members that the C# compiler uses to treat <see cref="Result{T}"/> as a union. They are not meant to be called directly: use pattern matching.
     /// </summary>
     [SuppressMessage(
         "Design",

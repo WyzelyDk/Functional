@@ -2,8 +2,8 @@ using System.Globalization;
 
 namespace Wyzely.Functional.AotSamples;
 
-// The checks for the operations added after the first release, kept apart so that Program.cs stays short. Each method reports to the same
-// Check that Program.cs uses.
+// The checks for the operations added after the first release, kept apart so that Program.cs stays short.
+// Each method reports to the same Check that Program.cs uses.
 internal static class NewOperations
 {
     internal static void Railway(Action<string, bool> check)

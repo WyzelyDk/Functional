@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure with the given message when a condition does not hold. A failed result passes through with
-    /// its own error and the condition is not evaluated. The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited
-    /// without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Turns a successful result into a failure with the given message when a condition does not hold.
+    /// A failed result passes through with its own error and the condition is not evaluated.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="condition">The condition that must hold for the result to stay a success.</param>

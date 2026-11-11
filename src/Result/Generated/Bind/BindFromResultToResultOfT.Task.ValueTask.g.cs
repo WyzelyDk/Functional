@@ -17,16 +17,16 @@ public static partial class ResultExtensions
     /// <summary>
     /// Chains an operation that returns a value after an operation that returned none. The delegate runs only when the receiver succeeded.
     /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a
-    /// <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="TResult">The type of the value of the result that the delegate returns.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="bind">The operation to run.</param>
     /// <returns>
-    /// The result of the delegate, or a failed result with the error of the receiver. The value is returned in a
-    /// <see cref="Task{TResult}"/>.
+    /// The result of the delegate, or a failed result with the error of the receiver.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
     public static Task<Result<TResult>> Bind<TResult>(this Task<Result> result, Func<ValueTask<Result<TResult>>> bind)

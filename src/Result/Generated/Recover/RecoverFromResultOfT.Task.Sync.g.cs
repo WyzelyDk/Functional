@@ -15,16 +15,17 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a failed result into a success by computing a replacement value from the error. A successful result passes through unchanged
-    /// and the delegate is not called. The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Turns a failed result into a success by computing a replacement value from the error.
+    /// A successful result passes through unchanged and the delegate is not called.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="recover">Computes the replacement value from the error of the failed result.</param>
     /// <returns>
-    /// The successful receiver, or a successful result that holds the replacement value. The value is returned in a
-    /// <see cref="Task{TResult}"/>.
+    /// The successful receiver, or a successful result that holds the replacement value.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="recover"/> is <see langword="null"/>.</exception>
     public static Task<Result<T>> Recover<T>(this Task<Result<T>> result, Func<Error, T> recover)

@@ -74,8 +74,8 @@ internal static partial class Operations
         BaseName = "Bind",
         StemPart = BindIfName,
         Typed = true,
-        Summary = "Chains an operation that can fail and returns a result of the same type, when a condition holds. Otherwise, and for a failed " +
-            "result, the receiver is returned as it was and the delegate is not called.",
+        Summary = "Chains an operation that can fail and returns a result of the same type, when a condition holds. " +
+            "Otherwise, and for a failed result, the receiver is returned as it was and the delegate is not called.",
         Delegate = new(BindName, ["T"], ResultOfT, "The operation to run with the value of the successful result."),
         ReturnDescription = "The result of the delegate when the condition held, otherwise the receiver.",
         GateReceiver = SuccessOfTwo,
@@ -98,8 +98,8 @@ internal static partial class Operations
         Typed = true,
         KeepsValue = true,
         StateChange = StateChange.Never,
-        Summary = "Runs a side effect with the value of a successful result when a condition holds, and returns the result unchanged. The delegate " +
-            "is not called for a failed result or when the condition does not hold.",
+        Summary = "Runs a side effect with the value of a successful result when a condition holds, and returns the result unchanged. " +
+            "The delegate is not called for a failed result or when the condition does not hold.",
         Delegate = new(TapName, ["T"], "void", "The side effect to run with the value of the successful result."),
         ReturnDescription = ReceiverUnchangedDescription,
         GateReceiver = SuccessOfTwo,
@@ -121,11 +121,11 @@ internal static partial class Operations
         StemPart = EnsureIfName,
         Typed = true,
         KeepsValue = true,
-        Summary = "Validates the value of a successful result with an operation that returns a result, when a condition holds, and keeps the " +
-            "original value when that operation succeeds. The delegate is not called for a failed result or when the condition does not hold.",
+        Summary = "Validates the value of a successful result with an operation that returns a result, when a condition holds, " +
+            "and keeps the original value when that operation succeeds. The delegate is not called for a failed result or when the condition does not hold.",
         Delegate = new(ValidationName, ["T"], ResultType, "The validation to run with the value of the successful result."),
-        ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, otherwise a failed result with " +
-            "the error of the validation.",
+        ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, " +
+            "otherwise a failed result with the error of the validation.",
         GateReceiver = SuccessOfTwo,
         OtherReceiver = FailureOfInt,
         Test = Returns(ValidationName, ["x"], "Result.Failure(other)", ResultType),
@@ -149,15 +149,14 @@ internal static partial class Operations
         TypeParameters = ["T", TResultName],
         TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the validation result, which is ignored.")],
         Summary = "Validates the value of a successful result with an operation that returns a result of any value type, when a condition holds, " +
-            "and keeps the original value when that operation succeeds. The delegate is not called for a failed result or when the condition " +
-            "does not hold.",
+            "and keeps the original value when that operation succeeds. The delegate is not called for a failed result or when the condition does not hold.",
         Delegate = new(
             ValidationName,
             ["T"],
             ResultOfTResult,
             "The validation to run with the value of the successful result. The value of its result is ignored."),
-        ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, otherwise a failed result with " +
-            "the error of the validation.",
+        ReturnDescription = "The receiver when it failed, the condition did not hold or the validation succeeded, " +
+            "otherwise a failed result with the error of the validation.",
         GateReceiver = SuccessOfTwo,
         OtherReceiver = FailureOfInt,
         Test = Returns(ValidationName, ["x"], "Result.Failure<string>(other)", ResultOfString),
@@ -180,8 +179,8 @@ internal static partial class Operations
         FailureGated = true,
         KeepsValue = true,
         StateChange = StateChange.Never,
-        Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. The delegate is " +
-            "not called for a successful result or when the condition does not hold.",
+        Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. " +
+            "The delegate is not called for a successful result or when the condition does not hold.",
         Delegate = new(TapErrorName, [ErrorType], "void", "The side effect to run with the error of the failed result."),
         ReturnDescription = ReceiverUnchangedDescription,
         GateReceiver = FailureOfInt,
@@ -204,8 +203,8 @@ internal static partial class Operations
         Typed = false,
         KeepsValue = true,
         StateChange = StateChange.Never,
-        Summary = "Runs a side effect for a successful result when a condition holds, and returns the result unchanged. The delegate is not " +
-            "called for a failed result or when the condition does not hold.",
+        Summary = "Runs a side effect for a successful result when a condition holds, and returns the result unchanged. " +
+            "The delegate is not called for a failed result or when the condition does not hold.",
         Delegate = new(TapName, [], "void", "The side effect to run."),
         ReturnDescription = ReceiverUnchangedDescription,
         GateReceiver = SuccessWithoutValue,
@@ -225,8 +224,8 @@ internal static partial class Operations
         BaseName = "Bind",
         StemPart = BindIfName,
         Typed = false,
-        Summary = "Chains an operation that can fail and returns no value, when a condition holds. Otherwise, and for a failed result, the " +
-            "receiver is returned as it was and the delegate is not called.",
+        Summary = "Chains an operation that can fail and returns no value, when a condition holds. " +
+            "Otherwise, and for a failed result, the receiver is returned as it was and the delegate is not called.",
         Delegate = new(BindName, [], ResultType, "The operation to run."),
         ReturnDescription = "The result of the delegate when the condition held, otherwise the receiver.",
         GateReceiver = SuccessWithoutValue,
@@ -251,8 +250,8 @@ internal static partial class Operations
         FailureGated = true,
         KeepsValue = true,
         StateChange = StateChange.Never,
-        Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. The delegate is " +
-            "not called for a successful result or when the condition does not hold.",
+        Summary = "Runs a side effect with the error of a failed result when a condition holds, and returns the result unchanged. " +
+            "The delegate is not called for a successful result or when the condition does not hold.",
         Delegate = new(TapErrorName, [ErrorType], "void", "The side effect to run with the error of the failed result."),
         ReturnDescription = ReceiverUnchangedDescription,
         GateReceiver = FailureWithError,
@@ -343,8 +342,8 @@ internal static partial class Operations
         };
     }
 
-    // Reads the state of the receiver once, returns it as it was when the receiver is not in the state the operation works on or the condition
-    // does not hold, and otherwise does what the plain operation does.
+    // Reads the state of the receiver once, returns it as it was when the receiver is not in the state the operation works on or the condition does not hold,
+    // and otherwise does what the plain operation does.
     private static string[] IfBody(IfShape shape, IfCondition condition, BodyContext ctx, bool forwarded)
     {
         var state = (shape.Typed, shape.FailureGated) switch

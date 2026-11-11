@@ -56,8 +56,8 @@ public sealed class MaybeSuggestionsCodeFixProvider : RewriteCodeFixProvider
             SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(StripParentheses(fallback).WithoutTrivia()))));
     }
 
-    // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) becomes Maybe.From(x). The qualifier is taken from the call of Some, so that it is written
-    // the way the code already writes it.
+    // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) becomes Maybe.From(x).
+    // The qualifier is taken from the call of Some, so that it is written the way the code already writes it.
     private static InvocationExpressionSyntax? From(ConditionalExpressionSyntax conditional)
     {
         var some = new[] { conditional.WhenTrue, conditional.WhenFalse }

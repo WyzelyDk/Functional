@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// The *Try operations share the exception handling of Result.Try: the settings apply to the form that takes any exception, and a named type is
-// the caller's own decision.
+// The *Try operations share the exception handling of Result.Try: the settings apply to the form that takes any exception,
+// and a named type is the caller's own decision.
 [Collection(ProcessWideConfiguration.Name)]
 public sealed class TryFamilySettingsTests : IDisposable
 {

@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// The operations on a stream respect ContinueOnCapturedContext like every other await of the library: they do not capture the context by default
-// and do when the setting says so.
+// The operations on a stream respect ContinueOnCapturedContext like every other await of the library:
+// they do not capture the context by default and do when the setting says so.
 [Collection(ProcessWideConfiguration.Name)]
 public sealed class StreamSettingsTests : IDisposable
 {
@@ -61,8 +61,7 @@ public sealed class StreamSettingsTests : IDisposable
         }),
         TestContext.Current.CancellationToken);
 
-    // Runs one operation with a context that counts the continuations posted to it. The items arrive later, so every await of the library is a
-    // real one.
+    // Runs one operation with a context that counts the continuations posted to it. The items arrive later, so every await of the library is a real one.
     private static async Task<int> PostsAsync(Func<Task> run)
     {
         var previous = SynchronizationContext.Current;

@@ -4,8 +4,8 @@ namespace Wyzely.Functional.CodeGeneration;
 internal static class GeneratorSettings
 {
     /// <summary>
-    /// The largest number of values that <c>Zip</c> combines. Overloads are generated for every count from 2 up to this number, for
-    /// both <c>Maybe</c> and <c>Result</c>, together with their tests. Raise it here and regenerate; nothing else mentions the number.
+    /// The largest number of values that <c>Zip</c> combines. Overloads are generated for every count from 2 up to this number,
+    /// for both <c>Maybe</c> and <c>Result</c>, together with their tests. Raise it here and regenerate; nothing else mentions the number.
     /// </summary>
     internal const int MaxZipArity = 5;
 

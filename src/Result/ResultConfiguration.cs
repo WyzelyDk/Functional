@@ -1,14 +1,13 @@
 namespace Wyzely.Functional;
 
 /// <summary>
-/// Changes the settings of the library for the whole process. The defaults suit most applications; call
-/// <see cref="Configure(Action{ResultOptions})"/> once at start-up if you want something different.
+/// Changes the settings of the library for the whole process. The defaults suit most applications;
+/// call <see cref="Configure(Action{ResultOptions})"/> once at start-up if you want something different.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The settings are process-wide because results and errors are created everywhere, and passing an options object to every call
-/// would defeat the purpose of a lightweight result type. A change is applied atomically: readers see either the old or the
-/// new settings, never a mixture.
+/// The settings are process-wide because results and errors are created everywhere, and passing an options object to every call would defeat the purpose of a
+/// lightweight result type. A change is applied atomically: readers see either the old or the new settings, never a mixture.
 /// </para>
 /// <para>
 /// Configure before the library is used. Text that an <see cref="Error"/> has already rendered is not rendered again.

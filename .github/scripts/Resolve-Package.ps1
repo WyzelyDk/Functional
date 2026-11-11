@@ -38,7 +38,10 @@ $versionPattern = '^\d+\.\d+\.\d+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$'
 
 function Get-PackableProject {
     foreach ($file in Get-ChildItem -Path (Join-Path $root 'src') -Recurse -Filter '*.csproj') {
-        $evaluated = dotnet msbuild $file.FullName -getProperty:IsPackable -getProperty:PackageId -getProperty:MinVerTagPrefix -getItem:ProjectReference | Out-String | ConvertFrom-Json
+        $evaluated = dotnet msbuild $file.FullName `
+            -getProperty:IsPackable -getProperty:PackageId -getProperty:MinVerTagPrefix -getItem:ProjectReference |
+            Out-String |
+            ConvertFrom-Json
 
         if ($LASTEXITCODE -ne 0) {
             throw "Could not evaluate $($file.FullName)."
@@ -66,7 +69,9 @@ function Assert-SharedPrefix($projects) {
     $problems = @()
 
     foreach ($project in $projects | Where-Object { $_.Prefix -ne $releasePrefix }) {
-        $problems += "$($project.PackageId): the MinVerTagPrefix is '$($project.Prefix)', but all packages are released together with the tag prefix '$releasePrefix'. Remove the MinVerTagPrefix from the project (Directory.Build.props sets it)."
+        $problems += "$($project.PackageId): the MinVerTagPrefix is '$($project.Prefix)', " +
+            "but all packages are released together with the tag prefix '$releasePrefix'. " +
+            'Remove the MinVerTagPrefix from the project (Directory.Build.props sets it).'
     }
 
     if ($problems.Count -gt 0) {
@@ -108,7 +113,8 @@ if ($projects.Count -eq 0) {
 Assert-SharedPrefix $projects
 
 if ($Validate) {
-    Write-Host "All packages are released together by a tag that looks like '$($releasePrefix)<version>': $(($projects | ForEach-Object { $_.PackageId } | Sort-Object) -join ', ')"
+    $packageIds = ($projects | ForEach-Object { $_.PackageId } | Sort-Object) -join ', '
+    Write-Host "All packages are released together by a tag that looks like '$($releasePrefix)<version>': $packageIds"
 
     return
 }

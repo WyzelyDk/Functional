@@ -6,8 +6,8 @@ namespace Wyzely.Functional.MaybeCodeGeneration;
 /// The catalog of operations. Adding an operation here adds it, in all nine variants and with tests, to the library.
 /// </summary>
 /// <remarks>
-/// The bodies read the state of the receiver once (<c>Unpack</c>) and build maybes with the internal factory, so that nothing is
-/// checked or validated twice on the hot path.
+/// The bodies read the state of the receiver once (<c>Unpack</c>) and build maybes with the internal factory,
+/// so that nothing is checked or validated twice on the hot path.
 /// </remarks>
 internal static class Operations
 {
@@ -94,12 +94,12 @@ internal static class Operations
         TypeParameters = ["T", TResultName],
         TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value that the delegate produces.")],
         NotNull = ["T", TResultName],
-        Summary = "Transforms the value of a maybe. A maybe without a value stays without a value and the delegate is not called. A <see " +
-            "langword=\"null\"/> that the delegate produces becomes none.",
+        Summary = "Transforms the value of a maybe. A maybe without a value stays without a value and the delegate is not called. " +
+            "A <see langword=\"null\"/> that the delegate produces becomes none.",
         Delegates = [new("map", ["T"], "TResult?", NullableMapDelegateDoc)],
         ReturnType = MaybeOfTResult,
-        ReturnDescription = "A maybe that holds the value computed by the delegate, or none when the receiver has no value or the delegate " +
-            "produced <see langword=\"null\"/>.",
+        ReturnDescription = "A maybe that holds the value computed by the delegate, " +
+            "or none when the receiver has no value or the delegate produced <see langword=\"null\"/>.",
         Body = ctx =>
         [
             Unpack(ctx),
@@ -140,13 +140,13 @@ internal static class Operations
         TypeParameterDocs = [new("T", TDoc), new(TResultName, "The value type that the delegate produces, when it is not <see langword=\"null\"/>.")],
         NotNull = ["T"],
         Structs = [TResultName],
-        Summary = "Transforms the value of a maybe with a delegate that returns a nullable value type. A <see langword=\"null\"/> result becomes " +
-            "none, so the result is a <c>Maybe&lt;TResult&gt;</c> and never a <c>Maybe&lt;TResult?&gt;</c>. A maybe without a value stays without " +
-            "a value and the delegate is not called.",
+        Summary = "Transforms the value of a maybe with a delegate that returns a nullable value type. " +
+            "A <see langword=\"null\"/> result becomes none, so the result is a <c>Maybe&lt;TResult&gt;</c> and never a <c>Maybe&lt;TResult?&gt;</c>. " +
+            "A maybe without a value stays without a value and the delegate is not called.",
         Delegates = [new("map", ["T"], "TResult?", NullableMapDelegateDoc)],
         ReturnType = MaybeOfTResult,
-        ReturnDescription = "A maybe that holds the value computed by the delegate, or none when the receiver has no value or the delegate " +
-            "produced <see langword=\"null\"/>.",
+        ReturnDescription = "A maybe that holds the value computed by the delegate, " +
+            "or none when the receiver has no value or the delegate produced <see langword=\"null\"/>.",
         Body = ctx =>
         [
             Unpack(ctx),
@@ -189,8 +189,8 @@ internal static class Operations
         TypeParameters = ["T", TResultName],
         TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the maybe that the delegate returns.")],
         NotNull = ["T", TResultName],
-        Summary = "Chains an operation that may produce no value. The delegate runs only when the receiver has a value; a maybe without a value " +
-            "passes through as none.",
+        Summary = "Chains an operation that may produce no value. The delegate runs only when the receiver has a value; " +
+            "a maybe without a value passes through as none.",
         Delegates = [new("bind", ["T"], MaybeOfTResult, "The operation to run with the value of the maybe.")],
         ReturnType = MaybeOfTResult,
         ReturnDescription = "The maybe of the delegate, or none when the receiver has no value.",
@@ -248,8 +248,8 @@ internal static class Operations
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
-        Summary = "Turns a maybe into none when its value does not satisfy a condition. A maybe without a value stays without a value and the " +
-            "predicate is not called.",
+        Summary = "Turns a maybe into none when its value does not satisfy a condition. " +
+            "A maybe without a value stays without a value and the predicate is not called.",
         Delegates = [new(PredicateName, ["T"], "bool", "The condition the value must satisfy.")],
         ReturnType = MaybeOfT,
         ReturnDescription = "The receiver when it has a value that satisfies the condition, otherwise none.",
@@ -296,10 +296,10 @@ internal static class Operations
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
         Summary = all
-            ? "Leaves the railway: returns whether a maybe has no value or has a value that satisfies a condition. A maybe without a value gives " +
-                "true and the predicate is not called."
-            : "Leaves the railway: returns whether a maybe has a value that satisfies a condition. A maybe without a value gives false and the " +
-                "predicate is not called.",
+            ? "Leaves the railway: returns whether a maybe has no value or has a value that satisfies a condition. " +
+                "A maybe without a value gives true and the predicate is not called."
+            : "Leaves the railway: returns whether a maybe has a value that satisfies a condition. " +
+                "A maybe without a value gives false and the predicate is not called.",
         Delegates = [new(PredicateName, ["T"], "bool", "The condition the value must satisfy.")],
         ReturnType = "bool",
         ReturnDescription = all
@@ -348,8 +348,7 @@ internal static class Operations
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
-        Summary = "Leaves the railway: returns whether a maybe has a value that equals the given value, compared with the default equality of " +
-            "the type.",
+        Summary = "Leaves the railway: returns whether a maybe has a value that equals the given value, compared with the default equality of the type.",
         ExtraParameters = [new("T", "value", "The value to look for.", Validated: false)],
         ReturnType = "bool",
         ReturnDescription = "<see langword=\"true\"/> when the receiver has a value that equals <paramref name=\"value\"/>, " +
@@ -380,8 +379,8 @@ internal static class Operations
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
-        Summary = "Runs a side effect, for example logging, with the value of a maybe and returns the maybe unchanged. The delegate is not called " +
-            "when there is no value.",
+        Summary = "Runs a side effect, for example logging, with the value of a maybe and returns the maybe unchanged. " +
+            "The delegate is not called when there is no value.",
         Delegates = [new("tap", ["T"], "void", "The side effect to run with the value of the maybe.")],
         ReturnType = MaybeOfT,
         ReturnDescription = "The receiver, unchanged.",
@@ -424,8 +423,8 @@ internal static class Operations
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
-        Summary = "Runs a side effect, for example logging, when a maybe has no value and returns the maybe unchanged. The delegate is not called " +
-            "when there is a value.",
+        Summary = "Runs a side effect, for example logging, when a maybe has no value and returns the maybe unchanged. " +
+            "The delegate is not called when there is a value.",
         Delegates = [new(TapNoneName, [], "void", "The side effect to run when the maybe has no value.")],
         ReturnType = MaybeOfT,
         ReturnDescription = "The receiver, unchanged.",
@@ -518,8 +517,8 @@ internal static class Operations
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
-        Summary = "Leaves the railway: returns the value of a maybe, or computes a fallback when there is none. The delegate is not called when " +
-            "there is a value.",
+        Summary = "Leaves the railway: returns the value of a maybe, or computes a fallback when there is none. " +
+            "The delegate is not called when there is a value.",
         Delegates = [new(FallbackName, [], "T", "Computes the value to return when the receiver has no value.")],
         ReturnType = "T",
         ReturnDescription = "The value of the receiver, or the value computed by the delegate.",
@@ -570,8 +569,8 @@ internal static class Operations
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
-        Summary = "Leaves the railway: returns the value of a maybe, or throws the exception that a function creates when it has none, so that " +
-            "an absent value can become an exception of your own type.",
+        Summary = "Leaves the railway: returns the value of a maybe, or throws the exception that a function creates when it has none, " +
+            "so that an absent value can become an exception of your own type.",
         ExtraParameters = [new("Func<Exception>", "exceptionFactory", "Creates the exception to throw when the maybe has no value.")],
         SkipsCompletedFastPath = true,
         ReturnType = "T",
@@ -618,8 +617,8 @@ internal static class Operations
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
         NotNull = ["T"],
-        Summary = "Leaves the railway: returns the value of a maybe, or throws an <see cref=\"InvalidOperationException\"/> when it has none. It is " +
-            "the explicit form of <see cref=\"Maybe{T}.GetValue\"/> for a maybe that is still to come.",
+        Summary = "Leaves the railway: returns the value of a maybe, or throws an <see cref=\"InvalidOperationException\"/> when it has none. " +
+            "It is the explicit form of <see cref=\"Maybe{T}.GetValue\"/> for a maybe that is still to come.",
         SkipsSyncReceiver = true,
         SkipsCompletedFastPath = true,
         ReturnType = "T",

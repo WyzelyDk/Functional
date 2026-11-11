@@ -15,16 +15,17 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and returns no value, for example saving the value. The delegate runs only when the receiver
-    /// succeeded. The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization
-    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Chains an operation that can fail and returns no value, for example saving the value.
+    /// The delegate runs only when the receiver succeeded.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="bind">The operation to run with the value of the successful result.</param>
     /// <returns>
-    /// The result of the delegate, or a failed result with the error of the receiver. The value is returned in a
-    /// <see cref="Task{TResult}"/>.
+    /// The result of the delegate, or a failed result with the error of the receiver.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
     public static Task<Result> Bind<T>(this Task<Result<T>> result, Func<T, Result> bind)

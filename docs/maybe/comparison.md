@@ -3,10 +3,9 @@
 [Back to the Maybe overview](../../src/Maybe/README.md)
 
 This page compares `Wyzely.Functional.Maybe` with the "maybe" type of five other libraries: CSharpFunctionalExtensions (`Maybe<T>`),
-LanguageExt (`Option<A>`), Funcky (`Option<T>`), Optional (`Option<T>`) and OneOf (used as `OneOf<T, None>`, since it has no option type of its
-own). FluentResults, ErrorOr and Ardalis.Result have no maybe type; they appear in the [Results comparison](../result/comparison.md), which
-also lists the version, release date, targets and repository activity of every library. Read that table first for the question "is this library
-alive?".
+LanguageExt (`Option<A>`), Funcky (`Option<T>`), Optional (`Option<T>`) and OneOf (used as `OneOf<T, None>`, since it has no option type of its own).
+FluentResults, ErrorOr and Ardalis.Result have no maybe type; they appear in the [Results comparison](../result/comparison.md), which also lists the version,
+release date, targets and repository activity of every library. Read that table first for the question "is this library alive?".
 
 How the facts were found, on 2026-10-18: the latest stable package of each library was downloaded from nuget.org and its public types and
 extension methods listed by loading the assemblies; `default` and `null` handling were checked by running small programs; speed and allocation
@@ -39,8 +38,7 @@ These were run, not read.
 | Optional | `Option.Some<string>(null)` **gives a some that holds `null`** (`HasValue` is `true`) | `SomeNotNull()` gives none |
 | OneOf | not applicable | not applicable |
 
-A "some" that can hold `null` is the case this type exists to remove, so it is worth knowing that Optional allows it unless you
-use `SomeNotNull`.
+A "some" that can hold `null` is the case this type exists to remove, so it is worth knowing that Optional allows it unless you use `SomeNotNull`.
 
 ## API surface
 
@@ -58,34 +56,32 @@ use `SomeNotNull`.
 | Analyzers in the package | yes (`WYZ0201` to `WYZ0204`) | no | no | yes (built-in analyzers and code fixes) | no | no |
 | Dependencies, per nuspec | none on `net8.0` and later | none | ten, on its only target | none on `net5.0` and later | none | none |
 
-The counts only show how much of each surface exists. They are whole-assembly counts, so for CSharpFunctionalExtensions, LanguageExt and Funcky
-they include everything else the library does, and they are not a measure of quality.
+The counts only show how much of each surface exists. They are whole-assembly counts, so for CSharpFunctionalExtensions,
+LanguageExt and Funcky they include everything else the library does, and they are not a measure of quality.
 
 ## What each one is good at, and where it is limited
 
-**CSharpFunctionalExtensions** is the one to look at if you also want its `Result` types, value objects and entities from the same package. Its
-`Maybe` has `Execute`, `Choose`, `Optional`/`Required` bridges and a broad asynchronous surface. It has no ordering operators and no analyzer.
+**CSharpFunctionalExtensions** is the one to look at if you also want its `Result` types, value objects and entities from the same package.
+Its `Maybe` has `Execute`, `Choose`, `Optional`/`Required` bridges and a broad asynchronous surface. It has no ordering operators and no analyzer.
 
-**LanguageExt** has the largest `Option<A>`: about fifty members, folds, `Apply`, arithmetic over options, `Traverse` and `Sequence`, and
-conversions to all of its other types. If you want the whole functional toolbox it is the choice; if you want only an option, you take
-ten dependencies and a package of 1,823 types with it. Version 4 is the stable line, and version 5 (in beta) changes the API. Its asynchronous work
-is a separate type, `OptionAsync<A>`.
+**LanguageExt** has the largest `Option<A>`: about fifty members, folds, `Apply`,
+arithmetic over options, `Traverse` and `Sequence`, and conversions to all of its other types.
+If you want the whole functional toolbox it is the choice; if you want only an option, you take ten dependencies and a package of 1,823 types with it.
+Version 4 is the stable line, and version 5 (in beta) changes the API. Its asynchronous work is a separate type, `OptionAsync<A>`.
 
-**Funcky** has a complete `Option<T>` with the widest set of sequence helpers (`MaxOrNone`, `AverageOrNone`, `AggregateOrNone`,
-`Traverse`), ships analyzers, targets `net10.0`, and is actively maintained. It is a small project (55 stars) with a large API, and it
-has no `Map` or `Bind` for `Task<Option<T>>`; in the benchmarks a synchronous chain allocated 24 B where this library allocated nothing.
+**Funcky** has a complete `Option<T>` with the widest set of sequence helpers (`MaxOrNone`, `AverageOrNone`, `AggregateOrNone`, `Traverse`), ships analyzers,
+targets `net10.0`, and is actively maintained. It is a small project (55 stars) with a large API, and it has no `Map` or `Bind` for `Task<Option<T>>`;
+in the benchmarks a synchronous chain allocated 24 B where this library allocated nothing.
 
 **Optional** is a small, mature option type with the usual operations, `Exists`, `Contains` and `MatchSome`/`MatchNone`. It has not had a release since 2018,
-has no asynchronous support, lets a "some" hold `null`, and has no implicit conversion. A synchronous chain
-in the benchmarks allocated 24 B.
+has no asynchronous support, lets a "some" hold `null`, and has no implicit conversion. A synchronous chain in the benchmarks allocated 24 B.
 
-**OneOf** has no option type: `OneOf<T, None>` works for "a value or nothing" and does not allocate, but there is no `Bind`, `Filter` or
-asynchronous support, a `default` is a "some" holding the default value, and the package has had no commit on its default branch since May 2024.
+**OneOf** has no option type: `OneOf<T, None>` works for "a value or nothing" and does not allocate, but there is no `Bind`, `Filter` or asynchronous support,
+a `default` is a "some" holding the default value, and the package has had no commit on its default branch since May 2024.
 
 **This library** is deliberately small. It does not have what the table shows others have: arithmetic and `Apply` (`Add`, `Subtract`, `Product`,
-`Divide`, `Sum`, `Apply`), `Sequence`/`Traverse` and folds in LanguageExt, `Execute` and `ExecuteNoValue` in CSharpFunctionalExtensions, and
-`Contains`, `Exists` and `NotNull` in Optional. [Scope](scope.md) says why. It is also not published yet, so none of the others' track records
-applies to it.
+`Divide`, `Sum`, `Apply`), `Sequence`/`Traverse` and folds in LanguageExt, `Execute` and `ExecuteNoValue` in CSharpFunctionalExtensions, and `Contains`,
+`Exists` and `NotNull` in Optional. [Scope](scope.md) says why. It is also not published yet, so none of the others' track records applies to it.
 
 ## What was not compared
 

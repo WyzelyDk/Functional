@@ -143,8 +143,8 @@ public sealed class InterpolatedMessageCodeFixProvider : CodeFixProvider
     private static LiteralExpressionSyntax LiteralOf(string text) =>
         SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(text));
 
-    // Reads the text with a {name} placeholder for every value. Only a name or a member access has a name that is not made up, and a hole with a format
-    // or an alignment would mean something else in a template.
+    // Reads the text with a {name} placeholder for every value. Only a name or a member access has a name that is not made up,
+    // and a hole with a format or an alignment would mean something else in a template.
     private static bool TryRead(
         InterpolatedStringExpressionSyntax interpolated,
         out LiteralExpressionSyntax template,

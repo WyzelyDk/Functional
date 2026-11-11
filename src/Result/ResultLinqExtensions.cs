@@ -1,12 +1,12 @@
 namespace Wyzely.Functional;
 
 /// <summary>
-/// LINQ query syntax for <see cref="Result{T}"/> (<c>from a in ... from b in ... select ...</c>). <c>Zip</c>, which combines independent
-/// results, is generated into <see cref="ResultExtensions"/>.
+/// LINQ query syntax for <see cref="Result{T}"/> (<c>from a in ... from b in ... select ...</c>).
+/// <c>Zip</c>, which combines independent results, is generated into <see cref="ResultExtensions"/>.
 /// </summary>
 /// <remarks>
-/// Query syntax short-circuits at the first failure, like <see cref="ResultExtensions"/> <c>Bind</c> does. Use <c>Zip</c> or
-/// <see cref="Result.Combine{T}(IEnumerable{Result{T}})"/> when every failure should be reported.
+/// Query syntax short-circuits at the first failure, like <see cref="ResultExtensions"/> <c>Bind</c> does.
+/// Use <c>Zip</c> or <see cref="Result.Combine{T}(IEnumerable{Result{T}})"/> when every failure should be reported.
 /// </remarks>
 public static class ResultLinqExtensions
 {

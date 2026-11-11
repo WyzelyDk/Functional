@@ -15,10 +15,11 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure with the given message when a condition does not hold. A failed result passes through with
-    /// its own error and the condition is not evaluated. The receiver is a <see cref="Task"/> that produces the result; it is awaited
-    /// without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The
-    /// delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
+    /// Turns a successful result into a failure with the given message when a condition does not hold.
+    /// A failed result passes through with its own error and the condition is not evaluated.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>

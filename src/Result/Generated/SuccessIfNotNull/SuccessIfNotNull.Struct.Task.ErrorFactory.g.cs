@@ -15,16 +15,16 @@ namespace Wyzely.Functional;
 public readonly partial struct Result
 {
     /// <summary>
-    /// Creates a successful result that holds a value when it is not <see langword="null"/>, and a failed result otherwise. The value is
-    /// awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise,
-    /// and the result is returned in a <see cref="Task"/>.
+    /// Creates a successful result that holds a value when it is not <see langword="null"/>, and a failed result otherwise.
+    /// The value is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
+    /// otherwise, and the result is returned in a <see cref="Task"/>.
     /// </summary>
     /// <typeparam name="T">The type of the value, without the nullable annotation.</typeparam>
     /// <param name="value">The operation that produces the value, which may be <see langword="null"/>. It must not be <see langword="null"/> itself.</param>
     /// <param name="errorFactory">Creates the error of the failed result. It is called only when the value is <see langword="null"/>.</param>
     /// <returns>
-    /// A successful result that holds the value, or a failed result that holds the error of <paramref name="errorFactory"/>, in a
-    /// <see cref="Task"/>.
+    /// A successful result that holds the value, or a failed result that holds the error of <paramref name="errorFactory"/>,
+    /// in a <see cref="Task"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="value"/>, <paramref name="errorFactory"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentNullException">

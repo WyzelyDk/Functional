@@ -7,8 +7,8 @@ This page says why that is a package of its own, and when you do not need it.
 
 ## Why not put the methods in `Result` or `Maybe`?
 
-Because the packages are independent on purpose: taking `Result` should never make you take `Maybe`, and the reverse. If `Result` had
-`Maybe<T>.ToResult`, it would have to reference `Maybe`. Something has to sit above both, and what lies between two things belongs in neither.
+Because the packages are independent on purpose: taking `Result` should never make you take `Maybe`, and the reverse.
+If `Result` had `Maybe<T>.ToResult`, it would have to reference `Maybe`. Something has to sit above both, and what lies between two things belongs in neither.
 The umbrella package is that something, and `AGENTS.md` keeps it to that: it holds only what connects the others.
 
 ## What you get by installing it
@@ -30,9 +30,9 @@ Result<string> ToResult(Maybe<string> maybe, Error error) =>
     maybe.TryGetValue(out var value) ? Result.Success(value) : Result.Failure<string>(error);
 ```
 
-What the package adds over that is the nine overloads (so no `await` is needed in the middle of a chain), the null checks that fire when you call the
-method rather than when you await, and tests for how it behaves with faulted tasks and with the two `ContinueOnCapturedContext` settings
-(`InteropConfigurationTests`).
+What the package adds over that is the nine overloads (so no `await` is needed in the middle of a chain),
+the null checks that fire when you call the method rather than when you await,
+and tests for how it behaves with faulted tasks and with the two `ContinueOnCapturedContext` settings (`InteropConfigurationTests`).
 
 ## What it costs
 

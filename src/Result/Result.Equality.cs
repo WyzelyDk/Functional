@@ -1,8 +1,8 @@
 namespace Wyzely.Functional;
 
 /// <content>
-/// Value equality: two successes are equal, and two failures are equal when their errors are. A <see langword="default"/> result is
-/// a success, so it equals <see cref="Success()"/>.
+/// Value equality: two successes are equal, and two failures are equal when their errors are.
+/// A <see langword="default"/> result is a success, so it equals <see cref="Success()"/>.
 /// </content>
 public readonly partial struct Result
 {

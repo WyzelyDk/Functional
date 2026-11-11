@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Transforms the 2 values of the tuple of a successful result, which the delegate takes as separate parameters. A failed result passes
-    /// through unchanged: its error is kept and the delegate is not called.
+    /// Transforms the 2 values of the tuple of a successful result, which the delegate takes as separate parameters.
+    /// A failed result passes through unchanged: its error is kept and the delegate is not called.
     /// </summary>
     /// <typeparam name="T1">The type of value number 1 of the receiver result.</typeparam>
     /// <typeparam name="T2">The type of value number 2 of the receiver result.</typeparam>

@@ -2,8 +2,8 @@ using Wyzely.Functional.CodeGeneration;
 
 namespace Wyzely.Functional.SharedTests;
 
-// The generator engine is shared by two libraries whose catalogs use different options, so each library exercises only half of the choices the
-// emitters make. These tests drive the emitters with a synthetic profile and operation, so that every choice is checked in one place.
+// The generator engine is shared by two libraries whose catalogs use different options, so each library exercises only half of the choices the emitters make.
+// These tests drive the emitters with a synthetic profile and operation, so that every choice is checked in one place.
 public sealed class EmitterOptionTests
 {
     [Fact]

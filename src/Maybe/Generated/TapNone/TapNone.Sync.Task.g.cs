@@ -15,9 +15,9 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Runs a side effect, for example logging, when a maybe has no value and returns the maybe unchanged. The delegate is not called when
-    /// there is a value. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the
-    /// synchronization context unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Runs a side effect, for example logging, when a maybe has no value and returns the maybe unchanged.
+    /// The delegate is not called when there is a value. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited
+    /// without capturing the synchronization context unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>

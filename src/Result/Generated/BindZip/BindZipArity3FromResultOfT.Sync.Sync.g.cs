@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and adds its value to the tuple of the receiver, which becomes a tuple of 4 values. The delegate
-    /// runs only when the receiver succeeded; a failed result passes through with its error.
+    /// Chains an operation that can fail and adds its value to the tuple of the receiver, which becomes a tuple of 4 values.
+    /// The delegate runs only when the receiver succeeded; a failed result passes through with its error.
     /// </summary>
     /// <typeparam name="T1">The type of value number 1 of the receiver result.</typeparam>
     /// <typeparam name="T2">The type of value number 2 of the receiver result.</typeparam>
@@ -25,8 +25,8 @@ public static partial class ResultExtensions
     /// <param name="result">The result to operate on.</param>
     /// <param name="bind">The operation to run with the value of the successful result.</param>
     /// <returns>
-    /// A successful result that holds the value of the receiver and the value of the delegate, or a failed result with the error of the
-    /// receiver or of the delegate.
+    /// A successful result that holds the value of the receiver and the value of the delegate,
+    /// or a failed result with the error of the receiver or of the delegate.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
     public static Result<(T1 First, T2 Second, T3 Third, TResult Fourth)> BindZip<T1, T2, T3, TResult>(

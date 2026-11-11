@@ -70,8 +70,7 @@ public static partial class MaybeResultExtensions
     }
 
     /// <summary>
-    /// Turns the maybe that a value task produces into a result: a value becomes a success, and no value becomes a failure with the given
-    /// error.
+    /// Turns the maybe that a value task produces into a result: a value becomes a success, and no value becomes a failure with the given error.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="maybe">The value task that produces the maybe.</param>
@@ -94,8 +93,7 @@ public static partial class MaybeResultExtensions
     /// <param name="maybe">The value task that produces the maybe.</param>
     /// <param name="error">Creates the error of the failed result. It is not called when the maybe has a value.</param>
     /// <returns>
-    /// A value task that produces a successful result with the value, or a failed result with the error that <paramref name="error"/>
-    /// created.
+    /// A value task that produces a successful result with the value, or a failed result with the error that <paramref name="error"/> created.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
     [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]

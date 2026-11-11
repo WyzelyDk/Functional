@@ -6,8 +6,7 @@ namespace Wyzely.Functional.MaybeBenchmarks;
 
 public partial class SyncFailure
 {
-    // OneOf is a union, not a railway library: OneOf<T, None> stands for the maybe, only MapT0 and Match exist, and Filter and Bind are
-    // written with Match.
+    // OneOf is a union, not a railway library: OneOf<T, None> stands for the maybe, only MapT0 and Match exist, and Filter and Bind are written with Match.
     [Benchmark]
     [BenchmarkCategory("Value")]
     public int OneOfLib()

@@ -3,9 +3,9 @@ using Wyzely.Functional.CodeGeneration;
 namespace Wyzely.Functional.ResultCodeGeneration;
 
 /// <content>
-/// The explicit ways to leave the railway with an exception: <c>GetValueOrThrow</c> and <c>ThrowIfFailure</c>, with a function that creates the
-/// exception from the error, and without one for a <c>Task</c> or <c>ValueTask</c> receiver (the synchronous ones are <c>GetValue()</c> and
-/// <c>ThrowIfFailure()</c>, which are members of the result).
+/// The explicit ways to leave the railway with an exception: <c>GetValueOrThrow</c> and <c>ThrowIfFailure</c>,
+/// with a function that creates the exception from the error, and without one for a <c>Task</c> or <c>ValueTask</c> receiver (the synchronous ones are
+/// <c>GetValue()</c> and <c>ThrowIfFailure()</c>, which are members of the result).
 /// </content>
 internal static partial class Operations
 {
@@ -40,8 +40,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Leaves the railway: returns the value of a successful result, or throws the exception that a function creates from the error " +
-            "of a failed result, so that a failure can become an exception of your own type.",
+        Summary = "Leaves the railway: returns the value of a successful result, " +
+            "or throws the exception that a function creates from the error of a failed result, so that a failure can become an exception of your own type.",
         ExtraParameters = [ExceptionFactoryParameter()],
         SkipsCompletedFastPath = true,
         ReturnType = "T",
@@ -96,8 +96,9 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Leaves the railway: returns the value of a successful result, or throws a <see cref=\"ResultFailedException\"/> that carries the " +
-            "error of a failed result. It is the explicit form of <see cref=\"Result{T}.GetValue\"/> for a result that is still to come.",
+        Summary = "Leaves the railway: returns the value of a successful result, " +
+            "or throws a <see cref=\"ResultFailedException\"/> that carries the error of a failed result. " +
+            "It is the explicit form of <see cref=\"Result{T}.GetValue\"/> for a result that is still to come.",
         SkipsSyncReceiver = true,
         SkipsCompletedFastPath = true,
         ReturnType = "T",
@@ -127,8 +128,8 @@ internal static partial class Operations
         ReceiverDescription = ResultReceiverDescription,
         TypeParameters = [],
         TypeParameterDocs = [],
-        Summary = "Leaves the railway: throws the exception that a function creates from the error of a failed result, so that a failure can " +
-            "become an exception of your own type. A successful result does nothing.",
+        Summary = "Leaves the railway: throws the exception that a function creates from the error of a failed result, " +
+            "so that a failure can become an exception of your own type. A successful result does nothing.",
         ExtraParameters = [ExceptionFactoryParameter()],
         SkipsCompletedFastPath = true,
         ReturnType = "void",
@@ -183,8 +184,8 @@ internal static partial class Operations
         ReceiverDescription = ResultReceiverDescription,
         TypeParameters = [],
         TypeParameterDocs = [],
-        Summary = "Leaves the railway: throws a <see cref=\"ResultFailedException\"/> that carries the error of a failed result. A successful result " +
-            "does nothing. It is the explicit form of <see cref=\"Result.ThrowIfFailure\"/> for a result that is still to come.",
+        Summary = "Leaves the railway: throws a <see cref=\"ResultFailedException\"/> that carries the error of a failed result. " +
+            "A successful result does nothing. It is the explicit form of <see cref=\"Result.ThrowIfFailure\"/> for a result that is still to come.",
         SkipsSyncReceiver = true,
         SkipsCompletedFastPath = true,
         ReturnType = "void",

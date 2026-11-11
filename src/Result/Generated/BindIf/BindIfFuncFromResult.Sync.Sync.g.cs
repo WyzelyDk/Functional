@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and returns no value, when a condition holds. Otherwise, and for a failed result, the receiver is
-    /// returned as it was and the delegate is not called.
+    /// Chains an operation that can fail and returns no value, when a condition holds.
+    /// Otherwise, and for a failed result, the receiver is returned as it was and the delegate is not called.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded.</param>

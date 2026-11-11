@@ -8,13 +8,13 @@ namespace Wyzely.Functional;
 /// A named piece of structured data attached to an <see cref="Error"/>, for example the path of a file that could not be written.
 /// </summary>
 /// <remarks>
-/// A detail serves two purposes: its value fills the matching <c>{Name}</c> placeholder in the message template of the
-/// error, and it stays available as structured data for logging and telemetry. A detail marked as sensitive is replaced by
-/// <c>***</c> in <see cref="Error.RedactedMessage"/> and <see cref="Error.ToRedactedString"/>.
+/// A detail serves two purposes: its value fills the matching <c>{Name}</c> placeholder in the message template of the error,
+/// and it stays available as structured data for logging and telemetry.
+/// A detail marked as sensitive is replaced by <c>***</c> in <see cref="Error.RedactedMessage"/> and <see cref="Error.ToRedactedString"/>.
 /// </remarks>
 /// <param name="name">
-/// The name of the detail. It is matched, case-sensitively, with placeholders in the message template. Must not be <see langword="null"/>
-/// (<see cref="ArgumentNullException"/>), empty or white space (<see cref="ArgumentException"/>).
+/// The name of the detail. It is matched, case-sensitively, with placeholders in the message template.
+/// Must not be <see langword="null"/> (<see cref="ArgumentNullException"/>), empty or white space (<see cref="ArgumentException"/>).
 /// </param>
 /// <param name="value">The value of the detail, which may be <see langword="null"/>.</param>
 /// <param name="isSensitive"><see langword="true"/> when the value must not appear in redacted output, for example a password.</param>

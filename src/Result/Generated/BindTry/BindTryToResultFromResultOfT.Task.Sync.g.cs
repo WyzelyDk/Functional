@@ -15,10 +15,12 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and returns no value, and may also throw. A failed receiver passes through and the delegate is not
-    /// called. A thrown exception becomes a failed result unless <see cref="ResultOptions.ShouldCatch"/> excludes it, as a cancellation is
-    /// by default. The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization
-    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Chains an operation that can fail and returns no value, and may also throw.
+    /// A failed receiver passes through and the delegate is not called.
+    /// A thrown exception becomes a failed result unless <see cref="ResultOptions.ShouldCatch"/> excludes it,
+    /// as a cancellation is by default. The receiver is a <see cref="Task"/> that produces the result;
+    /// it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
+    /// otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>

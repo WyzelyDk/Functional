@@ -22,8 +22,8 @@ public static partial class MaybeExtensions
     /// <param name="maybe">The task that produces the maybe to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="value">The value to look for.</param>
     /// <returns>
-    /// <see langword="true"/> when the receiver has a value that equals <paramref name="value"/>, otherwise <see langword="false"/>. The
-    /// value is returned in a <see cref="Task{TResult}"/>.
+    /// <see langword="true"/> when the receiver has a value that equals <paramref name="value"/>, otherwise <see langword="false"/>.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="maybe"/> is <see langword="null"/>.</exception>
     public static Task<bool> Contains<T>(this Task<Maybe<T>> maybe, T value)

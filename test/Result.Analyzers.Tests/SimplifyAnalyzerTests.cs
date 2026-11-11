@@ -2,8 +2,8 @@ using Wyzely.Functional.ResultAnalyzers;
 
 namespace Wyzely.Functional.ResultAnalyzersTests;
 
-// The simplify rules point at code that does more than it has to. A rewrite must give exactly the same result and type, so a shape that looks
-// similar but is not the same must stay silent.
+// The simplify rules point at code that does more than it has to.
+// A rewrite must give exactly the same result and type, so a shape that looks similar but is not the same must stay silent.
 public sealed class SimplifyAnalyzerTests
 {
     private const string Sources = """

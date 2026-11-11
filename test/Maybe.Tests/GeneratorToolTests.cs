@@ -2,8 +2,8 @@ using Wyzely.Functional.MaybeCodeGeneration;
 
 namespace Wyzely.Functional.MaybeTests;
 
-// The tool that writes the generated files: the stub mode for the red phase, the replacement of the files in the repository, the search for the
-// repository root, and the command that ties them together. Everything is written to a folder of its own, never to the repository.
+// The tool that writes the generated files: the stub mode for the red phase, the replacement of the files in the repository,
+// the search for the repository root, and the command that ties them together. Everything is written to a folder of its own, never to the repository.
 public sealed class GeneratorToolTests
 {
     [Fact]

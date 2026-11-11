@@ -2,9 +2,9 @@
 
 namespace Wyzely.Functional.ResultTests;
 
-// These tests need the C# 15 compiler and the .NET 11 runtime types, so they exist only for the net11.0 target. The exhaustive
-// switch expressions below are part of what is tested: with warnings as errors, a result that was not recognised as a union
-// (or that needed a null arm) would not compile.
+// These tests need the C# 15 compiler and the .NET 11 runtime types, so they exist only for the net11.0 target.
+// The exhaustive switch expressions below are part of what is tested: with warnings as errors,
+// a result that was not recognised as a union (or that needed a null arm) would not compile.
 public sealed class ResultUnionTests
 {
     private static readonly Error Boom = Error.Create("Boom.");

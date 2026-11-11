@@ -36,8 +36,8 @@ public static class SampleShop
 
     private static readonly Dictionary<string, int> PricesInCents = new() { ["TEA"] = 250, ["COFFEE"] = 400 };
 
-    // "Not found" is an ordinary outcome, not an exception. The message is a TEMPLATE: the placeholders are filled
-    // from the details, and the template itself stays stable, which is what you group log entries by.
+    // "Not found" is an ordinary outcome, not an exception. The message is a TEMPLATE: the placeholders are filled from the details,
+    // and the template itself stays stable, which is what you group log entries by.
     public static Result<Customer> FindCustomer(int id) =>
         Customers.TryGetValue(id, out var customer)
             ? Result.Success(customer)
@@ -68,8 +68,8 @@ public static class SampleShop
         return Result.Success();
     }
 
-    // Charging a card: a blocked customer is refused (Forbidden), and order 12 meets a payment gateway that is
-    // down (Unavailable, which is marked transient: trying again later might work).
+    // Charging a card: a blocked customer is refused (Forbidden), and order 12 meets a payment gateway that is down (Unavailable, which is marked transient:
+    // trying again later might work).
     public static Result<Receipt> Charge(Order order) =>
         FindCustomer(order.CustomerId)
             .Ensure(

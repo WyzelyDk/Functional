@@ -25,8 +25,8 @@ public static class BasicsExample
         output.WriteLine($"ok.IsSuccess: {ok.IsSuccess}");
         output.WriteLine($"failed.IsFailure: {failed.IsFailure}");
 
-        // TryGetValue / TryGetError follow the familiar TryXxx pattern. The out value is only usable when the
-        // method returns true, and the compiler knows it ([MaybeNullWhen(false)] / [NotNullWhen(true)]).
+        // TryGetValue / TryGetError follow the familiar TryXxx pattern.
+        // The out value is only usable when the method returns true, and the compiler knows it ([MaybeNullWhen(false)] / [NotNullWhen(true)]).
         if (ok.TryGetValue(out var value))
         {
             output.WriteLine($"TryGetValue on the success: {value}");
@@ -45,8 +45,7 @@ public static class BasicsExample
         // ValueOr is the shortest way to say "or else this".
         output.WriteLine($"ValueOr on the failure: {failed.ValueOr(-1)}");
 
-        // GetValue() on a failure throws, and the exception carries the error. The text is redacted: sensitive
-        // details never end up in an exception message.
+        // GetValue() on a failure throws, and the exception carries the error. The text is redacted: sensitive details never end up in an exception message.
         try
         {
             _ = failed.GetValue();
@@ -66,8 +65,8 @@ public static class BasicsExample
             output.WriteLine("GetError on the success throws InvalidOperationException.");
         }
 
-        // Deconstruction is the one reader that never throws and is not checked by the analyzer: both parts are
-        // always there, and one of them is empty. Use it when you really want both.
+        // Deconstruction is the one reader that never throws and is not checked by the analyzer: both parts are always there, and one of them is empty.
+        // Use it when you really want both.
         var (okValue, okError) = ok;
         output.WriteLine($"Deconstruct of the success: value={okValue}, error={(okError is null ? "none" : okError.Message)}");
 
@@ -75,9 +74,9 @@ public static class BasicsExample
         output.WriteLine($"ToString of the failure: {failed}");
         output.WriteLine($"ToString of an untyped success: {Result.Success()}");
 
-        // A struct always has a default value, and for a result it is a success: default(Result) is Result.Success() and
-        // default(Result<int>) is Result.Success(0). A field or an array slot that nobody filled in therefore holds a
-        // success, so collect results with Result.Combine or SelectInParallel instead of in an array that you fill yourself.
+        // A struct always has a default value, and for a result it is a success: default(Result) is Result.Success() and default(Result<int>) is
+        // Result.Success(0). A field or an array slot that nobody filled in therefore holds a success,
+        // so collect results with Result.Combine or SelectInParallel instead of in an array that you fill yourself.
         var unfilled = default(Result<int>);
 
         output.WriteLine($"A default result: ToString is {unfilled} and IsSuccess is {unfilled.IsSuccess}.");

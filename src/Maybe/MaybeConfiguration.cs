@@ -1,13 +1,12 @@
 namespace Wyzely.Functional;
 
 /// <summary>
-/// Changes the settings of the library for the whole process. The defaults suit most applications; call
-/// <see cref="Configure(Action{MaybeOptions})"/> once at start-up if you want something different.
+/// Changes the settings of the library for the whole process. The defaults suit most applications;
+/// call <see cref="Configure(Action{MaybeOptions})"/> once at start-up if you want something different.
 /// </summary>
 /// <remarks>
-/// The settings are process-wide because maybes are created everywhere, and passing an options object to every call
-/// would defeat the purpose of a lightweight type. A change is applied atomically: readers see either the old or the
-/// new settings, never a mixture.
+/// The settings are process-wide because maybes are created everywhere, and passing an options object to every call would defeat the purpose of a lightweight
+/// type. A change is applied atomically: readers see either the old or the new settings, never a mixture.
 /// </remarks>
 public static class MaybeConfiguration
 {

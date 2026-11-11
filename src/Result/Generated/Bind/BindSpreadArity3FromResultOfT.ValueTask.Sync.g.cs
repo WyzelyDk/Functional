@@ -15,10 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and takes the 3 values of the tuple of the receiver as separate parameters. The delegate runs only
-    /// when the receiver succeeded; a failed result passes through with its error. The receiver is a <see cref="ValueTask"/> that produces
-    /// the result; it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/>
-    /// says otherwise.
+    /// Chains an operation that can fail and takes the 3 values of the tuple of the receiver as separate parameters.
+    /// The delegate runs only when the receiver succeeded; a failed result passes through with its error.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T1">The type of value number 1 of the receiver result.</typeparam>
     /// <typeparam name="T2">The type of value number 2 of the receiver result.</typeparam>
@@ -27,8 +27,8 @@ public static partial class ResultExtensions
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <param name="bind">The operation to run with the values of the successful result.</param>
     /// <returns>
-    /// The result of the delegate, or a failed result with the error of the receiver. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// The result of the delegate, or a failed result with the error of the receiver.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
     public static ValueTask<Result<TResult>> Bind<T1, T2, T3, TResult>(this ValueTask<Result<(T1, T2, T3)>> result, Func<T1, T2, T3, Result<TResult>> bind)

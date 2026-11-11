@@ -1,7 +1,9 @@
 # CI and releasing
 
-For maintainers. It describes how pull requests are checked, how the packages get to nuget.org (all together, with one tag and one version), and what to set up once on GitHub and nuget.org. The GitHub organization is `WyzelyDk` and the repository is `Functional`; the solution (`Wyzely.Functional.slnx`), the root namespace and the
-package IDs (`Wyzely.Functional`, `Wyzely.Functional.Result` and so on) carry the product name.
+For maintainers. It describes how pull requests are checked, how the packages get to nuget.org (all together,
+with one tag and one version), and what to set up once on GitHub and nuget.org.
+The GitHub organization is `WyzelyDk` and the repository is `Functional`; the solution (`Wyzely.Functional.slnx`),
+the root namespace and the package IDs (`Wyzely.Functional`, `Wyzely.Functional.Result` and so on) carry the product name.
 
 ## The model in one paragraph
 
@@ -25,9 +27,9 @@ packs all packages, and publishes them to nuget.org without any stored password.
 
 ### Documentation-only changes
 
-A pull request that changes only documentation does not need a build, and it does not wait for one: `changes` notices, the build and test
-jobs are skipped, and `docs` plus the gate finish in well under a minute. The gate accepts "skipped" for the build jobs **only** when no code
-changed; it fails if a build job was skipped (or cancelled) although code did change, or if the detection itself failed.
+A pull request that changes only documentation does not need a build, and it does not wait for one: `changes` notices, the build and test jobs are skipped,
+and `docs` plus the gate finish in well under a minute. The gate accepts "skipped" for the build jobs **only** when no code changed;
+it fails if a build job was skipped (or cancelled) although code did change, or if the detection itself failed.
 
 The push that a merged pull request makes to `main` is the exception: it always builds and tests, because it publishes the website and the
 website contains the coverage report. That is one build per merge, and the only one: the website is packaged by `build-and-test` itself.
@@ -52,13 +54,11 @@ Decisions behind the pipeline, so they can be revisited deliberately:
   workflow always starts and decides inside; the gate is the only required check, so the set of jobs can change without touching the
   repository rules. The same mechanism extends to packages: when there are several, let `changes` also report which package changed and give
   each package's jobs an `if:`, and the gate rule "skipped is fine when that package did not change" stays the same.
-- **SDK 11 pinned in `global.json`.** One SDK builds every target framework, for everyone, for CI and for releases (the packages contain the
-  `net11.0` asset). Its exact stable version (`11.0.x`) is pinned there, so a new SDK cannot break every pull request
-  unannounced; bump it on purpose.
+- **SDK 11 pinned in `global.json`.** One SDK builds every target framework, for everyone, for CI and for releases (the packages contain the `net11.0` asset).
+  Its exact stable version (`11.0.x`) is pinned there, so a new SDK cannot break every pull request unannounced; bump it on purpose.
 - **Full clones (`fetch-depth: 0`).** MinVer reads the history and the tags; a shallow clone makes versions wrong or warns.
-- **Squash or rebase merges, never merge commits**, so that `main` is linear. Rebase a pull request whose commits are worth keeping as
-  written; squash the rest. Dependabot keeps the Actions and NuGet packages
-  current, and its pull requests go through the same gate.
+- **Squash or rebase merges, never merge commits**, so that `main` is linear. Rebase a pull request whose commits are worth keeping as written; squash the rest.
+  Dependabot keeps the Actions and NuGet packages current, and its pull requests go through the same gate.
 
 ## The website
 
@@ -69,8 +69,8 @@ Decisions behind the pipeline, so they can be revisited deliberately:
 | `/` | the documentation site | `mkdocs.yml` and the pages under `docs/`, with [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) |
 | `/coverage/` | the coverage report of `main`, and the badges the READMEs show | the tests of `build-and-test`, merged by ReportGenerator |
 
-After a push to `main`, `build-and-test` builds the documentation site next to the coverage report it has just made and packages both; the
-`pages` job deploys them. Nothing is built twice. On a pull request nothing is published, but the `docs` job builds the site with `--strict`,
+After a push to `main`, `build-and-test` builds the documentation site next to the coverage report it has just made and packages both;
+the `pages` job deploys them. Nothing is built twice. On a pull request nothing is published, but the `docs` job builds the site with `--strict`,
 so a broken anchor or a page missing from the navigation fails the pull request, not the deployment after the merge.
 
 - **The coverage report counts a source file once.** The files under `src/Shared` are compiled into several assemblies, and each test run covers only the copy
@@ -78,9 +78,9 @@ so a broken anchor or a page missing from the navigation fails the pull request,
   into one package before ReportGenerator merges the reports (tested by `Merge-SharedCoverage.Tests.ps1`), and a line or a branch counts as covered when any run
   covered it. The classes that the regular expression source generator writes are filtered out; they are not our code.
 
-- **The pages stay plain Markdown for GitHub.** A link from a page to a file outside `docs/` (a package README, a sample) is rewritten to the
-  file on GitHub by `.github/mkdocs/hooks.py` when the site is built; the source is not changed. A new page must be added to `nav` in
-  `mkdocs.yml`, or the strict build fails.
+- **The pages stay plain Markdown for GitHub.** A link from a page to a file outside `docs/` (a package README,
+  a sample) is rewritten to the file on GitHub by `.github/mkdocs/hooks.py` when the site is built; the source is not changed.
+  A new page must be added to `nav` in `mkdocs.yml`, or the strict build fails.
 - **The tools are pinned and locked:** the two packages that we depend on in `.github/mkdocs/requirements.in`, everything that is installed (with hashes) in
   `.github/mkdocs/requirements.txt`. Update them on purpose and regenerate the second file (see the comment in it).
 - **One-time setup:** Settings -> Pages -> Source: *GitHub Actions*.
@@ -95,9 +95,10 @@ python -m venv .venv
 
 ## Benchmarks: `.github/workflows/benchmarks.yml`
 
-The workflow runs `benchmarks/Result.Benchmarks` and `benchmarks/Maybe.Benchmarks` (the libraries side by side, with this library as the baseline) and shows the tables
-of every scenario in the summary of the run. The raw results (CSV, HTML and Markdown) are kept for 90 days as the artifact `benchmarks-result` and `benchmarks-maybe`.
-The two suites run as two jobs, so the whole run takes as long as the longer of them (about fifteen minutes for Result and nine for Maybe on a developer machine, longer on a hosted runner).
+The workflow runs `benchmarks/Result.Benchmarks` and `benchmarks/Maybe.Benchmarks` (the libraries side by side,
+with this library as the baseline) and shows the tables of every scenario in the summary of the run.
+The raw results (CSV, HTML and Markdown) are kept for 90 days as the artifact `benchmarks-result` and `benchmarks-maybe`. The two suites run as two jobs,
+so the whole run takes as long as the longer of them (about fifteen minutes for Result and nine for Maybe on a developer machine, longer on a hosted runner).
 
 | When | Why |
 |---|---|
@@ -107,34 +108,35 @@ The two suites run as two jobs, so the whole run takes as long as the longer of 
 
 **It does not run for a pull request, and not after every push to `main`, and that is deliberate:**
 
-- **Timings from a shared virtual machine are not repeatable enough.** Our own repeated full runs differed by a median of 4 % per benchmark and by more than 25 % for some, on
-  a machine of our own; on a hosted runner, which shares its hardware with other jobs, the spread is larger. A run after each change could not tell a regression
-  from noise, and a workflow whose result is noise teaches people to ignore it.
-- **What is exact is already checked on every pull request.** The allocation of the success path, the size of the types and the reuse of completed tasks are
-  tests (`PerformanceTests`, `CompletedTaskReuseTests`), and a pull request that changes them fails. The timings are what the benchmarks add, and they are only
-  meaningful as a comparison within one run: every row of a table is measured on the same machine at the same time, which is why a table must be read as a whole and
-  a number must not be compared with a number from another run.
+- **Timings from a shared virtual machine are not repeatable enough.**
+  Our own repeated full runs differed by a median of 4 % per benchmark and by more than 25 % for some,
+  on a machine of our own; on a hosted runner, which shares its hardware with other jobs, the spread is larger.
+  A run after each change could not tell a regression from noise, and a workflow whose result is noise teaches people to ignore it.
+- **What is exact is already checked on every pull request.**
+  The allocation of the success path, the size of the types and the reuse of completed tasks are tests (`PerformanceTests`,
+  `CompletedTaskReuseTests`), and a pull request that changes them fails. The timings are what the benchmarks add,
+  and they are only meaningful as a comparison within one run: every row of a table is measured on the same machine at the same time,
+  which is why a table must be read as a whole and a number must not be compared with a number from another run.
 - **A full run costs a lot of runner time** and `main` gets many merges, mostly of documentation, tests and analyzers that cannot change a timing.
 
-If a pull request does change the code that the benchmarks measure, run the workflow by hand on its branch and compare the two summaries. To keep a result in the
-documentation, run the suites on your own machine, as described on the performance pages, and note the machine there; the numbers in the documentation are never copied from
-a hosted runner.
+If a pull request does change the code that the benchmarks measure, run the workflow by hand on its branch and compare the two summaries.
+To keep a result in the documentation, run the suites on your own machine, as described on the performance pages, and note the machine there;
+the numbers in the documentation are never copied from a hosted runner.
 
 ## Releasing: `.github/workflows/publish.yml`
 
 ### Tags
 
-All packages are released together, by one tag: `v` and the version. Every packable project under `src/` gets that version from MinVer, so
-the packages always have the same version. Today they are `Wyzely.Functional.Maybe`, `Wyzely.Functional.Result` and `Wyzely.Functional`
-(the umbrella package).
+All packages are released together, by one tag: `v` and the version.
+Every packable project under `src/` gets that version from MinVer, so the packages always have the same version.
+Today they are `Wyzely.Functional.Maybe`, `Wyzely.Functional.Result` and `Wyzely.Functional` (the umbrella package).
 
 | Tag | Releases |
 |---|---|
 | `v1.2.3` | all three packages, version 1.2.3 |
 | `v1.3.0-preview.1` | all three packages, version 1.3.0-preview.1 (a prerelease) |
 
-A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org and on GitHub. A commit after the tag `v1.2.3` builds as
-`1.2.4-preview.0.1`.
+A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org and on GitHub. A commit after the tag `v1.2.3` builds as `1.2.4-preview.0.1`.
 ### How to release
 
 1. Merge the pull requests that belong in the release; wait for `CI` to be green on `main`.
@@ -148,62 +150,61 @@ A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org a
    ```
 
 3. In GitHub, open the *Publish* run and **approve the deployment** to the `nuget` environment.
-4. The workflow builds, tests and packs all packages, publishes them and their symbols one after the other (a package after the
-   packages it references), and creates one GitHub release whose notes list the pull requests since the previous release. nuget.org takes a few
-   minutes to index the new versions.
+4. The workflow builds, tests and packs all packages, publishes them and their symbols one after the other (a package after the packages it references),
+   and creates one GitHub release whose notes list the pull requests since the previous release. nuget.org takes a few minutes to index the new versions.
 
-The workflow refuses to publish when the tag is not a well-formed release tag (`v` and a version), when the tagged commit is not on
-`main`, when the tests fail, or when a package that MinVer produced does not carry the version in the tag.
+The workflow refuses to publish when the tag is not a well-formed release tag (`v` and a version), when the tagged commit is not on `main`, when the tests fail,
+or when a package that MinVer produced does not carry the version in the tag.
 
 ### SonarCloud
 
-The `sonarcloud` job is part of the gate, so a pull request cannot be merged while the SonarCloud quality gate is red. The organization is
-`wyzelydk` and the project key is `WyzelyDk_Functional`; both are in the `begin` step of the job.
+The `sonarcloud` job is part of the gate, so a pull request cannot be merged while the SonarCloud quality gate is red.
+The organization is `wyzelydk` and the project key is `WyzelyDk_Functional`; both are in the `begin` step of the job.
 
 - **One-time setup:** the repository is added to SonarCloud, *Automatic Analysis* is off (it cannot be combined with this CI-based
   analysis, and it cannot import coverage), and the secret `SONAR_TOKEN` exists as a repository secret **and** as a Dependabot secret
   (Dependabot's pull requests do not see repository secrets, so without it they fail the job).
 - **How it works:** the scanner (pinned in `dotnet-tools.json`) wraps a Release build and the tests; coverage is the Cobertura files that
   `dotnet test --coverage` writes. `sonar.qualitygate.wait=true` makes the `end` step wait for the result and fail when the gate fails.
-- **Forks:** the token is not available to a pull request from a fork, so the analysis is skipped there with a warning. A missing token
-  anywhere else fails the job.
+- **Forks:** the token is not available to a pull request from a fork, so the analysis is skipped there with a warning.
+  A missing token anywhere else fails the job.
 - **Coverage exclusions** are set in the `begin` step (`sonar.coverage.exclusions`): the samples, the benchmarks and the scripts in `.github`.
   Everything else is measured: the libraries, the analyzers and their code fixes, and the generator with the engine that it shares. Two more things
   leave code out without being listed there: SonarCloud skips generated files (`*.g.cs`) by itself, and `Directory.Build.props` puts
   `[ExcludeFromCodeCoverage]` on the tests, the samples and the benchmarks (not on the generator and the shared engine, which `IsMeasuredToolProject`
   marks). An entry point that only calls tested code may carry the attribute with a justification, as the `Main` of the generator tools does.
-- **The build is not `-warnaserror` here:** the scanner changes the build and adds the rules of the SonarCloud profile. The strict build is
-  the one in `build-and-test`. The rules that the analyzer package leaves off by default but SonarCloud applies are switched on in
-  `.editorconfig`, so a local build already reports them.
+- **The build is not `-warnaserror` here:** the scanner changes the build and adds the rules of the SonarCloud profile.
+  The strict build is the one in `build-and-test`.
+  The rules that the analyzer package leaves off by default but SonarCloud applies are switched on in `.editorconfig`, so a local build already reports them.
 
 ### Analyzer rules and their release notes
 
-`src/Result.Analyzers` and `src/Maybe.Analyzers` each have an `AnalyzerReleases.Shipped.md` and an `AnalyzerReleases.Unshipped.md`. They are
-build inputs of the release-tracking analyzers: a rule that is in neither file fails the build (`RS2000`).
+`src/Result.Analyzers` and `src/Maybe.Analyzers` each have an `AnalyzerReleases.Shipped.md` and an `AnalyzerReleases.Unshipped.md`.
+They are build inputs of the release-tracking analyzers: a rule that is in neither file fails the build (`RS2000`).
 
-- The rules of the first release (0.1.0) are in `Shipped`, under the heading `## Release 0.1.0`. That heading is only a label: it has to
-  be a version number, and it is not compared with the version of the package. Keep the headings of later releases in ascending order.
-- A rule added after that goes into `Unshipped` (a table under `### New Rules`) while it is unreleased. When its release is made, move the
-  table into `Shipped` under a new `## Release <version>` heading and leave `Unshipped` with only its header.
+- The rules of the first release (0.1.0) are in `Shipped`, under the heading `## Release 0.1.0`. That heading is only a label: it has to be a version number,
+  and it is not compared with the version of the package. Keep the headings of later releases in ascending order.
+- A rule added after that goes into `Unshipped` (a table under `### New Rules`) while it is unreleased.
+  When its release is made, move the table into `Shipped` under a new `## Release <version>` heading and leave `Unshipped` with only its header.
 - All packages are released by the same tag, so both projects move their entries under the same `## Release <version>` heading.
 
-**Never move or reuse a tag.** nuget.org versions are immutable. If a release is wrong, publish the next version and *unlist* the bad one
-on nuget.org (a published version cannot be deleted).
+**Never move or reuse a tag.** nuget.org versions are immutable.
+If a release is wrong, publish the next version and *unlist* the bad one on nuget.org (a published version cannot be deleted).
 
 ### Several packages
 
-- **One tag, all packages, one version.** Every packable project under `src/` is released by the same tag and gets the same version. The
-  projects must not set a `MinVerTagPrefix` of their own: `Directory.Build.props` sets `v` for all. The script
-  `.github/scripts/Resolve-Package.ps1` finds the packable projects by asking MSBuild, so no list has to be kept in sync, and CI fails if a
-  project sets its own prefix. The script has its own tests, `Resolve-Package.Tests.ps1`.
-- **To add a package:** keep `IsPackable` on and add a package README, and nothing else: the workflows pick it up, and the package is
-  released with the next tag, with the same version as the others. The trusted publishing policy (below) covers `Wyzely.Functional*`.
-- **The push order follows the references.** The umbrella `Wyzely.Functional` references `Result` and `Maybe`. All three have the version of
-  the tag, so the versions that the umbrella needs exist. The script puts a package after the packages it references, and the workflow pushes
-  them in that order, so that nobody sees a package whose dependencies are missing. A package that is already on nuget.org is skipped, so a
-  run that stopped halfway can be repeated.
-- **Every release publishes every package,** even one that did not change. A single package cannot be released alone; that would need
-  separate tag prefixes again.
+- **One tag, all packages, one version.** Every packable project under `src/` is released by the same tag and gets the same version.
+  The projects must not set a `MinVerTagPrefix` of their own: `Directory.Build.props` sets `v` for all.
+  The script `.github/scripts/Resolve-Package.ps1` finds the packable projects by asking MSBuild, so no list has to be kept in sync,
+  and CI fails if a project sets its own prefix. The script has its own tests, `Resolve-Package.Tests.ps1`.
+- **To add a package:** keep `IsPackable` on and add a package README, and nothing else: the workflows pick it up,
+  and the package is released with the next tag, with the same version as the others. The trusted publishing policy (below) covers `Wyzely.Functional*`.
+- **The push order follows the references.** The umbrella `Wyzely.Functional` references `Result` and `Maybe`.
+  All three have the version of the tag, so the versions that the umbrella needs exist. The script puts a package after the packages it references,
+  and the workflow pushes them in that order, so that nobody sees a package whose dependencies are missing.
+  A package that is already on nuget.org is skipped, so a run that stopped halfway can be repeated.
+- **Every release publishes every package,** even one that did not change.
+  A single package cannot be released alone; that would need separate tag prefixes again.
 ## Troubleshooting
 
 | Symptom | Likely cause |

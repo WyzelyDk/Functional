@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Runs a side effect with the error of a failed result and returns the result unchanged. The delegate is not called for a successful
-    /// result.
+    /// Runs a side effect with the error of a failed result and returns the result unchanged.
+    /// The delegate is not called for a successful result.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="tapError">The side effect to run with the error of the failed result.</param>

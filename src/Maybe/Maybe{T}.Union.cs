@@ -6,19 +6,17 @@ namespace Wyzely.Functional;
 
 /// <content>
 /// C# 15 union support. A <see cref="Maybe{T}"/> is a union of its one case type, <typeparamref name="T"/>, and the absence of a value,
-/// which a pattern sees as <see langword="null"/>, so that a <see langword="switch"/> can match on both and the compiler can check
-/// that both are handled: <c>maybe switch { int value =&gt; ..., null =&gt; ... }</c>.
-/// This is the union member provider form of a custom union type, because the creation of a maybe goes through the factory
-/// methods rather than through public constructors; it adds no members to the type apart from the nested
-/// <see cref="IUnionMembers"/> interface that the compiler reads. The <see langword="default"/> maybe is none, so a
-/// <see langword="switch"/> over it matches the <see langword="null"/> case.
+/// which a pattern sees as <see langword="null"/>, so that a <see langword="switch"/> can match on both and the compiler can check that both are handled:
+/// <c>maybe switch { int value =&gt; ..., null =&gt; ... }</c>.
+/// This is the union member provider form of a custom union type, because the creation of a maybe goes through the factory methods rather than through public
+/// constructors; it adds no members to the type apart from the nested <see cref="IUnionMembers"/> interface that the compiler reads.
+/// The <see langword="default"/> maybe is none, so a <see langword="switch"/> over it matches the <see langword="null"/> case.
 /// </content>
 [Union]
 public readonly partial struct Maybe<T> : Maybe<T>.IUnionMembers
 {
     /// <summary>
-    /// The members that the C# compiler uses to treat <see cref="Maybe{T}"/> as a union. They are not meant to be called
-    /// directly: use pattern matching.
+    /// The members that the C# compiler uses to treat <see cref="Maybe{T}"/> as a union. They are not meant to be called directly: use pattern matching.
     /// </summary>
     [SuppressMessage(
         "Design",

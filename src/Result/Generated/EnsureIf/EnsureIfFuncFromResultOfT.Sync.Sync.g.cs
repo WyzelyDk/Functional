@@ -15,16 +15,17 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Validates the value of a successful result with an operation that returns a result, when a condition holds, and keeps the original
-    /// value when that operation succeeds. The delegate is not called for a failed result or when the condition does not hold.
+    /// Validates the value of a successful result with an operation that returns a result, when a condition holds,
+    /// and keeps the original value when that operation succeeds.
+    /// The delegate is not called for a failed result or when the condition does not hold.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
     /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded.</param>
     /// <param name="validation">The validation to run with the value of the successful result.</param>
     /// <returns>
-    /// The receiver when it failed, the condition did not hold or the validation succeeded, otherwise a failed result with the error of the
-    /// validation.
+    /// The receiver when it failed, the condition did not hold or the validation succeeded,
+    /// otherwise a failed result with the error of the validation.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="validation"/> is <see langword="null"/>.</exception>
     public static Result<T> EnsureIf<T>(this Result<T> result, Func<bool> condition, Func<T, Result> validation)

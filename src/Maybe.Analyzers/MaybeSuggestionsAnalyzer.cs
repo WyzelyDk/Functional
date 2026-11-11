@@ -7,9 +7,9 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Wyzely.Functional.MaybeAnalyzers;
 
 /// <summary>
-/// Suggests the method of the library that says what a piece of code does: <c>Filter(p).IsSome</c> is <c>Any(p)</c>, a conditional on
-/// <c>IsSome</c> is <c>ValueOr</c>, and a null check that chooses between none and some is <c>Maybe.From</c>. Every suggestion is an exact shape
-/// that can be rewritten without changing the behavior.
+/// Suggests the method of the library that says what a piece of code does: <c>Filter(p).IsSome</c> is <c>Any(p)</c>,
+/// a conditional on <c>IsSome</c> is <c>ValueOr</c>, and a null check that chooses between none and some is <c>Maybe.From</c>.
+/// Every suggestion is an exact shape that can be rewritten without changing the behavior.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer

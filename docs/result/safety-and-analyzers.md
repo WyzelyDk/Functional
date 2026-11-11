@@ -8,11 +8,12 @@ unfilled.IsSuccess;       // true: a default result is a success, the same as Re
 unfilled.ToString();      // "Success"
 ```
 
-A struct always has a default value, and for a result it is a success, so there is no third state to check for. The consequence is that a
-forgotten field or an array slot that nobody assigned counts as "it worked": collect results with `Combine`, `Partition` or `SelectInParallel`,
-which never expose an unassigned slot, instead of filling an array yourself.
+A struct always has a default value, and for a result it is a success, so there is no third state to check for.
+The consequence is that a forgotten field or an array slot that nobody assigned counts as "it worked": collect results with `Combine`,
+`Partition` or `SelectInParallel`, which never expose an unassigned slot, instead of filling an array yourself.
 
-The package ships analyzers, all enabled by default: `WYZ0101`, `WYZ0102` and `WYZ0111` are warnings, and the other rules from `WYZ0103` on are suggestions (info) that point at the method of the library that says what a piece of code does:
+The package ships analyzers, all enabled by default: `WYZ0101`, `WYZ0102` and `WYZ0111` are warnings,
+and the other rules from `WYZ0103` on are suggestions (info) that point at the method of the library that says what a piece of code does:
 
 | Id | Reports | Fix | Code fix |
 |---|---|---|---|

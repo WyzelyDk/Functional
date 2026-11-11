@@ -14,8 +14,8 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Leaves the railway: returns the value of a maybe, or throws the exception that a function creates when it has none, so that an
-    /// absent value can become an exception of your own type.
+    /// Leaves the railway: returns the value of a maybe, or throws the exception that a function creates when it has none,
+    /// so that an absent value can become an exception of your own type.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>

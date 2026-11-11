@@ -3,9 +3,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace Wyzely.Functional.Internal;
 
 /// <summary>
-/// Holds the active settings of a package and changes them atomically. Each package wraps one instance in its public configuration
-/// class, so that the rules (readers never see a half-changed state, a failing change changes nothing, a kept reference cannot reach
-/// the active settings) are written once.
+/// Holds the active settings of a package and changes them atomically.
+/// Each package wraps one instance in its public configuration class, so that the rules (readers never see a half-changed state,
+/// a failing change changes nothing, a kept reference cannot reach the active settings) are written once.
 /// </summary>
 /// <typeparam name="TOptions">The settings class.</typeparam>
 internal sealed class OptionsHolder<TOptions>
@@ -29,8 +29,7 @@ internal sealed class OptionsHolder<TOptions>
     }
 
     /// <summary>
-    /// Gets the active settings. The instance is never handed to callers outside the package, so it cannot be changed behind the library's
-    /// back.
+    /// Gets the active settings. The instance is never handed to callers outside the package, so it cannot be changed behind the library's back.
     /// </summary>
     internal TOptions Current => Volatile.Read(ref _active);
 

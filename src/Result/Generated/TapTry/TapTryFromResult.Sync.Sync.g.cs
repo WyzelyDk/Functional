@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Runs a side effect that may throw for a successful result, and returns the result unchanged when it does not. A failed receiver
-    /// passes through and the delegate is not called. A thrown exception becomes a failed result unless
-    /// <see cref="ResultOptions.ShouldCatch"/> excludes it, as a cancellation is by default.
+    /// Runs a side effect that may throw for a successful result, and returns the result unchanged when it does not.
+    /// A failed receiver passes through and the delegate is not called.
+    /// A thrown exception becomes a failed result unless <see cref="ResultOptions.ShouldCatch"/> excludes it,
+    /// as a cancellation is by default.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="tap">The side effect to run.</param>

@@ -2,9 +2,9 @@ using Wyzely.Functional.ResultAnalyzers;
 
 namespace Wyzely.Functional.ResultAnalyzersTests;
 
-// A diagnostic can be stale, or made for code that has been edited since, so a code fix checks the code again and offers nothing that it cannot
-// write. These tests ask the providers for a fix of a diagnostic that is made up and does not fit the code, and pin the forms that need more than
-// the main tests: a message that has to stay lazy, a condition that has to be negated with parentheses, and the shapes of a guard clause.
+// A diagnostic can be stale, or made for code that has been edited since, so a code fix checks the code again and offers nothing that it cannot write.
+// These tests ask the providers for a fix of a diagnostic that is made up and does not fit the code, and pin the forms that need more than the main tests:
+// a message that has to stay lazy, a condition that has to be negated with parentheses, and the shapes of a guard clause.
 public sealed class CodeFixEdgeCaseTests
 {
     private const string Sources = """

@@ -4,9 +4,9 @@ using Wyzely.Functional;
 
 namespace Wyzely.Benchmarks;
 
-// Does passing a result by `in` instead of by value pay off? The same body is written once with a by-value receiver and once with
-// an `in` receiver, for the untyped result (one pointer), a result with a small payload (int) and one with a large payload (a
-// 64-byte struct), each with the call allowed to inline (as in most real code) and, where it matters, forced not to inline.
+// Does passing a result by `in` instead of by value pay off? The same body is written once with a by-value receiver and once with an `in` receiver,
+// for the untyped result (one pointer), a result with a small payload (int) and one with a large payload (a 64-byte struct),
+// each with the call allowed to inline (as in most real code) and, where it matters, forced not to inline.
 [MemoryDiagnoser]
 public class ParameterPassing
 {

@@ -63,8 +63,7 @@ public sealed partial class Error
 
     /// <summary>Creates an error of kind <see cref="ErrorKind.Cancelled"/>.</summary>
     /// <param name="message">
-    /// The message, or message template. When omitted, <see cref="ResultOptions.CancelledMessage"/> is used (<c>The operation was
-    /// cancelled.</c> by default).
+    /// The message, or message template. When omitted, <see cref="ResultOptions.CancelledMessage"/> is used (<c>The operation was cancelled.</c> by default).
     /// </param>
     /// <returns>A new error.</returns>
     public static Error Cancelled(string? message = null) => Create(message ?? ResultConfiguration.Current.CancelledMessage, ErrorKind.Cancelled);
@@ -76,8 +75,8 @@ public sealed partial class Error
     /// (braces in it are not treated as placeholders), or the type name of the exception when its message is empty.
     /// </param>
     /// <returns>
-    /// A new error. A <see cref="OperationCanceledException"/> yields <see cref="ErrorKind.Cancelled"/>, a
-    /// <see cref="TimeoutException"/> a transient <see cref="ErrorKind.Timeout"/>, and any other exception <see cref="ErrorKind.Unexpected"/>.
+    /// A new error. A <see cref="OperationCanceledException"/> yields <see cref="ErrorKind.Cancelled"/>,
+    /// a <see cref="TimeoutException"/> a transient <see cref="ErrorKind.Timeout"/>, and any other exception <see cref="ErrorKind.Unexpected"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="exception"/> is <see langword="null"/>.</exception>
     public static Error FromException(Exception exception, string? message = null)

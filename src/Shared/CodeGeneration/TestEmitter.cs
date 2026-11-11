@@ -68,9 +68,9 @@ internal sealed class TestEmitter(GeneratorProfile profile)
         }
 
         // A receiver that completes later is a task that the test completes itself, after the call has returned: the call has then awaited it,
-        // so the path of a pending receiver is the one that runs. (A task that completes on its own after a yield may be done before the call
-        // looks at it, depending on how fast the thread that runs the call is; that made the coverage of this path vary from run to run.)
-        // A test that records an exception wraps the call in a lambda, and keeps the yield.
+        // so the path of a pending receiver is the one that runs. (A task that completes on its own after a yield may be done before the call looks at it,
+        // depending on how fast the thread that runs the call is; that made the coverage of this path vary from run to run.) A test that records an exception
+        // wraps the call in a lambda, and keeps the yield.
         var gated = pending && !testCase.RecordsException;
 
         writer.Lines(ReceiverLines(testCase.Receiver, operation.ReceiverTestType, variant.Receiver, pending, gated));

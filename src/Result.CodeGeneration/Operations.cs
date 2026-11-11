@@ -182,8 +182,8 @@ internal static partial class Operations
         ReceiverDescription = ResultReceiverDescription,
         TypeParameters = [TResultName],
         TypeParameterDocs = [new(TResultName, "The type of the value that the delegate produces.")],
-        Summary = "Turns a successful result without a value into a result with a value. A failed result passes through unchanged: its error is " +
-            "kept and the delegate is not called.",
+        Summary = "Turns a successful result without a value into a result with a value. " +
+            "A failed result passes through unchanged: its error is kept and the delegate is not called.",
         Delegates = [new("map", [], TResultName, "Produces the value of the new result.")],
         ReturnType = ResultOfTResult,
         ReturnDescription = "A successful result that holds the value produced by the delegate, or a failed result with the error of the receiver.",
@@ -223,8 +223,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T", TResultName],
         TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the result that the delegate returns.")],
-        Summary = "Chains an operation that can fail and returns a value. The delegate runs only when the receiver succeeded; a failed result " +
-            "passes through with its error.",
+        Summary = "Chains an operation that can fail and returns a value. The delegate runs only when the receiver succeeded; " +
+            "a failed result passes through with its error.",
         Delegates = [new("bind", ["T"], ResultOfTResult, "The operation to run with the value of the successful result.")],
         ReturnType = ResultOfTResult,
         ReturnDescription = "The result of the delegate, or a failed result with the error of the receiver.",
@@ -446,8 +446,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Runs a side effect, for example logging, with the value of a successful result and returns the result unchanged. The delegate " +
-            "is not called for a failed result.",
+        Summary = "Runs a side effect, for example logging, with the value of a successful result and returns the result unchanged. " +
+            "The delegate is not called for a failed result.",
         Delegates = [new("tap", ["T"], "void", "The side effect to run with the value of the successful result.")],
         ReturnType = ResultOfT,
         ReturnDescription = ReceiverUnchangedDescription,
@@ -530,8 +530,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Runs a side effect, for example logging, with the error of a failed result and returns the result unchanged. The delegate is " +
-            "not called for a successful result.",
+        Summary = "Runs a side effect, for example logging, with the error of a failed result and returns the result unchanged. " +
+            "The delegate is not called for a successful result.",
         Delegates = [new(TapErrorName, [ErrorType], "void", "The side effect to run with the error of the failed result.")],
         ReturnType = ResultOfT,
         ReturnDescription = ReceiverUnchangedDescription,
@@ -614,8 +614,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Replaces the error of a failed result, for example to add context. A successful result passes through unchanged and the " +
-            "delegate is not called.",
+        Summary = "Replaces the error of a failed result, for example to add context. " +
+            "A successful result passes through unchanged and the delegate is not called.",
         Delegates = [new(MapErrorName, [ErrorType], ErrorType, "Computes the new error from the error of the failed result.")],
         ReturnType = ResultOfT,
         ReturnDescription = "A failed result with the error computed by the delegate, or the successful receiver.",
@@ -657,8 +657,8 @@ internal static partial class Operations
         ReceiverDescription = ResultReceiverDescription,
         TypeParameters = [],
         TypeParameterDocs = [],
-        Summary = "Replaces the error of a failed result, for example to add context. A successful result passes through unchanged and the " +
-            "delegate is not called.",
+        Summary = "Replaces the error of a failed result, for example to add context. " +
+            "A successful result passes through unchanged and the delegate is not called.",
         Delegates = [new(MapErrorName, [ErrorType], ErrorType, "Computes the new error from the error of the failed result.")],
         ReturnType = ResultType,
         ReturnDescription = "A failed result with the error computed by the delegate, or the successful receiver.",
@@ -699,8 +699,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Turns a successful result into a failure when its value does not satisfy a condition. A failed result passes through with its " +
-            "own error and the predicate is not called.",
+        Summary = "Turns a successful result into a failure when its value does not satisfy a condition. " +
+            "A failed result passes through with its own error and the predicate is not called.",
         Delegates = [new(PredicateName, ["T"], "bool", "The condition the value must satisfy.")],
         ExtraParameters = [new(ErrorType, ErrorName, "The error of the failed result that is returned when the condition does not hold.")],
         ReturnType = ResultOfT,
@@ -751,13 +751,13 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Turns a successful result into a failure with the given message when its value does not satisfy a condition. A failed result " +
-            "passes through with its own error and the predicate is not called.",
+        Summary = "Turns a successful result into a failure with the given message when its value does not satisfy a condition. " +
+            "A failed result passes through with its own error and the predicate is not called.",
         Delegates = [new(PredicateName, ["T"], "bool", "The condition the value must satisfy.")],
         ExtraParameters = [new(StringType, "message", "The message of the error of the failed result that is returned when the condition does not hold.")],
         ReturnType = ResultOfT,
-        ReturnDescription = "The receiver when it failed or its value satisfies the condition, otherwise a failed result whose error was created " +
-            "from <paramref name=\"message\"/>.",
+        ReturnDescription = "The receiver when it failed or its value satisfies the condition, " +
+            "otherwise a failed result whose error was created from <paramref name=\"message\"/>.",
         Body = ctx =>
         [
             Unpack(ctx),
@@ -814,10 +814,12 @@ internal static partial class Operations
             TypeParameters = ["T"],
             TypeParameterDocs = [new("T", TDoc)],
             Summary = message
-                ? "Turns a successful result into a failure when its value does not satisfy a condition. The message of the error is created from the " +
-                    "value, and only when the condition does not hold. A failed result passes through with its own error and neither delegate is called."
-                : "Turns a successful result into a failure when its value does not satisfy a condition. The error is created from the value, and only " +
-                    "when the condition does not hold. A failed result passes through with its own error and neither delegate is called.",
+                ? "Turns a successful result into a failure when its value does not satisfy a condition. " +
+                    "The message of the error is created from the value, and only when the condition does not hold. " +
+                    "A failed result passes through with its own error and neither delegate is called."
+                : "Turns a successful result into a failure when its value does not satisfy a condition. " +
+                    "The error is created from the value, and only when the condition does not hold. " +
+                    "A failed result passes through with its own error and neither delegate is called.",
             Delegates =
             [
                 new(PredicateName, ["T"], "bool", "The condition the value must satisfy."),
@@ -903,8 +905,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Validates the value of a successful result with an operation that returns a result, and keeps the original value when " +
-            "that operation succeeds. A failed result passes through and the delegate is not called.",
+        Summary = "Validates the value of a successful result with an operation that returns a result, " +
+            "and keeps the original value when that operation succeeds. A failed result passes through and the delegate is not called.",
         Delegates = [new(ValidationName, ["T"], ResultType, "The validation to run with the value of the successful result.")],
         ReturnType = ResultOfT,
         ReturnDescription = "The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.",
@@ -951,8 +953,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T", TResultName],
         TypeParameterDocs = [new("T", TDoc), new(TResultName, "The type of the value of the validation result, which is ignored.")],
-        Summary = "Validates the value of a successful result with an operation that returns a result of any value type, and keeps the original value when " +
-            "that operation succeeds. A failed result passes through and the delegate is not called.",
+        Summary = "Validates the value of a successful result with an operation that returns a result of any value type, " +
+            "and keeps the original value when that operation succeeds. A failed result passes through and the delegate is not called.",
         Delegates =
         [
             new(
@@ -1008,10 +1010,10 @@ internal static partial class Operations
         TypeParameters = [],
         TypeParameterDocs = [],
         Summary = withMessage
-            ? "Turns a successful result into a failure with the given message when a condition does not hold. A failed result passes through " +
-                "with its own error and the condition is not evaluated."
-            : "Turns a successful result into a failure when a condition does not hold. A failed result passes through with its own error and " +
-                "the condition is not evaluated.",
+            ? "Turns a successful result into a failure with the given message when a condition does not hold. " +
+                "A failed result passes through with its own error and the condition is not evaluated."
+            : "Turns a successful result into a failure when a condition does not hold. " +
+                "A failed result passes through with its own error and the condition is not evaluated.",
         Delegates = [new(ConditionName, [], "bool", "The condition that must hold for the result to stay a success.")],
         ExtraParameters = [EnsureConditionParameter(withMessage)],
         ReturnType = ResultType,
@@ -1085,8 +1087,8 @@ internal static partial class Operations
             ? [new("T", TDoc), new(TResultName, "The type of the value of the validation result, which is ignored.")]
             : [new("T", TDoc)],
         Summary = "Validates a successful result with an operation that returns a result" + (typed ? " of any value type" : string.Empty) +
-            " and does not need the value, and keeps the original value when that operation succeeds. A failed result passes through and the " +
-            "delegate is not called.",
+            "and does not need the value, and keeps the original value when that operation succeeds. " +
+            "A failed result passes through and the delegate is not called.",
         Delegates = [new(ValidationName, [], typed ? ResultOfTResult : ResultType, typed ? TypedOperationDoc : OperationDoc)],
         ReturnType = ResultOfT,
         ReturnDescription = "The receiver when it failed or the validation succeeded, otherwise a failed result with the error of the validation.",
@@ -1146,8 +1148,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Turns a failed result into a success by computing a replacement value from the error. A successful result passes through " +
-            "unchanged and the delegate is not called.",
+        Summary = "Turns a failed result into a success by computing a replacement value from the error. " +
+            "A successful result passes through unchanged and the delegate is not called.",
         Delegates = [new(RecoverName, [ErrorType], "T", "Computes the replacement value from the error of the failed result.")],
         ReturnType = ResultOfT,
         ReturnDescription = "The successful receiver, or a successful result that holds the replacement value.",
@@ -1188,8 +1190,8 @@ internal static partial class Operations
         ReceiverDescription = ResultOfTReceiverDescription,
         TypeParameters = ["T"],
         TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; a " +
-            "successful result passes through unchanged and the delegate is not called.",
+        Summary = "Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; " +
+            "a successful result passes through unchanged and the delegate is not called.",
         Delegates = [new(CompensateName, [ErrorType], ResultOfT, "The fallback operation to run with the error of the failed result.")],
         ReturnType = ResultOfT,
         ReturnDescription = "The successful receiver, or the result of the fallback operation.",
@@ -1240,8 +1242,8 @@ internal static partial class Operations
         ReceiverDescription = ResultReceiverDescription,
         TypeParameters = [],
         TypeParameterDocs = [],
-        Summary = "Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; a " +
-            "successful result passes through unchanged and the delegate is not called.",
+        Summary = "Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; " +
+            "a successful result passes through unchanged and the delegate is not called.",
         Delegates = [new(CompensateName, [ErrorType], ResultType, "The fallback operation to run with the error of the failed result.")],
         ReturnType = ResultType,
         ReturnDescription = "The successful receiver, or the result of the fallback operation.",

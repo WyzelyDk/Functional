@@ -3,14 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace Wyzely.Functional;
 
 /// <content>
-/// <c>ToInvertedResult</c>: from a maybe to a result with the meaning turned around, for the question "this must not exist yet". A value is
-/// the failure and the absence of a value is the success, so a chain continues only when nothing was found.
+/// <c>ToInvertedResult</c>: from a maybe to a result with the meaning turned around, for the question "this must not exist yet".
+/// A value is the failure and the absence of a value is the success, so a chain continues only when nothing was found.
 /// </content>
 public static partial class MaybeResultExtensions
 {
     /// <summary>
-    /// Turns a maybe into a result with the meaning inverted: a value becomes a failure with the given error, and no value becomes a success. It is
-    /// for checks that must find nothing, such as "no user has this email yet".
+    /// Turns a maybe into a result with the meaning inverted: a value becomes a failure with the given error, and no value becomes a success.
+    /// It is for checks that must find nothing, such as "no user has this email yet".
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="maybe">The maybe to convert.</param>
@@ -26,15 +26,14 @@ public static partial class MaybeResultExtensions
     }
 
     /// <summary>
-    /// Turns a maybe into a result with the meaning inverted, building the error from the value that was found, for example to say which user
-    /// already has the email. The factory is not called when the maybe has no value.
+    /// Turns a maybe into a result with the meaning inverted, building the error from the value that was found,
+    /// for example to say which user already has the email. The factory is not called when the maybe has no value.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="maybe">The maybe to convert.</param>
     /// <param name="error">Creates the error of the failed result from the value of the maybe.</param>
     /// <returns>
-    /// A failed result with the error that <paramref name="error"/> created when the maybe has a value, otherwise a successful result
-    /// without a value.
+    /// A failed result with the error that <paramref name="error"/> created when the maybe has a value, otherwise a successful result without a value.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>, or it returned <see langword="null"/>.</exception>
     public static Result ToInvertedResult<T>(this Maybe<T> maybe, Func<T, Error> error)
@@ -46,15 +45,14 @@ public static partial class MaybeResultExtensions
     }
 
     /// <summary>
-    /// Turns the maybe that a task produces into a result with the meaning inverted: a value becomes a failure with the given error, and no
-    /// value becomes a success.
+    /// Turns the maybe that a task produces into a result with the meaning inverted: a value becomes a failure with the given error,
+    /// and no value becomes a success.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="maybe">The task that produces the maybe. It must not be <see langword="null"/>.</param>
     /// <param name="error">The error of the failed result that is returned when the maybe has a value.</param>
     /// <returns>
-    /// A task that produces a failed result with <paramref name="error"/> when the maybe has a value, otherwise a successful result without
-    /// a value.
+    /// A task that produces a failed result with <paramref name="error"/> when the maybe has a value, otherwise a successful result without a value.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="maybe"/> or <paramref name="error"/> is <see langword="null"/>.</exception>
     public static Task<Result> ToInvertedResult<T>(this Task<Maybe<T>> maybe, Error error)
@@ -73,8 +71,8 @@ public static partial class MaybeResultExtensions
     /// <param name="maybe">The task that produces the maybe. It must not be <see langword="null"/>.</param>
     /// <param name="error">Creates the error of the failed result from the value of the maybe. It is not called when the maybe has no value.</param>
     /// <returns>
-    /// A task that produces a failed result with the error that <paramref name="error"/> created when the maybe has a value, otherwise a
-    /// successful result without a value.
+    /// A task that produces a failed result with the error that <paramref name="error"/> created when the maybe has a value,
+    /// otherwise a successful result without a value.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="maybe"/> or <paramref name="error"/> is <see langword="null"/>.</exception>
     public static Task<Result> ToInvertedResult<T>(this Task<Maybe<T>> maybe, Func<T, Error> error)
@@ -96,8 +94,7 @@ public static partial class MaybeResultExtensions
     /// <param name="maybe">The value task that produces the maybe.</param>
     /// <param name="error">The error of the failed result that is returned when the maybe has a value.</param>
     /// <returns>
-    /// A value task that produces a failed result with <paramref name="error"/> when the maybe has a value, otherwise a successful result
-    /// without a value.
+    /// A value task that produces a failed result with <paramref name="error"/> when the maybe has a value, otherwise a successful result without a value.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
     [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]

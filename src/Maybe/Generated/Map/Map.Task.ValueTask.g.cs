@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Transforms the value of a maybe. A maybe without a value stays without a value and the delegate is not called. A
-    /// <see langword="null"/> that the delegate produces becomes none. The receiver is a <see cref="Task"/> that produces the maybe; it is
-    /// awaited without capturing the synchronization context unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Transforms the value of a maybe. A maybe without a value stays without a value and the delegate is not called.
+    /// A <see langword="null"/> that the delegate produces becomes none.
+    /// The receiver is a <see cref="Task"/> that produces the maybe; it is awaited without capturing the synchronization context unless
+    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
     /// unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>

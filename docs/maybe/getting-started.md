@@ -15,9 +15,9 @@ dotnet add package Wyzely.Functional.Maybe
 | `netstandard2.0` (.NET Framework 4.6.1+, Unity, Xamarin, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 | `net11.0` | none; adds [C# 15 union support](unions.md) |
 
-The analyzer is part of the package; there is nothing else to install. For the best experience with `async` lambdas use **C# 13 or
-later**; see [Async lambdas and the language version](async.md#async-lambdas-and-the-language-version). If you also use `Result`, install
-the umbrella package [`Wyzely.Functional`](../../src/Functional/README.md) instead of the two separately.
+The analyzer is part of the package; there is nothing else to install. For the best experience with `async` lambdas use **C# 13 or later**;
+see [Async lambdas and the language version](async.md#async-lambdas-and-the-language-version).
+If you also use `Result`, install the umbrella package [`Wyzely.Functional`](../../src/Functional/README.md) instead of the two separately.
 
 ## Quick start
 
@@ -48,9 +48,9 @@ var message = ParseAge("42")
 | **Some** | `Maybe.Some(value)`, `Maybe.From(value)` for a non-null value, an implicit conversion from a non-null value | there is a value |
 | **None** | `Maybe.None<T>()`, `default(Maybe<T>)`, an array element or field that was never assigned, `Maybe.From(reference)` when the reference is `null` | there is no value |
 
-There is **no uninitialized state**: the `default` value of a maybe *is* none, and it is safe to read. A struct always
-has a default value, and for "a value that may be absent" the default has an obvious meaning. The struct holds the value and one flag,
-so creating, passing and chaining maybes allocates nothing.
+There is **no uninitialized state**: the `default` value of a maybe *is* none, and it is safe to read.
+A struct always has a default value, and for "a value that may be absent" the default has an obvious meaning.
+The struct holds the value and one flag, so creating, passing and chaining maybes allocates nothing.
 
 | Create | |
 |---|---|
@@ -73,8 +73,8 @@ Maybe<string> converted = "Ada";                           // Some(Ada), by impl
 Maybe<string> convertedNull = (string?)null;               // None
 ```
 
-The implicit conversion is deliberate, and it is the one place where this library differs from `Result`, which converts nothing
-implicitly. `return user;` in a method that returns `Maybe<User>` does the right thing, because a `null` reference *means* "no value".
+The implicit conversion is deliberate, and it is the one place where this library differs from `Result`, which converts nothing implicitly.
+`return user;` in a method that returns `Maybe<User>` does the right thing, because a `null` reference *means* "no value".
 The reasoning is in [Design decisions](design-decisions.md#an-implicit-conversion-where-null-means-none).
 
 | Read | |
@@ -114,13 +114,13 @@ none.ToString();                          // "None"
 Two somes are equal when their values are, and two nones are always equal. None sorts before every some, and somes sort by their values.
 `ToString()` never throws; its text, and whether it shows the value at all, are [settings](configuration.md).
 
-On a `net11.0` build, a maybe is also a C# 15 union of its value and `null`, so `maybe switch { int value => ..., null => ... }` needs no discard arm
-([C# 15 unions](unions.md)).
+On a `net11.0` build, a maybe is also a C# 15 union of its value and `null`,
+so `maybe switch { int value => ..., null => ... }` needs no discard arm ([C# 15 unions](unions.md)).
 
 ## Samples
 
-`samples/Maybe.Samples` is a runnable console project with one example file per theme, in a small customer and order domain, each with the scenario and the
-reason in its heading comment:
+`samples/Maybe.Samples` is a runnable console project with one example file per theme, in a small customer and order domain,
+each with the scenario and the reason in its heading comment:
 
 | File | Shows |
 |---|---|

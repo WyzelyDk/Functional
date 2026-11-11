@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and returns no value, when a condition holds. Otherwise, and for a failed result, the receiver is
-    /// returned as it was and the delegate is not called. The receiver is a <see cref="Task"/> that produces the result; it is awaited
-    /// without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Chains an operation that can fail and returns no value, when a condition holds.
+    /// Otherwise, and for a failed result, the receiver is returned as it was and the delegate is not called.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
     /// <param name="condition">Whether the delegate runs. When it is <see langword="false"/> the receiver is returned as it was.</param>

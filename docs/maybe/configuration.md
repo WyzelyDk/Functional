@@ -48,5 +48,5 @@ defaults (useful in tests that change them). A setting rejects `null`, and `Some
 `samples/Maybe.Samples/ConfigurationExample.cs` runs every setting on this page, including a counting synchronization context that shows what
 `ContinueOnCapturedContext` changes; the awaits of the library follow the setting (`MaybeConfigurationTests`).
 
-`ContinueOnCapturedContext` is the setting of the `Maybe` package only. In the umbrella package the methods between `Maybe` and `Result`
-follow the settings of both; see [Interop](../functional/interop.md#async-and-configureawait).
+`ContinueOnCapturedContext` is the setting of the `Maybe` package only.
+In the umbrella package the methods between `Maybe` and `Result` follow the settings of both; see [Interop](../functional/interop.md#async-and-configureawait).

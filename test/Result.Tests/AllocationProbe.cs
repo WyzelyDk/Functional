@@ -6,8 +6,8 @@ internal static class AllocationProbe
     private const int Rounds = 5;
 
     /// <summary>
-    /// Runs the action in several rounds and returns the fewest bytes that any round allocated. Code that allocates does so in every round, while
-    /// a one-off allocation of the runtime (the JIT, a type that loads late) shows in one round only, so the smallest round is the code's own.
+    /// Runs the action in several rounds and returns the fewest bytes that any round allocated. Code that allocates does so in every round,
+    /// while a one-off allocation of the runtime (the JIT, a type that loads late) shows in one round only, so the smallest round is the code's own.
     /// </summary>
     /// <param name="action">The code to measure. It is run after the caller has warmed it up.</param>
     /// <returns>The smallest number of bytes allocated by one round.</returns>

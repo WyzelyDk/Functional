@@ -15,12 +15,13 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Transforms the value of a successful result with a function that may throw. A failed receiver passes through and the delegate is not
-    /// called. Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed result; any other
-    /// exception keeps travelling. The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous
-    /// (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Transforms the value of a successful result with a function that may throw.
+    /// A failed receiver passes through and the delegate is not called.
+    /// Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed result;
+    /// any other exception keeps travelling. The receiver is a <see cref="ValueTask"/> that produces the result;
+    /// it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says
+    /// otherwise. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization
+    /// context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value that the delegate produces.</typeparam>
@@ -30,8 +31,8 @@ public static partial class ResultExtensions
     /// <param name="onException">Creates the error from the exception.</param>
     /// <param name="when">A condition that the exception must also meet to be caught; an exception that does not meet it keeps travelling.</param>
     /// <returns>
-    /// A successful result that holds the value computed by the delegate, or a failed result. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// A successful result that holds the value computed by the delegate, or a failed result.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="map"/>, <paramref name="onException"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]

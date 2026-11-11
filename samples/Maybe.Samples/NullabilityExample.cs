@@ -12,14 +12,14 @@ public static class NullabilityExample
         var ada = SampleData.FindCustomer(1);
         var bob = SampleData.FindCustomer(2);
 
-        // A Map delegate may return a nullable REFERENCE: it compiles without a warning, the result type is Maybe<string> (not
-        // Maybe<string?>), and a null result becomes none at run time.
+        // A Map delegate may return a nullable REFERENCE: it compiles without a warning, the result type is Maybe<string> (not Maybe<string?>),
+        // and a null result becomes none at run time.
         output.WriteLine($"Map to a string? property, nickname set: {ada.Map(customer => customer.Nickname)}");
         output.WriteLine($"Map to a string? property, no nickname: {bob.Map(customer => customer.Nickname)}");
         output.WriteLine($"Map delegate that returns null becomes none: {ada.Map(static customer => (string?)null)}");
 
-        // A nullable VALUE type behaves the same way: Map has an overload for a delegate that returns int?, so the result is a Maybe<int>
-        // (never a Maybe<int?>) and a null becomes none.
+        // A nullable VALUE type behaves the same way: Map has an overload for a delegate that returns int?,
+        // so the result is a Maybe<int> (never a Maybe<int?>) and a null becomes none.
         output.WriteLine($"Map to an int? property, age known: {ada.Map(customer => customer.Age)}");
         output.WriteLine($"Map to an int? property, age unknown: {bob.Map(customer => customer.Age)}");
 
@@ -45,8 +45,8 @@ public static class NullabilityExample
         output.WriteLine($"Implicit conversion of a string? that is null: {fromNull}");
         output.WriteLine($"Implicit conversion of a string? that is set: {fromValue}");
 
-        // Not shown, because it does not compile cleanly on purpose: Maybe<string?> reports CS8714, as string? does not satisfy the notnull
-        // constraint. TryGetValue is annotated with [MaybeNullWhen(false)], so after a successful call the value is known to be non-null.
+        // Not shown, because it does not compile cleanly on purpose: Maybe<string?> reports CS8714, as string? does not satisfy the notnull constraint.
+        // TryGetValue is annotated with [MaybeNullWhen(false)], so after a successful call the value is known to be non-null.
     }
 
     private static string Show(int? value) => value is null ? "null" : value.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);

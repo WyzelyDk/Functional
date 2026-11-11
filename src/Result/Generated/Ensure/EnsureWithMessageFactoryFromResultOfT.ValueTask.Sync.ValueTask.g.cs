@@ -15,12 +15,13 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Turns a successful result into a failure when its value does not satisfy a condition. The message of the error is created from the
-    /// value, and only when the condition does not hold. A failed result passes through with its own error and neither delegate is called.
+    /// Turns a successful result into a failure when its value does not satisfy a condition.
+    /// The message of the error is created from the value, and only when the condition does not hold.
+    /// A failed result passes through with its own error and neither delegate is called.
     /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
-    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The <paramref name="messageFactory"/> is asynchronous
-    /// (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The <paramref name="messageFactory"/> is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the
+    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>

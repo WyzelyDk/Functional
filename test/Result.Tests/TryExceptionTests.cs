@@ -2,8 +2,8 @@ using System.Globalization;
 
 namespace Wyzely.Functional.ResultTests;
 
-// Try with the type of the exception to catch, taken from the parameter of the handler. Naming the type is the decision, so the setting that
-// decides which exceptions the plain Try catches is not consulted.
+// Try with the type of the exception to catch, taken from the parameter of the handler.
+// Naming the type is the decision, so the setting that decides which exceptions the plain Try catches is not consulted.
 [Collection(ProcessWideConfiguration.Name)]
 public sealed class TryExceptionTests : IDisposable
 {

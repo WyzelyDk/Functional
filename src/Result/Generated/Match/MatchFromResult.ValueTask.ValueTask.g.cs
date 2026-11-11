@@ -17,17 +17,17 @@ public static partial class ResultExtensions
     /// <summary>
     /// Leaves the railway: turns a result into a single value by running one of two delegates, depending on whether the result succeeded.
     /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
-    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a
-    /// <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="TResult">The type of the value that both delegates produce.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <param name="onSuccess">Produces the value for a successful result.</param>
     /// <param name="onFailure">Produces the value from the error of a failed result.</param>
     /// <returns>
-    /// The value produced by <paramref name="onSuccess"/> or <paramref name="onFailure"/>. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// The value produced by <paramref name="onSuccess"/> or <paramref name="onFailure"/>.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="onSuccess"/>, <paramref name="onFailure"/> is <see langword="null"/>.</exception>
     public static ValueTask<TResult> Match<TResult>(

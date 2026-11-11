@@ -15,9 +15,9 @@ public static partial class ResultExtensions
 {
     /// <summary>
     /// Leaves the railway: returns the value of a successful result, or throws the exception that a function creates from the error of a
-    /// failed result, so that a failure can become an exception of your own type. The receiver is a <see cref="ValueTask"/> that produces
-    /// the result; it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/>
-    /// says otherwise.
+    /// failed result, so that a failure can become an exception of your own type.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>

@@ -2,8 +2,8 @@
 
 [Back to the Maybe overview](../../src/Maybe/README.md)
 
-The operations are extension methods on `Maybe<T>`. While there is a value the chain carries it along; the first none skips every step
-that follows, without running its delegate.
+The operations are extension methods on `Maybe<T>`.
+While there is a value the chain carries it along; the first none skips every step that follows, without running its delegate.
 
 | Method | Runs the delegate when | Does |
 |---|---|---|
@@ -38,8 +38,8 @@ var empty = Maybe.None<string>()
     .ValueOr(() => "no title");                                 // "untitled"
 ```
 
-Where a missing value has to become an exception, say which one: `GetValueOrThrow` takes a function that creates it, and the form without it works on a
-`Task` or a `ValueTask`. It is the deliberate way out, so the analyzer does not ask for a check first:
+Where a missing value has to become an exception, say which one: `GetValueOrThrow` takes a function that creates it,
+and the form without it works on a `Task` or a `ValueTask`. It is the deliberate way out, so the analyzer does not ask for a check first:
 
 ```csharp
 var title = Maybe.Some("Dune").GetValueOrThrow(static () => new KeyNotFoundException("No title."));      // "Dune"
@@ -56,10 +56,10 @@ var nickname = person.Map(p => p.Nickname);                                  // 
 var same = person.Bind(p => Maybe.From(p.Nickname));                        // the explicit form: also None
 ```
 
-`NamedPerson` is a record with `string Name`, `string? Nickname` and `int? Age`. A **nullable value type** behaves the same way, through a second overload of
-`Map` constrained to structs: `person.Map(p => p.Age)` is a `Maybe<int>` (never a `Maybe<int?>`) and a `null` age becomes none. The explicit form
-`person.Bind(p => Maybe.From(p.Age))` gives the same result. `Maybe.From` is also the way to convert an `int?` that is not in a lambda: the implicit
-conversion exists for nullable references only.
+`NamedPerson` is a record with `string Name`, `string? Nickname` and `int? Age`. A **nullable value type** behaves the same way,
+through a second overload of `Map` constrained to structs: `person.Map(p => p.Age)` is a `Maybe<int>` (never a `Maybe<int?>`) and a `null` age becomes none.
+The explicit form `person.Bind(p => Maybe.From(p.Age))` gives the same result. `Maybe.From` is also the way to convert an `int?`
+that is not in a lambda: the implicit conversion exists for nullable references only.
 
 ## LINQ query syntax, `Zip` and `Flatten`
 
@@ -79,8 +79,7 @@ Maybe<Maybe<int>> nested = Maybe.Some(Maybe.Some(7));
 var flat = nested.Flatten();                             // Some(7)
 ```
 
-`Select`, `SelectMany` and `Where` are `Map`, `Bind` and `Filter` under the names that query syntax requires. They live in
-`MaybeLinqExtensions`.
+`Select`, `SelectMany` and `Where` are `Map`, `Bind` and `Filter` under the names that query syntax requires. They live in `MaybeLinqExtensions`.
 
 **`Zip`** combines two to five independent maybes: the result is a some only when all of them are. Without a selector it is a tuple with the
 named elements `First`, `Second`, ... `Fifth`; with a selector (a `Func` of the values that may return a `null`, which becomes none) the values are
@@ -88,9 +87,9 @@ combined at once. Unlike `Result.Zip` there is no error to aggregate, so the ans
 into `MaybeExtensions` (`src/Maybe/Generated/Zip`, 8 files: a tuple and a selector form for each count), and the limit of five is one setting
 of the generator (`GeneratorSettings.MaxZipArity`), not something that can be changed by a consumer. For more than five, nest `Zip`s or use query syntax.
 
-**`Flatten`** turns a `Maybe<Maybe<T>>` into a `Maybe<T>`, for a maybe, a `Task<Maybe<Maybe<T>>>` and a `ValueTask<Maybe<Maybe<T>>>`. It is `Bind` with
-the identity function (`MaybeExtensions.Flatten.cs`), so it is mostly useful when the nesting came from somewhere else; when you are writing the step
-yourself, `Bind` instead of `Map` never creates the extra level.
+**`Flatten`** turns a `Maybe<Maybe<T>>` into a `Maybe<T>`, for a maybe, a `Task<Maybe<Maybe<T>>>` and a `ValueTask<Maybe<Maybe<T>>>`.
+It is `Bind` with the identity function (`MaybeExtensions.Flatten.cs`), so it is mostly useful when the nesting came from somewhere else;
+when you are writing the step yourself, `Bind` instead of `Map` never creates the extra level.
 
 [A runnable tour of all of this](../../samples/Maybe.Samples/LinqExample.cs).
 
@@ -101,8 +100,8 @@ yourself, `Bind` instead of `Map` never creates the extra level.
 
 ## Taking a maybe apart with `switch` (net11.0)
 
-On a `net11.0` build with C# 15, a `switch` with an arm for the value and an arm for `null` is exhaustive, so you can use it instead of `Match`
-without a discard arm: `maybe switch { int value => ..., null => ... }`. See [C# 15 unions](unions.md).
+On a `net11.0` build with C# 15, a `switch` with an arm for the value and an arm for `null` is exhaustive,
+so you can use it instead of `Match` without a discard arm: `maybe switch { int value => ..., null => ... }`. See [C# 15 unions](unions.md).
 
 ## What is not here
 

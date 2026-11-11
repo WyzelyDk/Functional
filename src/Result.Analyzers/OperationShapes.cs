@@ -106,8 +106,8 @@ internal static class OperationShapes
         operation is TOperation || operation.ChildOperations.Any(Contains<TOperation>);
 
     /// <summary>
-    /// Determines whether an operation assigns to a parameter, changes it with <c>++</c> or <c>--</c>, or passes it by <see langword="ref"/> or
-    /// <see langword="out"/>, so that the value afterwards is not the value that came in.
+    /// Determines whether an operation assigns to a parameter, changes it with <c>++</c> or <c>--</c>,
+    /// or passes it by <see langword="ref"/> or <see langword="out"/>, so that the value afterwards is not the value that came in.
     /// </summary>
     /// <param name="operation">The operation to search.</param>
     /// <param name="parameter">The parameter.</param>

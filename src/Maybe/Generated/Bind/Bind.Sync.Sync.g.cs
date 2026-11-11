@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Chains an operation that may produce no value. The delegate runs only when the receiver has a value; a maybe without a value passes
-    /// through as none.
+    /// Chains an operation that may produce no value. The delegate runs only when the receiver has a value;
+    /// a maybe without a value passes through as none.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <typeparam name="TResult">The type of the value of the maybe that the delegate returns.</typeparam>

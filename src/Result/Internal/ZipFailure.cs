@@ -1,8 +1,7 @@
 namespace Wyzely.Functional.Internal;
 
 /// <summary>
-/// Builds the failed result that the generated <c>Zip</c> methods return: the error of the one result that failed, or an aggregate of all
-/// the errors.
+/// Builds the failed result that the generated <c>Zip</c> methods return: the error of the one result that failed, or an aggregate of all the errors.
 /// </summary>
 internal static class ZipFailure
 {

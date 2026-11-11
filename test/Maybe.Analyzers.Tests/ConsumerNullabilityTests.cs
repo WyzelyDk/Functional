@@ -103,8 +103,8 @@ public sealed class ConsumerNullabilityTests
     [Fact]
     internal void Map_to_a_nullable_reference_infers_the_non_nullable_type_with_var()
     {
-        var warnings = AnalyzerTestHost.NullabilityWarnings("string M(Maybe<string> m) { var mapped = m.Map(v => (string?)null); return " +
-            "mapped.ValueOr(\"none\"); }");
+        var warnings = AnalyzerTestHost.NullabilityWarnings("string M(Maybe<string> m) { var mapped = m.Map(v => (string?)null); " +
+            "return mapped.ValueOr(\"none\"); }");
 
         Assert.Empty(warnings);
     }
@@ -176,8 +176,8 @@ public sealed class ConsumerNullabilityTests
     [Fact]
     internal void From_accepts_a_nullable_value_and_a_nullable_reference()
     {
-        var warnings = AnalyzerTestHost.NullabilityWarnings("void M(int? number, string? text) { Maybe<int> a = Maybe.From(number); Maybe<string> " +
-            "b = Maybe.From(text); }");
+        var warnings = AnalyzerTestHost.NullabilityWarnings("void M(int? number, string? text) { Maybe<int> a = Maybe.From(number); " +
+            "Maybe<string> b = Maybe.From(text); }");
 
         Assert.Empty(warnings);
     }

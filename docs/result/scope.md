@@ -1,29 +1,29 @@
 # Scope of Wyzely.Functional.Result
 
-This library is about **`Result`**: the outcome of an operation that can fail, how to chain such operations, and how to describe
-the failure. It is not meant to be the answer to every situation in which a result could be useful. A small, coherent surface is
-a feature: every public method costs documentation, tests, analyzers and, for anything on the railway, nine generated variants.
+This library is about **`Result`**: the outcome of an operation that can fail, how to chain such operations, and how to describe the failure.
+It is not meant to be the answer to every situation in which a result could be useful.
+A small, coherent surface is a feature: every public method costs documentation, tests, analyzers and, for anything on the railway, nine generated variants.
 
 ## The admission test for new API
 
 A new public member goes in only if the answer to every question is yes:
 
-1. **Is it about the outcome of an operation that can fail?** Not about collections, HTTP, logging, validation frameworks, retries
-   or dependency injection, even if a `Result` happens to flow through them.
-2. **Does the core need it, or can a user write it in a few lines with the public API?** If three lines of `Bind`/`Match` do it, it
-   does not belong here. Convenience that is merely "nice" is declined, because it can never be removed again.
-3. **Is the cost proportional?** An operation on the railway becomes **nine methods** (sync/`Task`/`ValueTask` receiver times
-   delegate), plus tests and documentation. Ask whether the operation is used often enough to carry that.
-4. **Does it need a dependency, or does it only matter to some applications?** Then it belongs in a separate package
-   (`Wyzely.Functional.Result.<Thing>`), never in this one. This package stays free of dependencies outside the BCL.
-5. **Can it be misused in a way an analyzer cannot catch?** If it makes it easy to bypass the safety the library provides
-   (`default` throws, `GetError()` is checked), it needs a good reason.
+1. **Is it about the outcome of an operation that can fail?**
+   Not about collections, HTTP, logging, validation frameworks, retries or dependency injection, even if a `Result` happens to flow through them.
+2. **Does the core need it, or can a user write it in a few lines with the public API?** If three lines of `Bind`/`Match` do it, it does not belong here.
+   Convenience that is merely "nice" is declined, because it can never be removed again.
+3. **Is the cost proportional?** An operation on the railway becomes **nine methods** (sync/`Task`/`ValueTask` receiver times delegate),
+   plus tests and documentation. Ask whether the operation is used often enough to carry that.
+4. **Does it need a dependency, or does it only matter to some applications?**
+   Then it belongs in a separate package (`Wyzely.Functional.Result.<Thing>`), never in this one. This package stays free of dependencies outside the BCL.
+5. **Can it be misused in a way an analyzer cannot catch?**
+   If it makes it easy to bypass the safety the library provides (`default` throws, `GetError()` is checked), it needs a good reason.
 
 ## Deliberately not in this library
 
-- **`Maybe` / `Option` / `Unit` and other functional types.** They are different concepts. `Maybe` has its own package,
-  [`Wyzely.Functional.Maybe`](../maybe/scope.md), and conversions between the two live in the umbrella package `Wyzely.Functional`, which
-  references both, not in either.
+- **`Maybe` / `Option` / `Unit` and other functional types.** They are different concepts.
+  `Maybe` has its own package, [`Wyzely.Functional.Maybe`](../maybe/scope.md), and conversions between the two live in the umbrella package `Wyzely.Functional`,
+  which references both, not in either.
 - **HTTP, ASP.NET Core, `ProblemDetails`, gRPC mapping.** An adapter package.
 - **Logging and telemetry.** An adapter package; the library does not log.
 - **Retry, circuit breaker, timeouts.** A resilience library already does this and can consume `Result`.
@@ -33,9 +33,9 @@ A new public member goes in only if the answer to every question is yes:
 
 ## Wider than the core today (candid review)
 
-These are in the library now but were the first to question. **Decision (2026-10-17): all of them stay.** The table is kept so that a later
-change of mind is deliberate. None is wrong; each would be a candidate to remove or move if the surface ever needs
-to shrink before 1.0. They are listed so the decision is deliberate.
+These are in the library now but were the first to question. **Decision (2026-10-17): all of them stay.**
+The table is kept so that a later change of mind is deliberate.
+None is wrong; each would be a candidate to remove or move if the surface ever needs to shrink before 1.0. They are listed so the decision is deliberate.
 
 | Area | Why it is questionable | Suggestion |
 |---|---|---|
@@ -52,5 +52,5 @@ to shrink before 1.0. They are listed so the decision is deliberate.
 
 ## How to propose a change
 
-Say which of the five questions the change answers and how, and show the three lines a user would write today without it. If it
-adds a railway operation, say how often it is needed, because that decides whether it earns its nine variants.
+Say which of the five questions the change answers and how, and show the three lines a user would write today without it.
+If it adds a railway operation, say how often it is needed, because that decides whether it earns its nine variants.

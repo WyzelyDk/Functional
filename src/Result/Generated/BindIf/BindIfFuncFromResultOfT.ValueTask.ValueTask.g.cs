@@ -15,19 +15,20 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that can fail and returns a result of the same type, when a condition holds. Otherwise, and for a failed result,
-    /// the receiver is returned as it was and the delegate is not called. The receiver is a <see cref="ValueTask"/> that produces the
-    /// result; it is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/>
-    /// says otherwise. The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Chains an operation that can fail and returns a result of the same type, when a condition holds.
+    /// Otherwise, and for a failed result, the receiver is returned as it was and the delegate is not called.
+    /// The receiver is a <see cref="ValueTask"/> that produces the result; it is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded.</param>
     /// <param name="bind">The operation to run with the value of the successful result.</param>
     /// <returns>
-    /// The result of the delegate when the condition held, otherwise the receiver. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// The result of the delegate when the condition held, otherwise the receiver.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
     public static ValueTask<Result<T>> BindIf<T>(this ValueTask<Result<T>> result, Func<bool> condition, Func<T, ValueTask<Result<T>>> bind)

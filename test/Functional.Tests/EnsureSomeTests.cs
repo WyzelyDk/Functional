@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.Tests;
 
-// EnsureSome turns a result that holds a maybe into a result that holds the value, like EnsureNotNull does for a nullable value. An absent value
-// becomes the error you give; a failure passes through.
+// EnsureSome turns a result that holds a maybe into a result that holds the value, like EnsureNotNull does for a nullable value.
+// An absent value becomes the error you give; a failure passes through.
 public sealed class EnsureSomeTests
 {
     private static readonly Error Missing = Error.Create("Missing.");

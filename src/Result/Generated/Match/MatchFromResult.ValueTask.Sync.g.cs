@@ -24,8 +24,8 @@ public static partial class ResultExtensions
     /// <param name="onSuccess">Produces the value for a successful result.</param>
     /// <param name="onFailure">Produces the value from the error of a failed result.</param>
     /// <returns>
-    /// The value produced by <paramref name="onSuccess"/> or <paramref name="onFailure"/>. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// The value produced by <paramref name="onSuccess"/> or <paramref name="onFailure"/>.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="onSuccess"/>, <paramref name="onFailure"/> is <see langword="null"/>.</exception>
     public static ValueTask<TResult> Match<TResult>(this ValueTask<Result> result, Func<TResult> onSuccess, Func<Error, TResult> onFailure)

@@ -31,8 +31,8 @@ internal sealed class GeneratorEngine(GeneratorProfile profile, IReadOnlyList<Op
     }
 
     /// <summary>
-    /// Runs the tool: finds the repository root, generates the files and replaces the generated files in the repository. <c>--stubs</c> writes method
-    /// bodies that do nothing useful, to see the generated tests fail first.
+    /// Runs the tool: finds the repository root, generates the files and replaces the generated files in the repository.
+    /// <c>--stubs</c> writes method bodies that do nothing useful, to see the generated tests fail first.
     /// </summary>
     /// <param name="args">The arguments of the command line.</param>
     /// <param name="currentDirectory">The directory to look for the repository root from first.</param>

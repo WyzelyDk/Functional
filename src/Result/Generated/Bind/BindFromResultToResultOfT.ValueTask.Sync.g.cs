@@ -23,8 +23,8 @@ public static partial class ResultExtensions
     /// <param name="result">The value task that produces the result to operate on.</param>
     /// <param name="bind">The operation to run.</param>
     /// <returns>
-    /// The result of the delegate, or a failed result with the error of the receiver. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// The result of the delegate, or a failed result with the error of the receiver.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
     public static ValueTask<Result<TResult>> Bind<TResult>(this ValueTask<Result> result, Func<Result<TResult>> bind)

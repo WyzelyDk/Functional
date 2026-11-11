@@ -1,8 +1,7 @@
 namespace Wyzely.Functional.ResultTests;
 
-// Ensure also exists for an operation that does not need the value (on a typed result) and for a condition that does not depend on a value
-// (on an untyped result). These tests pin what a caller can write and which form a call binds to; the behavior of every variant is in the
-// generated matrix tests.
+// Ensure also exists for an operation that does not need the value (on a typed result) and for a condition that does not depend on a value (on an untyped
+// result). These tests pin what a caller can write and which form a call binds to; the behavior of every variant is in the generated matrix tests.
 public sealed class EnsureWithoutValueTests
 {
     private static readonly Error Rejected = Error.Create("Rejected.");

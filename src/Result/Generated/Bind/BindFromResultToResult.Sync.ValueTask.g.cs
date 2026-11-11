@@ -15,9 +15,9 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that returns no value after another one. The delegate runs only when the receiver succeeded. The delegate is
-    /// asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Chains an operation that returns no value after another one. The delegate runs only when the receiver succeeded.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
     /// <param name="bind">The operation to run.</param>

@@ -15,18 +15,18 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Tries an alternative when a maybe has no value. A maybe with a value passes through unchanged and the delegate is not called. The
-    /// receiver is a <see cref="ValueTask"/> that produces the maybe; it is awaited without capturing the synchronization context unless
-    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise. The delegate is asynchronous (it returns a
-    /// <see cref="ValueTask"/>) and is awaited without capturing the synchronization context unless
-    /// <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Tries an alternative when a maybe has no value. A maybe with a value passes through unchanged and the delegate is not called.
+    /// The receiver is a <see cref="ValueTask"/> that produces the maybe; it is awaited without capturing the synchronization context
+    /// unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// The delegate is asynchronous (it returns a <see cref="ValueTask"/>) and is awaited without capturing the synchronization context
+    /// unless <see cref="MaybeOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The value task that produces the maybe to operate on.</param>
     /// <param name="alternative">The alternative to try when the receiver has no value.</param>
     /// <returns>
-    /// The receiver when it has a value, otherwise the maybe of the alternative. The value is returned in a
-    /// <see cref="ValueTask{TResult}"/>.
+    /// The receiver when it has a value, otherwise the maybe of the alternative.
+    /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="alternative"/> is <see langword="null"/>.</exception>
     public static ValueTask<Maybe<T>> Or<T>(this ValueTask<Maybe<T>> maybe, Func<ValueTask<Maybe<T>>> alternative)

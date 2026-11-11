@@ -15,8 +15,8 @@ public static partial class ResultExtensions
 {
     /// <summary>
     /// Leaves the railway: returns the value of a successful result, or throws a <see cref="ResultFailedException"/> that carries the error
-    /// of a failed result. It is the explicit form of <see cref="Result{T}.GetValue"/> for a result that is still to come. The receiver is
-    /// a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// of a failed result. It is the explicit form of <see cref="Result{T}.GetValue"/> for a result that is still to come.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>

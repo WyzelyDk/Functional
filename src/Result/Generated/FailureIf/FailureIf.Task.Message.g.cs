@@ -13,9 +13,9 @@ namespace Wyzely.Functional;
 public readonly partial struct Result
 {
     /// <summary>
-    /// Creates a failed result when a condition holds and a successful one otherwise. The condition is awaited without capturing the
-    /// synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise, and the result is returned in a
-    /// <see cref="Task"/>.
+    /// Creates a failed result when a condition holds and a successful one otherwise.
+    /// The condition is awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/>
+    /// says otherwise, and the result is returned in a <see cref="Task"/>.
     /// </summary>
     /// <param name="condition">The condition that makes the result fail, as an operation that produces it.</param>
     /// <param name="message">The message of the error of the failed result, used when <paramref name="condition"/> is <see langword="true"/>.</param>

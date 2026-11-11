@@ -4,8 +4,8 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Wyzely.Functional;
 
 /// <summary>
-/// What the analyzers of <c>Result</c> and <c>Maybe</c> both need to read an operation. The file is compiled into each analyzer project as internal
-/// source, so no shared assembly has to ship with a package.
+/// What the analyzers of <c>Result</c> and <c>Maybe</c> both need to read an operation.
+/// The file is compiled into each analyzer project as internal source, so no shared assembly has to ship with a package.
 /// </summary>
 internal static class OperationHelpers
 {
@@ -23,8 +23,8 @@ internal static class OperationHelpers
     }
 
     /// <summary>
-    /// Determines whether evaluating an operation ahead of time costs nothing and cannot change anything: a constant, or a read of a local, a
-    /// parameter or a field. Anything else (a call, an allocation) has to stay lazy when a rewrite would otherwise evaluate it on every call.
+    /// Determines whether evaluating an operation ahead of time costs nothing and cannot change anything: a constant, or a read of a local,
+    /// a parameter or a field. Anything else (a call, an allocation) has to stay lazy when a rewrite would otherwise evaluate it on every call.
     /// </summary>
     /// <param name="operation">The operation to test.</param>
     /// <returns><see langword="true"/> for a cheap and safe operation.</returns>

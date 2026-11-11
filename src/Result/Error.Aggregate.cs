@@ -10,8 +10,8 @@ public sealed partial class Error
     /// <summary>Combines several errors into one error whose <see cref="Children"/> are the individual errors.</summary>
     /// <param name="errors">The errors to combine. Nested aggregates are flattened.</param>
     /// <returns>
-    /// The only error when exactly one individual error remains after flattening, otherwise an aggregate error. The kind of an
-    /// aggregate is the kind its children share, or <see cref="ErrorKind.Failure"/> when they differ; it is transient when every child is.
+    /// The only error when exactly one individual error remains after flattening, otherwise an aggregate error.
+    /// The kind of an aggregate is the kind its children share, or <see cref="ErrorKind.Failure"/> when they differ; it is transient when every child is.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="errors"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="errors"/> is empty or contains <see langword="null"/>.</exception>

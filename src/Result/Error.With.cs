@@ -44,12 +44,11 @@ public sealed partial class Error
 
     /// <summary>Returns a copy of the error with a context frame as the new outermost frame.</summary>
     /// <param name="context">
-    /// What the caller was doing, for example a chain name. It is a message template, like the message of an error, so <c>{{</c> and <c>}}</c>
-    /// produce a single brace. It must not be empty.
+    /// What the caller was doing, for example a chain name. It is a message template, like the message of an error,
+    /// so <c>{{</c> and <c>}}</c> produce a single brace. It must not be empty.
     /// </param>
     /// <returns>
-    /// A modified copy of the error. For an aggregate error the frame is added to every child, so each individual message
-    /// keeps its own context.
+    /// A modified copy of the error. For an aggregate error the frame is added to every child, so each individual message keeps its own context.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="context"/> is empty or consists only of white space.</exception>

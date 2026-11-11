@@ -4,13 +4,17 @@ namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>Breaks a line of generated code that is too wide into several lines, at places where a person would break it.</summary>
 /// <remarks>
-/// Documentation and comments are filled word by word (a documentation tag is never torn apart). Code is broken at the arguments
-/// of the last call on the line, before the logical operators of a condition, or inside the braces of a lambda. A line that offers
-/// no such place, for example a declaration whose only long part is its name, is left as it is.
+/// Documentation and comments are filled word by word (a documentation tag or code element is never torn apart),
+/// and a full line is broken after the last end of a sentence, otherwise after the last comma, colon or semicolon, when that leaves it reasonably full.
+/// Code is broken at the arguments of the last call on the line, before the logical operators of a condition,
+/// or inside the braces of a lambda. A line that offers no such place, for example a declaration whose only long part is its name,
+/// is left as it is.
 /// </remarks>
 internal static partial class LineWrapper
 {
     private const string Continuation = "    ";
+
+    private static readonly string[] Abbreviations = ["e.g.", "i.e."];
 
     /// <summary>Wraps a line.</summary>
     /// <param name="text">The line, without its indentation.</param>
@@ -48,8 +52,8 @@ internal static partial class LineWrapper
             ?? [text];
     }
 
-    // A word is a run of characters without a space, except that a tag (which may contain spaces) counts as one piece.
-    [GeneratedRegex(@"(?:<[^>]*>|[^\s<]|<)+", RegexOptions.None, matchTimeoutMilliseconds: 1000)]
+    // A word is a run of characters without a space, except that a tag (which may contain spaces) and a code element count as one piece.
+    [GeneratedRegex(@"(?:<c>[^<]*</c>|<[^>]*>|[^\s<]|<)+", RegexOptions.None, matchTimeoutMilliseconds: 1000)]
     private static partial Regex Word();
 
     // A documentation element on one line: `<tag attributes>text</tag>`.
@@ -86,11 +90,12 @@ internal static partial class LineWrapper
 
         foreach (var word in Word().Matches(text).Select(match => match.Value))
         {
-            if (current.Count > 0 && prefix.Length + length + 1 + word.Length > limit)
+            while (current.Count > 0 && prefix.Length + length + 1 + word.Length > limit)
             {
-                lines.Add(prefix + string.Join(' ', current));
-                current.Clear();
-                length = 0;
+                var keep = BreakAfter(current, prefix.Length, limit);
+                lines.Add(prefix + string.Join(' ', current.Take(keep)));
+                current.RemoveRange(0, keep);
+                length = current.Count > 0 ? current.Sum(piece => piece.Length) + current.Count - 1 : 0;
             }
 
             length += (current.Count > 0 ? 1 : 0) + word.Length;
@@ -101,6 +106,39 @@ internal static partial class LineWrapper
 
         return lines;
     }
+
+    // How many of the words of a full line stay on it: up to the last end of a sentence, otherwise up to the last comma, colon or semicolon,
+    // as long as that leaves the line reasonably full; otherwise all of them.
+    private static int BreakAfter(List<string> words, int prefixLength, int limit)
+    {
+        var sentence = 0;
+        var clause = 0;
+        var width = prefixLength - 1;
+
+        for (var index = 0; index < words.Count; index++)
+        {
+            width += 1 + words[index].Length;
+
+            if (EndsSentence(words[index]) && width >= limit * 0.4)
+            {
+                sentence = index + 1;
+            }
+            else if (",;:".Contains(words[index][^1]) && width >= limit * 0.6)
+            {
+                clause = index + 1;
+            }
+        }
+
+        if (sentence > 0)
+        {
+            return sentence;
+        }
+
+        return clause > 0 ? clause : words.Count;
+    }
+
+    private static bool EndsSentence(string word) =>
+        word.Length > 1 && ".!?".Contains(word[^1]) && !Abbreviations.Any(abbreviation => word.EndsWith(abbreviation, StringComparison.OrdinalIgnoreCase));
 
     // `if (a && b && c)`: one operand per line, the operator first.
     private static List<string>? BreakCondition(string text)

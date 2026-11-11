@@ -52,9 +52,9 @@ brace. Two frames are equal when their templates and details are equal.
 
 ## One error for many failures
 
-A result carries **one** `Error`. `Error.Aggregate` (used by `Combine`, `Zip`, `Partition` and the parallel helpers) combines several
-into one whose `Children` are the individual errors; nested aggregates are flattened, a single error is returned as it is, and
-`WithContext` on an aggregate adds the frame to every child. `Flatten()` always gives you the individual errors.
+A result carries **one** `Error`. `Error.Aggregate` (used by `Combine`, `Zip`,
+`Partition` and the parallel helpers) combines several into one whose `Children` are the individual errors; nested aggregates are flattened,
+a single error is returned as it is, and `WithContext` on an aggregate adds the frame to every child. `Flatten()` always gives you the individual errors.
 
 ```csharp
 var combined = Result.Combine([Result.Success(), Result.Failure("Name is missing."), Result.Failure("Email is invalid.")]);

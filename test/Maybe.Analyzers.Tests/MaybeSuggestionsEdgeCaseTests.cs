@@ -2,8 +2,8 @@ using Wyzely.Functional.MaybeAnalyzers;
 
 namespace Wyzely.Functional.MaybeAnalyzersTests;
 
-// The edges of the suggestion rules: what is written in another way (parentheses, null on the left, a member as the receiver), what only looks
-// like the library, and diagnostics that no longer fit the code when a fix is asked for.
+// The edges of the suggestion rules: what is written in another way (parentheses, null on the left, a member as the receiver),
+// what only looks like the library, and diagnostics that no longer fit the code when a fix is asked for.
 public sealed class MaybeSuggestionsEdgeCaseTests
 {
     private const string Sources = """

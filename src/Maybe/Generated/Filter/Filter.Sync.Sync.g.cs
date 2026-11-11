@@ -15,8 +15,8 @@ namespace Wyzely.Functional;
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Turns a maybe into none when its value does not satisfy a condition. A maybe without a value stays without a value and the predicate
-    /// is not called.
+    /// Turns a maybe into none when its value does not satisfy a condition.
+    /// A maybe without a value stays without a value and the predicate is not called.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>

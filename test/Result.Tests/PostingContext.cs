@@ -1,7 +1,6 @@
 namespace Wyzely.Functional.ResultTests;
 
-// Like a UI thread: it counts what is posted to it and is the current context while it runs the callback, so that a second await
-// inside the chain finds it too.
+// Like a UI thread: it counts what is posted to it and is the current context while it runs the callback, so that a second await inside the chain finds it too.
 internal sealed class PostingContext : SynchronizationContext
 {
     private int _posts;

@@ -15,8 +15,7 @@ public static partial class MaybeResultExtensions
         where T : notnull => result.TryGetValue(out var value) ? (Maybe<T>)value : default;
 
     /// <summary>
-    /// Turns the result that a task produces into a maybe: a success becomes a value and a failure becomes none. The error of a failure is
-    /// dropped.
+    /// Turns the result that a task produces into a maybe: a success becomes a value and a failure becomes none. The error of a failure is dropped.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="result">The task that produces the result. It must not be <see langword="null"/>.</param>
@@ -33,8 +32,7 @@ public static partial class MaybeResultExtensions
     }
 
     /// <summary>
-    /// Turns the result that a value task produces into a maybe: a success becomes a value and a failure becomes none. The error of a
-    /// failure is dropped.
+    /// Turns the result that a value task produces into a maybe: a success becomes a value and a failure becomes none. The error of a failure is dropped.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="result">The value task that produces the result.</param>

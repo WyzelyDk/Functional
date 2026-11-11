@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Transforms the value of a successful result with a function that may throw. A failed receiver passes through and the delegate is not
-    /// called. Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed result; any other
-    /// exception keeps travelling.
+    /// Transforms the value of a successful result with a function that may throw.
+    /// A failed receiver passes through and the delegate is not called.
+    /// Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed result;
+    /// any other exception keeps travelling.
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value that the delegate produces.</typeparam>

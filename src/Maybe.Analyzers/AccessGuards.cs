@@ -5,8 +5,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Wyzely.Functional.MaybeAnalyzers;
 
 /// <summary>
-/// Decides whether a call of <c>GetValue()</c> is protected by a check of the same maybe: an enclosing <c>if</c>, conditional
-/// expression, <c>&amp;&amp;</c> or <c>||</c>, or an earlier <c>if</c> in the same block that leaves it.
+/// Decides whether a call of <c>GetValue()</c> is protected by a check of the same maybe: an enclosing <c>if</c>, conditional expression,
+/// <c>&amp;&amp;</c> or <c>||</c>, or an earlier <c>if</c> in the same block that leaves it.
 /// </summary>
 internal static class AccessGuards
 {

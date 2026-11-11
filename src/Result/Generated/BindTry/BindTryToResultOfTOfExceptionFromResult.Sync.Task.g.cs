@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Chains an operation that returns a value after an operation that returned none, and may throw. A failed receiver passes through and
-    /// the delegate is not called. Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed
-    /// result; any other exception keeps travelling. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without
+    /// Chains an operation that returns a value after an operation that returned none, and may throw.
+    /// A failed receiver passes through and the delegate is not called.
+    /// Only an exception of type <typeparamref name="TException"/>, or one derived from it, becomes a failed result;
+    /// any other exception keeps travelling. The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without
     /// capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <typeparam name="TResult">The type of the value of the result that the delegate returns.</typeparam>

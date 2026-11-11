@@ -1,7 +1,7 @@
 namespace Wyzely.Functional.MaybeSamples;
 
-// The small domain that every example shares: a customer directory with lookups that may find nothing. Nothing in it is specific to
-// this library; it is the kind of code that has "maybe there is one" questions everywhere.
+// The small domain that every example shares: a customer directory with lookups that may find nothing.
+// Nothing in it is specific to this library; it is the kind of code that has "maybe there is one" questions everywhere.
 internal sealed record Customer(int Id, string Name, string? Email, bool IsActive, string? Nickname, int? Age);
 
 internal static class SampleData

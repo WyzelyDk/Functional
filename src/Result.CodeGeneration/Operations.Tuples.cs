@@ -5,8 +5,8 @@ namespace Wyzely.Functional.ResultCodeGeneration;
 
 /// <content>
 /// Operations on a result that holds a tuple, up to <see cref="GeneratorSettings.MaxZipArity"/> elements, like the one <c>Zip</c> returns:
-/// <c>BindZip</c> keeps the value next to the value of the next step (and grows a tuple by one element), and <c>Map</c> and <c>Bind</c> take the
-/// elements of the tuple as separate parameters.
+/// <c>BindZip</c> keeps the value next to the value of the next step (and grows a tuple by one element),
+/// and <c>Map</c> and <c>Bind</c> take the elements of the tuple as separate parameters.
 /// </content>
 internal static partial class Operations
 {
@@ -84,8 +84,8 @@ internal static partial class Operations
             Summary = BindZipSummary(arity),
             Delegates = [new("bind", [parameter], ResultOfTResult, "The operation to run with the value of the successful result.")],
             ReturnType = returnType,
-            ReturnDescription = "A successful result that holds the value of the receiver and the value of the delegate, or a failed result with the " +
-                "error of the receiver or of the delegate.",
+            ReturnDescription = "A successful result that holds the value of the receiver and the value of the delegate, " +
+                "or a failed result with the error of the receiver or of the delegate.",
             Body = ctx => BindZipBody(ctx, returnType, elements),
             Tests = BindZipTests(arity),
         };
@@ -93,8 +93,8 @@ internal static partial class Operations
 
     /// <summary>Gets the summary of <c>BindZip</c>, which differs for a single value and for a tuple.</summary>
     private static string BindZipSummary(int arity) => arity == 1
-        ? "Chains an operation that can fail and keeps the value of the receiver next to the value of that operation, in a tuple. The delegate " +
-            "runs only when the receiver succeeded; a failed result passes through with its error."
+        ? "Chains an operation that can fail and keeps the value of the receiver next to the value of that operation, in a tuple. " +
+            "The delegate runs only when the receiver succeeded; a failed result passes through with its error."
         : $"Chains an operation that can fail and adds its value to the tuple of the receiver, which becomes a tuple of {arity + 1} values. " +
             "The delegate runs only when the receiver succeeded; a failed result passes through with its error.";
 
@@ -191,10 +191,10 @@ internal static partial class Operations
 
     /// <summary>Gets the summary of the spread operations.</summary>
     private static string SpreadSummary(int arity, bool bind) => bind
-        ? $"Chains an operation that can fail and takes the {arity} values of the tuple of the receiver as separate parameters. The delegate runs " +
-            "only when the receiver succeeded; a failed result passes through with its error."
-        : $"Transforms the {arity} values of the tuple of a successful result, which the delegate takes as separate parameters. A failed result " +
-            "passes through unchanged: its error is kept and the delegate is not called.";
+        ? $"Chains an operation that can fail and takes the {arity} values of the tuple of the receiver as separate parameters. " +
+            "The delegate runs only when the receiver succeeded; a failed result passes through with its error."
+        : $"Transforms the {arity} values of the tuple of a successful result, which the delegate takes as separate parameters. " +
+            "A failed result passes through unchanged: its error is kept and the delegate is not called.";
 
     /// <summary>Gets the body of the spread operations.</summary>
     private static string[] SpreadBody(BodyContext ctx, string name, string spread, bool bind) =>

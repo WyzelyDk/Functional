@@ -15,9 +15,10 @@ namespace Wyzely.Functional;
 public static partial class ResultExtensions
 {
     /// <summary>
-    /// Transforms the value of a successful result, keeping its type, when a condition holds. Otherwise, and for a failed result, the
-    /// receiver is returned as it was and the delegate is not called. The receiver is a <see cref="Task"/> that produces the result; it is
-    /// awaited without capturing the synchronization context unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
+    /// Transforms the value of a successful result, keeping its type, when a condition holds.
+    /// Otherwise, and for a failed result, the receiver is returned as it was and the delegate is not called.
+    /// The receiver is a <see cref="Task"/> that produces the result; it is awaited without capturing the synchronization context unless
+    /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// The delegate is asynchronous (it returns a <see cref="Task"/>) and is awaited without capturing the synchronization context unless
     /// <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
@@ -26,8 +27,8 @@ public static partial class ResultExtensions
     /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="map">Computes the new value from the value of the successful result.</param>
     /// <returns>
-    /// A successful result that holds the value computed by the delegate when the condition held, otherwise the receiver. The value is
-    /// returned in a <see cref="Task{TResult}"/>.
+    /// A successful result that holds the value computed by the delegate when the condition held, otherwise the receiver.
+    /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="map"/> is <see langword="null"/>.
