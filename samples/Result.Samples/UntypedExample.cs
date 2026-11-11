@@ -16,7 +16,7 @@ public static class UntypedExample
 {
     public static void Run(TextWriter output)
     {
-        // Result<T> to Result: the lossless direction, so it is the one implicit conversion in the library.
+        // Result<T> to Result: the lossless direction: the state is kept and only the value is dropped.
         Result dropped = Result.Success(5);
         output.WriteLine($"Implicit conversion drops the value: {dropped}");
         output.WriteLine($"ToResult drops the value: {Result.Success(5).ToResult()}");

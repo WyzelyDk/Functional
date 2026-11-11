@@ -22,8 +22,8 @@ Things to know:
   the release candidate), without a preview opt-in. It follows the documented shape of custom unions
   ([language reference](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/union)). No `LangVersion` setting was needed.
 - A `default` result is a success holding `default(T)`, so a `switch` over it matches the value case.
-- A union gives the language an **implicit conversion from each case type**,
-  so on `net11.0` a `T` or an `Error` converts to a `Result<T>` even though the library itself defines no implicit conversion from a value or an error.
-  That is a property of C# unions, not of this library. Use the factories if you want to stay explicit.
+- A union gives the language an **implicit conversion from each case type**, and `Result<T>` has the same conversions on **every** target:
+  the library defines them itself, so all assets have the same binary surface. On `net11.0` the library's own operators take precedence and behave identically.
+  Use `Result.Success` and `Result.Failure` if you want the intent to be visible ([hazards](getting-started.md#implicit-conversions)).
 - A `Result<Error>` cannot be used as a union, because both cases are the same type.
 

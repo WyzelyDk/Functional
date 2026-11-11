@@ -20,8 +20,8 @@ namespace Wyzely.Functional;
 /// <para>
 /// Read the outcome with <see cref="IsSuccess"/> and <see cref="IsFailure"/>; <see cref="GetValue"/> and
 /// <see cref="GetError"/> are for the place where the state is known, and an analyzer (WYZ0102) reports them anywhere else.
-/// Nothing converts to a result implicitly: create results with <see cref="Result.Success{T}(T)"/> and <see cref="Result.Failure{T}(Error)"/>,
-/// so that <c>return false;</c> in a method that returns <c>Result&lt;bool&gt;</c> cannot be mistaken for a failure.
+/// A value converts to a success and an <see cref="Error"/> to a failure implicitly, so <c>return false;</c> in a method that returns
+/// <c>Result&lt;bool&gt;</c> is a success; use <see cref="Result.Success{T}(T)"/> and <see cref="Result.Failure{T}(Error)"/> when the intent should be visible.
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]

@@ -29,7 +29,7 @@ A new public member goes in only if the answer to every question is yes:
 - **Retry, circuit breaker, timeouts.** A resilience library already does this and can consume `Result`.
 - **Validation frameworks.** `Ensure` and `Combine` are the building blocks; the rest is the application's.
 - **Serialization attributes and JSON converters.** An adapter package.
-- **Implicit conversions** from a value or an error to a result, and **throwing properties** for the error or value.
+- **Throwing properties** for the error or value.
 
 ## Wider than the core today (candid review)
 

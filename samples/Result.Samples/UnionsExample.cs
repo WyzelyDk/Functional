@@ -9,9 +9,8 @@
 //
 // Things to know:
 //  - Union support is a C# 15 feature, so it needs the .NET 11 SDK.
-//  - A union gives the language an implicit conversion from each case type, so on net11.0 a T or an Error converts
-//    to a Result<T> even though the library itself defines no implicit conversions. That comes from the language.
-//    Use Result.Success / Result.Failure when you want to stay explicit.
+//  - A union gives the language an implicit conversion from each case type, and Result<T> has the same conversions on
+//    every target: the library defines them itself. Use Result.Success / Result.Failure when you want the intent visible.
 //  - A Result<Error> cannot be used as a union, because both cases are the same type.
 namespace Wyzely.Functional.ResultSamples;
 
@@ -24,7 +23,7 @@ public static class UnionsExample
         output.WriteLine("Describe a success: " + Describe(Result.Success(42)));
         output.WriteLine("Describe a failure: " + Describe(Result.Failure<int>(Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", 7))));
 
-        // The conversions come from the union feature of the language.
+        // The conversions are the same on every target; on net11.0 they match those of a union.
         Result<int> fromValue = 5;
         Result<int> fromError = Error.Conflict("Closed.");
         output.WriteLine("A value converts to a result: " + Describe(fromValue));

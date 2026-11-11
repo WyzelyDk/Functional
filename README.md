@@ -99,8 +99,11 @@ It is deliberately only about these functional types; other building blocks will
 
 These libraries are opinionated, and it is better to say so up front than for you to find out in the middle of a project.
 
-- **Explicit beats implicit.** Nothing converts to a result behind your back; a value is a success only if you said so. (`Maybe` has one deliberate exception,
-  where a plain value converts to a maybe and `null` means none: [why](docs/maybe/design-decisions.md#an-implicit-conversion-where-null-means-none).)
+- **Explicit where it matters.** `GetValue()` and `GetError()` are methods, not properties that throw, and a `default` result is a success by design.
+  Conversions follow C# 15 unions: a value or an error converts to a `Result<T>` implicitly, so `return false;` in a method that returns `Result<bool>`
+  is a success; use `Result.Success` and `Result.Failure` when the intent should be visible
+  ([why](docs/result/design-decisions.md)).
+  A plain value also converts to a `Maybe`, where `null` means none ([why](docs/maybe/design-decisions.md#an-implicit-conversion-where-null-means-none)).
 - **Make the wrong thing hard.** Mistakes such as ignoring a result or reading the error of a success or the value of a none are flagged by analyzers,
   and where possible a code fix is offered.
 - **Fast by design, with receipts.** Structs where it matters and nothing allocated on the hot path.
@@ -188,7 +191,7 @@ Every number is counted from the source or pinned by a test.
 **The cost of a dependency is real**, and so are the reasons to write your own:
 
 - Your type is exactly what you need, with nothing to learn.
-  Ours has about the API surface of the pages linked above, and one team's opinions (explicit conversions, a `default` result that is a success).
+  Ours has about the API surface of the pages linked above, and one team's opinions (guarded `GetValue()`/`GetError()`, a `default` result that is a success).
 - A dependency has to be kept up to date, and these packages are young.
 - If you need `Result<T, TError>` with your own error type, value objects or framework integrations today,
   this repository declines them on purpose ([scope](docs/result/scope.md)); use something else.

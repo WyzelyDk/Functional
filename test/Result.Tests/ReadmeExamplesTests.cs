@@ -327,6 +327,32 @@ public sealed class ReadmeExamplesTests
             () => Assert.Equal(-1, failed.Bind(static value => SimpleResult<int>.Ok(value)).Match(static value => value, static _ => -1)));
     }
 
+    [Fact]
+    internal void The_implicit_conversions_example_turns_a_value_into_a_success_and_an_error_into_a_failure()
+    {
+        var accepted = Quantity("12");
+        var rejected = Quantity("many");
+        var hazard = IsActive();
+
+        Assert.Multiple(
+            () => Assert.Equal(12, accepted.GetValue()),
+            () => Assert.Equal("'many' is not a number.", rejected.GetError().Message),
+            () => Assert.True(hazard.IsSuccess),
+            () => Assert.False(hazard.GetValue()));
+    }
+
+    private static Result<int> Quantity(string text)
+    {
+        if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var quantity))
+        {
+            return Error.Validation($"'{text}' is not a number.");
+        }
+
+        return quantity;
+    }
+
+    private static Result<bool> IsActive() => false;
+
     private static Result<int> ParseAge(string text) =>
         int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var age)
             ? Result.Success(age)

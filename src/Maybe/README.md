@@ -120,7 +120,7 @@ name.TryGetValue(out var value);                        // true, and value is "A
 
 A plain value converts to a maybe implicitly, and a `null` reference becomes none,
 so `return user;` in a method that returns `Maybe<User>` does the right thing.
-That is a deliberate exception to the rule that nothing converts to a `Result` implicitly: there, `return false;` would read like a failure,
+A `Result` converts a value implicitly as well, but a `null` reference there becomes a success that holds `null`,
 whereas here the absence of a value is exactly what `null` means ([why](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/design-decisions.md)).
 
 ### Chain steps; the first missing value skips the rest
