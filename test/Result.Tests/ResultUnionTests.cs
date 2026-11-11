@@ -34,7 +34,22 @@ public sealed class ResultUnionTests
     }
 
     [Fact]
-    internal void The_language_converts_a_case_type_to_the_union_implicitly()
+    internal void The_conversion_of_a_case_type_gives_the_same_result_as_creating_the_union_from_it()
+    {
+        string? nothing = null;
+
+        Result<int> fromValue = 5;
+        Result<int> fromError = Boom;
+        Result<string?> fromNull = nothing;
+
+        Assert.Multiple(
+            () => Assert.Equal(Result<int>.IUnionMembers.Create(5), fromValue),
+            () => Assert.Equal(Result<int>.IUnionMembers.Create(Boom), fromError),
+            () => Assert.Equal(Result<string?>.IUnionMembers.Create(nothing), fromNull));
+    }
+
+    [Fact]
+    internal void A_case_type_converts_to_the_union_implicitly()
     {
         Result<int> fromValue = 5;
         Result<int> fromError = Boom;

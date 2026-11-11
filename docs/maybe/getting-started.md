@@ -73,7 +73,7 @@ Maybe<string> converted = "Ada";                           // Some(Ada), by impl
 Maybe<string> convertedNull = (string?)null;               // None
 ```
 
-The implicit conversion is deliberate, and it is the one place where this library differs from `Result`, which converts nothing implicitly.
+`Result` also converts a value implicitly; the difference is that a `null` reference becomes none here, and a success that holds `null` there.
 `return user;` in a method that returns `Maybe<User>` does the right thing, because a `null` reference *means* "no value".
 The reasoning is in [Design decisions](design-decisions.md#an-implicit-conversion-where-null-means-none).
 

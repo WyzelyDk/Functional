@@ -10,9 +10,8 @@
   `default(Result<T>)` is `Result.Success(default(T))`. A result is one nullable `Error` (`null` is a success), so there is no third "uninitialized"
   state that every member would have to check for and that analyzers would have to chase. The price is that a forgotten field or an array slot counts as
   a success, as in CSharpFunctionalExtensions; `Combine`, `Partition` and `SelectInParallel` exist so that you do not fill an array yourself.
-- **Explicit, not implicit.**
-  No conversion creates a result from a value or an error, and `GetValue()`/`GetError()` are methods that an analyzer checks, not properties that throw.
-  The one implicit conversion is `Result<T>` to `Result`: it keeps the state and drops the value, so it can never turn a failure into a success.
+- **Guarded readers.**
+  `GetValue()`/`GetError()` are methods that an analyzer checks, not properties that throw.
 - **`Try` does not catch cancellation by default.** Cancellation is control flow, not a failure. `ShouldCatch` changes that.
 - **Message templates, not codes only.** The template is the stable identity, the details are the data, and `Message` is what humans read.
 - **Configurable defaults, one global switch.**
@@ -35,7 +34,19 @@ Decisions that were revised after a measurement, so that the reasoning is visibl
   Receivers are by value, and a test keeps it that way.
 - **Argument checks stay.** Each method checks its delegate and `Task` arguments up front. Measured with and without, that costs about 0.5 ns per call;
   without them a `null` delegate throws late inside a returned task, or never, depending on the data.
-- **No implicit conversion from a value or an error.** `return false;` in a method returning `Result<bool>` would compile as a success holding `false`.
-  Results are created with `Result.Success(...)` and `Result.Failure(...)`. The exception is `Result<T>` to `Result`, which keeps the state and drops the value.
+- **Implicit conversions follow C# 15 unions on every target.**
+  A `T` converts to `Result<T>` (a success; a `null` reference is a success that holds `null`),
+  an `Error` converts to `Result<T>` and to `Result` (a failure; a `null` error throws `ArgumentNullException`),
+  and `Result<T>` converts to `Result`, which keeps the state and drops the value. Nothing converts out of a result.
+  The reasons: it matches what the C# 15 compiler gives a union on `net11.0`, so people who know unions get the same experience;
+  and the operators exist in every asset, because a library compiled against the `net8.0` or `net10.0` asset that used the conversion would
+  otherwise fail with `MissingMethodException` when an app targeting `net11.0` picks the `net11.0` asset
+  (reproduced with a scratch library, not yet with the real package).
+  On `net11.0` the library's own operators take precedence and behave the same as the compiler's.
+  The trade-off: `Result<bool> IsActive() => false;` compiles and is a **success** holding `false`, and a bare `string` returned from a method
+  that returns `Result<string>` is a success holding that text, not a failure message.
+  Use `Result.Success(...)`, `Result.Failure(...)` or `Error.Create(...)` when the intent should be visible; `return error;` is a failure.
+  A bare value inside a chain is still a compile error (`Bind(x => x + 1)`), because the lambda must return a result.
+  `Result<Error>` cannot be converted to implicitly (ambiguous, CS0457). Converting allocates nothing.
 - **Parallel helpers use `Parallel.ForEachAsync` with an explicit limit.**
   Its default of `-1` means "the number of processors", which would have silently throttled I/O-bound work that was asked to run without a limit.

@@ -94,6 +94,22 @@ public sealed class PerformanceTests
     }
 
     [Fact]
+    internal void Converting_a_value_or_an_error_to_a_result_allocates_nothing()
+    {
+        ConvertValues(10);
+        ConvertErrors(10);
+
+        var valueBytes = AllocationProbe.Smallest(() => ConvertValues(1_000), out var successes);
+        var errorBytes = AllocationProbe.Smallest(() => ConvertErrors(1_000), out var failures);
+
+        Assert.Multiple(
+            () => Assert.Equal(0, valueBytes),
+            () => Assert.Equal(1_000, successes),
+            () => Assert.Equal(0, errorBytes),
+            () => Assert.Equal(1_000, failures));
+    }
+
+    [Fact]
     internal void BindZip_and_the_tuple_steps_allocate_nothing_on_the_success_path()
     {
         RunTupleSteps(10);
@@ -129,6 +145,32 @@ public sealed class PerformanceTests
 
     // A completed receiver and a synchronous delegate: the library answers with a completed task of a result without a value,
     // which is the same task every time.
+    private static int ConvertValues(int iterations)
+    {
+        var successes = 0;
+
+        for (var i = 0; i < iterations; i++)
+        {
+            Result<int> result = i;
+            successes += result.IsSuccess ? 1 : 0;
+        }
+
+        return successes;
+    }
+
+    private static int ConvertErrors(int iterations)
+    {
+        var failures = 0;
+
+        for (var i = 0; i < iterations; i++)
+        {
+            Result<int> result = Rejected;
+            failures += result.IsFailure ? 1 : 0;
+        }
+
+        return failures;
+    }
+
     private static bool RunCompletedBinds(int iterations)
     {
         var succeeded = true;

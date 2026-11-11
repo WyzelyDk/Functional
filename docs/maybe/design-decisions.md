@@ -23,11 +23,10 @@ The compiler warns when the constraint is violated, so it works through nullable
 
 ## An implicit conversion where `null` means none
 
-A `T` converts to `Maybe<T>` implicitly, and a `null` reference becomes none. This is a deliberate exception to the rule that
-[`Result`](../result/design-decisions.md) has no implicit conversions, and the reasoning is the opposite of the one for `Result`:
+A `T` converts to `Maybe<T>` implicitly, and a `null` reference becomes none.
+[`Result`](../result/design-decisions.md#implicit-conversions-follow-c-15-unions-on-every-target) converts a value implicitly as well; the difference is `null`:
 
-- For `Result<bool>`, `return false;` would compile as a success holding `false`, which reads like a failure.
-  The conversion changes the meaning of what the reader sees.
+- For `Result<User>`, a `null` reference converts to a success that holds `null`.
 - For `Maybe<User>`, `return user;` means "there is this user", and a `null` `user` means "there is no user".
   That is what `null` already says, so the conversion adds nothing a reader can misunderstand, and it lets existing methods that return `User?`
   move to `Maybe<User>` without touching every `return`.

@@ -5,8 +5,8 @@
 // decide what to do with it.
 //
 // WHY it is written this way:
-//  - Results are created with Result.Success(...) and Result.Failure(...). Nothing converts to a result
-//    implicitly, so `return false;` in a method that returns Result<bool> can never be mistaken for a failure.
+//  - Results are created with Result.Success(...) and Result.Failure(...), which keeps the intent visible. A value and an
+//    Error also convert implicitly, so `return false;` in a method that returns Result<bool> is a SUCCESS holding false.
 //  - GetValue() and GetError() are METHODS, not properties. A property that throws for the wrong state looks
 //    harmless in a debugger and in a watch window; a method call signals that something can go wrong, and an
 //    analyzer (WYZ0102) warns when the call is not guarded by a check.

@@ -58,10 +58,7 @@ A field or an array slot that nobody assigned therefore counts as "it worked", w
 | `Result.SuccessIfNotNull(value, error)` | a result that holds a value that is not `null`; the value can be a reference, a nullable value type, or a `Task` or `ValueTask` of one, and the error a message or a function as above |
 | `Result.Try(...)` | run code that may throw (see below) |
 
-Nothing converts to a result **implicitly**. `return false;` in a method that returns `Result<bool>` would otherwise compile as a *success* holding `false`,
-which reads like a failure; with explicit factories a reader sees what happens.
-(The one implicit conversion is `Result<T>` to `Result`: it keeps the state, a success or the same error, and drops the value,
-so it can never turn a failure into a success.)
+A value and an `Error` also convert to a result implicitly, see [Implicit conversions](#implicit-conversions).
 
 | Read | |
 |---|---|
@@ -71,6 +68,34 @@ so it can never turn a failure into a success.)
 | `ValueOr(fallback)`, `var (value, error) = result;` | convenience |
 | `ThrowIfFailure()` | leave the railway as an exception |
 | `ToResult()` / implicit conversion | drop the value of a `Result<T>` |
+
+### Implicit conversions
+
+Like a C# 15 union, on every target framework:
+
+| From | To | Result |
+|---|---|---|
+| a value `T` | `Result<T>` | a success that holds it (a `null` reference is a success that holds `null`) |
+| an `Error` | `Result<T>` and `Result` | a failure that carries it (a `null` error throws `ArgumentNullException`) |
+| `Result<T>` | `Result` | the same state, without the value |
+
+Nothing converts out of a result.
+
+```csharp
+static Result<int> Quantity(string text)
+{
+    if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var quantity))
+    {
+        return Error.Validation($"'{text}' is not a number.");   // a failure
+    }
+
+    return quantity;                                             // a success
+}
+```
+
+**A bare value is always a success.** `Result<bool> IsActive() => false;` compiles and is a *success* holding `false`,
+and a `string` returned from a method that returns `Result<string>` is a success holding that text, not a failure message.
+Use `Result.Success(...)` and `Result.Failure(...)` when the intent should be visible.
 
 ### Exceptions at the boundary: `Try`
 

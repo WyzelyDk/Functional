@@ -57,7 +57,7 @@ What this library adds, point by point (each checked against the source or a tes
 | Language and ecosystem | none | C# 15 union support on `net11.0`; `ToResult` / `ToMaybe` with `Maybe` through the umbrella package `Wyzely.Functional` |
 
 **The honest cost.** A dependency to update; an API that can still change before 1.0;
-a vocabulary and a set of opinions (no implicit conversion of a value or an error, `default` throws) that the whole team must accept;
+a vocabulary and a set of opinions (`GetValue()`/`GetError()` are guarded, a `default` result is a success) that the whole team must accept;
 and no public track record as a package yet. **Write your own** when the application is small,
 the error is a message, nobody mixes `Task` and `ValueTask`, and one team owns the code. **Use a library** when the type is shared,
 when errors must be logged safely and grouped, or when you would otherwise hand-write nine variants of every operation.
@@ -85,8 +85,9 @@ Be clear-eyed: the established libraries have things this one does not.
   It has not been published to NuGet yet, so it has no track record *as a package*, and the API can change before 1.0.
 - **It does less.** `Maybe` is a separate package ([`Wyzely.Functional.Maybe`](../maybe/why.md)) and not part of this one.
   There are no value objects and no JSON, EF Core or ASP.NET Core integrations; those are not part of this package either.
-- **It is one team's opinion.** Conversions are explicit, `default` throws, and `GetValue()`/`GetError()` are guarded by an analyzer.
-  If you prefer `return value;` to compile as a success, this library will annoy you on purpose.
+- **It is one team's opinion.** A `default` result is a success, and `GetValue()`/`GetError()` are guarded by an analyzer.
+  A value converts to a success implicitly, so `Result<bool> M() => false;` is a success;
+  if that bothers you, use `Result.Success` and `Result.Failure` throughout.
 - **Some paths are lighter on tests than others.**
   The `netstandard2.0` build is compile-checked but the test suite does not run on it, and the C# 15 union support exists only in the `net11.0` build.
 - **There is no community yet**: no Stack Overflow answers, no ecosystem of add-ons.

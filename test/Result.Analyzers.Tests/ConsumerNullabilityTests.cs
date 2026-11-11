@@ -53,6 +53,30 @@ public sealed class ConsumerNullabilityTests
     }
 
     [Fact]
+    internal void A_non_null_value_converts_to_a_result_without_a_warning()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Result<string> M(string value) => value;");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
+    internal void A_maybe_null_value_does_not_convert_to_a_result_of_a_non_null_value_type_without_a_warning()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Result<string> M(string? value) => value;");
+
+        Assert.Equal(["CS8604"], warnings);
+    }
+
+    [Fact]
+    internal void A_maybe_null_value_converts_to_a_result_of_a_nullable_value_type_without_a_warning()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("Result<string?> M(string? value) => value;");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
     internal void A_success_may_hold_null_when_the_value_type_is_nullable()
     {
         var warnings = AnalyzerTestHost.NullabilityWarnings("Result<string?> M() => Result.Success<string?>(null);");
