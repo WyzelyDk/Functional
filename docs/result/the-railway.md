@@ -23,6 +23,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `Recover(f)` | failure | computes a replacement value, turning the failure into a success |
 | `Compensate(f)` | failure | tries a fallback operation that returns a `Result` |
 | `GetValueOrThrow(f)`, `ThrowIfFailure(f)` | always | leaves the railway with an exception of your own type, created from the error; without `f` on a `Task` or `ValueTask` it throws a `ResultFailedException`, as `GetValue()` does |
+| `ValueOr(fallback)` | always | leaves the railway: the value of a success, or a fallback for a failure; the fallback is a value, or a function with or without the error that is run only for a failure |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
 | `Switch(onSuccess, onFailure)` | always | leaves the railway for side effects |
 
@@ -44,6 +45,20 @@ Name the exception type with the parameter of the handler to catch only that typ
 var address = Result.Success("not a web address")
     .MapTry(static text => new Uri(text), static (UriFormatException exception) => Error.Validation("The address is not valid."));
 ```
+
+Where a failure has to become a value, `ValueOr` takes the value itself, or a function that computes it only for a failure.
+The function can read the error or ignore it, and it works on a `Task` or a `ValueTask` too, so the end of a chain needs no `await` in the middle:
+
+```csharp
+var quantity = await Task.FromResult(Result.Failure<int>("No stock."))
+    .ValueOr(0);                                                   // 0
+
+var label = Result.Failure<string>("No stock.")
+    .ValueOr(static error => $"unavailable: {error.Message}");     // "unavailable: No stock."
+```
+
+A result of `object` is the one exception: `ValueOr(() => ...)` binds to the instance method `ValueOr(object)` and returns the function itself,
+so give the function a parameter (`_ => ...`) there.
 
 Where a failure has to become an exception, say which one. `GetValueOrThrow` and `ThrowIfFailure` take a function that creates the exception from the error,
 and the form without it works on a `Task` or a `ValueTask`, so the end of a chain needs no `await` in the middle.

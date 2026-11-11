@@ -56,6 +56,10 @@ public readonly partial struct Result<T>
     /// <summary>Returns the value of a successful result, or a fallback when the result failed.</summary>
     /// <param name="fallback">The value to return for a failed result.</param>
     /// <returns>The value, or <paramref name="fallback"/>.</returns>
+    /// <remarks>
+    /// The fallback is evaluated even when the result succeeded.
+    /// To compute it only for a failure, pass a function: <c>ValueOr(() =&gt; ...)</c>, or <c>ValueOr(error =&gt; ...)</c> to use the error.
+    /// </remarks>
     public T ValueOr(T fallback)
     {
         var failure = Unpack(out var value);

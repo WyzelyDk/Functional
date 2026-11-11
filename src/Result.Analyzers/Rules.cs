@@ -213,8 +213,8 @@ internal static class Rules
         "because passing the error as a function would allocate a delegate on every call.";
 
     private const string UseValueOrDescription =
-        "Match(v => v, _ => fallback) is ValueOr(fallback). Match evaluates the fallback only for a failure and ValueOr always does, " +
-        "so the rule reports it only when the fallback is a constant, a local, a parameter or a field, and the failure delegate does not read the error.";
+        "Match(v => v, onFailure) is ValueOr(onFailure): both run the delegate only for a failure. " +
+        "A fallback that is a constant, a local, a parameter or a field and does not read the error is the value itself: ValueOr(fallback).";
 
     private const string InterpolatedMessageDescription =
         "An interpolated message is built every time the line runs, also when the result succeeds, and the values become part of the text. " +

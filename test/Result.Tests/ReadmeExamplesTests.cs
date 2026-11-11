@@ -328,6 +328,20 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal async Task The_value_or_example_takes_a_value_or_a_function_that_is_run_only_for_a_failure()
+    {
+        var quantity = await Task.FromResult(Result.Failure<int>("No stock."))
+            .ValueOr(0);
+
+        var label = Result.Failure<string>("No stock.")
+            .ValueOr(static error => $"unavailable: {error.Message}");
+
+        Assert.Multiple(
+            () => Assert.Equal(0, quantity),
+            () => Assert.Equal("unavailable: No stock.", label));
+    }
+
+    [Fact]
     internal void The_implicit_conversions_example_turns_a_value_into_a_success_and_an_error_into_a_failure()
     {
         var accepted = Quantity("12");

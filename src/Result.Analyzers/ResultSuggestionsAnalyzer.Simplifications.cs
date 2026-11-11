@@ -104,12 +104,14 @@ public sealed partial class ResultSuggestionsAnalyzer
         return false;
     }
 
-    // WYZ0114: Match(v => v, _ => fallback) is ValueOr(fallback). ValueOr evaluates the fallback always, so it must be cheap and must not use the error.
+    // WYZ0114: Match(v => v, onFailure) is ValueOr(onFailure), which computes the fallback only for a failure too.
+    // The Match of a result with a value, on a result or on a Task or ValueTask of one, is the one with two type arguments, and they must be the same type.
+    // When the fallback is cheap and does not use the error it is ValueOr(fallback), which evaluates the fallback always.
     private static void CheckMatchToValueOr(OperationAnalysisContext context, IInvocationOperation invocation)
     {
         var method = invocation.TargetMethod;
 
-        if (!IsMatchOfValueResult(method)
+        if (!HasEqualTypeArguments(method)
             || !TryGetSynchronousLambda(invocation, "onSuccess", out var success, out var value)
             || !TryGetSynchronousLambda(invocation, "onFailure", out var failure, out var fallback)
             || !OperationShapes.IsParameter(value, success.Symbol.Parameters[0]))
@@ -117,15 +119,10 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        if (OperationHelpers.IsCheap(fallback) && !OperationShapes.UsesParameter(fallback, failure.Symbol.Parameters[0]))
-        {
-            Report(context, Rules.UseValueOr, invocation, []);
-        }
-    }
+        var lazy = !OperationHelpers.IsCheap(fallback) || OperationShapes.UsesParameter(fallback, failure.Symbol.Parameters[0]);
 
-    // A Match on a Result<T> whose two type arguments are the same type.
-    private static bool IsMatchOfValueResult(IMethodSymbol method) =>
-        method.Parameters[0].Type is INamedTypeSymbol { Name: "Result", IsGenericType: true } && HasEqualTypeArguments(method);
+        Report(context, Rules.UseValueOr, invocation, [Flag(LazyProperty, lazy)]);
+    }
 
     // WYZ0115: Map(x => x) and Bind(x => Result.Success(x)) return the result they were called on.
     private static void CheckNoOpMap(OperationAnalysisContext context, IInvocationOperation invocation)
