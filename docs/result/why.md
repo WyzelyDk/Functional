@@ -85,7 +85,7 @@ Be clear-eyed: the established libraries have things this one does not.
 - **It is one team's opinion.** Conversions are explicit, `default` throws, and `GetValue()`/`GetError()` are guarded by an analyzer.
   If you prefer `return value;` to compile as a success, this library will annoy you on purpose.
 - **Some paths are lighter on tests than others.** The `netstandard2.0` build is compile-checked but the test suite does not run on
-  it, and the C# 15 union support targets a runtime that is still a release candidate.
+  it, and the C# 15 union support exists only in the `net11.0` build.
 - **There is no community yet**: no Stack Overflow answers, no ecosystem of add-ons.
 
 ## Should you use it?

@@ -201,10 +201,10 @@ dotnet run -c Release --project benchmarks/Result.Benchmarks -- --filter "*SyncS
 dotnet pack src/Result -c Release
 ```
 
-- `global.json` pins SDK 11 (the exact version, with `allowPrerelease`, while it is a release candidate). That one SDK builds every target
+- `global.json` pins SDK 11 (the exact stable version, `11.0.100`; `allowPrerelease` is off). That one SDK builds every target
   framework: `netstandard2.0`, `net8.0`, `net10.0` and `net11.0` (C# 15 unions, for `Result<T>` and `Maybe<T>`). `net11.0` is a target
   framework like the others, not an opt-in; the union code sits behind `#if NET11_0_OR_GREATER`. The tests run on the .NET 8, 10 and 11
-  runtimes, so all three must be installed (the SDK 11 brings the last). After the general availability of .NET 11, pin the stable 11.0.x.
+  runtimes, so all three must be installed (the SDK 11 brings the last). Bump the pinned 11.0.x on purpose.
 - Line endings follow `.gitattributes` (`text=auto`); the generator writes CRLF and the tests normalize, so do not fight it.
 - Before saying a task is done: Release build clean, the tests of **every** target framework green, the generated files current, and the
   documentation and examples updated where behavior changed.

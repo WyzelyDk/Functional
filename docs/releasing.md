@@ -53,8 +53,8 @@ Decisions behind the pipeline, so they can be revisited deliberately:
   repository rules. The same mechanism extends to packages: when there are several, let `changes` also report which package changed and give
   each package's jobs an `if:`, and the gate rule "skipped is fine when that package did not change" stays the same.
 - **SDK 11 pinned in `global.json`.** One SDK builds every target framework, for everyone, for CI and for releases (the packages contain the
-  `net11.0` asset). While SDK 11 is a release candidate its exact version is pinned there, so a new candidate cannot break every pull request
-  unannounced; bump it on purpose. After general availability, pin the stable 11.0.x.
+  `net11.0` asset). Its exact stable version (`11.0.x`) is pinned there, so a new SDK cannot break every pull request
+  unannounced; bump it on purpose.
 - **Full clones (`fetch-depth: 0`).** MinVer reads the history and the tags; a shallow clone makes versions wrong or warns.
 - **Squash or rebase merges, never merge commits**, so that `main` is linear. Rebase a pull request whose commits are worth keeping as
   written; squash the rest. Dependabot keeps the Actions and NuGet packages

@@ -243,7 +243,7 @@ Building, testing and how the generated code works are in [Building and contribu
 dotnet build -c Release
 ```
 
-You need the .NET 11 SDK (a release candidate for now; `global.json` pins it); it builds all target frameworks, `net11.0` (C# 15 unions) included.
+You need the .NET 11 SDK (`global.json` pins the exact version); it builds all target frameworks, `net11.0` (C# 15 unions) included.
 
 ```
 src/         the packages (Result, Maybe and the umbrella Functional), their analyzers and code fixes, and their code generators

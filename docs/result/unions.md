@@ -18,8 +18,8 @@ Things to know:
 
 - It needs the **`net11.0` target** (and a C# 15 compiler). The package has a `net11.0` asset that carries the union members; a project that
   targets `net10.0` or older gets the same library without them.
-- It was built and its tests (`ResultUnionTests`, 7 of them) pass with SDK `11.0.100-rc.2`, which was the C# 15 and .NET 11 release
-  candidate when this was written; unions were still in preview in the language, so re-check after the final release. It follows the
+- It was built and its tests (`ResultUnionTests`, 7 of them) pass with the final SDK `11.0.100` (earlier with `11.0.100-rc.2`, the release
+  candidate), without a preview opt-in. It follows the
   documented shape of custom unions
   ([language reference](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/union)). No `LangVersion` setting
   was needed.

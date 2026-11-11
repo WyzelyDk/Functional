@@ -25,7 +25,7 @@ someone has to write today without it.
 
 ## Getting started
 
-You need the [.NET 11 SDK](https://dotnet.microsoft.com/download) (a release candidate for now; `global.json` pins the exact version) and the .NET 8 and 10 runtimes, which the tests of those target frameworks run on.
+You need the [.NET 11 SDK](https://dotnet.microsoft.com/download) (`global.json` pins the exact version) and the .NET 8 and 10 runtimes, which the tests of those target frameworks run on.
 
 ```shell
 git clone https://github.com/WyzelyDk/Functional.git
