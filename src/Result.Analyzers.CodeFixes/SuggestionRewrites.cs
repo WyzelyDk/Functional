@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Wyzely.Functional.RewriteHelpers;
 
 namespace Wyzely.Functional.ResultAnalyzers;
 
@@ -220,12 +221,6 @@ internal static class SuggestionRewrites
             : null;
     }
 
-    /// <summary>WYZ0115: <c>result.Map(x => x)</c> and <c>result.Bind(x => Result.Success(x))</c> become <c>result</c>.</summary>
-    /// <param name="invocation">The call of <c>Map</c> or <c>Bind</c>.</param>
-    /// <returns>The receiver of the call, or <see langword="null"/>.</returns>
-    internal static SyntaxNode? RemoveStep(InvocationExpressionSyntax invocation) =>
-        invocation.Expression is MemberAccessExpressionSyntax access ? access.Expression.WithTriviaFrom(invocation) : null;
-
     /// <summary>
     /// WYZ0118: <c>OrElse(e => error)</c> and <c>OrElse(e => Result.Failure(error))</c> become <c>MapError(e => error)</c>,
     /// and a function without a parameter gets one that is not used: <c>OrElse(() => error)</c> becomes <c>MapError(_ => error)</c>.
@@ -279,23 +274,6 @@ internal static class SuggestionRewrites
         return SyntaxFactory.InvocationExpression(valueOr, ArgumentsOf([SyntaxFactory.Argument(FallbackArgument(fallback, receiver, properties))]));
     }
 
-    /// <summary>WYZ0120: <c>r.ValueOr(fallback)</c> becomes <c>r.ValueOr(() => fallback)</c>.</summary>
-    /// <param name="invocation">The call of <c>ValueOr</c>.</param>
-    /// <returns>The call of <c>ValueOr</c> with a function, or <see langword="null"/>.</returns>
-    internal static SyntaxNode? ValueOrFunction(InvocationExpressionSyntax invocation)
-    {
-        var arguments = invocation.ArgumentList.Arguments;
-
-        if (invocation.Expression is not MemberAccessExpressionSyntax || arguments.Count != 1)
-        {
-            return null;
-        }
-
-        var function = SyntaxFactory.ParenthesizedLambdaExpression(SyntaxFactory.ParameterList(), StripParentheses(arguments[0].Expression));
-
-        return invocation.WithArgumentList(ArgumentsOf([arguments[0].WithExpression(function)]));
-    }
-
     /// <summary>WYZ0116: <c>Result.Failure(Error.Create(message))</c> becomes <c>Result.Failure(message)</c>.</summary>
     /// <param name="invocation">The call of <c>Failure</c>.</param>
     /// <returns>The call of <c>Failure</c> with the message, or <see langword="null"/>.</returns>
@@ -339,41 +317,6 @@ internal static class SuggestionRewrites
         return Renamed(invocation, name).WithArgumentList(ArgumentsOf(
             [SyntaxFactory.Argument(decide), SyntaxFactory.Argument(WithReturned(lambda, StripParentheses(work)))]));
     }
-
-    private static InvocationExpressionSyntax Renamed(InvocationExpressionSyntax invocation, string name) =>
-        invocation.Expression is MemberAccessExpressionSyntax access
-            ? invocation.WithExpression(access.WithName(SyntaxFactory.IdentifierName(name)))
-            : invocation.WithExpression(SyntaxFactory.IdentifierName(name));
-
-    private static bool TryGetFirstLambda(InvocationExpressionSyntax invocation, out LambdaExpressionSyntax lambda)
-    {
-        lambda = null!;
-
-        if (invocation.ArgumentList.Arguments.Count > 0 && invocation.ArgumentList.Arguments[0].Expression is LambdaExpressionSyntax found)
-        {
-            lambda = found;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    // The expression a lambda returns: its expression body, or the expression of its single return statement.
-    private static ExpressionSyntax? ReturnedExpression(LambdaExpressionSyntax lambda) => lambda.Body switch
-    {
-        ExpressionSyntax expression => StripParentheses(expression),
-        BlockSyntax { Statements.Count: 1 } block when block.Statements[0] is ReturnStatementSyntax { Expression: { } returned } => StripParentheses(returned),
-        _ => null,
-    };
-
-    // The same lambda, with a different expression as the thing it returns.
-    private static LambdaExpressionSyntax WithReturned(LambdaExpressionSyntax lambda, ExpressionSyntax expression) => lambda.Body switch
-    {
-        BlockSyntax { Statements.Count: 1 } block when block.Statements[0] is ReturnStatementSyntax returned =>
-            lambda.WithBody(block.WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(returned.WithExpression(expression)))),
-        _ => lambda.WithBody(expression),
-    };
 
     // The fallback as the argument of ValueOr: itself, a function without a parameter, or a function of the error.
     private static ExpressionSyntax FallbackArgument(ExpressionSyntax fallback, ExpressionSyntax receiver, ImmutableDictionary<string, string?> properties)
@@ -424,16 +367,6 @@ internal static class SuggestionRewrites
         return expression.ReplaceNodes(reads, (original, _) => SyntaxFactory.IdentifierName("error").WithTriviaFrom(original));
     }
 
-    private static ExpressionSyntax StripParentheses(ExpressionSyntax expression)
-    {
-        while (expression is ParenthesizedExpressionSyntax parenthesized)
-        {
-            expression = parenthesized.Expression;
-        }
-
-        return expression;
-    }
-
     private static PrefixUnaryExpressionSyntax Negated(ExpressionSyntax condition)
     {
         var operand = StripParentheses(condition);
@@ -456,10 +389,4 @@ internal static class SuggestionRewrites
     {
         Name: IdentifierNameSyntax { Identifier.ValueText: "Failure" } or GenericNameSyntax { Identifier.ValueText: "Failure" },
     };
-
-    private static bool IsTrue(ImmutableDictionary<string, string?> properties, string name) =>
-        properties.TryGetValue(name, out var value) && value == "true";
-
-    private static ArgumentListSyntax ArgumentsOf(IEnumerable<ArgumentSyntax> arguments) =>
-        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments));
 }

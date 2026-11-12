@@ -28,7 +28,11 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
-        Report(context, Rules.UseValueOrConditional, conditional, [Flag(LazyProperty, !cheap), Flag(UsesErrorProperty, usesError)]);
+        Report(
+            context,
+            Rules.UseValueOrConditional,
+            conditional,
+            [OperationHelpers.Flag(LazyProperty, !cheap), OperationHelpers.Flag(UsesErrorProperty, usesError)]);
     }
 
     // The conditional is `result.IsSuccess ? result.GetValue() : fallback` or `result.IsFailure ? fallback : result.GetValue()` on a result that is read
@@ -62,7 +66,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     // of the parameter that takes the error is already used.
     private static bool CanBeFunction(IConditionalOperation conditional, IOperation fallback, ITypeSymbol valueType, bool usesError)
     {
-        if (fallback is IThrowOperation || OperationShapes.CannotBeDeferred(fallback) || OperationShapes.LambdaConvertsTo(valueType))
+        if (!OperationHelpers.HasOwnType(fallback) || OperationHelpers.CannotBeDeferred(fallback) || OperationHelpers.LambdaConvertsTo(valueType))
         {
             return false;
         }
@@ -107,27 +111,32 @@ public sealed partial class ResultSuggestionsAnalyzer
     {
         var method = invocation.TargetMethod;
 
-        if (!(OperationShapes.IsResultExtension(method, "ValueOr") || OperationShapes.IsResultOfValue(method.ContainingType))
-            || !IsPlainMemberCall(invocation))
+        if (!IsValueOrCall(invocation) || !TakesTheValue(method))
         {
             return;
         }
 
-        // The overload that takes the value: its parameter is the type parameter, where the others take a function.
-        var parameters = method.OriginalDefinition.Parameters;
+        var fallback = OperationHelpers.ArgumentOf(invocation, "fallback")!;
 
-        if (parameters[parameters.Length - 1].Type is not ITypeParameterSymbol)
-        {
-            return;
-        }
-
-        var fallback = OperationShapes.ArgumentOf(invocation, "fallback")!;
-
-        if (OperationShapes.DoesWork(fallback)
-            && !OperationShapes.CannotBeDeferred(fallback)
-            && !OperationShapes.LambdaConvertsTo(method.Parameters[method.Parameters.Length - 1].Type))
+        if (CanBecomeFunction(fallback, method.Parameters[method.Parameters.Length - 1].Type))
         {
             Report(context, Rules.UseValueOrFunction, invocation, []);
         }
     }
+
+    // A call of ValueOr of the library that is written as receiver.ValueOr(...).
+    private static bool IsValueOrCall(IInvocationOperation invocation) =>
+        (OperationShapes.IsResultExtension(invocation.TargetMethod, "ValueOr") || OperationShapes.IsResultOfValue(invocation.TargetMethod.ContainingType))
+        && OperationHelpers.IsPlainMemberCall(invocation);
+
+    // The overload that takes the value: its parameter is the type parameter, where the others take a function.
+    private static bool TakesTheValue(IMethodSymbol method) =>
+        method.OriginalDefinition.Parameters[method.Parameters.Length - 1].Type is ITypeParameterSymbol;
+
+    // A fallback that does work, and that can be moved into a lambda without changing what a call of ValueOr binds to.
+    private static bool CanBecomeFunction(IOperation fallback, ITypeSymbol valueType) =>
+        OperationHelpers.DoesWork(fallback)
+        && OperationHelpers.HasOwnType(fallback)
+        && !OperationHelpers.CannotBeDeferred(fallback)
+        && !OperationHelpers.LambdaConvertsTo(valueType);
 }

@@ -42,7 +42,6 @@ public sealed class MaybeSuggestionsAnalyzerTests
     [InlineData("bool M(Maybe<int> m) => m.Filter(x => x > 5).IsNone;")]
     [InlineData("bool M(Maybe<int> m) => m.IsSome;")]
     [InlineData("Maybe<int> M(Maybe<int> m) => m.Filter(x => x > 5);")]
-    [InlineData("int M(Maybe<int> m) => m.IsSome ? m.GetValue() : Compute();")]
     [InlineData("int M(Maybe<int> m) => m.IsSome ? m.GetValue() + 1 : 0;")]
     [InlineData("int M(Maybe<int> m, Maybe<int> other) => m.IsSome ? other.GetValue() : 0;")]
     [InlineData("int M() => Find().IsSome ? Find().GetValue() : 0;")]
@@ -66,7 +65,9 @@ public sealed class MaybeSuggestionsAnalyzerTests
     internal void Every_rule_is_an_info_suggestion_in_the_design_category_with_a_help_link_to_its_page()
     {
         Assert.Multiple(
-            () => Assert.Equal(["WYZ0202", "WYZ0203", "WYZ0204"], Analyzer.SupportedDiagnostics.Select(descriptor => descriptor.Id).Order()),
+            () => Assert.Equal(
+                ["WYZ0202", "WYZ0203", "WYZ0204", "WYZ0205", "WYZ0206", "WYZ0207", "WYZ0208"],
+                Analyzer.SupportedDiagnostics.Select(descriptor => descriptor.Id).Order()),
             () => Assert.All(
                 Analyzer.SupportedDiagnostics,
                 descriptor => Assert.Equal(Microsoft.CodeAnalysis.DiagnosticSeverity.Info, descriptor.DefaultSeverity)),

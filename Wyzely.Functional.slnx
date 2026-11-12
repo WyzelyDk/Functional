@@ -80,6 +80,10 @@
     <File Path="docs/maybe/analyzers/WYZ0202.md" />
     <File Path="docs/maybe/analyzers/WYZ0203.md" />
     <File Path="docs/maybe/analyzers/WYZ0204.md" />
+    <File Path="docs/maybe/analyzers/WYZ0205.md" />
+    <File Path="docs/maybe/analyzers/WYZ0206.md" />
+    <File Path="docs/maybe/analyzers/WYZ0207.md" />
+    <File Path="docs/maybe/analyzers/WYZ0208.md" />
   </Folder>
   <Folder Name="/docs/result/">
     <File Path="docs/result/async.md" />

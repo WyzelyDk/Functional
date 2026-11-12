@@ -41,12 +41,40 @@ internal static class OperationShapes
     /// <param name="operation">The operation, without conversions.</param>
     /// <param name="types">The symbols of the compilation.</param>
     /// <returns><see langword="true"/> for none.</returns>
-    internal static bool IsNone(IOperation operation, MaybeTypes types) => operation switch
+    internal static bool IsNone(IOperation operation, MaybeTypes types) =>
+        TryReadNone(operation, out _) || (operation is IDefaultValueOperation defaulted && types.IsMaybe(defaulted.Type));
+
+    /// <summary>
+    /// Determines whether a value of a type can never be <see langword="null"/>: a struct (a tuple too) or an enum, but not <c>Nullable&lt;T&gt;</c>,
+    /// and a type parameter that has the <c>struct</c> or <c>unmanaged</c> constraint. A reference type and any other type parameter are not.
+    /// </summary>
+    /// <param name="type">The type of the value.</param>
+    /// <returns><see langword="true"/> for a type whose values are never null.</returns>
+    internal static bool IsNeverNull(ITypeSymbol type) =>
+        type is ITypeParameterSymbol { HasValueTypeConstraint: true }
+        || (type.TypeKind is TypeKind.Struct or TypeKind.Enum && type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T);
+
+    /// <summary>Reads a call of <c>Maybe.None&lt;T&gt;()</c>.</summary>
+    /// <param name="operation">The operation, without conversions.</param>
+    /// <param name="none">The call.</param>
+    /// <returns><see langword="true"/> when the operation is such a call.</returns>
+    internal static bool TryReadNone(IOperation operation, out IInvocationOperation none)
     {
-        IInvocationOperation { Arguments.Length: 0 } invocation => IsMaybeFactory(invocation.TargetMethod, "None"),
-        IDefaultValueOperation defaulted => types.IsMaybe(defaulted.Type),
-        _ => false,
-    };
+        none = (operation as IInvocationOperation)!;
+
+        return none is { Arguments.Length: 0 } && IsMaybeFactory(none.TargetMethod, "None");
+    }
+
+    /// <summary>Reads a call of <c>Maybe.Some(value)</c>.</summary>
+    /// <param name="operation">The operation, without conversions.</param>
+    /// <param name="some">The call.</param>
+    /// <returns><see langword="true"/> when the operation is such a call.</returns>
+    internal static bool TryReadSome(IOperation operation, out IInvocationOperation some)
+    {
+        some = (operation as IInvocationOperation)!;
+
+        return some is { Arguments.Length: 1 } && IsMaybeFactory(some.TargetMethod, "Some");
+    }
 
     /// <summary>
     /// Determines whether an operation is <c>Maybe.Some</c> of the value that was compared with <see langword="null"/>: the expression itself for a reference,
@@ -111,16 +139,10 @@ internal static class OperationShapes
 
     private static bool TryReadSomeArgument(IOperation operation, out IOperation argument)
     {
-        argument = null!;
+        var found = TryReadSome(operation, out var some);
+        argument = found ? OperationHelpers.Unwrap(some.Arguments[0].Value) : null!;
 
-        if (operation is not IInvocationOperation { Arguments.Length: 1 } invocation || !IsMaybeFactory(invocation.TargetMethod, "Some"))
-        {
-            return false;
-        }
-
-        argument = OperationHelpers.Unwrap(invocation.Arguments[0].Value);
-
-        return true;
+        return found;
     }
 
     private static bool IsValueOfNullable(IOperation argument, IOperation checkedOperation) =>

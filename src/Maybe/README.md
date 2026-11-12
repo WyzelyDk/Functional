@@ -69,7 +69,7 @@ What the library adds is everything around that core, and each item is checked a
 - **The generated railway:** thirteen operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three),
   **120 methods** (`Map` has a second form for nullable value types), each with a generated test, and no `await` in the middle of a chain.
 - **Lookups:** `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose`; and LINQ, `Zip` and `Flatten`.
-- **Analyzers and code fixes (`WYZ0201` and the suggestions `WYZ0202` to `WYZ0204`) and nullability annotations** that are pinned by tests which compile
+- **Analyzers and code fixes (`WYZ0201` and the suggestions `WYZ0202` to `WYZ0208`) and nullability annotations** that are pinned by tests which compile
   consumer code.
 - **Configuration, equality, ordering and formatting**, including redaction of values in `ToString()`.
 - **Measured size and allocation** (only what `PerformanceTests` checks), **interop with `Result`** in the umbrella package, and **C# 15 union support**.

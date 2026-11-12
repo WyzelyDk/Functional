@@ -21,7 +21,7 @@ public sealed partial class ResultSuggestionsAnalyzer
         var first = outer.Symbol.Parameters[0];
         var second = inner.Symbol.Parameters[0];
 
-        if (!OperationShapes.IsParameter(pair.Elements[0], first) || !OperationShapes.IsParameter(pair.Elements[1], second))
+        if (!OperationHelpers.IsParameter(pair.Elements[0], first) || !OperationHelpers.IsParameter(pair.Elements[1], second))
         {
             return;
         }
@@ -46,10 +46,10 @@ public sealed partial class ResultSuggestionsAnalyzer
         inner = null!;
         pair = null!;
 
-        if (!OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out outer, out var returned)
+        if (!OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "bind"), 1, out outer, out var returned)
             || returned is not IInvocationOperation map
             || !OperationShapes.IsResultExtension(map.TargetMethod, "Map")
-            || !OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(map, "map"), 1, out inner, out var tuple)
+            || !OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(map, "map"), 1, out inner, out var tuple)
             || tuple is not ITupleOperation { Elements.Length: 2 } found)
         {
             return false;
@@ -64,12 +64,12 @@ public sealed partial class ResultSuggestionsAnalyzer
     // has the form that names an exception type (it has two type arguments), because MapTry catches an Exception.
     private static void CheckMapTry(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out _, out var returned)
+        if (OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "bind"), 1, out _, out var returned)
             && returned is IInvocationOperation attempt
             && OperationShapes.IsResultFactory(attempt.TargetMethod, "Try")
             && attempt.TargetMethod.TypeArguments.Length == 1
-            && OperationShapes.ArgumentOf(attempt, "function") is { } function
-            && OperationShapes.TryGetLambda(function, 0, out _, out _))
+            && OperationHelpers.ArgumentOf(attempt, "function") is { } function
+            && OperationHelpers.TryGetLambda(function, 0, out _, out _))
         {
             Report(context, Rules.UseMapTry, invocation, []);
         }

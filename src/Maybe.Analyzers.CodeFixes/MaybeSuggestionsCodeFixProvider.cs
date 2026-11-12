@@ -1,12 +1,14 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Wyzely.Functional.MaybeAnalyzers;
 
-/// <summary>Rewrites the code that the suggestion rules (WYZ0202 to WYZ0204) point at into the method of the library that says what it does.</summary>
+/// <summary>
+/// Rewrites the code that the suggestion rules (WYZ0202 to WYZ0208) point at into the method of the library that says what it does,
+/// or into the simpler form.
+/// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MaybeSuggestionsCodeFixProvider))]
 [System.Composition.Shared]
 public sealed class MaybeSuggestionsCodeFixProvider : RewriteCodeFixProvider
@@ -17,86 +19,63 @@ public sealed class MaybeSuggestionsCodeFixProvider : RewriteCodeFixProvider
         ["WYZ0202"] = "Use Any",
         ["WYZ0203"] = "Use ValueOr",
         ["WYZ0204"] = "Use Maybe.From",
+        ["WYZ0205"] = "Use ValueOr",
+        ["WYZ0206"] = "Use Map",
+        ["WYZ0207"] = "Remove the step",
+        ["WYZ0208"] = "Pass a function to ValueOr",
     }.ToImmutableDictionary();
 
     /// <inheritdoc />
-    // The member access that ends in IsSome for WYZ0202, otherwise the conditional expression.
-    protected override bool IsTarget(SyntaxNode node, string id) =>
-        id == "WYZ0202" ? node is MemberAccessExpressionSyntax : node is ConditionalExpressionSyntax;
+    // The member access that ends in IsSome for WYZ0202, the conditional expression for WYZ0203 and WYZ0204, otherwise the call that the diagnostic is on.
+    protected override bool IsTarget(SyntaxNode node, string id)
+    {
+        if (id == "WYZ0202")
+        {
+            return node is MemberAccessExpressionSyntax;
+        }
+
+        return id is "WYZ0203" or "WYZ0204" ? node is ConditionalExpressionSyntax : node is InvocationExpressionSyntax;
+    }
 
     /// <inheritdoc />
-    protected override SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic) => diagnostic.Id switch
+    // A chain of ifs and not a switch on the text: the compiler turns a switch of this size into a hash table,
+    // and the equality check behind it has a side (the same hash for another text) that no test can take.
+    protected override SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic)
     {
-        "WYZ0202" => Any((MemberAccessExpressionSyntax)target),
-        "WYZ0203" => ValueOr((ConditionalExpressionSyntax)target),
-        _ => From((ConditionalExpressionSyntax)target),
-    };
+        var id = diagnostic.Id;
 
-    // WYZ0202: maybe.Filter(p).IsSome becomes maybe.Any(p).
-    private static InvocationExpressionSyntax? Any(MemberAccessExpressionSyntax access) =>
-        access.Expression is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax filter } call
-            ? call.WithExpression(filter.WithName(SyntaxFactory.IdentifierName("Any")))
-            : null;
-
-    // WYZ0203: maybe.IsSome ? maybe.GetValue() : fallback becomes maybe.ValueOr(fallback), and maybe.IsNone ? fallback : maybe.GetValue() too.
-    private static InvocationExpressionSyntax? ValueOr(ConditionalExpressionSyntax conditional)
-    {
-        if (StripParentheses(conditional.Condition) is not MemberAccessExpressionSyntax { Name.Identifier.ValueText: "IsSome" or "IsNone" } check)
+        if (id == "WYZ0202")
         {
-            return null;
+            return SuggestionRewrites.Any((MemberAccessExpressionSyntax)target);
         }
 
-        var fallback = check.Name.Identifier.ValueText == "IsSome" ? conditional.WhenFalse : conditional.WhenTrue;
+        if (id == "WYZ0203")
+        {
+            return SuggestionRewrites.ConditionalToValueOr((ConditionalExpressionSyntax)target, diagnostic.Properties);
+        }
 
-        return SyntaxFactory.InvocationExpression(
-            SyntaxFactory.MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                check.Expression.WithoutTrivia(),
-                SyntaxFactory.IdentifierName("ValueOr")),
-            SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(StripParentheses(fallback).WithoutTrivia()))));
+        if (id == "WYZ0204")
+        {
+            return SuggestionRewrites.From((ConditionalExpressionSyntax)target);
+        }
+
+        // Every other rule is about a call, which is what IsTarget looks for.
+        return RewriteCallRules((InvocationExpressionSyntax)target, id, diagnostic.Properties);
     }
 
-    // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) becomes Maybe.From(x).
-    // The qualifier is taken from the call of Some, so that it is written the way the code already writes it.
-    private static InvocationExpressionSyntax? From(ConditionalExpressionSyntax conditional)
+    // WYZ0208 is the last rule, so it is what is left.
+    private static SyntaxNode? RewriteCallRules(InvocationExpressionSyntax call, string id, ImmutableDictionary<string, string?> properties)
     {
-        var some = new[] { conditional.WhenTrue, conditional.WhenFalse }
-            .Select(StripParentheses)
-            .OfType<InvocationExpressionSyntax>()
-            .FirstOrDefault(call => call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Some" });
-
-        var value = NullCheckedExpression(StripParentheses(conditional.Condition));
-
-        if (some is null || value is null)
+        if (id == "WYZ0205")
         {
-            return null;
+            return SuggestionRewrites.MatchToValueOr(call, properties);
         }
 
-        var access = (MemberAccessExpressionSyntax)some.Expression;
-
-        return SyntaxFactory.InvocationExpression(
-            access.WithName(SyntaxFactory.IdentifierName("From")),
-            SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value.WithoutTrivia()))));
-    }
-
-    // The expression that a null check is about: x in x is null, x is not null, x == null and x != null.
-    private static ExpressionSyntax? NullCheckedExpression(ExpressionSyntax condition) => condition switch
-    {
-        IsPatternExpressionSyntax pattern => pattern.Expression,
-        BinaryExpressionSyntax binary when IsNull(binary.Right) => binary.Left,
-        BinaryExpressionSyntax binary when IsNull(binary.Left) => binary.Right,
-        _ => null,
-    };
-
-    private static bool IsNull(ExpressionSyntax expression) => StripParentheses(expression).IsKind(SyntaxKind.NullLiteralExpression);
-
-    private static ExpressionSyntax StripParentheses(ExpressionSyntax expression)
-    {
-        while (expression is ParenthesizedExpressionSyntax parenthesized)
+        if (id == "WYZ0206")
         {
-            expression = parenthesized.Expression;
+            return SuggestionRewrites.BindToMap(call);
         }
 
-        return expression;
+        return id == "WYZ0207" ? RewriteHelpers.RemoveStep(call) : RewriteHelpers.ValueOrFunction(call);
     }
 }

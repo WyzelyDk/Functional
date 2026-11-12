@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -72,6 +73,14 @@ internal static class CodeFixTesting
             [CSharpSyntaxTree.ParseText(source)],
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+
+    // The ids of the errors that the compiler reports for a source, for a check that rewritten code still compiles.
+    internal static string[] CompilerErrors(string? source, ImmutableArray<MetadataReference> references)
+    {
+        var errors = CreateCompilation(source!, references).GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+
+        return [.. errors.Select(diagnostic => diagnostic.Id + " " + diagnostic.GetMessage(CultureInfo.InvariantCulture))];
+    }
 
     // Compiles a source against the references, and fails the test when the source does not compile.
     internal static CSharpCompilation Compile(string source, ImmutableArray<MetadataReference> references)

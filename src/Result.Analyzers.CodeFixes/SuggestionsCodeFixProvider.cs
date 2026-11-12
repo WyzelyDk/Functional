@@ -123,7 +123,7 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
 
         if (id == "WYZ0115")
         {
-            return SuggestionRewrites.RemoveStep(call);
+            return RewriteHelpers.RemoveStep(call);
         }
 
         if (id == "WYZ0116")
@@ -147,6 +147,6 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
             return SuggestionRewrites.OrElseToMapError(call, properties);
         }
 
-        return SuggestionRewrites.ValueOrFunction(call);
+        return RewriteHelpers.ValueOrFunction(call);
     }
 }

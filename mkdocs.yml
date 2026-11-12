@@ -111,6 +111,10 @@ nav:
           - WYZ0202: maybe/analyzers/WYZ0202.md
           - WYZ0203: maybe/analyzers/WYZ0203.md
           - WYZ0204: maybe/analyzers/WYZ0204.md
+          - WYZ0205: maybe/analyzers/WYZ0205.md
+          - WYZ0206: maybe/analyzers/WYZ0206.md
+          - WYZ0207: maybe/analyzers/WYZ0207.md
+          - WYZ0208: maybe/analyzers/WYZ0208.md
   - Functional:
       - Getting started: functional/getting-started.md
       - 'Interop: ToResult and ToMaybe': functional/interop.md

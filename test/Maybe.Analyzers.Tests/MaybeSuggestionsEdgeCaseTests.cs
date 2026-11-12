@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Wyzely.Functional.MaybeAnalyzers;
 
 namespace Wyzely.Functional.MaybeAnalyzersTests;
@@ -138,9 +139,39 @@ public sealed class MaybeSuggestionsEdgeCaseTests
         "WYZ0204",
         "Maybe<string> M(string? s) => s is null ? Maybe.None<string>() : Wrap(s); static Maybe<string> Wrap(string s) => default;",
         "s is null ? Maybe.None<string>() : Wrap(s)")]
+    [InlineData("WYZ0205", "int M(Maybe<int> m) => m.Match(v => v);", "m.Match(v => v)")]
+    [InlineData("WYZ0205", "int M(Maybe<int> m) => m.Match(v => v, Fallback);", "m.Match(v => v, Fallback)")]
+    [InlineData("WYZ0205", "int M(Maybe<int> m) => m.Match(v => v, () => { Log(); return 0; });", "m.Match(v => v, () => { Log(); return 0; })")]
+    [InlineData("WYZ0205", "int M(Maybe<int> m) => m.Match(onSome: v => v, other: () => 0);", "m.Match(onSome: v => v, other: () => 0)")]
+    [InlineData("WYZ0205", "int M(Maybe<int> m) => Match(m, v => v, () => 0);", "Match(m, v => v, () => 0)")]
+    [InlineData("WYZ0206", "Maybe<int> M(Maybe<int> m) => m.Bind(Twice);", "m.Bind(Twice)")]
+    [InlineData("WYZ0206", "Maybe<int> M(Maybe<int> m) => m.Bind(x => x);", "m.Bind(x => x)")]
+    [InlineData("WYZ0206", "Maybe<int> M(Maybe<int> m) => m.Bind(x => Wrap(x));", "m.Bind(x => Wrap(x))")]
+    [InlineData("WYZ0206", "Maybe<int> M(Maybe<int> m) => m.Bind(x => Maybe.Some(x, 1));", "m.Bind(x => Maybe.Some(x, 1))")]
+    [InlineData("WYZ0206", "Maybe<int> M(Maybe<int> m) => m.Bind(x => Maybe.Some<int>(x).Value);", "m.Bind(x => Maybe.Some<int>(x).Value)")]
+    [InlineData("WYZ0206", "Maybe<int> M(Maybe<int> m) => Bind(m, x => Maybe.Some(x));", "Bind(m, x => Maybe.Some(x))")]
+    [InlineData("WYZ0206", "Maybe<int> M(Maybe<int> m) => m.Bind(x => Maker()(x));", "m.Bind(x => Maker()(x))")]
+    [InlineData("WYZ0207", "Maybe<int> M(Maybe<int> m) => Map(m, x => x);", "Map(m, x => x)")]
+    [InlineData("WYZ0208", "int M(Maybe<int> m) => m.ValueOr();", "m.ValueOr()")]
+    [InlineData("WYZ0208", "int M(Maybe<int> m) => m.ValueOr(Compute(), 1);", "m.ValueOr(Compute(), 1)")]
+    [InlineData("WYZ0208", "int M(Maybe<int> m) => ValueOr(Compute());", "ValueOr(Compute())")]
     internal async Task No_fix_is_offered_for_a_diagnostic_that_does_not_fit_the_code(string id, string method, string marker)
     {
         var offered = await CodeFixTestHost.OfferedFixesAsync(method, Provider, id, marker);
+
+        Assert.Equal(0, offered);
+    }
+
+    // The property says that the fallback stays a function, which is not what the code is any more when it has been edited since.
+    [Theory]
+    [InlineData("WYZ0205", "int M(Maybe<int> m) => m.Match(v => v, Fallback);", "m.Match(v => v, Fallback)")]
+    [InlineData("WYZ0205", "int M(Maybe<int> m) => m.Match(v => v);", "m.Match(v => v)")]
+    [InlineData("WYZ0203", "int M(bool flag) => flag ? 1 : 2;", "flag ? 1 : 2")]
+    internal async Task No_fix_is_offered_for_a_lazy_fallback_that_is_no_longer_a_function(string id, string method, string marker)
+    {
+        var properties = ImmutableDictionary<string, string?>.Empty.Add("Lazy", "true");
+
+        var offered = await CodeFixTestHost.OfferedFixesAsync(method, Provider, id, marker, properties);
 
         Assert.Equal(0, offered);
     }
