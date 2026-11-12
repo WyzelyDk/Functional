@@ -32,7 +32,6 @@ public static partial class ResultExtensions
     /// <exception cref="ArgumentNullException">
     /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="message"/> is <see langword="null"/>.
     /// </exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result> Ensure(this Task<Result> result, Func<Task<bool>> condition, string message)
     {
         Guard.NotNull(result, nameof(result));

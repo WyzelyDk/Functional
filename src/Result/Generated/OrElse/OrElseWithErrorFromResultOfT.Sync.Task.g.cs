@@ -25,7 +25,6 @@ public static partial class ResultExtensions
     /// <param name="alternative">The alternative operation to run when the result failed.</param>
     /// <returns>The successful receiver, or the result of the alternative operation. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="alternative"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result<T>> OrElse<T>(this Result<T> result, Func<Error, Task<Result<T>>> alternative)
     {
         Guard.NotNull(alternative, nameof(alternative));

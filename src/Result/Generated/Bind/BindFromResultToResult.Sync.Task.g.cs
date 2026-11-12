@@ -23,7 +23,6 @@ public static partial class ResultExtensions
     /// <param name="bind">The operation to run.</param>
     /// <returns>The result of the delegate, or the failed receiver. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result> Bind(this Result result, Func<Task<Result>> bind)
     {
         Guard.NotNull(bind, nameof(bind));

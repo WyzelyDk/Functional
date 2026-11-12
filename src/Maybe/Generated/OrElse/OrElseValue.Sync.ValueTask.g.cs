@@ -28,6 +28,7 @@ public static partial class MaybeExtensions
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
+    [OverloadResolutionPriority(-1)]
     public static ValueTask<Maybe<T>> OrElse<T>(this Maybe<T> maybe, Func<ValueTask<T>> replacement)
         where T : notnull
     {

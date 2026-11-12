@@ -27,7 +27,6 @@ public static partial class ResultExtensions
     /// <param name="fallback">Computes the value to return from the error of the failed result.</param>
     /// <returns>The value of the successful result, or the value computed by the delegate. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="fallback"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<T> ValueOr<T>(this Task<Result<T>> result, Func<Error, Task<T>> fallback)
     {
         Guard.NotNull(result, nameof(result));

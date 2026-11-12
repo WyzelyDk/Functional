@@ -39,9 +39,8 @@ var empty = Maybe.None<string>()
 ```
 
 On a `Task` or a `ValueTask`, `ValueOr(fallback)` takes the value too.
-A `null` or `default` literal binds to the overload that takes a function there and throws an `ArgumentNullException`,
-and a function that returns such a literal binds to the overload whose function returns a `Task`, so the result is a `null` task.
-Give the value a type instead: `ValueOr(default(int))` or `ValueOr((string)null!)`.
+A `null` or `default` literal there, or in a function that returns one, is ambiguous (`CS0121`):
+give the value a type, `ValueOr(default(int))` or `ValueOr((string)null!)` ([why](async.md#a-null-or-default-literal)).
 
 Where a missing value has to become an exception, say which one: `GetValueOrThrow` takes a function that creates it,
 and the form without it works on a `Task` or a `ValueTask`. It is the deliberate way out, so the analyzer does not ask for a check first:

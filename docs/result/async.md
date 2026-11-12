@@ -28,6 +28,19 @@ An already completed `Task`/`ValueTask` takes a synchronous fast path without a 
 and a synchronous receiver with an asynchronous delegate (for `Bind`, `Match` and `OrElse` with an alternative operation) hands back the delegate's own task.
 The 966 methods are generated from one catalog (see [Building from source](contributing.md)), together with a test for every variant.
 
+## A `null` or `default` literal
+
+Where the receiver fixes the type of what a function returns (`ValueOr`, `OrElse`, and the predicate of `Ensure`, for example),
+a lambda that returns a bare `null` or `default` fits a function that returns the value and one that returns a `Task` equally well.
+The same holds for a `null` or `default` argument of `ValueOr` on a `Task` or a `ValueTask`, which fits the value and a function.
+The compiler reports such a call as ambiguous (`CS0121`) instead of taking the overload with the `Task`, which would hand back a `null` task.
+Give the literal a type:
+
+```csharp
+var count = await Task.FromResult(Result.Failure<int>("No stock.")).ValueOr(default(int));
+var name = Result.Failure<string>("No stock.").ValueOr((string)null!);
+```
+
 ## Async lambdas and the language version
 
 An `async` lambda converts to both a `Task` and a `ValueTask` delegate, so a call such as `.Bind(async n => ...)`

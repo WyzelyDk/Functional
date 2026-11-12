@@ -31,7 +31,6 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="error"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static ValueTask<Result<T>> EnsureNot<T>(this ValueTask<Result<T>> result, Func<T, Task<bool>> predicate, Error error)
     {
         Guard.NotNull(predicate, nameof(predicate));

@@ -26,7 +26,6 @@ public static partial class ResultExtensions
     /// <param name="bind">The operation to run with the value of the successful result.</param>
     /// <returns>The result of the delegate when the condition held, otherwise the receiver. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result<T>> BindIf<T>(this Result<T> result, Func<T, bool> condition, Func<T, Task<Result<T>>> bind)
     {
         Guard.NotNull(condition, nameof(condition));

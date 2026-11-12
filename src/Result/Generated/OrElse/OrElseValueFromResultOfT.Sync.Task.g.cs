@@ -28,7 +28,6 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result<T>> OrElse<T>(this Result<T> result, Func<Task<T>> replacement)
     {
         Guard.NotNull(replacement, nameof(replacement));
