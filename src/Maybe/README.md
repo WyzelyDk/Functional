@@ -67,7 +67,8 @@ What the library adds is everything around that core, and each item is checked a
 - **One way to be empty.** `Maybe.Some(null)` throws, `Maybe.From(x)` turns `null` into none, `Maybe<string?>` is reported against `notnull`.
 - **Decided conversions.** A `T` or a `null` reference converts to a maybe implicitly; nothing converts out of one (pinned by tests).
 - **The generated railway:** thirteen operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three),
-  **120 methods** (`Map` has a second form for nullable value types), each with a generated test, and no `await` in the middle of a chain.
+  **122 methods** (`Map` has a second form for nullable value types, and `ValueOr` one that takes the value for a `Task` or `ValueTask`),
+  each with a generated test, and no `await` in the middle of a chain.
 - **Lookups:** `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose`; and LINQ, `Zip` and `Flatten`.
 - **Analyzers and code fixes (`WYZ0201` and the suggestions `WYZ0202` to `WYZ0208`) and nullability annotations** that are pinned by tests which compile
   consumer code.

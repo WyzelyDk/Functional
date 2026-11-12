@@ -13,7 +13,7 @@ While there is a value the chain carries it along; the first none skips every st
 | `Tap(f)` | there is a value | runs a side effect, returns the maybe unchanged |
 | `TapNone(f)` | there is none | runs a side effect, returns the maybe unchanged |
 | `OrElse(f)` | there is none | takes over when there is none: `f` returns an alternative `Maybe` or a replacement value |
-| `ValueOr(f)` | there is none | leaves the railway: the value, or what `f` computes (the instance method `ValueOr(fallback)` takes a plain value) |
+| `ValueOr(f)` | there is none | leaves the railway: the value, or what `f` computes; `ValueOr(fallback)` takes a plain value, as an instance method and for a `Task` or `ValueTask` |
 | `GetValueOrThrow(f)` | always | leaves the railway: the value, or the exception that `f` creates when there is none; without `f` on a `Task` or `ValueTask` it throws what `GetValue()` throws |
 | `Match(onSome, onNone)` | always | leaves the railway: one value out |
 | `Switch(onSome, onNone)` | always | leaves the railway for side effects |
@@ -37,6 +37,11 @@ var empty = Maybe.None<string>()
     .OrElse(() => Maybe.Some("untitled"))                       // the alternative takes over
     .ValueOr(() => "no title");                                 // "untitled"
 ```
+
+On a `Task` or a `ValueTask`, `ValueOr(fallback)` takes the value too.
+A `null` or `default` literal binds to the overload that takes a function there and throws an `ArgumentNullException`,
+and a function that returns such a literal binds to the overload whose function returns a `Task`, so the result is a `null` task.
+Give the value a type instead: `ValueOr(default(int))` or `ValueOr((string)null!)`.
 
 Where a missing value has to become an exception, say which one: `GetValueOrThrow` takes a function that creates it,
 and the form without it works on a `Task` or a `ValueTask`. It is the deliberate way out, so the analyzer does not ask for a check first:

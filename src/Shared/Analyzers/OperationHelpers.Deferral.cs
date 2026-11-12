@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -57,6 +58,16 @@ internal static partial class OperationHelpers
     /// <returns><see langword="false"/> for a throw expression or a target-typed <c>new()</c>.</returns>
     internal static bool HasOwnType(IOperation operation) =>
         operation is not IThrowOperation and not IObjectCreationOperation { Syntax: ImplicitObjectCreationExpressionSyntax };
+
+    /// <summary>
+    /// Determines whether an expression has a type of its own. A <see langword="null"/> or <see langword="default"/> literal has none:
+    /// as an argument it converts to a function as well as to the value, and as the result of a function it converts to a
+    /// <see cref="System.Threading.Tasks.Task"/> as well as to the value, so a call of <c>ValueOr</c> that is given one binds to another overload.
+    /// </summary>
+    /// <param name="operation">The expression to test, a cheap one: a constant, a local, a parameter, a field or a literal.</param>
+    /// <returns><see langword="false"/> for a <see langword="null"/> or <see langword="default"/> literal.</returns>
+    internal static bool HasNaturalType(IOperation operation) =>
+        operation.Syntax is not LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NullLiteralExpression or (int)SyntaxKind.DefaultLiteralExpression };
 
     private static bool IsExpressionTree(ITypeSymbol type) =>
         type is INamedTypeSymbol named && named.ContainingNamespace.ToDisplayString() == "System.Linq.Expressions";

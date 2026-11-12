@@ -145,6 +145,10 @@ public sealed partial class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
         {
             CheckNoOpOrElse(context, invocation);
         }
+        else if (name == "ValueOr")
+        {
+            CheckValueOrWork(context, invocation);
+        }
     }
 
     // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) is Maybe.From(x), also for a nullable value type with Some(x.Value).

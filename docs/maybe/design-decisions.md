@@ -123,7 +123,7 @@ check it; the cost is one static field per instantiated type.
 
 `Map`, `Bind`, `Tap`, ... for every receiver and delegate kind, as on `Result`. The price is the async-lambda note in [Async](async.md).
 Twelve operations in nine variants are 108 generated methods, the nullable-value form of `Map` adds 9 and `Contains`,
-which has no delegate and so three variants, adds 3 (120); `Zip` adds 12 (a tuple form,
+which has no delegate and so three variants, adds 3, and `ValueOr` with a value for a `Task` or `ValueTask` adds 2 (122); `Zip` adds 12 (a tuple form,
 a selector form and a nullable-value selector form for two to five maybes).
 
 ## Configurable defaults, one global switch

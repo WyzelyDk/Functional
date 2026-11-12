@@ -43,6 +43,8 @@ public sealed class MaybeValueOrAnalyzerTests
     [InlineData("ValueTask<int> M(ValueTask<Maybe<int>> m) => m.Match(v => v, () => Compute());")]
     [InlineData("object M(Maybe<object> m, object fallback) => m.Match(v => v, () => fallback);")]
     [InlineData("Func<int> M(Maybe<Func<int>> m, Func<int> fallback) => m.Match(v => v, () => fallback);")]
+    [InlineData("Task<object> M(Task<Maybe<object>> m, object fallback) => m.Match(v => v, () => fallback);")]
+    [InlineData("Task<int> M(Task<Maybe<int>> m) => m.Match(v => v, () => default(int));")]
     [InlineData("Task<Func<int>> M(Task<Maybe<Func<int>>> m) => m.Match(v => v, () => Maker());")]
     internal async Task Match_that_returns_the_value_or_a_fallback_is_ValueOr(string method)
     {
@@ -63,6 +65,9 @@ public sealed class MaybeValueOrAnalyzerTests
     [InlineData("int M(Maybe<int> m) => m.Match(v => v, () => throw new InvalidOperationException());")]
     [InlineData("List<int> M(Maybe<List<int>> m) => m.Match(v => v, () => new());")]
     [InlineData("Task<List<int>> M(Task<Maybe<List<int>>> m) => m.Match(v => v, () => new());")]
+    [InlineData("Task<string> M(Task<Maybe<string>> m) => m.Match(v => v, () => null!);")]
+    [InlineData("Task<int> M(Task<Maybe<int>> m) => m.Match(v => v, () => default);")]
+    [InlineData("ValueTask<string> M(ValueTask<Maybe<string>> m) => m.Match(v => v, () => null);")]
     [InlineData("Task<int> M(Maybe<int> m) => m.Match(async v => v, async () => 0);")]
     [InlineData("Task<int> M(Maybe<int> m) => m.Match(v => Task.FromResult(v), () => Task.FromResult(0));")]
     [InlineData("Task<int> M(Task<Maybe<int>> m) => m.Match(async v => v, () => Task.FromResult(0));")]
@@ -77,7 +82,6 @@ public sealed class MaybeValueOrAnalyzerTests
     [InlineData(
         "System.Linq.Expressions.Expression<Func<int>> M(Maybe<System.Linq.Expressions.Expression<Func<int>>> m) =>"
         + " m.Match(v => v, () => MakeExpression());")]
-    [InlineData("Task<object> M(Task<Maybe<object>> m, object fallback) => m.Match(v => v, () => fallback);")]
     [InlineData("Task<object> M(Task<Maybe<object>> m) => m.Match(v => v, () => Later());")]
     [InlineData("ValueTask<dynamic> M(ValueTask<Maybe<dynamic>> m) => m.Match(v => v, () => Compute());")]
     [InlineData("object M(Maybe<object> m) => m.Match(v => v, () => Later());")]
@@ -165,6 +169,9 @@ public sealed class MaybeValueOrAnalyzerTests
     [InlineData("List<int> M(Maybe<List<int>> m) => m.ValueOr(new List<int>());")]
     [InlineData("int[] M(Maybe<int[]> m) => m.ValueOr(new int[0]);")]
     [InlineData("int[] M(Maybe<int[]> m) => m.ValueOr(new[] { 1, 2 });")]
+    [InlineData("Task<int> M(Task<Maybe<int>> m) => m.ValueOr(Compute());")]
+    [InlineData("ValueTask<int> M(ValueTask<Maybe<int>> m) => m.ValueOr(Compute());")]
+    [InlineData("Task<List<int>> M(Task<Maybe<List<int>>> m) => m.ValueOr(new List<int>());")]
     [InlineData("List<int> M(Maybe<List<int>> m) => m.ValueOr([1, 2]);")]
     [InlineData("string M(Maybe<string> m, int id) => m.ValueOr($\"unknown {id}\");")]
     [InlineData("DateTime M(Maybe<DateTime> m) => m.ValueOr(new DateTime(2020, 1, 1));")]
@@ -196,6 +203,8 @@ public sealed class MaybeValueOrAnalyzerTests
     [InlineData("int M(Maybe<int> m) => m.ValueOr(() => Compute());")]
     [InlineData("List<int> M(Maybe<List<int>> m) => m.ValueOr(new());")]
     [InlineData("Task<int> M(Task<Maybe<int>> m) => m.ValueOr(() => Compute());")]
+    [InlineData("Task<int> M(Task<Maybe<int>> m) => m.ValueOr(0);")]
+    [InlineData("Task<object> M(Task<Maybe<object>> m) => m.ValueOr(Compute());")]
     [InlineData("ValueTask<int> M(ValueTask<Maybe<int>> m) => m.ValueOr(() => Compute());")]
     [InlineData("int? M(Maybe<int>? m) => m?.ValueOr(Compute());")]
     [InlineData("async Task<int> M(Maybe<int> m) => m.ValueOr(await Task.FromResult(1));")]
