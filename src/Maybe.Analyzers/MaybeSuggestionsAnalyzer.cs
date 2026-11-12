@@ -118,7 +118,7 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
         if (OperationHelpers.Unwrap(condition) is not IPropertyReferenceOperation candidate
             || !IsPresenceProperty(candidate.Property, types)
             || candidate.Instance is not { } instance
-            || !OperationShapes.IsPlain(instance.Syntax))
+            || !OperationHelpers.IsPlain(instance.Syntax))
         {
             return false;
         }
@@ -134,13 +134,13 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
 
     private static bool IsGetValueOf(IOperation read, IOperation receiver) =>
         read is IInvocationOperation { TargetMethod: { Name: "GetValue", Parameters.Length: 0 }, Instance: { } getter }
-        && OperationShapes.SameText(getter.Syntax, receiver.Syntax);
+        && OperationHelpers.SameText(getter.Syntax, receiver.Syntax);
 
     // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) is Maybe.From(x), also for a nullable value type with Some(x.Value).
     private static bool IsFromShape(IConditionalOperation conditional, IOperation otherwise, MaybeTypes types)
     {
         if (!OperationShapes.TryReadNullCheck(conditional.Condition, out var checkedOperation, out var isNullWhenTrue)
-            || !OperationShapes.IsPlain(checkedOperation.Syntax))
+            || !OperationHelpers.IsPlain(checkedOperation.Syntax))
         {
             return false;
         }

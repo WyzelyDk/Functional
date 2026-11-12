@@ -226,6 +226,76 @@ internal static class SuggestionRewrites
     internal static SyntaxNode? RemoveStep(InvocationExpressionSyntax invocation) =>
         invocation.Expression is MemberAccessExpressionSyntax access ? access.Expression.WithTriviaFrom(invocation) : null;
 
+    /// <summary>
+    /// WYZ0118: <c>OrElse(e => error)</c> and <c>OrElse(e => Result.Failure(error))</c> become <c>MapError(e => error)</c>,
+    /// and a function without a parameter gets one that is not used: <c>OrElse(() => error)</c> becomes <c>MapError(_ => error)</c>.
+    /// </summary>
+    /// <param name="invocation">The call of <c>OrElse</c>.</param>
+    /// <param name="properties">The properties of the diagnostic.</param>
+    /// <returns>The call of <c>MapError</c>, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? OrElseToMapError(InvocationExpressionSyntax invocation, ImmutableDictionary<string, string?> properties)
+    {
+        var arguments = invocation.ArgumentList.Arguments;
+
+        if (invocation.Expression is not MemberAccessExpressionSyntax
+            || arguments.Count != 1
+            || arguments[0].Expression is not LambdaExpressionSyntax lambda
+            || ReturnedExpression(lambda) is not { } returned)
+        {
+            return null;
+        }
+
+        // The property says that the error is the argument of Result.Failure, which is not what the code is any more when it has been edited since.
+        var error = IsTrue(properties, "Wrapped") ? ErrorOfFailure(returned) : returned;
+
+        if (error is null)
+        {
+            return null;
+        }
+
+        var mapped = AsErrorFunction(WithReturned(lambda, error.WithTriviaFrom(returned)));
+
+        return Renamed(invocation, "MapError").WithArgumentList(ArgumentsOf([SyntaxFactory.Argument(mapped)]));
+    }
+
+    /// <summary>
+    /// WYZ0119: <c>r.IsSuccess ? r.GetValue() : fallback</c> and <c>r.IsFailure ? fallback : r.GetValue()</c> become <c>r.ValueOr(fallback)</c>,
+    /// <c>r.ValueOr(() => fallback)</c> when the fallback has to stay lazy, and <c>r.ValueOr(error => fallback)</c> when it reads <c>r.GetError()</c>.
+    /// </summary>
+    /// <param name="conditional">The conditional expression.</param>
+    /// <param name="properties">The properties of the diagnostic.</param>
+    /// <returns>The call of <c>ValueOr</c>, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? ConditionalToValueOr(ConditionalExpressionSyntax conditional, ImmutableDictionary<string, string?> properties)
+    {
+        if (StripParentheses(conditional.Condition) is not MemberAccessExpressionSyntax { Name.Identifier.ValueText: "IsSuccess" or "IsFailure" } check)
+        {
+            return null;
+        }
+
+        var receiver = check.Expression.WithoutTrivia();
+        var fallback = StripParentheses(check.Name.Identifier.ValueText == "IsSuccess" ? conditional.WhenFalse : conditional.WhenTrue);
+        var valueOr = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, receiver, SyntaxFactory.IdentifierName("ValueOr"));
+
+        return SyntaxFactory.InvocationExpression(valueOr, ArgumentsOf([SyntaxFactory.Argument(FallbackArgument(fallback, receiver, properties))]));
+    }
+
+    /// <summary>WYZ0120: <c>r.ValueOr(fallback)</c> becomes <c>r.ValueOr(() => fallback)</c>.</summary>
+    /// <param name="invocation">The call of <c>ValueOr</c>.</param>
+    /// <returns>The call of <c>ValueOr</c> with a function, or <see langword="null"/>.</returns>
+    internal static SyntaxNode? ValueOrFunction(InvocationExpressionSyntax invocation)
+    {
+        var arguments = invocation.ArgumentList.Arguments;
+
+        if (invocation.Expression is not MemberAccessExpressionSyntax || arguments.Count != 1)
+        {
+            return null;
+        }
+
+        var function = SyntaxFactory.ParenthesizedLambdaExpression(SyntaxFactory.ParameterList(), StripParentheses(arguments[0].Expression));
+
+        return invocation.WithArgumentList(ArgumentsOf([arguments[0].WithExpression(function)]));
+    }
+
     /// <summary>WYZ0116: <c>Result.Failure(Error.Create(message))</c> becomes <c>Result.Failure(message)</c>.</summary>
     /// <param name="invocation">The call of <c>Failure</c>.</param>
     /// <returns>The call of <c>Failure</c> with the message, or <see langword="null"/>.</returns>
@@ -304,6 +374,55 @@ internal static class SuggestionRewrites
             lambda.WithBody(block.WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(returned.WithExpression(expression)))),
         _ => lambda.WithBody(expression),
     };
+
+    // The fallback as the argument of ValueOr: itself, a function without a parameter, or a function of the error.
+    private static ExpressionSyntax FallbackArgument(ExpressionSyntax fallback, ExpressionSyntax receiver, ImmutableDictionary<string, string?> properties)
+    {
+        if (IsTrue(properties, "UsesError"))
+        {
+            var parameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("error"));
+
+            return SyntaxFactory.SimpleLambdaExpression(parameter, ErrorReadsToParameter(fallback, receiver));
+        }
+
+        return IsTrue(properties, "Lazy") ? SyntaxFactory.ParenthesizedLambdaExpression(SyntaxFactory.ParameterList(), fallback) : fallback;
+    }
+
+    // The argument of the call of Result.Failure that is the returned expression.
+    private static ExpressionSyntax? ErrorOfFailure(ExpressionSyntax returned) =>
+        returned is InvocationExpressionSyntax { ArgumentList.Arguments.Count: 1 } failure ? failure.ArgumentList.Arguments[0].Expression : null;
+
+    // The function of OrElse returns a result, the function of MapError returns the error, so a return type that the lambda says (Result<T> () => e) has to go.
+    // A function without a parameter gets one that is not used, so that it fits a delegate that takes the error: () => x becomes _ => x.
+    private static LambdaExpressionSyntax AsErrorFunction(LambdaExpressionSyntax lambda)
+    {
+        if (lambda is not ParenthesizedLambdaExpressionSyntax parenthesized)
+        {
+            return lambda;
+        }
+
+        var withoutType = parenthesized.WithReturnType(null);
+
+        if (parenthesized.ParameterList.Parameters.Count != 0)
+        {
+            return withoutType;
+        }
+
+        return SyntaxFactory.SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier("_")), withoutType.Body)
+            .WithAttributeLists(withoutType.AttributeLists)
+            .WithModifiers(withoutType.Modifiers);
+    }
+
+    // Every r.GetError() of the receiver in the expression becomes the parameter `error` of the function that the expression is the body of.
+    private static ExpressionSyntax ErrorReadsToParameter(ExpressionSyntax expression, ExpressionSyntax receiver)
+    {
+        var reads = expression.DescendantNodesAndSelf()
+            .OfType<InvocationExpressionSyntax>()
+            .Where(call => call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "GetError" } access
+                && access.Expression.WithoutTrivia().ToString() == receiver.ToString());
+
+        return expression.ReplaceNodes(reads, (original, _) => SyntaxFactory.IdentifierName("error").WithTriviaFrom(original));
+    }
 
     private static ExpressionSyntax StripParentheses(ExpressionSyntax expression)
     {

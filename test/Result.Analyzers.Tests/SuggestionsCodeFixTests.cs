@@ -68,13 +68,13 @@ public sealed class SuggestionsCodeFixTests
     }
 
     [Fact]
-    internal void The_provider_fixes_the_fourteen_suggestions_and_supports_fixing_all_occurrences()
+    internal void The_provider_fixes_the_seventeen_suggestions_and_supports_fixing_all_occurrences()
     {
         Assert.Multiple(
             () => Assert.Equal(
                 [
                     "WYZ0103", "WYZ0104", "WYZ0105", "WYZ0106", "WYZ0107", "WYZ0108", "WYZ0109", "WYZ0110", "WYZ0112", "WYZ0113", "WYZ0114", "WYZ0115",
-                    "WYZ0116", "WYZ0117",
+                    "WYZ0116", "WYZ0117", "WYZ0118", "WYZ0119", "WYZ0120",
                 ],
                 Provider.FixableDiagnosticIds),
             () => Assert.NotNull(Provider.GetFixAllProvider()));

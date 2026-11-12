@@ -188,9 +188,11 @@ public sealed partial class ResultSuggestionsAnalyzer
         }
     }
 
-    // The fixes rename the call, so it has to be written as member.Name(...) without type arguments.
+    // The fixes rename the call, so it has to be written as member.Name(...) without type arguments. An extension method that is called as a static method,
+    // ResultExtensions.Name(receiver, ...), has the same syntax but one argument more than the call that a fix writes.
     private static bool IsPlainMemberCall(IInvocationOperation invocation) =>
-        invocation.Syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: IdentifierNameSyntax } };
+        invocation.Syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: IdentifierNameSyntax } } call
+        && (!invocation.TargetMethod.IsExtensionMethod || call.ArgumentList.Arguments.Count == invocation.TargetMethod.Parameters.Length - 1);
 
     private static bool HasEqualTypeArguments(IMethodSymbol method) =>
         method.TypeArguments.Length == 2 && SymbolEqualityComparer.Default.Equals(method.TypeArguments[0], method.TypeArguments[1]);

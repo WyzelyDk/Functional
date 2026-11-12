@@ -9,6 +9,9 @@ public sealed class SimplifyAnalyzerTests
     private const string Sources = """
         static Result<int> Twice(int x) => Result.Success(x * 2);
         static int Compute() => 42;
+        static readonly Error Rejected = Error.Create("Rejected.");
+        static Error Same(Error e) => e;
+        static Result<int> Fail(Error e) => e;
         """;
 
     private static readonly ResultSuggestionsAnalyzer Analyzer = new();
@@ -31,6 +34,20 @@ public sealed class SimplifyAnalyzerTests
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Map(x => { return x; });")]
     [InlineData("WYZ0115", "Task<Result<int>> M(Task<Result<int>> r) => r.Map(x => x);")]
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Bind(x => Result.Success(x));")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.MapError(e => e);")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.MapError(e => { return e; });")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.MapError((Error e) => e);")]
+    [InlineData("WYZ0115", "Result M(Result r) => r.MapError(e => e);")]
+    [InlineData("WYZ0115", "Task<Result<int>> M(Task<Result<int>> r) => r.MapError(e => e);")]
+    [InlineData("WYZ0115", "ValueTask<Result<int>> M(ValueTask<Result<int>> r) => r.MapError(e => e);")]
+    [InlineData("WYZ0115", "Task<Result> M(Task<Result> r) => r.MapError(e => e);")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.OrElse(e => e);")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.OrElse(e => Result.Failure<int>(e));")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.OrElse(e => { return Result.Failure<int>(e); });")]
+    [InlineData("WYZ0115", "Result M(Result r) => r.OrElse(e => e);")]
+    [InlineData("WYZ0115", "Result M(Result r) => r.OrElse(e => Result.Failure(e));")]
+    [InlineData("WYZ0115", "Task<Result<int>> M(Task<Result<int>> r) => r.OrElse(e => Result.Failure<int>(e));")]
+    [InlineData("WYZ0115", "ValueTask<Result> M(ValueTask<Result> r) => r.OrElse(e => e);")]
     [InlineData("WYZ0116", "Result M() => Result.Failure(Error.Create(\"Nope.\"));")]
     [InlineData("WYZ0116", "Result<int> M(string text) => Result.Failure<int>(Error.Create(text));")]
     [InlineData("WYZ0117", "Result<int> M(Result<Result<int>> r) => r.Bind(x => x);")]
@@ -55,6 +72,21 @@ public sealed class SimplifyAnalyzerTests
     [InlineData("int M(Result<int> r) => r.Match(v => v + 1, _ => 0);")]
     [InlineData("object M(Result<int> r) => r.Match<int, object>(v => v, _ => 0);")]
     [InlineData("Result<int> M(Result<int> r) => r.Map(x => x + 0);")]
+    [InlineData("Result<int> M(Result<int> r) => r.MapError(e => Rejected);")]
+    [InlineData("Result<int> M(Result<int> r) => r.MapError(Same);")]
+    [InlineData("Task<Result<int>> M(Result<int> r) => r.MapError(async e => e);")]
+    [InlineData("Result<int> M(Result<int> r) => r.MapError(e => { return Rejected; });")]
+    [InlineData("Result<int> M(Result<int> r) => r.MapError(e => e.WithCode(\"A\"));")]
+    [InlineData("Result<int> M(Result<int> r) => ResultExtensions.MapError(r, e => e);")]
+    [InlineData("Result<int> M(Result<int> r) => r.OrElse(Fail);")]
+    [InlineData("Task<Result<int>> M(Result<int> r) => r.OrElse(async e => Result.Failure<int>(e));")]
+    [InlineData("Result<int> M(Result<int> r, Result<int> other) => r.OrElse(e => other);")]
+    [InlineData("Result<int> M(Result<int> r) => r.OrElse(e => Twice(1));")]
+    [InlineData("Result<int> M(Result<int> r) => r.OrElse(e => Result.Failure<int>(e.Message));")]
+    [InlineData("Result<Error> M(Result<Error> r) => r.OrElse(e => e);")]
+    [InlineData("Result<int> M(Result<int> r) => r.OrElse(e => 0);")]
+    [InlineData("Result<int> M(Result<int> r) => ResultExtensions.OrElse(r, e => e);")]
+    [InlineData("Result<int> M(Result<int> r) => r.OrElse<int>(e => e);")]
     [InlineData("Result<object> M(Result<int> r) => r.Map<int, object>(x => x);")]
     [InlineData("Result<object> M(Result<int> r) => r.Bind(x => Result.Success<object>(x));")]
     [InlineData("Result M() => Result.Failure(Error.Create(\"Nope.\", ErrorKind.NotFound));")]

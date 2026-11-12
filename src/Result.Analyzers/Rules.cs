@@ -156,7 +156,7 @@ internal static class Rules
         category: SuggestionCategory,
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
-        description: "Map(x => x) and Bind(x => Result.Success(x)) return the result they were called on, with the same value and type.",
+        description: RemoveNoOpStepDescription,
         helpLinkUri: HelpLinkBase + "WYZ0115.md");
 
     /// <summary>WYZ0116: Use Failure with a message instead of Failure with Error.Create.</summary>
@@ -192,6 +192,39 @@ internal static class Rules
         description: InterpolatedMessageDescription,
         helpLinkUri: HelpLinkBase + "WYZ0111.md");
 
+    /// <summary>WYZ0118: OrElse that only returns an error is MapError.</summary>
+    internal static readonly DiagnosticDescriptor UseMapError = new(
+        id: "WYZ0118",
+        title: "Use MapError instead of OrElse that only returns an error",
+        messageFormat: "This 'OrElse' only replaces the error; 'MapError' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseMapErrorDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0118.md");
+
+    /// <summary>WYZ0119: A conditional on the state of a result is ValueOr.</summary>
+    internal static readonly DiagnosticDescriptor UseValueOrConditional = new(
+        id: "WYZ0119",
+        title: "Use ValueOr instead of a conditional on the state of a result",
+        messageFormat: "This conditional returns the value of a success or a fallback; 'ValueOr' says so directly",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseValueOrConditionalDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0119.md");
+
+    /// <summary>WYZ0120: ValueOr with a fallback that does work, which is done also for a success.</summary>
+    internal static readonly DiagnosticDescriptor UseValueOrFunction = new(
+        id: "WYZ0120",
+        title: "Pass a function to ValueOr when the fallback does work",
+        messageFormat: "The fallback is evaluated even when the result succeeded; pass a function to 'ValueOr' to evaluate it only for a failure",
+        category: SuggestionCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: UseValueOrFunctionDescription,
+        helpLinkUri: HelpLinkBase + "WYZ0120.md");
+
     private const string Category = "Usage";
 
     private const string SuggestionCategory = "Design";
@@ -215,6 +248,22 @@ internal static class Rules
     private const string UseValueOrDescription =
         "Match(v => v, onFailure) is ValueOr(onFailure): both run the delegate only for a failure. " +
         "A fallback that is a constant, a local, a parameter or a field and does not read the error is the value itself: ValueOr(fallback).";
+
+    private const string RemoveNoOpStepDescription =
+        "Map(x => x) and Bind(x => Result.Success(x)) return the result they were called on, with the same value and type. " +
+        "So do MapError(e => e) and an OrElse whose function returns the error it was given.";
+
+    private const string UseMapErrorDescription =
+        "An OrElse whose function only returns an error (or Result.Failure of an error) leaves a success alone and replaces the error of a failure: " +
+        "that is MapError, which takes the function that returns the error.";
+
+    private const string UseValueOrConditionalDescription =
+        "result.IsSuccess ? result.GetValue() : fallback is result.ValueOr(fallback). A fallback that is not a constant, a local, a parameter or a field " +
+        "is passed as a function, so that it is still evaluated only for a failure, and a fallback that reads result.GetError() becomes ValueOr(error => ...).";
+
+    private const string UseValueOrFunctionDescription =
+        "ValueOr(fallback) evaluates the fallback also when the result succeeded. When the fallback calls a method or creates an object, " +
+        "pass a function instead: ValueOr(() => fallback) evaluates it only for a failure.";
 
     private const string InterpolatedMessageDescription =
         "An interpolated message is built every time the line runs, also when the result succeeds, and the values become part of the text. " +

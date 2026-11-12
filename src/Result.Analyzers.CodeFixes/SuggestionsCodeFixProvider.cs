@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Wyzely.Functional.ResultAnalyzers;
 
 /// <summary>
-/// Rewrites the code that the suggestion rules (WYZ0103 to WYZ0110 and WYZ0112 to WYZ0117) point at into the method of the library that says what it does,
+/// Rewrites the code that the suggestion rules (WYZ0103 to WYZ0110 and WYZ0112 to WYZ0120) point at into the method of the library that says what it does,
 /// or into the simpler form.
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SuggestionsCodeFixProvider))]
@@ -30,11 +30,15 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
         ["WYZ0115"] = "Remove the step",
         ["WYZ0116"] = "Pass the message to Failure",
         ["WYZ0117"] = "Use Flatten",
+        ["WYZ0118"] = "Use MapError",
+        ["WYZ0119"] = "Use ValueOr",
+        ["WYZ0120"] = "Pass a function to ValueOr",
     }.ToImmutableDictionary();
 
     /// <inheritdoc />
-    // The conditional expression for WYZ0109, otherwise the call that the diagnostic is reported on.
-    protected override bool IsTarget(SyntaxNode node, string id) => id == "WYZ0109" ? node is ConditionalExpressionSyntax : node is InvocationExpressionSyntax;
+    // The conditional expression for WYZ0109 and WYZ0119, otherwise the call that the diagnostic is reported on.
+    protected override bool IsTarget(SyntaxNode node, string id) =>
+        id is "WYZ0109" or "WYZ0119" ? node is ConditionalExpressionSyntax : node is InvocationExpressionSyntax;
 
     /// <inheritdoc />
     protected override SyntaxNode? Rewrite(SyntaxNode target, Diagnostic diagnostic)
@@ -44,6 +48,11 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
         if (diagnostic.Id == "WYZ0109")
         {
             return SuggestionRewrites.SuccessIf((ConditionalExpressionSyntax)target, properties);
+        }
+
+        if (diagnostic.Id == "WYZ0119")
+        {
+            return SuggestionRewrites.ConditionalToValueOr((ConditionalExpressionSyntax)target, properties);
         }
 
         // Every other rule is about a call, which is what IsTarget looks for.
@@ -122,6 +131,22 @@ public sealed class SuggestionsCodeFixProvider : RewriteCodeFixProvider
             return SuggestionRewrites.FailureWithMessage(call);
         }
 
-        return SuggestionRewrites.Flatten(call);
+        if (id == "WYZ0117")
+        {
+            return SuggestionRewrites.Flatten(call);
+        }
+
+        return RewriteFallbackRules(call, id, properties);
+    }
+
+    // The rules about the error and the fallback of a result. WYZ0120 is the last one, so it is what is left.
+    private static SyntaxNode? RewriteFallbackRules(InvocationExpressionSyntax call, string id, ImmutableDictionary<string, string?> properties)
+    {
+        if (id == "WYZ0118")
+        {
+            return SuggestionRewrites.OrElseToMapError(call, properties);
+        }
+
+        return SuggestionRewrites.ValueOrFunction(call);
     }
 }

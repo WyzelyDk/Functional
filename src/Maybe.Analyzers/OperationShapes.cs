@@ -1,6 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 
 namespace Wyzely.Functional.MaybeAnalyzers;
@@ -13,26 +11,6 @@ internal static class OperationShapes
     /// <returns><see langword="true"/> for an extension method of the library.</returns>
     internal static bool IsMaybeExtension(IMethodSymbol method) =>
         method.ContainingType.Name == "MaybeExtensions" && method.ContainingNamespace.ToDisplayString() == "Wyzely.Functional";
-
-    /// <summary>
-    /// Determines whether an expression is a name, or names joined by dots: an expression whose evaluation has no effect,
-    /// so that two copies of it read the same value.
-    /// </summary>
-    /// <param name="node">The expression.</param>
-    /// <returns><see langword="true"/> for a plain read.</returns>
-    internal static bool IsPlain(SyntaxNode node) => node switch
-    {
-        IdentifierNameSyntax or ThisExpressionSyntax => true,
-        MemberAccessExpressionSyntax access when access.IsKind(SyntaxKind.SimpleMemberAccessExpression)
-            => IsPlain(access.Expression),
-        _ => false,
-    };
-
-    /// <summary>Determines whether two expressions are written the same way, apart from white space and comments.</summary>
-    /// <param name="first">The first expression.</param>
-    /// <param name="second">The second expression.</param>
-    /// <returns><see langword="true"/> when the text is the same.</returns>
-    internal static bool SameText(SyntaxNode first, SyntaxNode second) => first.WithoutTrivia().ToString() == second.WithoutTrivia().ToString();
 
     /// <summary>
     /// Reads a condition that compares an expression with <see langword="null"/>: <c>is null</c>, <c>is not null</c>, <c>==</c> or <c>!=</c>.
@@ -86,7 +64,7 @@ internal static class OperationShapes
 
         if (checkedOperation.Type is { IsReferenceType: true })
         {
-            return SameText(argument.Syntax, checkedOperation.Syntax);
+            return OperationHelpers.SameText(argument.Syntax, checkedOperation.Syntax);
         }
 
         return IsValueOfNullable(argument, checkedOperation);
@@ -148,7 +126,7 @@ internal static class OperationShapes
     private static bool IsValueOfNullable(IOperation argument, IOperation checkedOperation) =>
         checkedOperation.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T }
         && argument is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
-        && SameText(instance.Syntax, checkedOperation.Syntax);
+        && OperationHelpers.SameText(instance.Syntax, checkedOperation.Syntax);
 
     private static bool IsMaybeFactory(IMethodSymbol method, string name) =>
         method.Name == name

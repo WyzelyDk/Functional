@@ -31,6 +31,12 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
     /// <summary>The property that tells whether the error is given as a message text.</summary>
     internal const string MessageProperty = "Message";
 
+    /// <summary>The property that tells whether the error is returned by <c>Result.Failure</c> inside the function, and has to be taken out of it.</summary>
+    internal const string WrappedProperty = "Wrapped";
+
+    /// <summary>The property that tells whether a fallback reads the error of the result, so that the function it becomes takes the error.</summary>
+    internal const string UsesErrorProperty = "UsesError";
+
     /// <summary>The property that names the method to use when a rule can suggest two, <c>SuccessIf</c> or <c>FailureIf</c>.</summary>
     internal const string MethodProperty = "Method";
 
@@ -51,6 +57,9 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
         Rules.RemoveNoOpStep,
         Rules.UseFailureWithMessage,
         Rules.UseFlatten,
+        Rules.UseMapError,
+        Rules.UseValueOrConditional,
+        Rules.UseValueOrFunction,
     ];
 
     /// <inheritdoc />
@@ -96,6 +105,29 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
             CheckConvertFailure(context, invocation);
             CheckFailureWithMessage(context, invocation);
         }
+        else
+        {
+            AnalyzeFallbackInvocation(context, invocation);
+        }
+    }
+
+    // The calls that deal with the error or the fallback of a result: OrElse, MapError and ValueOr.
+    private static void AnalyzeFallbackInvocation(OperationAnalysisContext context, IInvocationOperation invocation)
+    {
+        var method = invocation.TargetMethod;
+
+        if (OperationShapes.IsResultExtension(method, "OrElse"))
+        {
+            CheckOrElse(context, invocation);
+        }
+        else if (OperationShapes.IsResultExtension(method, "MapError"))
+        {
+            CheckNoOpMapError(context, invocation);
+        }
+        else if (method.Name == "ValueOr")
+        {
+            CheckValueOrWork(context, invocation);
+        }
     }
 
     private static void AnalyzeConditional(OperationAnalysisContext context)
@@ -105,6 +137,7 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
         if (conditional.Syntax is ConditionalExpressionSyntax)
         {
             CheckSuccessIf(context, conditional);
+            CheckValueOrConditional(context, conditional);
         }
     }
 

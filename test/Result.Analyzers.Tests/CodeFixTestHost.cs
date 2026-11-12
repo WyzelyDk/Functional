@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Wyzely.Functional.AnalyzerTesting;
@@ -22,12 +23,19 @@ internal static class CodeFixTestHost
             TestContext.Current.CancellationToken);
 
     // How many fixes the provider offers for a diagnostic that is made up and reported at the marker.
-    internal static Task<int> OfferedFixesAsync(string members, CodeFixProvider provider, string diagnosticId, string marker) =>
+    // The properties are the ones an analyzer would put on the diagnostic.
+    internal static Task<int> OfferedFixesAsync(
+        string members,
+        CodeFixProvider provider,
+        string diagnosticId,
+        string marker,
+        ImmutableDictionary<string, string?>? properties = null) =>
         CodeFixTesting.OfferedFixesAsync(
             AnalyzerTestHost.Header + "public class Sample\n{\n" + members + "\n}\n",
             AnalyzerTestHost.References(),
             provider,
             diagnosticId,
             marker,
-            TestContext.Current.CancellationToken);
+            TestContext.Current.CancellationToken,
+            properties);
 }

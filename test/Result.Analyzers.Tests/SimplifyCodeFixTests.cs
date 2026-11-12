@@ -8,6 +8,7 @@ public sealed class SimplifyCodeFixTests
     private const string Sources = """
         static Result<int> Twice(int x) => Result.Success(x * 2);
         static int Compute() => 42;
+        static readonly Error Rejected = Error.Create("Rejected.");
         """;
 
     private static readonly SuggestionsCodeFixProvider Provider = new();
@@ -32,6 +33,18 @@ public sealed class SimplifyCodeFixTests
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Map(x => x);", "=> r;")]
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Bind(x => Result.Success(x));", "=> r;")]
     [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.Bind(Twice).Map(x => x).Map(x => x + 1);", "r.Bind(Twice).Map(x => x + 1)")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.MapError(e => e);", "=> r;")]
+    [InlineData("WYZ0115", "Result M(Result r) => r.MapError(e => e);", "=> r;")]
+    [InlineData("WYZ0115", "Task<Result<int>> M(Task<Result<int>> r) => r.MapError(e => e);", "=> r;")]
+    [InlineData("WYZ0115", "ValueTask<Result<int>> M(ValueTask<Result<int>> r) => r.MapError(e => e);", "=> r;")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.OrElse(e => e);", "=> r;")]
+    [InlineData("WYZ0115", "Result<int> M(Result<int> r) => r.OrElse(e => Result.Failure<int>(e));", "=> r;")]
+    [InlineData("WYZ0115", "Result M(Result r) => r.OrElse(e => Result.Failure(e));", "=> r;")]
+    [InlineData("WYZ0115", "Task<Result<int>> M(Task<Result<int>> r) => r.OrElse(e => e);", "=> r;")]
+    [InlineData(
+        "WYZ0115",
+        "Result<int> M(Result<int> r) => r.Bind(Twice).MapError(e => e).Map(x => x + 1);",
+        "r.Bind(Twice).Map(x => x + 1)")]
     [InlineData("WYZ0116", "Result M() => Result.Failure(Error.Create(\"Nope.\"));", "Result.Failure(\"Nope.\")")]
     [InlineData("WYZ0116", "Result<int> M(string text) => Result.Failure<int>(Error.Create(text));", "Result.Failure<int>(text)")]
     [InlineData("WYZ0117", "Result<int> M(Result<Result<int>> r) => r.Bind(x => x);", "r.Flatten()")]
