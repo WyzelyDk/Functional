@@ -28,7 +28,6 @@ public static partial class MaybeExtensions
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="predicate"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<bool> Any<T>(this Maybe<T> maybe, Func<T, Task<bool>> predicate)
         where T : notnull
     {

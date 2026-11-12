@@ -28,6 +28,7 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="error"/> is <see langword="null"/>.</exception>
+    [OverloadResolutionPriority(-1)]
     public static ValueTask<Result> Ensure(this Result result, Func<ValueTask<bool>> condition, Error error)
     {
         Guard.NotNull(condition, nameof(condition));

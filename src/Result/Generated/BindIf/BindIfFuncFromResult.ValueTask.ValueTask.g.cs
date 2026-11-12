@@ -30,6 +30,7 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
+    [OverloadResolutionPriority(-1)]
     public static ValueTask<Result> BindIf(this ValueTask<Result> result, Func<bool> condition, Func<ValueTask<Result>> bind)
     {
         Guard.NotNull(condition, nameof(condition));

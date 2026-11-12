@@ -26,7 +26,6 @@ public static partial class MaybeExtensions
     /// <param name="alternative">The alternative to try when the receiver has no value.</param>
     /// <returns>The receiver when it has a value, otherwise the maybe of the alternative. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="maybe"/>, <paramref name="alternative"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Maybe<T>> OrElse<T>(this Task<Maybe<T>> maybe, Func<Task<Maybe<T>>> alternative)
         where T : notnull
     {

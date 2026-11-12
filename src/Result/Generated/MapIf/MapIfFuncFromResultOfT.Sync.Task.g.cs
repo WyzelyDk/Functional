@@ -29,7 +29,6 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="map"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result<T>> MapIf<T>(this Result<T> result, Func<bool> condition, Func<T, Task<T>> map)
     {
         Guard.NotNull(condition, nameof(condition));

@@ -126,6 +126,22 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
         };
     }
 
+    // An async lambda converts to both Func<Task> and Func<ValueTask>, and a lambda that returns a task can convert to a function that returns a value
+    // of any type. For a delegate whose result is inferred, or that returns nothing, the overload with the most Task delegates wins.
+    // For a delegate that returns a value of a type that the receiver fixes, a lambda that returns a task fits no overload that takes a value,
+    // so only a task and a ValueTask compete, and the overload with the fewest ValueTask delegates wins.
+    // A null or default literal then fits a function that returns a value and one that returns a task equally well,
+    // and the call is ambiguous instead of silently taking the one that returns a task.
+    private static int OverloadPriority(OperationSpec operation, Variant variant)
+    {
+        if (operation.HasFixedValueDelegates)
+        {
+            return -((variant.Delegate == Wrapper.ValueTask ? 1 : 0) + (variant.Second == Wrapper.ValueTask ? 1 : 0));
+        }
+
+        return (variant.Delegate == Wrapper.Task ? 1 : 0) + (variant.Second == Wrapper.Task ? 1 : 0);
+    }
+
     private void EmitVariant(CodeWriter writer, OperationSpec operation, Variant variant, bool stubs)
     {
         var receiverName = profile.ReceiverParameter;
@@ -136,12 +152,11 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
 
         WriteDocumentation(writer, operation, variant, guarded);
 
-        // An async lambda converts to both Func<Task> and Func<ValueTask>; the overload with the most Task delegates wins.
-        var taskDelegates = (variant.Delegate == Wrapper.Task ? 1 : 0) + (variant.Second == Wrapper.Task ? 1 : 0);
+        var priority = OverloadPriority(operation, variant);
 
-        if (taskDelegates > 0)
+        if (priority != 0)
         {
-            writer.Line($"[OverloadResolutionPriority({taskDelegates})]");
+            writer.Line($"[OverloadResolutionPriority({priority})]");
         }
 
         // The receiver is passed by value on purpose. Measured: `in` makes a chain slower, because the result of the previous call

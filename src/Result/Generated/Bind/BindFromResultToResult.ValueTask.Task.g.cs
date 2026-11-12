@@ -25,7 +25,6 @@ public static partial class ResultExtensions
     /// <param name="bind">The operation to run.</param>
     /// <returns>The result of the delegate, or the failed receiver. The value is returned in a <see cref="ValueTask{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static ValueTask<Result> Bind(this ValueTask<Result> result, Func<Task<Result>> bind)
     {
         Guard.NotNull(bind, nameof(bind));

@@ -29,7 +29,6 @@ public static partial class ResultExtensions
     /// <paramref name="message"/>. The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="message"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result<T>> EnsureNot<T>(this Result<T> result, Func<T, Task<bool>> predicate, string message)
     {
         Guard.NotNull(predicate, nameof(predicate));

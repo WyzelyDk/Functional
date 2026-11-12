@@ -83,24 +83,6 @@ public sealed class ValueOrTests
         Assert.IsType<Func<int>>(outcome);
     }
 
-    // A null or default literal converts to a function as well as to the value, and for a Task or a ValueTask of a maybe the function wins:
-    // a null function is rejected when the call is made.
-    [Fact]
-    internal async Task A_null_argument_for_a_task_of_a_maybe_binds_to_the_function_overload_and_is_rejected()
-    {
-        var receiver = Task.FromResult(Maybe.None<string>());
-
-        await Assert.ThrowsAsync<ArgumentNullException>(() => receiver.ValueOr(null!));
-    }
-
-    [Fact]
-    internal async Task A_default_argument_for_a_task_of_a_maybe_binds_to_the_function_overload_and_is_rejected()
-    {
-        var receiver = Task.FromResult(Maybe.None<int>());
-
-        await Assert.ThrowsAsync<ArgumentNullException>(() => receiver.ValueOr(default!));
-    }
-
     // For a Task or a ValueTask of a maybe the overload that takes the value does not take a lambda, so a lambda computes the fallback, also for object.
     [Fact]
     internal async Task For_a_task_of_a_maybe_of_object_a_lambda_computes_the_fallback()

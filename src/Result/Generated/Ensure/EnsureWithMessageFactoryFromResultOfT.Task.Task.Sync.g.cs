@@ -34,7 +34,6 @@ public static partial class ResultExtensions
     /// <exception cref="ArgumentNullException">
     /// <paramref name="result"/>, <paramref name="predicate"/>, <paramref name="messageFactory"/> is <see langword="null"/>.
     /// </exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result<T>> Ensure<T>(this Task<Result<T>> result, Func<T, Task<bool>> predicate, Func<T, string> messageFactory)
     {
         Guard.NotNull(result, nameof(result));

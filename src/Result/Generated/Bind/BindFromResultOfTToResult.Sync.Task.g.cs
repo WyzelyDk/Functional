@@ -28,7 +28,6 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result> Bind<T>(this Result<T> result, Func<T, Task<Result>> bind)
     {
         Guard.NotNull(bind, nameof(bind));

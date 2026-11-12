@@ -28,7 +28,6 @@ public static partial class ResultExtensions
     /// <param name="onException">Creates the error from the exception. When omitted, <see cref="Error.FromException(Exception, string?)"/> is used.</param>
     /// <returns>The result of the delegate, or a failed result. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result> BindTry(this Task<Result> result, Func<Task<Result>> bind, Func<Exception, Error>? onException = null)
     {
         Guard.NotNull(result, nameof(result));

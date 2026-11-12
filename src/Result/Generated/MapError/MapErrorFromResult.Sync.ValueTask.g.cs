@@ -27,6 +27,7 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="mapError"/> is <see langword="null"/>.</exception>
+    [OverloadResolutionPriority(-1)]
     public static ValueTask<Result> MapError(this Result result, Func<Error, ValueTask<Error>> mapError)
     {
         Guard.NotNull(mapError, nameof(mapError));

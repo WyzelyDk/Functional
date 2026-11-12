@@ -33,6 +33,7 @@ public static partial class ResultExtensions
     /// <exception cref="ArgumentNullException">
     /// <paramref name="result"/>, <paramref name="bind"/>, <paramref name="onException"/> is <see langword="null"/>.
     /// </exception>
+    [OverloadResolutionPriority(-1)]
     public static Task<Result> BindTry<T, TException>(
         this Task<Result<T>> result,
         Func<T, ValueTask<Result>> bind,

@@ -49,6 +49,19 @@ The awaits inside the library follow the `ContinueOnCapturedContext` setting, wh
 `MaybeConfigurationTests` covers it. A runnable demonstration with a counting synchronization context is `samples/Maybe.Samples/ConfigurationExample.cs`,
 and all nine combinations side by side are in `AsyncExample.cs`.
 
+## A `null` or `default` literal
+
+Where the receiver fixes the type of what a function returns (`ValueOr`, `OrElse`, and the predicate of `Filter`, `Any` and `All`, for example),
+a lambda that returns a bare `null` or `default` fits a function that returns the value and one that returns a `Task` equally well.
+The same holds for a `null` or `default` argument of `ValueOr` on a `Task` or a `ValueTask`, which fits the value and a function.
+The compiler reports such a call as ambiguous (`CS0121`) instead of taking the overload with the `Task`, which would hand back a `null` task.
+Give the literal a type:
+
+```csharp
+var count = await Task.FromResult(Maybe.None<int>()).ValueOr(default(int));
+var name = Maybe.None<string>().ValueOr((string)null!);
+```
+
 ## Async lambdas and the language version
 
 An `async` lambda converts to both a `Task` and a `ValueTask` delegate, so a call such as `.Bind(async n => ...)`

@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Wyzely.Functional.CodeGeneration;
 
 /// <summary>A delegate parameter of an operation, for example <c>Func&lt;T, Maybe&lt;TResult&gt;&gt; bind</c>.</summary>
@@ -223,4 +225,19 @@ internal sealed record OperationSpec
 
     /// <summary>Gets the generic parameter list, for example <c>&lt;T, TResult&gt;</c>.</summary>
     internal string TypeParameterList => TypeParameters.Length == 0 ? string.Empty : "<" + string.Join(", ", TypeParameters) + ">";
+
+    /// <summary>
+    /// Gets a value indicating whether every delegate returns a value whose type the receiver fixes (<c>bool</c>, <c>T</c>, <c>Result&lt;T&gt;</c>),
+    /// not one that is inferred from the delegate (<c>TResult</c>) and not nothing.
+    /// A <see langword="null"/> or <see langword="default"/> literal that a lambda returns converts to such a value as well as to a task,
+    /// so the overloads that take a function that returns a task must not be preferred over the others: the call is ambiguous and the literal needs a type.
+    /// </summary>
+    internal bool HasFixedValueDelegates => Delegates.Length > 0 && Delegates.All(IsFixedValue);
+
+    private static bool Mentions(string text, string name) =>
+        Regex.IsMatch(text, $@"\b{Regex.Escape(name)}\b", RegexOptions.None, TimeSpan.FromSeconds(1));
+
+    private bool IsFixedValue(DelegateSpec delegateSpec) =>
+        !delegateSpec.ReturnsVoid
+        && !TypeParameters.Any(parameter => Mentions(delegateSpec.ReturnType, parameter) && !Mentions(ReceiverType, parameter));
 }

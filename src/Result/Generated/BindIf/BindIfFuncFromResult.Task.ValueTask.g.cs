@@ -29,6 +29,7 @@ public static partial class ResultExtensions
     /// <exception cref="ArgumentNullException">
     /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="bind"/> is <see langword="null"/>.
     /// </exception>
+    [OverloadResolutionPriority(-1)]
     public static Task<Result> BindIf(this Task<Result> result, Func<bool> condition, Func<ValueTask<Result>> bind)
     {
         Guard.NotNull(result, nameof(result));

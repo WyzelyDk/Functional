@@ -34,7 +34,7 @@ public static partial class ResultExtensions
     /// <paramref name="errorFactory"/>. The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="errorFactory"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
+    [OverloadResolutionPriority(-1)]
     public static ValueTask<Result<T>> Ensure<T>(this ValueTask<Result<T>> result, Func<T, Task<bool>> predicate, Func<T, ValueTask<Error>> errorFactory)
     {
         Guard.NotNull(predicate, nameof(predicate));

@@ -31,6 +31,7 @@ public static partial class ResultExtensions
     /// <param name="when">A condition that the exception must also meet to be caught; an exception that does not meet it keeps travelling.</param>
     /// <returns>The result of the delegate, or a failed result. The value is returned in a <see cref="ValueTask{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="bind"/>, <paramref name="onException"/> is <see langword="null"/>.</exception>
+    [OverloadResolutionPriority(-1)]
     public static ValueTask<Result> BindTry<T, TException>(
         this ValueTask<Result<T>> result,
         Func<T, ValueTask<Result>> bind,

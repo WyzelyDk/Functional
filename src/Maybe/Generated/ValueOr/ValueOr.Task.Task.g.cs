@@ -26,7 +26,6 @@ public static partial class MaybeExtensions
     /// <param name="fallback">Computes the value to return when the receiver has no value.</param>
     /// <returns>The value of the receiver, or the value computed by the delegate. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="maybe"/>, <paramref name="fallback"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<T> ValueOr<T>(this Task<Maybe<T>> maybe, Func<Task<T>> fallback)
         where T : notnull
     {

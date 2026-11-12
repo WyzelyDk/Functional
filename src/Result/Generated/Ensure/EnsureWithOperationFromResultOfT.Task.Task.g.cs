@@ -30,7 +30,6 @@ public static partial class ResultExtensions
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="validation"/> is <see langword="null"/>.</exception>
-    [OverloadResolutionPriority(1)]
     public static Task<Result<T>> Ensure<T>(this Task<Result<T>> result, Func<Task<Result>> validation)
     {
         Guard.NotNull(result, nameof(result));
