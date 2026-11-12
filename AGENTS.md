@@ -45,8 +45,9 @@ The library is judged by how it feels to use, not only by what it can do.
   Every public **and internal** member has an XML doc comment (SA1600 is enforced); the summary says what it does, not what it is called.
 - **Defaults are sensible and configurable.** Do not hard-code a separator, message or policy that a consumer could reasonably want to change;
   make it a setting in `ResultOptions` with a good default. Equally, do not add a setting that nobody asked for.
-- **Keep the surface small.** Before adding public API, apply the admission test in `docs/result/scope.md`. A feature that does not pass is declined.
-  Every railway operation costs nine generated methods.
+- **Keep the surface coherent.** Before adding public API, apply the admission test in `docs/result/scope.md` (or `docs/maybe/scope.md`).
+  A feature that does not pass is declined. The name must be self-explanatory and the only name for the concept, and an operation is added for its whole family,
+  never for part of it. Every railway operation is nine generated methods, which is cheap to produce; what counts is its permanent place in the surface.
 - **Never invent facts in documentation.**
   Comparisons with other libraries come from inspecting the packages (load the assembly, read the nuspec), not from memory. Say what was not verified.
 
