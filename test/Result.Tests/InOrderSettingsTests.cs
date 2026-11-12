@@ -33,7 +33,7 @@ public sealed class InOrderSettingsTests : IDisposable
 
     private static async Task<Result> PendingAsync()
     {
-        await Task.Delay(1).ConfigureAwait(false);
+        await AsyncStreams.Later().ConfigureAwait(false);
 
         return Result.Success();
     }
@@ -52,7 +52,12 @@ public sealed class InOrderSettingsTests : IDisposable
 
         try
         {
-            await run().ConfigureAwait(false);
+            var gate = AsyncStreams.OpenGate();
+            var running = run();
+            var wasPending = !running.IsCompleted;
+            gate.SetResult();
+            await running.ConfigureAwait(false);
+            Assert.True(wasPending);
             context.WaitUntilIdle();
 
             return context.Posts;

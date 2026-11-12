@@ -46,7 +46,7 @@ public sealed class StreamSettingsTests : IDisposable
     private static Task<Maybe<int>> LastAsync() => AsyncStreams.Pending(1, 2).LastOrNone(
         static async item =>
         {
-            await Task.Delay(1).ConfigureAwait(false);
+            await AsyncStreams.Later().ConfigureAwait(false);
 
             return item > 0;
         },
@@ -65,7 +65,12 @@ public sealed class StreamSettingsTests : IDisposable
 
         try
         {
-            await run().ConfigureAwait(false);
+            var gate = AsyncStreams.OpenGate();
+            var running = run();
+            var wasPending = !running.IsCompleted;
+            gate.SetResult();
+            await running.ConfigureAwait(false);
+            Assert.True(wasPending);
 
             return context.Posts;
         }

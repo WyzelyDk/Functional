@@ -55,7 +55,7 @@ public sealed class StreamSettingsTests : IDisposable
     private static Task<List<Result<int>>> ReadAsync() => AsyncStreams.ToListAsync(
         Result.Success<IReadOnlyList<int>>([1]).SelectEach(static async item =>
         {
-            await Task.Delay(1).ConfigureAwait(false);
+            await AsyncStreams.Later().ConfigureAwait(false);
 
             return Result.Success(item);
         }),
@@ -70,7 +70,12 @@ public sealed class StreamSettingsTests : IDisposable
 
         try
         {
-            await run().ConfigureAwait(false);
+            var gate = AsyncStreams.OpenGate();
+            var running = run();
+            var wasPending = !running.IsCompleted;
+            gate.SetResult();
+            await running.ConfigureAwait(false);
+            Assert.True(wasPending);
             context.WaitUntilIdle();
 
             return context.Posts;
