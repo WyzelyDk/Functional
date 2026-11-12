@@ -110,6 +110,13 @@ public sealed partial class ResultSuggestionsAnalyzer
             return;
         }
 
+        // On a Task or a ValueTask a null or default literal has no safe form: as an argument it binds to an overload that takes a function,
+        // and as the result of a function to the one whose function returns a Task.
+        if (!OperationShapes.IsResultOfValue(method.Parameters[0].Type) && !OperationHelpers.HasNaturalType(fallback))
+        {
+            return;
+        }
+
         var lazy = !OperationHelpers.IsCheap(fallback) || OperationShapes.UsesParameter(fallback, failure.Symbol.Parameters[0]);
 
         Report(context, Rules.UseValueOr, invocation, [OperationHelpers.Flag(LazyProperty, lazy)]);

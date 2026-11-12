@@ -26,6 +26,7 @@ internal static class Operations
     private const string AssertTrueOutcome = "Assert.True(outcome);";
     private const string AssertFalseOutcome = "Assert.False(outcome);";
     private const string AssertValueIsTwo = "Assert.Equal(2, outcome.GetValue());";
+    private const string AssertOutcomeIsTwo = "Assert.Equal(2, outcome);";
     private const string IfFound = "if (found)";
     private const string TapNoneName = "tapNone";
     private const string AlternativeName = "alternative";
@@ -62,6 +63,7 @@ internal static class Operations
         OrElse(),
         OrElseValue(),
         ValueOr(),
+        ValueOrWithValue(),
         Match(),
         Switch(),
         GetValueOrThrowWithFactory(),
@@ -601,7 +603,32 @@ internal static class Operations
                 "returns_the_value_without_running_the_delegate_when_the_receiver_has_a_value",
                 SomeOfTwo,
                 [Returns(FallbackName, [], "9", "int")],
-                ["Assert.Equal(2, outcome);", "Assert.Equal(0, fallbackCalls);"]),
+                [AssertOutcomeIsTwo, "Assert.Equal(0, fallbackCalls);"]),
+        ],
+    };
+
+    private static OperationSpec ValueOrWithValue() => new()
+    {
+        Stem = "ValueOrWithValue",
+        Name = "ValueOr",
+        ReceiverType = MaybeOfT,
+        ReceiverTestType = MaybeOfInt,
+        ReceiverDescription = MaybeReceiverDescription,
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        NotNull = ["T"],
+        Summary = "Leaves the railway: returns the value of a maybe, or a fallback value when it has none. " +
+            "It is the form of <see cref=\"Maybe{T}.ValueOr(T)\"/> for a maybe that is still to come.",
+        ExtraParameters = [new("T", FallbackName, "The value to return when the maybe has no value.", Validated: false)],
+        SkipsSyncReceiver = true,
+        SkipsCompletedFastPath = true,
+        ReturnType = "T",
+        ReturnDescription = "The value of the maybe, or <paramref name=\"fallback\"/>.",
+        Body = ctx => [$"return {ctx.R}.ValueOr(fallback);"],
+        Tests =
+        [
+            new("returns_the_value_when_the_receiver_has_a_value", SomeOfTwo, [], ["9"], [AssertOutcomeIsTwo]),
+            new("returns_the_fallback_when_the_receiver_has_no_value", NoneOfInt, [], ["9"], ["Assert.Equal(9, outcome);"]),
         ],
     };
 
@@ -639,7 +666,7 @@ internal static class Operations
                 SomeOfTwo,
                 [],
                 ["() => thrown"],
-                ["Assert.Equal(2, outcome);"],
+                [AssertOutcomeIsTwo],
                 [ThrownSetup]),
             new(
                 "throws_the_exception_of_the_factory_when_the_receiver_has_no_value",
@@ -672,7 +699,7 @@ internal static class Operations
         Body = ctx => [$"return {ctx.R}.GetValue();"],
         Tests =
         [
-            new("returns_the_value_when_the_receiver_has_a_value", SomeOfTwo, [], [], ["Assert.Equal(2, outcome);"]),
+            new("returns_the_value_when_the_receiver_has_a_value", SomeOfTwo, [], [], [AssertOutcomeIsTwo]),
             new(
                 "throws_when_the_receiver_has_no_value",
                 NoneOfInt,
