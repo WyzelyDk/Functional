@@ -24,6 +24,7 @@ public sealed class ConsumerBindingTests
     }
 
     // An asynchronous function still binds to the overload that takes a function that returns a task, and a function with a type binds to its own.
+    // OfType takes one type argument for a maybe and two for a Task and a ValueTask, because C# cannot give only some type arguments of an extension method.
     [Theory]
     [InlineData("Task<int> M(Task<Maybe<int>> m) => m.ValueOr(async () => { await Task.Yield(); return 5; });")]
     [InlineData("Task<int> M(Maybe<int> m) => m.ValueOr(async () => { await Task.Yield(); return 5; });")]
@@ -36,11 +37,23 @@ public sealed class ConsumerBindingTests
     [InlineData("string M(Maybe<string> m) => m.ValueOr((string)null!);")]
     [InlineData("Task<string> M(Task<Maybe<string>> m) => m.ValueOr((string)null!);")]
     [InlineData("Task<int> M(Task<Maybe<int>> m) => m.ValueOr(default(int));")]
+    [InlineData("Maybe<string> M(Maybe<object> m) => m.OfType<string>();")]
+    [InlineData("Task<Maybe<string>> M(Task<Maybe<object>> m) => m.OfType<object, string>();")]
+    [InlineData("ValueTask<Maybe<string>> M(ValueTask<Maybe<object>> m) => m.OfType<object, string>();")]
     internal void A_function_that_does_not_depend_on_a_literal_still_binds(string method)
     {
         var errors = AnalyzerTestHost.CompilerErrors(method);
 
         Assert.Empty(errors);
+    }
+
+    [Fact]
+    internal void OfType_gives_a_maybe_of_a_type_that_is_not_null()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings(
+            "int M(Maybe<object> m) { var s = m.OfType<string>(); return s.IsSome ? s.GetValue().Length : 0; }");
+
+        Assert.Empty(warnings);
     }
 
     [Fact]

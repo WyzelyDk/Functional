@@ -10,6 +10,7 @@ While there is a value the chain carries it along; the first none skips every st
 | `Map(f)` | there is a value | transforms the value; a `null` that `f` returns becomes none |
 | `Bind(f)` | there is a value | chains an operation that itself returns a `Maybe` |
 | `Filter(predicate)` | there is a value | turns the maybe into none when the predicate is false |
+| `OfType<TResult>()` | there is a value | narrows the value to a type it can have: the value when it is a `TResult`, otherwise none |
 | `Tap(f)` | there is a value | runs a side effect, returns the maybe unchanged |
 | `TapNone(f)` | there is none | runs a side effect, returns the maybe unchanged |
 | `OrElse(f)` | there is none | takes over when there is none: `f` returns an alternative `Maybe` or a replacement value |
@@ -41,6 +42,19 @@ var empty = Maybe.None<string>()
 On a `Task` or a `ValueTask`, `ValueOr(fallback)` takes the value too.
 A `null` or `default` literal there, or in a function that returns one, is ambiguous (`CS0121`):
 give the value a type, `ValueOr(default(int))` or `ValueOr((string)null!)` ([why](async.md#a-null-or-default-literal)).
+
+`OfType` is `Enumerable.OfType` for one value: a value of another type is dropped, and none stays none.
+It is for a maybe whose type is wider than the one you need, such as a lookup in a property bag:
+
+```csharp
+var settings = new Dictionary<string, object> { ["port"] = 8080, ["host"] = "localhost" };
+
+var port = settings.GetValueOrNone("port").OfType<int>();          // Some(8080)
+var wrongType = settings.GetValueOrNone("host").OfType<int>();     // None: the value is a string
+```
+
+A base type, an interface and a boxed value type count as types of the value. A `Task` or a `ValueTask` of a maybe cannot take only the result type,
+because C# cannot give some of the type arguments of an extension method: write both, `task.OfType<object, int>()`, or await first and use the short form.
 
 Where a missing value has to become an exception, say which one: `GetValueOrThrow` takes a function that creates it,
 and the form without it works on a `Task` or a `ValueTask`. It is the deliberate way out, so the analyzer does not ask for a check first:

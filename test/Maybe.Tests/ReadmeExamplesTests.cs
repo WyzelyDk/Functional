@@ -392,6 +392,20 @@ public sealed class ReadmeExamplesTests : IDisposable
             () => Assert.Equal([1, 3], lengths));
     }
 
+    // The railway page: OfType narrows a value to a type it can have.
+    [Fact]
+    internal void The_of_type_example_narrows_a_value_to_a_type_it_can_have()
+    {
+        var settings = new Dictionary<string, object> { ["port"] = 8080, ["host"] = "localhost" };
+
+        var port = settings.GetValueOrNone("port").OfType<int>();
+        var wrongType = settings.GetValueOrNone("host").OfType<int>();
+
+        Assert.Multiple(
+            () => Assert.Equal(Maybe.Some(8080), port),
+            () => Assert.True(wrongType.IsNone));
+    }
+
     // README: combine maybes.
     [Fact]
     internal void ReadmeCombineExample_zips_two_and_three_maybes_with_a_selector_and_flattens()
