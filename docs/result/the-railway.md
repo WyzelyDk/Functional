@@ -20,8 +20,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `MapTry(f)`, `BindTry`, `TapTry`, `TapIfTry` | success | the same step for a delegate that may throw: the exception becomes a failure, like `Result.Try`; a handler can create the error, and a handler that names an exception type catches only that type |
 | `BindZip(f)` | success | chains an operation and keeps the value next to its value, in a tuple; on a tuple result it adds the value to the tuple, up to five |
 | `Map(f)`, `Bind(f)` on a tuple | success | the delegate takes the values of a tuple result (for example of `Zip` or `BindZip`) as separate parameters, up to five |
-| `Recover(f)` | failure | computes a replacement value, turning the failure into a success |
-| `Compensate(f)` | failure | tries a fallback operation that returns a `Result` |
+| `OrElse(f)` | failure | takes over after a failure: `f` returns a replacement value, which turns the failure into a success, or an alternative `Result`, which can itself fail; it may take the error or not |
 | `GetValueOrThrow(f)`, `ThrowIfFailure(f)` | always | leaves the railway with an exception of your own type, created from the error; without `f` on a `Task` or `ValueTask` it throws a `ResultFailedException`, as `GetValue()` does |
 | `ValueOr(fallback)` | always | leaves the railway: the value of a success, or a fallback for a failure; the fallback is a value, or a function with or without the error that is run only for a failure |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
@@ -59,6 +58,19 @@ var label = Result.Failure<string>("No stock.")
 
 A result of `object` is the one exception: `ValueOr(() => ...)` binds to the instance method `ValueOr(object)` and returns the function itself,
 so give the function a parameter (`_ => ...`) there.
+
+After a failure, `OrElse` takes over. Its function returns a replacement value, which turns the failure into a success,
+or an alternative result, which can itself fail, and it may read the error or ignore it:
+
+```csharp
+var count = Result.Failure<int>("No stock.")
+    .OrElse(static () => 0);                                           // Success(0): a replacement value
+
+var length = Result.Failure<int>("No stock.")
+    .OrElse(static error => Result.Success(error.Message.Length));     // Success(9): an alternative result
+```
+
+For a `Result<object>` a lambda that returns a bare value fits both forms and does not compile; return a `Result`, or give the function the type `Func<object>`.
 
 Where a failure has to become an exception, say which one. `GetValueOrThrow` and `ThrowIfFailure` take a function that creates the exception from the error,
 and the form without it works on a `Task` or a `ValueTask`, so the end of a chain needs no `await` in the middle.

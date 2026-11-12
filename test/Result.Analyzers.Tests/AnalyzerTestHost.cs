@@ -50,6 +50,18 @@ internal static class AnalyzerTestHost
         return [.. warnings];
     }
 
+    // Returns the ids of the errors that the compiler reports for the members of a class.
+    internal static string[] CompilerErrors(string members)
+    {
+        var compilation = CodeFixTesting.CreateCompilation(Header + "public class Sample\n{\n" + members + "\n}\n", References());
+        var errors = compilation.GetDiagnostics()
+            .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+            .Select(diagnostic => diagnostic.Id)
+            .OrderBy(id => id, StringComparer.Ordinal);
+
+        return [.. errors];
+    }
+
     internal static ImmutableArray<MetadataReference> References() => CodeFixTesting.References(typeof(Result).Assembly.Location);
 
     private static CSharpCompilation Compile(string members) =>

@@ -58,8 +58,6 @@ internal static partial class Operations
     private const string EnsureOperationName = "Ensure";
     private const string AssertEqual1ValidationCalls = "Assert.Equal(1, validationCalls);";
     private const string ResultOfTResult = "Result<TResult>";
-    private const string RecoverName = "recover";
-    private const string CompensateName = "compensate";
     private const string IfFailureIsNotNull = "if (failure is not null)";
     private const string ReturnResultTResultFailedFailure = "    return Result<TResult>.Failed(failure);";
     private const string InputName = "input";
@@ -98,9 +96,6 @@ internal static partial class Operations
         EnsureConditionFromResult(withMessage: true),
         EnsureOperationFromResultOfT(typed: false),
         EnsureOperationFromResultOfT(typed: true),
-        RecoverFromResultOfT(),
-        CompensateFromResultOfT(),
-        CompensateFromResult(),
         MatchFromResultOfT(),
         MatchFromResult(),
         SwitchFromResultOfT(),
@@ -111,6 +106,7 @@ internal static partial class Operations
         .. TupleOperations(),
         .. Throwing(),
         .. ValueOrFamily(),
+        .. OrElseFamily(),
     ];
 
     private static DelegateTest Returns(string name, string[] parameters, string expression, string returnType, string statements = "") =>
@@ -1138,158 +1134,6 @@ internal static partial class Operations
                 [AssertSameErrorOutcomeGetError, "Assert.Equal(0, validationCalls);"]),
         ];
     }
-
-    private static OperationSpec RecoverFromResultOfT() => new()
-    {
-        Stem = "RecoverFromResultOfT",
-        KeepsValue = true,
-        Name = "Recover",
-        ReceiverType = ResultOfT,
-        ReceiverTestType = ResultOfInt,
-        ReceiverDescription = ResultOfTReceiverDescription,
-        TypeParameters = ["T"],
-        TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Turns a failed result into a success by computing a replacement value from the error. " +
-            "A successful result passes through unchanged and the delegate is not called.",
-        Delegates = [new(RecoverName, [ErrorType], "T", "Computes the replacement value from the error of the failed result.")],
-        ReturnType = ResultOfT,
-        ReturnDescription = "The successful receiver, or a successful result that holds the replacement value.",
-        Body = ctx =>
-        [
-            Unpack(ctx, "_"),
-            string.Empty,
-            IfFailureIsNull,
-            "{",
-            $"    return {ctx.R};",
-            "}",
-            string.Empty,
-            $"var value = {ctx.Call(RecoverName, FailureName)};",
-            "return Result<T>.Succeeded(value);",
-        ],
-        Tests =
-        [
-            Case(
-                "returns_a_success_with_the_replacement_value_when_the_receiver_failed",
-                FailureOfInt,
-                [Returns(RecoverName, ["e"], "5", "int")],
-                [AssertTrueOutcomeIsSuccess, "Assert.Equal(5, outcome.GetValue());", "Assert.Equal(1, recoverCalls);"]),
-            Case(
-                ReceiverSucceeded,
-                SuccessOfTwo,
-                [Returns(RecoverName, ["e"], "5", "int")],
-                [AssertEqual2OutcomeGetValue, "Assert.Equal(0, recoverCalls);"]),
-        ],
-    };
-
-    private static OperationSpec CompensateFromResultOfT() => new()
-    {
-        Stem = "CompensateFromResultOfT",
-        KeepsValue = true,
-        Name = "Compensate",
-        ReceiverType = ResultOfT,
-        ReceiverTestType = ResultOfInt,
-        ReceiverDescription = ResultOfTReceiverDescription,
-        TypeParameters = ["T"],
-        TypeParameterDocs = [new("T", TDoc)],
-        Summary = "Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; " +
-            "a successful result passes through unchanged and the delegate is not called.",
-        Delegates = [new(CompensateName, [ErrorType], ResultOfT, "The fallback operation to run with the error of the failed result.")],
-        ReturnType = ResultOfT,
-        ReturnDescription = "The successful receiver, or the result of the fallback operation.",
-        Body = ctx =>
-        [
-            Unpack(ctx, "_"),
-            string.Empty,
-            IfFailureIsNull,
-            "{",
-            $"    return {ctx.R};",
-            "}",
-            string.Empty,
-            $"return {ctx.Call(CompensateName, FailureName)};",
-        ],
-        ForwardBody = ctx =>
-        [
-            Unpack(ctx, "_"),
-            string.Empty,
-            IfFailureIsNull,
-            "{",
-            $"    return {ctx.Done(ctx.R)};",
-            "}",
-            string.Empty,
-            "return compensate(failure);",
-        ],
-        Tests =
-        [
-            Case(
-                "returns_the_result_of_the_delegate_when_the_receiver_failed",
-                FailureOfInt,
-                [Returns(CompensateName, ["e"], SuccessOfFive, ResultOfInt)],
-                [AssertTrueOutcomeIsSuccess, "Assert.Equal(5, outcome.GetValue());", "Assert.Equal(1, compensateCalls);"]),
-            Case(
-                ReceiverSucceeded,
-                SuccessOfTwo,
-                [Returns(CompensateName, ["e"], SuccessOfFive, ResultOfInt)],
-                [AssertEqual2OutcomeGetValue, "Assert.Equal(0, compensateCalls);"]),
-        ],
-    };
-
-    private static OperationSpec CompensateFromResult() => new()
-    {
-        Stem = "CompensateFromResult",
-        KeepsValue = true,
-        Name = "Compensate",
-        ReceiverType = ResultType,
-        ReceiverTestType = ResultType,
-        ReceiverDescription = ResultReceiverDescription,
-        TypeParameters = [],
-        TypeParameterDocs = [],
-        Summary = "Tries a fallback operation after a failure. The delegate receives the error of a failed result and returns a new result; " +
-            "a successful result passes through unchanged and the delegate is not called.",
-        Delegates = [new(CompensateName, [ErrorType], ResultType, "The fallback operation to run with the error of the failed result.")],
-        ReturnType = ResultType,
-        ReturnDescription = "The successful receiver, or the result of the fallback operation.",
-        Body = ctx =>
-        [
-            Failure(ctx),
-            string.Empty,
-            IfFailureIsNull,
-            "{",
-            $"    return {ctx.R};",
-            "}",
-            string.Empty,
-            $"return {ctx.Call(CompensateName, FailureName)};",
-        ],
-        ForwardBody = ctx =>
-        [
-            Failure(ctx),
-            string.Empty,
-            IfFailureIsNull,
-            "{",
-            $"    return {ctx.Done(ctx.R)};",
-            "}",
-            string.Empty,
-            "return compensate(failure);",
-        ],
-        Tests =
-        [
-            Case(
-                "returns_the_result_of_the_delegate_when_the_receiver_failed",
-                FailureWithError,
-                [Returns(CompensateName, ["e"], SuccessWithoutValue, ResultType)],
-                [AssertTrueOutcomeIsSuccess, "Assert.Equal(1, compensateCalls);"]),
-            Case(
-                "returns_the_failure_of_the_delegate_when_the_fallback_failed",
-                FailureWithError,
-                [Returns(CompensateName, ["e"], "Result.Failure(other)", ResultType)],
-                [AssertSameOtherOutcomeGetError, "Assert.Equal(1, compensateCalls);"],
-                setup: [OtherErrorSetup]),
-            Case(
-                ReceiverSucceeded,
-                SuccessWithoutValue,
-                [Returns(CompensateName, ["e"], "Result.Failure(e)", ResultType)],
-                [AssertTrueOutcomeIsSuccess, "Assert.Equal(0, compensateCalls);"]),
-        ],
-    };
 
     private static OperationSpec MatchFromResultOfT() => new()
     {

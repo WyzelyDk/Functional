@@ -17,7 +17,7 @@ These facts are checked by tests (`PerformanceTests` in `test/Maybe.Tests`), not
   80 bytes (measured with `GC.GetAllocatedBytesForCurrentThread`); for `Maybe<int>` the runtime already caches it, so there was never anything to fix.
 
 - On an already completed `Task`, a step that leaves the maybe as it was hands back the task it received and allocates nothing: `Filter` that
-  keeps the value or meets none, `Tap`, `TapNone` and `Or` (`CompletedTaskReuseTests`). `Map` and `Bind` never do, because they can change the value.
+  keeps the value or meets none, `Tap`, `TapNone` and `OrElse` (`CompletedTaskReuseTests`). `Map` and `Bind` never do, because they can change the value.
 
 Limits of what is claimed:
 
@@ -239,8 +239,9 @@ Funcky has none, so every option is turned into a sequence of one and joined wit
 - **Making a maybe from a nullable** is 0.4 ns (an `int?`) and 1.4 ns (a `string`) for this library with a value, and the others took 1.7 to 3.2 ns.
   With nothing in it every library was between 0.3 and 1.9 ns, which is the loop of the benchmark.
 - **Chaining on a completed `Task` allocates, and awaiting first is cheaper.** A `Task<Maybe<T>>` chain in this library allocated 144 to 160 B and took
-  22 to 35 ns; the `Filter` step hands back the task it received when the maybe is left as it was, as do `Tap`, `TapNone` and `Or`. Awaiting the task and then
-  running the synchronous chain allocated nothing and took 10 to 11 ns. The same holds for the other libraries: their await-first chains took 12 to 34 ns.
+  22 to 35 ns; the `Filter` step hands back the task it received when the maybe is left as it was, as do `Tap`, `TapNone` and `OrElse`.
+  Awaiting the task and then running the synchronous chain allocated nothing and took 10 to 11 ns.
+  The same holds for the other libraries: their await-first chains took 12 to 34 ns.
   **If you can await, await, and chain on the result.** The `Task` extension methods are for when you want the chain to read as one expression, or when the
   maybe has to stay in a task. CSharpFunctionalExtensions allocated 216 to 240 B.
 - **`ValueTask`:** this library allocated nothing and took 15 to 18 ns, where CSharpFunctionalExtensions, the only other one with `ValueTask` extension methods,

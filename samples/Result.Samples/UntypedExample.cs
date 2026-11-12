@@ -5,7 +5,7 @@
 //
 // WHY two types: forcing "no value" into Result<Unit> or Result<bool> makes signatures lie. An untyped Result is
 // ONE reference wide, has no value to read (so no GetValue), and the railway has overloads for it: Bind, Map,
-// Tap, TapError, MapError, Compensate, Match and Switch all exist for both.
+// Tap, TapError, MapError, OrElse, Match and Switch all exist for both.
 //
 //   Result<T> -> Result    implicit conversion, or ToResult(): drops the value, keeps the outcome
 //   Result    -> Result<T> Map(() => value), or Bind(() => resultOfT): adds a value after the step succeeded
@@ -42,9 +42,9 @@ public static class UntypedExample
         var reserved = SampleShop.FindOrder(7).Bind(SampleShop.ReserveStock);
         output.WriteLine("Match on an untyped result: " + reserved.Match(() => "reserved", error => error.Message));
 
-        // Compensate: a fallback operation after a failure. Here "no stock" is tolerated (the item is back-ordered).
-        var tolerated = SampleShop.FindOrder(11).Bind(SampleShop.ReserveStock).Compensate(_ => Result.Success());
-        output.WriteLine($"Compensate on an untyped result: {tolerated}");
+        // OrElse: an alternative operation after a failure. Here "no stock" is tolerated (the item is back-ordered).
+        var tolerated = SampleShop.FindOrder(11).Bind(SampleShop.ReserveStock).OrElse(_ => Result.Success());
+        output.WriteLine($"OrElse on an untyped result: {tolerated}");
 
         // Conditional factories: a failure or a success depending on a condition, with a message or an Error.
         output.WriteLine($"SuccessIf(false): {Result.SuccessIf(false, "The order is closed.")}");

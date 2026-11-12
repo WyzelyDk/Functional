@@ -12,7 +12,7 @@ While there is a value the chain carries it along; the first none skips every st
 | `Filter(predicate)` | there is a value | turns the maybe into none when the predicate is false |
 | `Tap(f)` | there is a value | runs a side effect, returns the maybe unchanged |
 | `TapNone(f)` | there is none | runs a side effect, returns the maybe unchanged |
-| `Or(f)` | there is none | tries an alternative that returns a `Maybe` |
+| `OrElse(f)` | there is none | takes over when there is none: `f` returns an alternative `Maybe` or a replacement value |
 | `ValueOr(f)` | there is none | leaves the railway: the value, or what `f` computes (the instance method `ValueOr(fallback)` takes a plain value) |
 | `GetValueOrThrow(f)` | always | leaves the railway: the value, or the exception that `f` creates when there is none; without `f` on a `Task` or `ValueTask` it throws what `GetValue()` throws |
 | `Match(onSome, onNone)` | always | leaves the railway: one value out |
@@ -28,13 +28,13 @@ var title = Maybe.Some("  Hitchhiker's Guide  ")
     .Filter(text => text.Length > 3)                            // still Some: the predicate holds
     .Tap(text => logged.Add($"found {text}"))                   // runs, because there is a value
     .Bind(text => text.Contains(' ') ? Maybe.Some(text) : Maybe.None<string>())
-    .Or(() => Maybe.Some("untitled"))                           // not needed here: there is a value
+    .OrElse(() => Maybe.Some("untitled"))                       // not needed here: there is a value
     .Map(text => text.ToUpperInvariant())
     .Match(text => text, () => "no title");                     // "HITCHHIKER'S GUIDE"
 
 var empty = Maybe.None<string>()
     .TapNone(() => logged.Add("nothing to show"))               // runs, because there is none
-    .Or(() => Maybe.Some("untitled"))                           // the alternative takes over
+    .OrElse(() => Maybe.Some("untitled"))                       // the alternative takes over
     .ValueOr(() => "no title");                                 // "untitled"
 ```
 

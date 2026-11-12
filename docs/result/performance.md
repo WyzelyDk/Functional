@@ -8,10 +8,11 @@ These facts are checked by tests (`PerformanceTests`, `ExtensionReceiverTests`),
 - Creating results, `Map`, `Bind`, `Ensure`, `Tap`, `MapError` and `Match` on the success path allocate **0 bytes** when the
   delegates are `static` lambdas (measured with `GC.GetAllocatedBytesForCurrentThread`).
 - An already completed `Task` or `ValueTask` receiver takes a synchronous fast path without a state machine,
-  and a synchronous receiver with a `Task`/`ValueTask` delegate hands back the task of the delegate for `Bind`, `Compensate` and `Match`.
+  and a synchronous receiver with a `Task`/`ValueTask` delegate hands back the task of the delegate
+  for `Bind`, `Match` and `OrElse` with an alternative operation.
 - On an already completed `Task`, a step that leaves the result as it was hands back the task it received and allocates nothing:
   `Ensure` that passes or meets a failure (with a predicate or with an operation), `Tap`, `TapError`, `MapError`,
-  `Recover` and `Compensate` on a result they do not change (`CompletedTaskReuseTests`). `Map` and `Bind` never do, because they can change the value.
+  `OrElse` on a result it does not change (`CompletedTaskReuseTests`). `Map` and `Bind` never do, because they can change the value.
 - On an already completed `Task`, a step that ends in a **successful result without a value** (for example `Bind` to an
   operation that returns a `Result`) hands out one shared completed task instead of allocating a new one (`PerformanceTests`).
   A result with a value is a different task for every value, so it cannot be shared.
@@ -300,7 +301,7 @@ ErrorOr, Ardalis.Result, Optional and OneOf do not, so a loop that a user would 
   FluentResults and Ardalis.Result allocate (160 B and 64 to 72 B) and take 6 to 22 ns.
 - **Chaining on a completed `Task` allocates, for every library that offers it, and awaiting first is cheaper.**
   A step that changes the result creates a new task, and the chain here (`Map`, `Ensure`, `Bind`) took 160 B and 24 to 26 ns:
-  the `Ensure` step hands back the task it received when the result is left as it was, as do `Tap`, `TapError`, `MapError`, `Recover` and `Compensate`,
+  the `Ensure` step hands back the task it received when the result is left as it was, as do `Tap`, `TapError`, `MapError` and `OrElse`,
   which saved 80 B and about a quarter of the time per such step. The other libraries with `Task` methods took 240 to 264 B (CSharpFunctionalExtensions,
   ErrorOr), 408 to 432 B (Ardalis.Result) and 1,160 B (FluentResults), and two to eleven times as long.
   Awaiting the task first and then running the synchronous chain allocated nothing and took 11 to 14 ns, about twice as fast (see the extra row).

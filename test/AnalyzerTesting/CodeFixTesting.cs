@@ -63,14 +63,18 @@ internal static class CodeFixTesting
         return actions.Count;
     }
 
-    // Compiles a source against the references, and fails the test when the source does not compile.
-    internal static CSharpCompilation Compile(string source, ImmutableArray<MetadataReference> references)
-    {
-        var compilation = CSharpCompilation.Create(
+    // Compiles a source against the references, without looking at the result.
+    internal static CSharpCompilation CreateCompilation(string source, ImmutableArray<MetadataReference> references) =>
+        CSharpCompilation.Create(
             "Sample",
             [CSharpSyntaxTree.ParseText(source)],
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+
+    // Compiles a source against the references, and fails the test when the source does not compile.
+    internal static CSharpCompilation Compile(string source, ImmutableArray<MetadataReference> references)
+    {
+        var compilation = CreateCompilation(source, references);
 
         var errors = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToList();
         Assert.True(errors.Count == 0, "The snippet does not compile: " + string.Join("; ", errors));

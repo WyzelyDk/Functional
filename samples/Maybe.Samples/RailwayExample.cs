@@ -37,9 +37,9 @@ public static class RailwayExample
         output.WriteLine($"TapNone on a none ran: {tapNoneRanOnNone}");
         output.WriteLine($"TapNone on a some ran: {tapNoneRanOnSome}");
 
-        // Or: an alternative that is only tried when there is no value, and that is itself a Maybe, so alternatives can be chained.
-        output.WriteLine($"Or, alternative used: {bob.Bind(SampleData.FindEmail).Or(() => Maybe.Some("support@example.com"))}");
-        output.WriteLine($"Or, alternative not needed: {ada.Bind(SampleData.FindEmail).Or(() => Maybe.Some("support@example.com"))}");
+        // OrElse: an alternative that is only tried when there is no value, and that is itself a Maybe, so alternatives can be chained.
+        output.WriteLine($"OrElse, alternative used: {bob.Bind(SampleData.FindEmail).OrElse(() => Maybe.Some("support@example.com"))}");
+        output.WriteLine($"OrElse, alternative not needed: {ada.Bind(SampleData.FindEmail).OrElse(() => Maybe.Some("support@example.com"))}");
 
         // ValueOr with a delegate leaves the railway: the value, or what the delegate computes (only when it is needed).
         // The instance method ValueOr("text") takes a plain value instead.

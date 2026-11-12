@@ -28,8 +28,8 @@ One chain, no `await` in the middle, no exception thrown, and the failure carrie
 
 ## Fluent from first step to last
 
-The whole railway is available as chained calls: `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure`,
-`Recover` and `Compensate` continue the chain; `Match` and `Switch` leave it. Each accepts a synchronous,
+The whole railway is available as chained calls: `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure`
+and `OrElse` continue the chain; `Match` and `Switch` leave it. Each accepts a synchronous,
 `Task` or `ValueTask` receiver and delegate in any mix, so the chain above needs no `await` in the middle, and LINQ query syntax follows the same rules.
 `Zip` (2 to 5 independent results) and `Flatten` (`Result<Result<T>>` to `Result<T>`) are there too.
 [The full list](https://github.com/WyzelyDk/Functional/blob/main/docs/result/the-railway.md).
@@ -86,14 +86,14 @@ What this package adds, each point checked against the source or a test:
   context frames (`WithContext`), aggregation of several errors into one (`Error.Aggregate`, used by `Combine` and `Zip`), an `IsTransient` flag,
   and `Error.FromException`, which keeps the exception as the cause. A string loses all of that.
 - **The whole railway, in every async shape.** `Map`, `Bind`, `Tap`, `TapError`, `MapError`, `Ensure` (with an `Error`, with a message,
-  with an error or a message created from the value, with an operation that returns a `Result`, and for an untyped result with a condition), `Recover`,
-  `Compensate`, `Match`, `ValueOr` and `Switch`, plus the conditional `MapIf`, `BindIf`, `TapIf`, `EnsureIf` and `TapErrorIf`
-  and the exception-catching `MapTry`, `BindTry`, `TapTry` and `TapIfTry`, are 108 operations in `src/Result/Generated`
+  with an error or a message created from the value, with an operation that returns a `Result`, and for an untyped result with a condition), `OrElse`,
+  `Match`, `ValueOr` and `Switch`, plus the conditional `MapIf`, `BindIf`, `TapIf`, `EnsureIf` and `TapErrorIf`
+  and the exception-catching `MapTry`, `BindTry`, `TapTry` and `TapIfTry`, are 111 operations in `src/Result/Generated`
   (counting the `Result` and `Result<T>` forms,
   the ten `Ensure` forms, the 25 `*If` forms the 26 `*Try` forms and the conveniences `EnsureNot`, `EnsureNotNull` and `Tap` without a value,
   the tuple steps `BindZip` and `Map`/`Bind` with separate parameters, and `ValueOr`, `GetValueOrThrow` and `ThrowIfFailure` separately),
   each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate (27 for `Ensure` with a factory,
-  where the condition and the factory each choose their own kind): 939 generated methods, covered by generated tests.
+  where the condition and the factory each choose their own kind): 966 generated methods, covered by generated tests.
   Writing those by hand, consistently, is the part nobody enjoys.
 - **Analyzers and code fixes in the package:** `WYZ0101` (a discarded result, with a code fix) and `WYZ0102` (`GetError()` / `GetValue()` not guarded,
   with a guard clause as the fix for `GetValue()` in a method that returns a result),
@@ -173,7 +173,7 @@ var message = ParseAge("42")
 // "Welcome, age 42."      (for "abc": "Rejected: 'abc' is not a number.")
 ```
 
-`Map`, `Bind`, `Ensure`, `Tap`, `MapError`, `Recover`, `Match` and friends:
+`Map`, `Bind`, `Ensure`, `Tap`, `MapError`, `OrElse`, `Match` and friends:
 [the railway](https://github.com/WyzelyDk/Functional/blob/main/docs/result/the-railway.md).
 
 ### Mix synchronous and asynchronous steps freely

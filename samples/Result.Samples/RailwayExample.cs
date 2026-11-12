@@ -1,11 +1,11 @@
-// THE RAILWAY: Map, Bind, Tap, TapError, MapError, Ensure, Recover, Compensate, Match, Switch, Flatten.
+// THE RAILWAY: Map, Bind, Tap, TapError, MapError, Ensure, OrElse, Match, Switch, Flatten.
 //
 // Scenario: checking out an order. Find it, make sure it is open, reserve the stock, charge the customer,
 // and add where it happened to a failure.
 //
 // THE IDEA: think of two tracks. A result starts on the success track and each step runs only while it stays
 // there. The first step that fails switches to the failure track, and every later "success" step is skipped
-// without a single `if`. Some steps work on the failure track (TapError, MapError, Recover, Compensate), and
+// without a single `if`. Some steps work on the failure track (TapError, MapError, OrElse), and
 // Match / Switch leave the railway at the end.
 //
 //   Map         success  transforms the value
@@ -15,8 +15,8 @@
 //               (given an operation, the original value is kept)
 //   TapError    failure  a side effect with the error
 //   MapError    failure  replaces the error, for example to add context
-//   Recover     failure  computes a replacement VALUE: the failure becomes a success
-//   Compensate  failure  tries a fallback OPERATION that returns a Result
+//   OrElse      failure  takes over after a failure: with a replacement VALUE (the failure becomes a success)
+//               or with an alternative OPERATION that returns a Result
 //   Match       both     leaves the railway: one value out
 //   Switch      both     leaves the railway for side effects only
 namespace Wyzely.Functional.ResultSamples;
@@ -47,18 +47,18 @@ public static class RailwayExample
             .MapError(error => error.Kind == ErrorKind.NotFound ? Error.Validation("Unknown customer.") : error);
         output.WriteLine("MapError: " + mapped.Match(_ => "found", error => $"{error.Message} ({error.Kind})"));
 
-        // Recover: a failure becomes a success with a replacement VALUE. Use it for defaults.
-        var guest = SampleShop.FindCustomer(99).Recover(_ => new Customer(0, "Guest", string.Empty, IsBlocked: false));
-        output.WriteLine("Recover: " + guest.Match(customer => customer.Name, error => error.Message));
+        // OrElse with a value: a failure becomes a success with a replacement VALUE. Use it for defaults.
+        var guest = SampleShop.FindCustomer(99).OrElse(_ => new Customer(0, "Guest", string.Empty, IsBlocked: false));
+        output.WriteLine("OrElse with a value: " + guest.Match(customer => customer.Name, error => error.Message));
 
-        // Compensate: a failure triggers a fallback OPERATION, which can itself fail.
-        // Only a transient failure is compensated here (the gateway is down); a blocked customer stays a failure.
+        // OrElse with an operation: a failure triggers an alternative OPERATION, which can itself fail.
+        // Only a transient failure is taken over here (the gateway is down); a blocked customer stays a failure.
         foreach (var orderId in new[] { 12, 9 })
         {
-            var paid = SampleShop.FindOrder(orderId).Bind(order => SampleShop.Charge(order).Compensate(
+            var paid = SampleShop.FindOrder(orderId).Bind(order => SampleShop.Charge(order).OrElse(
                 error => error.IsTransient ? SampleShop.Invoice(order) : Result.Failure<Receipt>(error)));
 
-            output.WriteLine($"Compensate order {orderId}: " + paid.Match(receipt => receipt.Number, error => error.Message));
+            output.WriteLine($"OrElse with an operation, order {orderId}: " + paid.Match(receipt => receipt.Number, error => error.Message));
         }
 
         // Ensure with a message instead of an Error: a quick validation of the value.

@@ -53,7 +53,7 @@ public sealed class MaybeExtensionsTests
             () => Assert.Throws<ArgumentNullException>(() => maybe.Filter((Func<int, bool>)null!)),
             () => Assert.Throws<ArgumentNullException>(() => maybe.Tap((Action<int>)null!)),
             () => Assert.Throws<ArgumentNullException>(() => maybe.TapNone((Action)null!)),
-            () => Assert.Throws<ArgumentNullException>(() => maybe.Or((Func<Maybe<int>>)null!)),
+            () => Assert.Throws<ArgumentNullException>(() => maybe.OrElse((Func<Maybe<int>>)null!)),
             () => Assert.Throws<ArgumentNullException>(() => maybe.ValueOr((Func<int>)null!)),
             () => Assert.Throws<ArgumentNullException>(() => maybe.Match(null!, static () => 0)),
             () => Assert.Throws<ArgumentNullException>(() => maybe.Match(static x => x, null!)),

@@ -31,7 +31,7 @@ One chain, no `await` in the middle, no `null` check between the steps: the firs
 
 ## Fluent from first step to last
 
-The whole railway is available as chained calls: `Map`, `Bind`, `Filter`, `Tap`, `TapNone` and `Or` continue the chain;
+The whole railway is available as chained calls: `Map`, `Bind`, `Filter`, `Tap`, `TapNone` and `OrElse` continue the chain;
 `ValueOr`, `Match` and `Switch` leave it. Each accepts a synchronous, `Task` or `ValueTask` receiver and delegate in any mix,
 so the chain above needs no `await` in the middle, and LINQ query syntax, `Zip` (two to five maybes) and `Flatten` follow the same rules.
 [The full list](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/the-railway.md).
@@ -66,8 +66,8 @@ What the library adds is everything around that core, and each item is checked a
 
 - **One way to be empty.** `Maybe.Some(null)` throws, `Maybe.From(x)` turns `null` into none, `Maybe<string?>` is reported against `notnull`.
 - **Decided conversions.** A `T` or a `null` reference converts to a maybe implicitly; nothing converts out of one (pinned by tests).
-- **The generated railway:** twelve operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three),
-  **111 methods** (`Map` has a second form for nullable value types), each with a generated test, and no `await` in the middle of a chain.
+- **The generated railway:** thirteen operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three),
+  **120 methods** (`Map` has a second form for nullable value types), each with a generated test, and no `await` in the middle of a chain.
 - **Lookups:** `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose`; and LINQ, `Zip` and `Flatten`.
 - **Analyzers and code fixes (`WYZ0201` and the suggestions `WYZ0202` to `WYZ0204`) and nullability annotations** that are pinned by tests which compile
   consumer code.
