@@ -5,7 +5,7 @@ namespace Wyzely.Functional;
 
 /// <content>
 /// The same helpers for an asynchronous stream of results: <c>Combine</c> and <c>Partition</c> read it, and <c>SelectEach</c> turns the result of a
-/// collection into a stream of results. A stream is read once, in order, and the reading stops when the cancellation token is cancelled.
+/// collection into a stream of results. A stream is read once, in order, and the reading stops when the cancellation token is canceled.
 /// </content>
 public static partial class ResultCollectionExtensions
 {

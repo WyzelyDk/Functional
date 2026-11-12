@@ -20,7 +20,7 @@ ResultConfiguration.Configure(options =>
 | `AggregateMessage` | `One or more errors occurred.` | the template of an error made by `Error.Aggregate` |
 | `ChildSeparator` | `, ` | the message of an aggregate error |
 | `ContextSeparator` | `: ` | `Error.ToString()` and `ToRedactedString()`, between the context frames and the message |
-| `CancelledMessage` | `The operation was cancelled.` | `Error.Cancelled()` without a message |
+| `CanceledMessage` | `The operation was canceled.` | `Error.Canceled()` without a message |
 | `RedactedValue` | `***` | the value of a sensitive detail in redacted output |
 | `ExceptionMapper` | `Error.FromException` | `Result.Try` and `Result.FromException` when you pass no handler |
 | `ShouldCatch` | everything except `OperationCanceledException` | which exceptions `Result.Try` turns into failures (not the form of `Try` that names an exception type) |

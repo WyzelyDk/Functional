@@ -36,7 +36,7 @@ public static class ErrorsExample
         }
 
         // Kinds are an open set. The built-in ones (Validation, NotFound, Conflict, Unauthorized, Forbidden,
-        // Unavailable, Timeout, Cancelled, Unexpected) have factories; your own kind is just a name.
+        // Unavailable, Timeout, Canceled, Unexpected) have factories; your own kind is just a name.
         var rateLimited = Error.Create("Slow down.", new ErrorKind("RateLimited"));
         output.WriteLine($"Custom kind: {rateLimited.Kind}");
 
@@ -70,7 +70,7 @@ public static class ErrorsExample
         output.WriteLine($"Validation is transient: {Error.Validation("Bad input.").IsTransient}");
 
         // FromException keeps the exception as the cause and chooses a kind: Timeout for a TimeoutException (transient),
-        // Cancelled for an OperationCanceledException, Unexpected for everything else.
+        // Canceled for an OperationCanceledException, Unexpected for everything else.
         var timeout = Error.FromException(new TimeoutException("Gateway timed out."));
         output.WriteLine($"FromException(TimeoutException): kind {timeout.Kind}, transient {timeout.IsTransient}");
         output.WriteLine($"FromException keeps the cause: {timeout.Exception?.GetType().Name}");

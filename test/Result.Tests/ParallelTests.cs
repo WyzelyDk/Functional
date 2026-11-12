@@ -143,7 +143,7 @@ public sealed class ParallelTests
     }
 
     [Fact]
-    internal async Task SelectInParallel_throws_when_the_token_is_already_cancelled()
+    internal async Task SelectInParallel_throws_when_the_token_is_already_canceled()
     {
         using var source = new CancellationTokenSource();
         await source.CancelAsync();

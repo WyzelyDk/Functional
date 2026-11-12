@@ -64,19 +64,19 @@ public sealed class ErrorTests
     }
 
     [Fact]
-    internal void Cancelled_has_a_default_message_and_the_cancelled_kind()
+    internal void Canceled_has_a_default_message_and_the_canceled_kind()
     {
-        var error = Error.Cancelled();
+        var error = Error.Canceled();
 
         Assert.Multiple(
-            () => Assert.Equal(ErrorKind.Cancelled, error.Kind),
-            () => Assert.Equal("The operation was cancelled.", error.Message));
+            () => Assert.Equal(ErrorKind.Canceled, error.Kind),
+            () => Assert.Equal("The operation was canceled.", error.Message));
     }
 
     [Fact]
-    internal void Cancelled_uses_the_given_message()
+    internal void Canceled_uses_the_given_message()
     {
-        Assert.Equal("Stopped by the user.", Error.Cancelled("Stopped by the user.").Message);
+        Assert.Equal("Stopped by the user.", Error.Canceled("Stopped by the user.").Message);
     }
 
     [Fact]
@@ -275,11 +275,11 @@ public sealed class ErrorTests
     }
 
     [Fact]
-    internal void FromException_maps_a_cancellation_to_the_cancelled_kind()
+    internal void FromException_maps_a_cancellation_to_the_canceled_kind()
     {
         var error = Error.FromException(new OperationCanceledException());
 
-        Assert.Equal(ErrorKind.Cancelled, error.Kind);
+        Assert.Equal(ErrorKind.Canceled, error.Kind);
     }
 
     [Fact]

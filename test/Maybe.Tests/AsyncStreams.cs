@@ -55,7 +55,7 @@ internal static class AsyncStreams
         }
     }
 
-    // Yields the items and stops with an OperationCanceledException as soon as the token of the consumer is cancelled.
+    // Yields the items and stops with an OperationCanceledException as soon as the token of the consumer is canceled.
     internal static IAsyncEnumerable<T> Cancellable<T>(T[] items) => CancellableCore(items, CancellationToken.None);
 
     private static async IAsyncEnumerable<T> CancellableCore<T>(T[] items, [EnumeratorCancellation] CancellationToken cancellationToken)

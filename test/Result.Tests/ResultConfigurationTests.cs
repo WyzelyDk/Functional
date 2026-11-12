@@ -36,7 +36,7 @@ public sealed class ResultConfigurationTests : IDisposable
             () => Assert.Equal("One or more errors occurred.", aggregate.Template),
             () => Assert.Equal("A., B.", aggregate.Message),
             () => Assert.Equal("Checkout: Boom.", Error.Create("Boom.").WithContext("Checkout").ToString()),
-            () => Assert.Equal("The operation was cancelled.", Error.Cancelled().Message),
+            () => Assert.Equal("The operation was canceled.", Error.Canceled().Message),
             () => Assert.Equal("password=***", new ErrorDetail("password", "secret", isSensitive: true).ToString()));
     }
 
@@ -71,13 +71,13 @@ public sealed class ResultConfigurationTests : IDisposable
     }
 
     [Fact]
-    internal void CancelledMessage_changes_the_default_message_of_a_cancelled_error()
+    internal void CanceledMessage_changes_the_default_message_of_a_canceled_error()
     {
-        ResultConfiguration.Configure(options => options.CancelledMessage = "Stopped.");
+        ResultConfiguration.Configure(options => options.CanceledMessage = "Stopped.");
 
         Assert.Multiple(
-            () => Assert.Equal("Stopped.", Error.Cancelled().Message),
-            () => Assert.Equal("Custom.", Error.Cancelled("Custom.").Message));
+            () => Assert.Equal("Stopped.", Error.Canceled().Message),
+            () => Assert.Equal("Custom.", Error.Canceled("Custom.").Message));
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public sealed class ResultConfigurationTests : IDisposable
 
         var result = Result.Try((Action)(() => throw new OperationCanceledException()));
 
-        Assert.Equal(ErrorKind.Cancelled, result.GetError().Kind);
+        Assert.Equal(ErrorKind.Canceled, result.GetError().Kind);
     }
 
     [Fact]
@@ -187,14 +187,14 @@ public sealed class ResultConfigurationTests : IDisposable
         ResultConfiguration.Configure(options =>
         {
             options.ChildSeparator = " | ";
-            options.CancelledMessage = "Stopped.";
+            options.CanceledMessage = "Stopped.";
         });
 
         ResultConfiguration.Reset();
 
         Assert.Multiple(
             () => Assert.Equal("A., B.", Error.Aggregate([Error.Create("A."), Error.Create("B.")]).Message),
-            () => Assert.Equal("The operation was cancelled.", Error.Cancelled().Message));
+            () => Assert.Equal("The operation was canceled.", Error.Canceled().Message));
     }
 
     [Fact]
@@ -202,12 +202,12 @@ public sealed class ResultConfigurationTests : IDisposable
     {
         Assert.Throws<InvalidOperationException>(() => ResultConfiguration.Configure(options =>
         {
-            options.CancelledMessage = "Stopped.";
+            options.CanceledMessage = "Stopped.";
 
             throw new InvalidOperationException();
         }));
 
-        Assert.Equal("The operation was cancelled.", Error.Cancelled().Message);
+        Assert.Equal("The operation was canceled.", Error.Canceled().Message);
     }
 
     [Fact]
@@ -216,9 +216,9 @@ public sealed class ResultConfigurationTests : IDisposable
         ResultOptions? kept = null;
         ResultConfiguration.Configure(options => kept = options);
 
-        kept!.CancelledMessage = "Sneaky.";
+        kept!.CanceledMessage = "Sneaky.";
 
-        Assert.Equal("The operation was cancelled.", Error.Cancelled().Message);
+        Assert.Equal("The operation was canceled.", Error.Canceled().Message);
     }
 
     [Fact]
@@ -231,7 +231,7 @@ public sealed class ResultConfigurationTests : IDisposable
             () => Assert.Throws<ArgumentNullException>(() => options.ExceptionMapper = null!),
             () => Assert.Throws<ArgumentNullException>(() => options.ShouldCatch = null!),
             () => Assert.Throws<ArgumentException>(() => options.AggregateMessage = " "),
-            () => Assert.Throws<ArgumentException>(() => options.CancelledMessage = string.Empty),
+            () => Assert.Throws<ArgumentException>(() => options.CanceledMessage = string.Empty),
             () => Assert.Throws<ArgumentOutOfRangeException>(() => options.DefaultMaxDegreeOfParallelism = 0),
             () => Assert.Throws<ArgumentOutOfRangeException>(() => options.DefaultMaxDegreeOfParallelism = -2)));
     }

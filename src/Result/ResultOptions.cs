@@ -24,15 +24,15 @@ public sealed class ResultOptions
     } = "One or more errors occurred.";
 
     /// <summary>
-    /// Gets or sets the message of <see cref="Error.Cancelled(string?)"/> when no message is given. The default is <c>The operation was cancelled.</c>.
+    /// Gets or sets the message of <see cref="Error.Canceled(string?)"/> when no message is given. The default is <c>The operation was canceled.</c>.
     /// </summary>
     /// <exception cref="ArgumentNullException">The value is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException">The value is empty or white space.</exception>
-    public string CancelledMessage
+    public string CanceledMessage
     {
         get;
         set => field = Guard.NotNullOrWhiteSpace(value, nameof(value));
-    } = "The operation was cancelled.";
+    } = "The operation was canceled.";
 
     /// <summary>
     /// Gets or sets the text that separates the messages of the children when an aggregate error is shown as one message. The default is <c>, </c>.
@@ -77,7 +77,7 @@ public sealed class ResultOptions
 
     /// <summary>
     /// Gets or sets which exceptions <see cref="Result.Try(Action, Func{Exception, Error}?)"/> turns into failed results; any other exception escapes.
-    /// The default catches everything except <see cref="OperationCanceledException"/>, so that cancelling an operation is not mistaken for a failure of the
+    /// The default catches everything except <see cref="OperationCanceledException"/>, so that canceling an operation is not mistaken for a failure of the
     /// operation.
     /// </summary>
     /// <exception cref="ArgumentNullException">The value is <see langword="null"/>.</exception>

@@ -54,8 +54,8 @@ public readonly struct ErrorKind(string name) : IEquatable<ErrorKind>
     /// <summary>Gets the kind of an error caused by an operation that took too long.</summary>
     public static ErrorKind Timeout { get; } = new("Timeout");
 
-    /// <summary>Gets the kind of an error caused by an operation that was cancelled.</summary>
-    public static ErrorKind Cancelled { get; } = new("Cancelled");
+    /// <summary>Gets the kind of an error caused by an operation that was canceled.</summary>
+    public static ErrorKind Canceled { get; } = new("Canceled");
 
     /// <summary>Gets the name of the kind. A default value reports <c>Failure</c>.</summary>
     public string Name => _name ?? FailureName;

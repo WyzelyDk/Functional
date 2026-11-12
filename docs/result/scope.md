@@ -56,7 +56,7 @@ None is wrong; each would be a candidate to remove or move if the surface ever n
 | `Deconstruct` (`var (value, error) = result`) | The one way to read the payload without a check that the analyzer does not see. | Consider removing, or document it as the unchecked route. |
 | `Compensate` next to `Recover` | Close cousins; each is justified, but together they are two operations a reader must tell apart. | Keep, but add nothing alongside them. |
 | `ContinueOnCapturedContext` setting | A process-wide switch for something that is almost always `false` in a library. | The first setting to drop if the configuration is trimmed. |
-| `AggregateMessage`, `CancelledMessage` settings | Text that is closer to localization than to behavior. | Keep only while someone needs it. |
+| `AggregateMessage`, `CanceledMessage` settings | Text that is closer to localization than to behavior. | Keep only while someone needs it. |
 | Kind factories `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout` | HTTP-flavored; they match other libraries, but they are convenience over `Error.Create(message, kind)`. | Add no further kinds; users can use `new ErrorKind("...")`. |
 
 ## How to propose a change

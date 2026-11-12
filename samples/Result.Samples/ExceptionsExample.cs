@@ -7,7 +7,7 @@
 // THE RULES this library follows:
 //  - Result.Try runs your code and turns an exception into a failed result that keeps the exception as its cause.
 //  - Cancellation is NOT turned into a result by default: it is a request from the caller, not a failure, so an
-//    OperationCanceledException keeps travelling. ShouldCatch changes that, and Error.Cancelled() exists for when
+//    OperationCanceledException keeps travelling. ShouldCatch changes that, and Error.Canceled() exists for when
 //    you want a cancellation to be a failure explicitly.
 //  - The way an exception becomes an Error (the ExceptionMapper) is a setting with a sensible default,
 //    Error.FromException, and can be replaced for the whole application or for a single call.
@@ -61,7 +61,7 @@ public static class ExceptionsExample
 
         // Naming the type is also how a cancellation is caught on purpose; `when` keeps a cancellation by the caller out of it.
         var timedOut = Result.Try(
-            ThrowCancelled,
+            ThrowCanceled,
             (OperationCanceledException exception) => Error.Timeout("The request timed out.").WithException(exception),
             when: _ => !CancellationToken.None.IsCancellationRequested);
         await output.WriteLineAsync($"A named cancellation is caught: kind {ErrorOf(timedOut)?.Kind}");
@@ -85,7 +85,7 @@ public static class ExceptionsExample
         // Cancellation keeps travelling as an exception.
         try
         {
-            _ = Result.Try(ThrowCancelled);
+            _ = Result.Try(ThrowCanceled);
         }
         catch (OperationCanceledException)
         {
@@ -93,8 +93,8 @@ public static class ExceptionsExample
         }
 
         // If a cancellation should become a failure, say so explicitly...
-        var cancelled = Error.Cancelled();
-        await output.WriteLineAsync($"Error.Cancelled(): {cancelled.Message} (kind {cancelled.Kind})");
+        var canceled = Error.Canceled();
+        await output.WriteLineAsync($"Error.Canceled(): {canceled.Message} (kind {canceled.Kind})");
 
         // ...FromException builds the same kind of error from an exception directly...
         var fromException = Result.FromException<int>(new TimeoutException("Gateway timed out."));
@@ -104,7 +104,7 @@ public static class ExceptionsExample
         try
         {
             ResultConfiguration.Configure(options => options.ShouldCatch = static _ => true);
-            var caught = Result.Try(ThrowCancelled);
+            var caught = Result.Try(ThrowCanceled);
             await output.WriteLineAsync($"ShouldCatch lets Try catch cancellation: kind {ErrorOf(caught)?.Kind}");
 
             // The default mapping is a setting too. Here every exception becomes the same user-facing error with a code,
@@ -134,7 +134,7 @@ public static class ExceptionsExample
     }
 
     // A method that returns nothing converts only to an Action, so Try runs it right here and now.
-    private static void ThrowCancelled() => throw new OperationCanceledException();
+    private static void ThrowCanceled() => throw new OperationCanceledException();
 
     private static Error? ErrorOf(Result result) => result.TryGetError(out var error) ? error : null;
 

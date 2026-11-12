@@ -32,7 +32,7 @@ var lengths = await new[] { "a", "bb", "ccc" }.SelectInParallel(
 
 A stream of results does not need a list in between.
 `SelectEach` makes one from the result of a list, running the operation for an item when the stream is read up to it,
-and `Combine` or `Partition` collects a stream (they stop when the cancellation token is cancelled):
+and `Combine` or `Partition` collects a stream (they stop when the cancellation token is canceled):
 
 ```csharp
 var found = Result.Success<IReadOnlyList<string>>(["a.txt", "bb.txt"]);

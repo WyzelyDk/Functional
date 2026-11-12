@@ -7,7 +7,7 @@ namespace Wyzely.Functional;
 /// </content>
 /// <remarks>
 /// By default a <see cref="OperationCanceledException"/> is not turned into a result: cancellation is a request from the caller,
-/// so it keeps travelling as an exception. Use <see cref="Error.Cancelled(string?)"/> explicitly when a cancellation should become a failure,
+/// so it keeps travelling as an exception. Use <see cref="Error.Canceled(string?)"/> explicitly when a cancellation should become a failure,
 /// or change which exceptions are caught with <see cref="ResultOptions.ShouldCatch"/>.
 /// </remarks>
 public readonly partial struct Result

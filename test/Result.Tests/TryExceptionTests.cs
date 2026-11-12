@@ -72,7 +72,7 @@ public sealed class TryExceptionTests : IDisposable
     [Fact]
     internal void Try_catches_a_cancellation_when_its_type_is_named()
     {
-        var result = Result.Try(ThrowCancelled, (OperationCanceledException exception) => Error.FromException(exception));
+        var result = Result.Try(ThrowCanceled, (OperationCanceledException exception) => Error.FromException(exception));
 
         Assert.True(result.IsFailure);
     }
@@ -90,7 +90,7 @@ public sealed class TryExceptionTests : IDisposable
     [Fact]
     internal void Try_with_a_handler_that_takes_the_plain_exception_still_follows_ShouldCatch()
     {
-        Assert.Throws<OperationCanceledException>(() => Result.Try(ThrowCancelled, exception => Error.FromException(exception)));
+        Assert.Throws<OperationCanceledException>(() => Result.Try(ThrowCanceled, exception => Error.FromException(exception)));
     }
 
     [Fact]
@@ -274,7 +274,7 @@ public sealed class TryExceptionTests : IDisposable
 
     private static void ThrowDisposed() => throw new ObjectDisposedException(nameof(TryExceptionTests));
 
-    private static void ThrowCancelled() => throw new OperationCanceledException();
+    private static void ThrowCanceled() => throw new OperationCanceledException();
 
     private static async Task ThrowBoomAsync()
     {

@@ -54,7 +54,7 @@ public sealed class TryTests
     [Fact]
     internal void Try_lets_a_cancellation_escape()
     {
-        Assert.Throws<OperationCanceledException>(() => Result.Try(ThrowCancelled));
+        Assert.Throws<OperationCanceledException>(() => Result.Try(ThrowCanceled));
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public sealed class TryTests
     [Fact]
     internal async Task Try_lets_a_cancellation_of_a_task_escape()
     {
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Result.Try(ThrowCancelledAsync));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Result.Try(ThrowCanceledAsync));
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public sealed class TryTests
 
     private static int ThrowBoomWithValue() => throw Boom;
 
-    private static void ThrowCancelled() => throw new OperationCanceledException();
+    private static void ThrowCanceled() => throw new OperationCanceledException();
 
     private static async Task ThrowBoomAsync()
     {
@@ -166,7 +166,7 @@ public sealed class TryTests
         throw Boom;
     }
 
-    private static async Task ThrowCancelledAsync()
+    private static async Task ThrowCanceledAsync()
     {
         await Task.Yield();
 

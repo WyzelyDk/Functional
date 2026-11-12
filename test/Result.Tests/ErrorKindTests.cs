@@ -45,7 +45,7 @@ public sealed class ErrorKindTests
             () => Assert.Equal("Forbidden", ErrorKind.Forbidden.Name),
             () => Assert.Equal("Unavailable", ErrorKind.Unavailable.Name),
             () => Assert.Equal("Timeout", ErrorKind.Timeout.Name),
-            () => Assert.Equal("Cancelled", ErrorKind.Cancelled.Name));
+            () => Assert.Equal("Canceled", ErrorKind.Canceled.Name));
     }
 
     [Fact]
