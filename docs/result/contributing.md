@@ -7,8 +7,8 @@ This page is for people who want to change the library. If you only want to use 
 ## Before you propose a change
 
 Read [Scope](scope.md).
-Every new public member has to pass its admission test, and every operation on the railway costs nine generated methods plus tests and documentation.
-Say which of the questions your change answers and show the few lines someone would write today without it; that is the fastest way to a decision.
+Every new public member has to pass its admission test, and every operation on the railway is nine generated methods plus tests and documentation.
+Say which of the questions your change answers, and give the name and an example call; that is the fastest way to a decision.
 
 ## Building
 

@@ -2,7 +2,7 @@
 
 This library is about **`Result`**: the outcome of an operation that can fail, how to chain such operations, and how to describe the failure.
 It is not meant to be the answer to every situation in which a result could be useful.
-A small, coherent surface is a feature: every public method costs documentation, tests, analyzers and, for anything on the railway, nine generated variants.
+A coherent surface is a feature: every public method is something a developer has to find, read and rely on for as long as the library exists.
 
 ## The admission test for new API
 
@@ -10,14 +10,23 @@ A new public member goes in only if the answer to every question is yes:
 
 1. **Is it about the outcome of an operation that can fail?**
    Not about collections, HTTP, logging, validation frameworks, retries or dependency injection, even if a `Result` happens to flow through them.
-2. **Does the core need it, or can a user write it in a few lines with the public API?** If three lines of `Bind`/`Match` do it, it does not belong here.
-   Convenience that is merely "nice" is declined, because it can never be removed again.
-3. **Is the cost proportional?** An operation on the railway becomes **nine methods** (sync/`Task`/`ValueTask` receiver times delegate),
-   plus tests and documentation. Ask whether the operation is used often enough to carry that.
+2. **Is the name self-explanatory, and is it the only name for what it does?**
+   A developer who knows other languages or libraries should recognise what it does from the name alone.
+   It is not a second name for something the library already has, and the same concept has the same name in `Result` and `Maybe`.
+   Convenience is welcome when its name makes clear what it is for.
+   An operation that belongs to a family is added for the whole family (every receiver, delegate kind and result form), never for part of it.
+3. **Is it worth its place in the surface for good?**
+   Writing, testing and documenting an operation is cheap, because the code generator and the tooling do the repetitive part
+   (an operation on the railway becomes **nine methods**: sync/`Task`/`ValueTask` receiver times delegate).
+   What stays expensive is what every developer who uses the library pays for as long as the operation exists:
+   one more entry to find or ignore in IntelliSense and in the documentation,
+   and a contract that cannot be changed or removed after 1.0 without a breaking change.
+   Ask whether enough developers will recognise the operation and reach for it to justify that.
 4. **Does it need a dependency, or does it only matter to some applications?**
    Then it belongs in a separate package (`Wyzely.Functional.Result.<Thing>`), never in this one. This package stays free of dependencies outside the BCL.
 5. **Can it be misused in a way an analyzer cannot catch?**
-   If it makes it easy to bypass the safety the library provides (`default` throws, `GetError()` is checked), it needs a good reason.
+   If it makes it easy to bypass the safety the library provides
+   (`GetValue()` and `GetError()` are checked by an analyzer, and a `default` result is a success by design), it needs a good reason.
 
 ## Deliberately not in this library
 
@@ -52,5 +61,5 @@ None is wrong; each would be a candidate to remove or move if the surface ever n
 
 ## How to propose a change
 
-Say which of the five questions the change answers and how, and show the three lines a user would write today without it.
-If it adds a railway operation, say how often it is needed, because that decides whether it earns its nine variants.
+Say which of the five questions the change answers and how, and give the name and an example call.
+If it adds a railway operation, list the whole family it brings (receivers, delegate kinds and result forms) and the number of methods.

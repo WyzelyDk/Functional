@@ -21,7 +21,7 @@ Use the repository's **Security** tab (private vulnerability reporting) so that 
 
 Read the scope of the package you have in mind ([Result](docs/result/scope.md)).
 Every new public member has to pass its admission test, because a public API can never be taken back.
-In the issue, say which question of the scope your change answers and show the few lines someone has to write today without it.
+In the issue, say which question of the scope your change answers, and give the name and an example call.
 
 ## Getting started
 
