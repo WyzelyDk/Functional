@@ -1,4 +1,6 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 
 namespace Wyzely.Functional;
@@ -35,4 +37,24 @@ internal static class OperationHelpers
         return inner.ConstantValue.HasValue
             || inner is ILocalReferenceOperation or IParameterReferenceOperation or IFieldReferenceOperation or IDefaultValueOperation;
     }
+
+    /// <summary>
+    /// Determines whether an expression is a name, or names joined by dots: an expression whose evaluation has no effect,
+    /// so that two copies of it read the same value.
+    /// </summary>
+    /// <param name="node">The expression.</param>
+    /// <returns><see langword="true"/> for a plain read.</returns>
+    internal static bool IsPlain(SyntaxNode node) => node switch
+    {
+        IdentifierNameSyntax or ThisExpressionSyntax => true,
+        MemberAccessExpressionSyntax access when access.IsKind(SyntaxKind.SimpleMemberAccessExpression)
+            => IsPlain(access.Expression),
+        _ => false,
+    };
+
+    /// <summary>Determines whether two expressions are written the same way, apart from white space and comments.</summary>
+    /// <param name="first">The first expression.</param>
+    /// <param name="second">The second expression.</param>
+    /// <returns><see langword="true"/> when the text is the same.</returns>
+    internal static bool SameText(SyntaxNode first, SyntaxNode second) => first.WithoutTrivia().ToString() == second.WithoutTrivia().ToString();
 }

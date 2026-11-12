@@ -115,6 +115,9 @@
     <File Path="docs/result/analyzers/WYZ0115.md" />
     <File Path="docs/result/analyzers/WYZ0116.md" />
     <File Path="docs/result/analyzers/WYZ0117.md" />
+    <File Path="docs/result/analyzers/WYZ0118.md" />
+    <File Path="docs/result/analyzers/WYZ0119.md" />
+    <File Path="docs/result/analyzers/WYZ0120.md" />
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Aot.Samples/Aot.Samples.csproj" />

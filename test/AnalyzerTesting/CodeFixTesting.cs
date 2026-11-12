@@ -29,13 +29,15 @@ internal static class CodeFixTesting
 
     // Asks the provider for a fix of a diagnostic that is made up: the given id, reported at the first occurrence of the marker in the source.
     // It returns how many fixes the provider offered, which shows that it does not offer one for a diagnostic that is stale or does not fit the code.
+    // The properties are the ones an analyzer would put on the diagnostic, for a rewrite that reads them.
     internal static async Task<int> OfferedFixesAsync(
         string source,
         ImmutableArray<MetadataReference> references,
         CodeFixProvider provider,
         string diagnosticId,
         string marker,
-        CancellationToken token)
+        CancellationToken token,
+        ImmutableDictionary<string, string?>? properties = null)
     {
         using var workspace = new AdhocWorkspace();
         var projectId = ProjectId.CreateNewId();
@@ -55,7 +57,7 @@ internal static class CodeFixTesting
         var start = source.IndexOf(marker, StringComparison.Ordinal);
         Assert.True(start >= 0, "The marker is not in the source: " + marker);
         var descriptor = new DiagnosticDescriptor(diagnosticId, "Made up", "Made up", "Test", DiagnosticSeverity.Warning, isEnabledByDefault: true);
-        var diagnostic = Diagnostic.Create(descriptor, Location.Create(tree, new TextSpan(start, marker.Length)));
+        var diagnostic = Diagnostic.Create(descriptor, Location.Create(tree, new TextSpan(start, marker.Length)), properties);
         var actions = new List<CodeAction>();
 
         await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostic, (action, _) => actions.Add(action), token));

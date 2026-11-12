@@ -34,16 +34,19 @@ and the other rules from `WYZ0103` on are suggestions (info) that point at the m
 |---|---|---|---|
 | [`WYZ0111`](analyzers/WYZ0111.md) | a value interpolated into the message of an error, as in `Error.Create($"Order {id} not found.")` | a message template with the value as a detail | yes, when each value is a name or a member access |
 
-Six more suggestions (info) point at code that does more than it has to. A rewrite must give the same result and type, so a rule reports only the exact shape:
+Nine more suggestions (info) point at code that does more than it has to. A rewrite must give the same result and type, so a rule reports only the exact shape:
 
 | Id | Reports | Fix | Code fix |
 |---|---|---|---|
 | [`WYZ0112`](analyzers/WYZ0112.md) | `Bind(x => Result.Success(f(x)))` | `Map(x => f(x))` | yes |
 | [`WYZ0113`](analyzers/WYZ0113.md) | `Map(x => { Use(x); return x; })` | `Tap(x => { Use(x); })` | yes |
 | [`WYZ0114`](analyzers/WYZ0114.md) | `Match(v => v, onFailure)` on a result, or on a `Task` or `ValueTask` of one | `ValueOr(fallback)` for a cheap fallback that ignores the error, otherwise `ValueOr(onFailure)` | yes |
-| [`WYZ0115`](analyzers/WYZ0115.md) | `Map(x => x)` and `Bind(x => Result.Success(x))` | remove the step | yes |
+| [`WYZ0115`](analyzers/WYZ0115.md) | `Map(x => x)`, `Bind(x => Result.Success(x))`, `MapError(e => e)` and an `OrElse` that returns its error unchanged | remove the step | yes |
 | [`WYZ0116`](analyzers/WYZ0116.md) | `Result.Failure(Error.Create(message))` | `Result.Failure(message)` | yes |
 | [`WYZ0117`](analyzers/WYZ0117.md) | `Bind(x => x)` on a result of a result | `Flatten()` | yes |
+| [`WYZ0118`](analyzers/WYZ0118.md) | `OrElse(e => error)`, which only replaces the error | `MapError(e => error)` | yes |
+| [`WYZ0119`](analyzers/WYZ0119.md) | `r.IsSuccess ? r.GetValue() : fallback` | `r.ValueOr(fallback)`, as a function when the fallback is not cheap | yes |
+| [`WYZ0120`](analyzers/WYZ0120.md) | `r.ValueOr(Compute())`, whose fallback is evaluated also for a success | `r.ValueOr(() => Compute())` | yes |
 
 Change a severity in `.editorconfig`:
 
