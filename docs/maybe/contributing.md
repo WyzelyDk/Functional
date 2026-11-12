@@ -58,7 +58,7 @@ A test (`GeneratedFilesTests`) fails if the generated files are out of date.
 ```
 src/Maybe                      the library
 src/Maybe.Analyzers            the Roslyn analyzer (packed into the library package)
-src/Maybe.Analyzers.CodeFixes  the code fixes (WYZ0201 has none; WYZ0202 to WYZ0204 do)
+src/Maybe.Analyzers.CodeFixes  the code fixes (WYZ0201 has none; WYZ0202 to WYZ0208 do)
 src/Maybe.CodeGeneration       the generator for the async variants and their tests
 src/Functional                 the umbrella package: Result, Maybe and the methods between them
 test/                          unit, analyzer and nullability tests (Maybe.Tests, Maybe.Analyzers.Tests, Functional.Tests)

@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -15,8 +14,8 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0112: Bind(x => Result.Success(f(x))) is Map(x => f(x)). The type of the value must stay the same, so Result.Success<object>(1) is left alone.
     private static void CheckBindToMap(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (!IsPlainMemberCall(invocation)
-            || !TryGetSynchronousLambda(invocation, "bind", out var lambda, out var returned)
+        if (!OperationHelpers.IsPlainMemberCall(invocation)
+            || !OperationHelpers.TryGetSynchronousLambda(invocation, "bind", 1, out var lambda, out var returned)
             || !TryGetTypedSuccess(returned, out var success))
         {
             return;
@@ -24,7 +23,7 @@ public sealed partial class ResultSuggestionsAnalyzer
 
         var value = OperationHelpers.Unwrap(success.Arguments[0].Value);
 
-        if (!OperationShapes.IsParameter(value, lambda.Symbol.Parameters[0])
+        if (!OperationHelpers.IsParameter(value, lambda.Symbol.Parameters[0])
             && SymbolEqualityComparer.Default.Equals(value.Type, success.TargetMethod.TypeArguments[0]))
         {
             Report(context, Rules.UseMapInsteadOfBind, invocation, []);
@@ -41,19 +40,11 @@ public sealed partial class ResultSuggestionsAnalyzer
             && success.TargetMethod.TypeArguments.Length == 1;
     }
 
-    // A lambda with one parameter that returns one expression and is not async.
-    private static bool TryGetSynchronousLambda(
-        IInvocationOperation invocation,
-        string parameterName,
-        out IAnonymousFunctionOperation lambda,
-        out IOperation returned) =>
-        OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, parameterName), 1, out lambda, out returned) && !lambda.Symbol.IsAsync;
-
     // WYZ0113: Map(x => { Use(x); return x; }) is Tap(x => { Use(x); }). The statements before the return must not return, and must not change x.
     private static void CheckMapToTap(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (!IsPlainMemberCall(invocation)
-            || !HasEqualTypeArguments(invocation.TargetMethod)
+        if (!OperationHelpers.IsPlainMemberCall(invocation)
+            || !OperationHelpers.HasEqualTypeArguments(invocation.TargetMethod)
             || !TryGetStatementLambda(invocation, out var lambda))
         {
             return;
@@ -63,7 +54,7 @@ public sealed partial class ResultSuggestionsAnalyzer
         var parameter = lambda.Symbol.Parameters[0];
 
         if (statements[statements.Length - 1] is not IReturnOperation { ReturnedValue: { } returned }
-            || !OperationShapes.IsParameter(returned, parameter)
+            || !OperationHelpers.IsParameter(returned, parameter)
             || AnyStatementEscapes(statements, parameter))
         {
             return;
@@ -77,7 +68,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     {
         lambda = null!;
 
-        if (OperationShapes.ArgumentOf(invocation, "map") is not IDelegateCreationOperation { Target: IAnonymousFunctionOperation found }
+        if (OperationHelpers.ArgumentOf(invocation, "map") is not IDelegateCreationOperation { Target: IAnonymousFunctionOperation found }
             || found.Symbol.IsAsync
             || found.Symbol.Parameters.Length != 1
             || found.Body.Operations.Length < 2)
@@ -111,27 +102,27 @@ public sealed partial class ResultSuggestionsAnalyzer
     {
         var method = invocation.TargetMethod;
 
-        if (!HasEqualTypeArguments(method)
-            || !TryGetSynchronousLambda(invocation, "onSuccess", out var success, out var value)
-            || !TryGetSynchronousLambda(invocation, "onFailure", out var failure, out var fallback)
-            || !OperationShapes.IsParameter(value, success.Symbol.Parameters[0]))
+        if (!OperationHelpers.HasEqualTypeArguments(method)
+            || !OperationHelpers.TryGetSynchronousLambda(invocation, "onSuccess", 1, out var success, out var value)
+            || !OperationHelpers.TryGetSynchronousLambda(invocation, "onFailure", 1, out var failure, out var fallback)
+            || !OperationHelpers.IsParameter(value, success.Symbol.Parameters[0]))
         {
             return;
         }
 
         var lazy = !OperationHelpers.IsCheap(fallback) || OperationShapes.UsesParameter(fallback, failure.Symbol.Parameters[0]);
 
-        Report(context, Rules.UseValueOr, invocation, [Flag(LazyProperty, lazy)]);
+        Report(context, Rules.UseValueOr, invocation, [OperationHelpers.Flag(LazyProperty, lazy)]);
     }
 
     // WYZ0115: Map(x => x) and Bind(x => Result.Success(x)) return the result they were called on.
     private static void CheckNoOpMap(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (IsPlainMemberCall(invocation)
-            && HasEqualTypeArguments(invocation.TargetMethod)
-            && OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "map"), 1, out var lambda, out var returned)
+        if (OperationHelpers.IsPlainMemberCall(invocation)
+            && OperationHelpers.HasEqualTypeArguments(invocation.TargetMethod)
+            && OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "map"), 1, out var lambda, out var returned)
             && !lambda.Symbol.IsAsync
-            && OperationShapes.IsParameter(returned, lambda.Symbol.Parameters[0]))
+            && OperationHelpers.IsParameter(returned, lambda.Symbol.Parameters[0]))
         {
             Report(context, Rules.RemoveNoOpStep, invocation, []);
         }
@@ -139,8 +130,8 @@ public sealed partial class ResultSuggestionsAnalyzer
 
     private static void CheckNoOpBind(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (IsPlainMemberCall(invocation)
-            && OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out var lambda, out var returned)
+        if (OperationHelpers.IsPlainMemberCall(invocation)
+            && OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "bind"), 1, out var lambda, out var returned)
             && !lambda.Symbol.IsAsync
             && OperationShapes.IsSuccessOf(returned, lambda.Symbol.Parameters[0])
             && SymbolEqualityComparer.Default.Equals(((IInvocationOperation)returned).TargetMethod.TypeArguments[0], lambda.Symbol.Parameters[0].Type))
@@ -161,7 +152,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     // Error.Create(message) as the error of the call.
     private static bool TryGetErrorCreate(IInvocationOperation invocation, out IInvocationOperation created)
     {
-        created = (OperationShapes.ArgumentOf(invocation, "error") as IInvocationOperation)!;
+        created = (OperationHelpers.ArgumentOf(invocation, "error") as IInvocationOperation)!;
 
         return created is { TargetMethod: { Name: "Create", IsStatic: true } create }
             && create.ContainingType.Name == "Error"
@@ -178,22 +169,13 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0117: Bind(x => x) on a result of a result is Flatten().
     private static void CheckFlatten(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (IsPlainMemberCall(invocation)
-            && OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "bind"), 1, out var lambda, out var returned)
+        if (OperationHelpers.IsPlainMemberCall(invocation)
+            && OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "bind"), 1, out var lambda, out var returned)
             && !lambda.Symbol.IsAsync
             && lambda.Symbol.Parameters[0].Type is INamedTypeSymbol { Name: "Result", IsGenericType: true }
-            && OperationShapes.IsParameter(returned, lambda.Symbol.Parameters[0]))
+            && OperationHelpers.IsParameter(returned, lambda.Symbol.Parameters[0]))
         {
             Report(context, Rules.UseFlatten, invocation, []);
         }
     }
-
-    // The fixes rename the call, so it has to be written as member.Name(...) without type arguments. An extension method that is called as a static method,
-    // ResultExtensions.Name(receiver, ...), has the same syntax but one argument more than the call that a fix writes.
-    private static bool IsPlainMemberCall(IInvocationOperation invocation) =>
-        invocation.Syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: IdentifierNameSyntax } } call
-        && (!invocation.TargetMethod.IsExtensionMethod || call.ArgumentList.Arguments.Count == invocation.TargetMethod.Parameters.Length - 1);
-
-    private static bool HasEqualTypeArguments(IMethodSymbol method) =>
-        method.TypeArguments.Length == 2 && SymbolEqualityComparer.Default.Equals(method.TypeArguments[0], method.TypeArguments[1]);
 }

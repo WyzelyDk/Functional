@@ -15,18 +15,18 @@ public sealed partial class ResultSuggestionsAnalyzer
     // Only the function named alternative is looked at: the function named replacement returns the value, which for a Result<Error> is an error too.
     private static void CheckOrElse(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (!IsPlainMemberCall(invocation) || !TryGetErrorOnlyFunction(invocation, out var function, out var error, out var wrapped))
+        if (!OperationHelpers.IsPlainMemberCall(invocation) || !TryGetErrorOnlyFunction(invocation, out var function, out var error, out var wrapped))
         {
             return;
         }
 
-        if (function.Symbol.Parameters.Length == 1 && OperationShapes.IsParameter(error, function.Symbol.Parameters[0]))
+        if (function.Symbol.Parameters.Length == 1 && OperationHelpers.IsParameter(error, function.Symbol.Parameters[0]))
         {
             Report(context, Rules.RemoveNoOpStep, invocation, []);
         }
         else
         {
-            Report(context, Rules.UseMapError, invocation, [Flag(WrappedProperty, wrapped)]);
+            Report(context, Rules.UseMapError, invocation, [OperationHelpers.Flag(WrappedProperty, wrapped)]);
         }
     }
 
@@ -41,7 +41,7 @@ public sealed partial class ResultSuggestionsAnalyzer
         error = null!;
         wrapped = false;
 
-        if (!OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "alternative"), out function, out var returned) || function.Symbol.IsAsync)
+        if (!OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "alternative"), out function, out var returned) || function.Symbol.IsAsync)
         {
             return false;
         }
@@ -70,10 +70,10 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0115: MapError(e => e) leaves the error as it is.
     private static void CheckNoOpMapError(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (IsPlainMemberCall(invocation)
-            && OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, "mapError"), 1, out var function, out var returned)
+        if (OperationHelpers.IsPlainMemberCall(invocation)
+            && OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "mapError"), 1, out var function, out var returned)
             && !function.Symbol.IsAsync
-            && OperationShapes.IsParameter(returned, function.Symbol.Parameters[0]))
+            && OperationHelpers.IsParameter(returned, function.Symbol.Parameters[0]))
         {
             Report(context, Rules.RemoveNoOpStep, invocation, []);
         }

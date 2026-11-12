@@ -128,6 +128,7 @@ public sealed class FallbackAnalyzerTests
     [InlineData("int M(Switch s) => s.IsOn ? 1 : 0;")]
     [InlineData("double M(Result<int> r) => r.IsSuccess ? r.GetValue() : 1.5;")]
     [InlineData("int M(Result<int> r) => r.IsSuccess ? r.GetValue() : throw new InvalidOperationException();")]
+    [InlineData("List<int> M(Result<List<int>> r) => r.IsSuccess ? r.GetValue() : new();")]
     [InlineData("int M(Result<int> r, string s) => r.IsSuccess ? r.GetValue() : (int.TryParse(s, out var n) ? n : 0);")]
     [InlineData("int M(Result<int> r, string s) { int n; return r.IsSuccess ? r.GetValue() : (int.TryParse(s, out n) ? n : 0); }")]
     [InlineData("int M(Result<int> r, object o) => r.IsSuccess ? r.GetValue() : (o is int n ? n : Compute());")]
@@ -237,6 +238,7 @@ public sealed class FallbackAnalyzerTests
 
     // Reading a local, a parameter, a field, a property or a constant is not work, and a function, or a value that a lambda would become, is left alone.
     [Theory]
+    [InlineData("List<int> M(Result<List<int>> r) => r.ValueOr(new());")]
     [InlineData("int M(Result<int> r, int fallback) => r.ValueOr(fallback);")]
     [InlineData("int M(Result<int> r) => r.ValueOr(0);")]
     [InlineData("int M(Result<int> r) => r.ValueOr(int.MaxValue);")]

@@ -8,16 +8,34 @@ namespace Wyzely.Functional.MaybeAnalyzers;
 
 /// <summary>
 /// Suggests the method of the library that says what a piece of code does: <c>Filter(p).IsSome</c> is <c>Any(p)</c>,
-/// a conditional on <c>IsSome</c> is <c>ValueOr</c>, and a null check that chooses between none and some is <c>Maybe.From</c>.
+/// a conditional on <c>IsSome</c> or a <c>Match</c> that returns the value is <c>ValueOr</c>, and a null check that chooses between none and some is
+/// <c>Maybe.From</c>; and points at code that does more than it has to: a <c>Bind</c> that only wraps in <c>Some</c>, a step that changes nothing,
+/// and a fallback that is evaluated for nothing.
 /// Every suggestion is an exact shape that can be rewritten without changing the behavior.
 /// </summary>
+/// <remarks>
+/// A diagnostic carries a property (whether a fallback has to stay a function) so that the code fix,
+/// which lives in another assembly, can rewrite the code from its syntax without asking the question again.
+/// </remarks>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
+public sealed partial class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>The property that tells whether a fallback has to stay a function, because evaluating it ahead of time would cost something.</summary>
+    internal const string LazyProperty = "Lazy";
+
     private const string IsSomeName = "IsSome";
 
     /// <inheritdoc />
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rules.UseAny, Rules.UseValueOr, Rules.UseFrom];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
+    [
+        Rules.UseAny,
+        Rules.UseValueOr,
+        Rules.UseFrom,
+        Rules.UseValueOrMatch,
+        Rules.UseMapInsteadOfBind,
+        Rules.RemoveNoOpStep,
+        Rules.UseValueOrFunction,
+    ];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -38,6 +56,7 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
 
         context.RegisterOperationAction(operation => AnalyzeProperty(operation, types), OperationKind.PropertyReference);
         context.RegisterOperationAction(operation => AnalyzeConditional(operation, types), OperationKind.Conditional);
+        context.RegisterOperationAction(operation => AnalyzeInvocation(operation, types), OperationKind.Invocation);
     }
 
     // WYZ0202: maybe.Filter(p).IsSome is maybe.Any(p).
@@ -79,62 +98,54 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
         // A conditional expression, unlike an if statement, always has both branches.
         var otherwise = conditional.WhenFalse!;
 
-        if (IsValueOrShape(conditional, otherwise, types))
+        if (TryReadValueOrShape(conditional, otherwise, types, out var valueType, out var fallback))
         {
-            context.ReportDiagnostic(Diagnostic.Create(Rules.UseValueOr, conditional.Syntax.GetLocation()));
+            CheckValueOrConditional(context, conditional, valueType, fallback);
         }
         else if (IsFromShape(conditional, otherwise, types))
         {
-            context.ReportDiagnostic(Diagnostic.Create(Rules.UseFrom, conditional.Syntax.GetLocation()));
+            Report(context, Rules.UseFrom, conditional);
         }
     }
 
-    // WYZ0203: maybe.IsSome ? maybe.GetValue() : fallback, and maybe.IsNone ? fallback : maybe.GetValue(), are maybe.ValueOr(fallback).
-    // ValueOr evaluates the fallback on every call, so it has to be cheap, and the receiver has to be read the same way in both places.
-    private static bool IsValueOrShape(IConditionalOperation conditional, IOperation otherwise, MaybeTypes types)
+    private static void AnalyzeInvocation(OperationAnalysisContext context, MaybeTypes types)
     {
-        if (!TryReadPresenceCheck(conditional.Condition, types, out var check, out var receiver))
+        var invocation = (IInvocationOperation)context.Operation;
+        var method = invocation.TargetMethod;
+
+        if (OperationShapes.IsMaybeExtension(method))
         {
-            return false;
+            AnalyzeExtension(context, invocation, types);
         }
-
-        var some = check.Property.Name == IsSomeName;
-        var read = OperationHelpers.Unwrap(some ? conditional.WhenTrue : otherwise);
-        var fallback = some ? otherwise : conditional.WhenTrue;
-
-        return IsGetValueOf(read, receiver) && OperationHelpers.IsCheap(fallback);
+        else if (method.Name == "ValueOr" && types.IsMaybe(method.ContainingType))
+        {
+            CheckValueOrWork(context, invocation);
+        }
     }
 
-    // `maybe.IsSome` or `maybe.IsNone` on a plain receiver.
-    private static bool TryReadPresenceCheck(
-        IOperation condition,
-        MaybeTypes types,
-        out IPropertyReferenceOperation check,
-        out IOperation receiver)
+    // The railway methods of the library that have a simpler form.
+    private static void AnalyzeExtension(OperationAnalysisContext context, IInvocationOperation invocation, MaybeTypes types)
     {
-        check = null!;
-        receiver = null!;
+        var name = invocation.TargetMethod.Name;
 
-        if (OperationHelpers.Unwrap(condition) is not IPropertyReferenceOperation candidate
-            || !IsPresenceProperty(candidate.Property, types)
-            || candidate.Instance is not { } instance
-            || !OperationHelpers.IsPlain(instance.Syntax))
+        if (name == "Match")
         {
-            return false;
+            CheckMatchToValueOr(context, invocation, types);
         }
-
-        check = candidate;
-        receiver = instance;
-
-        return true;
+        else if (name == "Bind")
+        {
+            CheckBindToMap(context, invocation);
+            CheckNoOpBind(context, invocation);
+        }
+        else if (name == "Map")
+        {
+            CheckNoOpMap(context, invocation);
+        }
+        else if (name == "OrElse")
+        {
+            CheckNoOpOrElse(context, invocation);
+        }
     }
-
-    private static bool IsPresenceProperty(IPropertySymbol property, MaybeTypes types) =>
-        property.Name is IsSomeName or "IsNone" && types.IsMaybe(property.ContainingType);
-
-    private static bool IsGetValueOf(IOperation read, IOperation receiver) =>
-        read is IInvocationOperation { TargetMethod: { Name: "GetValue", Parameters.Length: 0 }, Instance: { } getter }
-        && OperationHelpers.SameText(getter.Syntax, receiver.Syntax);
 
     // WYZ0204: x is null ? Maybe.None<T>() : Maybe.Some(x) is Maybe.From(x), also for a nullable value type with Some(x.Value).
     private static bool IsFromShape(IConditionalOperation conditional, IOperation otherwise, MaybeTypes types)
@@ -150,4 +161,11 @@ public sealed class MaybeSuggestionsAnalyzer : DiagnosticAnalyzer
 
         return OperationShapes.IsNone(none, types) && OperationShapes.IsSomeOf(some, checkedOperation);
     }
+
+    private static void Report(
+        OperationAnalysisContext context,
+        DiagnosticDescriptor rule,
+        IOperation operation,
+        params KeyValuePair<string, string?>[] properties) =>
+        context.ReportDiagnostic(Diagnostic.Create(rule, OperationHelpers.LocationOf(operation), properties.ToImmutableDictionary()));
 }

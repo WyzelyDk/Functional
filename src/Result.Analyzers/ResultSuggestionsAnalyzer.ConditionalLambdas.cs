@@ -38,7 +38,10 @@ public sealed partial class ResultSuggestionsAnalyzer
             context,
             Rules.UseBindIf,
             invocation,
-            [Flag(NegateProperty, whenTrueIsPass), Flag(UsesParameterProperty, OperationShapes.UsesParameter(conditional.Condition, parameter))]);
+            [
+                OperationHelpers.Flag(NegateProperty, whenTrueIsPass),
+                OperationHelpers.Flag(UsesParameterProperty, OperationShapes.UsesParameter(conditional.Condition, parameter)),
+            ]);
     }
 
     // WYZ0104: Map(x => cond ? f(x) : x), or the same with the branches the other way around. Only when the other branch has the type of x.
@@ -50,8 +53,8 @@ public sealed partial class ResultSuggestionsAnalyzer
         }
 
         var parameter = lambda.Symbol.Parameters[0];
-        var whenTrueIsPass = OperationShapes.IsParameter(whenTrue, parameter);
-        var whenFalseIsPass = OperationShapes.IsParameter(whenFalse, parameter);
+        var whenTrueIsPass = OperationHelpers.IsParameter(whenTrue, parameter);
+        var whenFalseIsPass = OperationHelpers.IsParameter(whenFalse, parameter);
 
         if (whenTrueIsPass == whenFalseIsPass)
         {
@@ -69,7 +72,10 @@ public sealed partial class ResultSuggestionsAnalyzer
             context,
             Rules.UseMapIf,
             invocation,
-            [Flag(NegateProperty, whenTrueIsPass), Flag(UsesParameterProperty, OperationShapes.UsesParameter(conditional.Condition, parameter))]);
+            [
+                OperationHelpers.Flag(NegateProperty, whenTrueIsPass),
+                OperationHelpers.Flag(UsesParameterProperty, OperationShapes.UsesParameter(conditional.Condition, parameter)),
+            ]);
     }
 
     // WYZ0106: Bind(x => x is null ? Result.Failure<T>(error) : Result.Success(x)), with == null, is not null and != null as well.
@@ -94,7 +100,10 @@ public sealed partial class ResultSuggestionsAnalyzer
             context,
             Rules.UseEnsureNotNull,
             invocation,
-            [Flag(LazyProperty, !OperationHelpers.IsCheap(error)), Flag(MessageProperty, error.Type!.SpecialType == SpecialType.System_String)]);
+            [
+                OperationHelpers.Flag(LazyProperty, !OperationHelpers.IsCheap(error)),
+                OperationHelpers.Flag(MessageProperty, error.Type!.SpecialType == SpecialType.System_String),
+            ]);
     }
 
     // The branch that is the failure of a null check of the parameter, when the other branch is Result.Success of the parameter.
@@ -131,7 +140,7 @@ public sealed partial class ResultSuggestionsAnalyzer
 
     // The argument that is the error or the message of a call of Failure.
     private static IOperation? ErrorArgumentOf(IInvocationOperation failed) =>
-        OperationShapes.ArgumentOf(failed, "error") ?? OperationShapes.ArgumentOf(failed, "message");
+        OperationHelpers.ArgumentOf(failed, "error") ?? OperationHelpers.ArgumentOf(failed, "message");
 
     private static bool TryGetConditionalLambda(
         IInvocationOperation invocation,
@@ -145,7 +154,7 @@ public sealed partial class ResultSuggestionsAnalyzer
         whenTrue = null!;
         whenFalse = null!;
 
-        if (OperationShapes.TryGetLambda(OperationShapes.ArgumentOf(invocation, parameterName), 1, out lambda, out var returned)
+        if (OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, parameterName), 1, out lambda, out var returned)
             && returned is IConditionalOperation { WhenFalse: { } otherwise } found)
         {
             conditional = found;
@@ -161,7 +170,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     // Returns true when the condition is true for null, false when it is true for not null, and null when it is not a null check of the parameter.
     private static bool? NullCheck(IOperation condition, IParameterSymbol parameter) => OperationHelpers.Unwrap(condition) switch
     {
-        IIsPatternOperation pattern when OperationShapes.IsParameter(pattern.Value, parameter) => NullCheckOfPattern(pattern.Pattern),
+        IIsPatternOperation pattern when OperationHelpers.IsParameter(pattern.Value, parameter) => NullCheckOfPattern(pattern.Pattern),
         IBinaryOperation { OperatorKind: BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals } binary => NullCheckOfComparison(binary, parameter),
         _ => null,
     };
@@ -184,12 +193,12 @@ public sealed partial class ResultSuggestionsAnalyzer
     {
         var equals = binary.OperatorKind == BinaryOperatorKind.Equals;
 
-        if (OperationShapes.IsParameter(binary.LeftOperand, parameter) && IsNull(binary.RightOperand))
+        if (OperationHelpers.IsParameter(binary.LeftOperand, parameter) && IsNull(binary.RightOperand))
         {
             return equals;
         }
 
-        return OperationShapes.IsParameter(binary.RightOperand, parameter) && IsNull(binary.LeftOperand) ? equals : null;
+        return OperationHelpers.IsParameter(binary.RightOperand, parameter) && IsNull(binary.LeftOperand) ? equals : null;
     }
 
     private static bool IsNull(IOperation operation) =>
@@ -206,5 +215,5 @@ public sealed partial class ResultSuggestionsAnalyzer
         operation is IInvocationOperation { Arguments.Length: 1 } call
         && OperationShapes.IsResultFactory(call.TargetMethod, "Success")
         && OperationHelpers.Unwrap(call.Arguments[0].Value) is IPropertyReferenceOperation { Property.Name: "Value", Instance: { } instance }
-        && OperationShapes.IsParameter(instance, parameter);
+        && OperationHelpers.IsParameter(instance, parameter);
 }

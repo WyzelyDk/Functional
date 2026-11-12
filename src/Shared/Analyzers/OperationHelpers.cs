@@ -9,7 +9,7 @@ namespace Wyzely.Functional;
 /// What the analyzers of <c>Result</c> and <c>Maybe</c> both need to read an operation.
 /// The file is compiled into each analyzer project as internal source, so no shared assembly has to ship with a package.
 /// </summary>
-internal static class OperationHelpers
+internal static partial class OperationHelpers
 {
     /// <summary>Strips the implicit conversions around an operation. The operation tree of C# has no node for parentheses.</summary>
     /// <param name="operation">The operation to unwrap.</param>

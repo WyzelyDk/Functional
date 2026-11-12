@@ -141,19 +141,11 @@ public sealed partial class ResultSuggestionsAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    // The diagnostic is reported on the name of the method for a call that is written as a member access, so that the squiggle is short.
-    private static Location LocationOf(IOperation operation) =>
-        operation.Syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax access }
-            ? access.Name.GetLocation()
-            : operation.Syntax.GetLocation();
-
     private static void Report(
         OperationAnalysisContext context,
         DiagnosticDescriptor rule,
         IOperation operation,
         IEnumerable<KeyValuePair<string, string?>> properties,
         params object?[] messageArguments) =>
-        context.ReportDiagnostic(Diagnostic.Create(rule, LocationOf(operation), properties.ToImmutableDictionary(), messageArguments));
-
-    private static KeyValuePair<string, string?> Flag(string name, bool value) => new(name, value ? "true" : "false");
+        context.ReportDiagnostic(Diagnostic.Create(rule, OperationHelpers.LocationOf(operation), properties.ToImmutableDictionary(), messageArguments));
 }

@@ -53,7 +53,7 @@ A "some" that can hold `null` is the case this type exists to remove, so it is w
 | From a nullable | `Maybe.From` | `AsMaybe` | `Optional` | `Option.FromNullable` | `SomeNotNull`, `ToOption` | none |
 | To a nullable | `AsNullable` (value types) | `AsNullable` | `ToNullable` | `ToNullable` | `ToNullable` | none |
 | To and from a result type | `ToResult` and `ToMaybe` in the umbrella package `Wyzely.Functional` (a separate package) | `ToResult`, `ToUnitResult`, `ToInvertedResult`, and `AsMaybe` from a result, in the same package | `ToFin`, `ToEither`, `ToValidation` and others, to its own types | `ToEither`, to its own type | `WithException` (to `Option<T, TException>`) | none |
-| Analyzers in the package | yes (`WYZ0201` to `WYZ0204`) | no | no | yes (built-in analyzers and code fixes) | no | no |
+| Analyzers in the package | yes (`WYZ0201` to `WYZ0208`) | no | no | yes (built-in analyzers and code fixes) | no | no |
 | Dependencies, per nuspec | none on `net8.0` and later | none | ten, on its only target | none on `net5.0` and later | none | none |
 
 The counts only show how much of each surface exists. They are whole-assembly counts, so for CSharpFunctionalExtensions,

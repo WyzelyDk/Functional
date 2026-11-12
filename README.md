@@ -164,7 +164,8 @@ Every number is counted from the source or pinned by a test.
 - **Analyzers and code fixes in the package.**
   `WYZ0101` (a `Result` is not used, with a code fix), `WYZ0102` (check the state of a `Result` before `GetError()` or `GetValue()`,
   with a guard clause as the fix for `GetValue()` in a method that returns a result) and `WYZ0201` (check that a `Maybe` has a value before `GetValue()`;
-  three suggestions, `WYZ0202` to `WYZ0204`, each with a code fix, point at `Any`, `ValueOr` and `Maybe.From`).
+  seven suggestions, `WYZ0202` to `WYZ0208`, each with a code fix, point at `Any`, `ValueOr` and `Maybe.From`
+  and at code that does more than it has to: a `Bind` that only wraps in `Some`, a step that changes nothing, and a fallback that is evaluated for nothing).
   Seventeen more suggestions (`WYZ0103` to `WYZ0110` and `WYZ0112` to `WYZ0120`, info severity,
   each with a code fix) point at the method that says what a piece of code does: `BindIf`, `MapIf`, `EnsureNot`, `EnsureNotNull`, `BindZip`, `ConvertFailure`,
   `SuccessIf`/`FailureIf` and `MapTry`, and at code that does more than it has to: `Map` instead of a `Bind` that only wraps, `Tap`, `ValueOr`

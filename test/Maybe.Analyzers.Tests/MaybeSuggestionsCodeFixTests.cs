@@ -44,10 +44,10 @@ public sealed class MaybeSuggestionsCodeFixTests
     }
 
     [Fact]
-    internal void The_provider_fixes_the_three_suggestions_and_supports_fixing_all_occurrences()
+    internal void The_provider_fixes_the_seven_suggestions_and_supports_fixing_all_occurrences()
     {
         Assert.Multiple(
-            () => Assert.Equal(["WYZ0202", "WYZ0203", "WYZ0204"], Provider.FixableDiagnosticIds),
+            () => Assert.Equal(["WYZ0202", "WYZ0203", "WYZ0204", "WYZ0205", "WYZ0206", "WYZ0207", "WYZ0208"], Provider.FixableDiagnosticIds),
             () => Assert.NotNull(Provider.GetFixAllProvider()));
     }
 }

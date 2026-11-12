@@ -12,7 +12,7 @@ public sealed partial class ResultSuggestionsAnalyzer
     // WYZ0108: Result.Failure<T>(r.GetError()) is r.ConvertFailure<T>().
     private static void CheckConvertFailure(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        if (invocation.TargetMethod.TypeArguments.Length == 1 && TryGetGetError(OperationShapes.ArgumentOf(invocation, "error"), out _))
+        if (invocation.TargetMethod.TypeArguments.Length == 1 && TryGetGetError(OperationHelpers.ArgumentOf(invocation, "error"), out _))
         {
             Report(context, Rules.UseConvertFailure, invocation, []);
         }
