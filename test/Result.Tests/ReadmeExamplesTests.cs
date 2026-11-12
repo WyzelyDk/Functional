@@ -342,6 +342,20 @@ public sealed class ReadmeExamplesTests
     }
 
     [Fact]
+    internal void The_or_else_example_takes_over_with_a_value_or_with_an_alternative_result()
+    {
+        var count = Result.Failure<int>("No stock.")
+            .OrElse(static () => 0);
+
+        var length = Result.Failure<int>("No stock.")
+            .OrElse(static error => Result.Success(error.Message.Length));
+
+        Assert.Multiple(
+            () => Assert.Equal(0, count.GetValue()),
+            () => Assert.Equal(9, length.GetValue()));
+    }
+
+    [Fact]
     internal void The_implicit_conversions_example_turns_a_value_into_a_success_and_an_error_into_a_failure()
     {
         var accepted = Quantity("12");

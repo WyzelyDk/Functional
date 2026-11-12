@@ -2,7 +2,7 @@ namespace Wyzely.Functional;
 
 /// <summary>
 /// The railway methods of <see cref="Maybe{T}"/>: <c>Map</c>, <c>Bind</c>, <c>Filter</c>, <c>Tap</c>, <c>TapNone</c>,
-/// <c>Or</c>, <c>ValueOr</c>, <c>Match</c> and <c>Switch</c>.
+/// <c>OrElse</c>, <c>ValueOr</c>, <c>Match</c> and <c>Switch</c>.
 /// </summary>
 /// <remarks>
 /// <para>

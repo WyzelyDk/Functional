@@ -249,13 +249,13 @@ public sealed class ReadmeExamplesTests : IDisposable
             .Filter(text => text.Length > 3)
             .Tap(text => logged.Add($"found {text}"))
             .Bind(text => text.Contains(' ') ? Maybe.Some(text) : Maybe.None<string>())
-            .Or(() => Maybe.Some("untitled"))
+            .OrElse(() => Maybe.Some("untitled"))
             .Map(text => text.ToUpperInvariant())
             .Match(text => text, () => "no title");
 
         var empty = Maybe.None<string>()
             .TapNone(() => logged.Add("nothing to show"))
-            .Or(() => Maybe.Some("untitled"))
+            .OrElse(() => Maybe.Some("untitled"))
             .ValueOr(() => "no title");
 
         Assert.Multiple(

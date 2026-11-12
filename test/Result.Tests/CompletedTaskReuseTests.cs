@@ -180,21 +180,21 @@ public sealed class CompletedTaskReuseTests
     }
 
     [Fact]
-    internal void Recover_returns_the_receiver_task_for_a_success()
+    internal void OrElse_with_a_value_returns_the_receiver_task_for_a_success()
     {
         var receiver = Task.FromResult(Result.Success(2));
 
-        var returned = receiver.Recover(static _ => 7);
+        var returned = receiver.OrElse(static _ => 7);
 
         Assert.Same(receiver, returned);
     }
 
     [Fact]
-    internal void Recover_returns_a_new_task_with_the_replacement_value_for_a_failure()
+    internal void OrElse_with_a_value_returns_a_new_task_with_the_replacement_value_for_a_failure()
     {
         var receiver = Task.FromResult(Result.Failure<int>(Rejected));
 
-        var returned = receiver.Recover(static _ => 7);
+        var returned = receiver.OrElse(static _ => 7);
 
         Assert.Multiple(
             () => Assert.NotSame(receiver, returned),
@@ -202,21 +202,21 @@ public sealed class CompletedTaskReuseTests
     }
 
     [Fact]
-    internal void Compensate_returns_the_receiver_task_for_a_success()
+    internal void OrElse_with_an_alternative_returns_the_receiver_task_for_a_success()
     {
         var receiver = Task.FromResult(Result.Success(2));
 
-        var returned = receiver.Compensate(static _ => Result.Success(7));
+        var returned = receiver.OrElse(static _ => Result.Success(7));
 
         Assert.Same(receiver, returned);
     }
 
     [Fact]
-    internal void Compensate_returns_a_new_task_with_the_fallback_for_a_failure()
+    internal void OrElse_with_an_alternative_returns_a_new_task_with_the_alternative_for_a_failure()
     {
         var receiver = Task.FromResult(Result.Failure<int>(Rejected));
 
-        var returned = receiver.Compensate(static _ => Result.Success(7));
+        var returned = receiver.OrElse(static _ => Result.Success(7));
 
         Assert.Multiple(
             () => Assert.NotSame(receiver, returned),
@@ -236,7 +236,7 @@ public sealed class CompletedTaskReuseTests
             () => Assert.Same(failure, failure.TapError(static _ => { })),
             () => Assert.Same(success, success.MapError(static _ => Other)),
             () => Assert.Same(failure, failure.MapError(static error => error)),
-            () => Assert.Same(success, success.Compensate(static _ => Result.Success())));
+            () => Assert.Same(success, success.OrElse(static _ => Result.Success())));
     }
 
     [Fact]
@@ -245,13 +245,13 @@ public sealed class CompletedTaskReuseTests
         var failure = Task.FromResult(Result.Failure(Rejected));
 
         var mapped = failure.MapError(static _ => Other);
-        var compensated = failure.Compensate(static _ => Result.Success());
+        var replaced = failure.OrElse(static _ => Result.Success());
 
         Assert.Multiple(
             () => Assert.NotSame(failure, mapped),
             () => Assert.Same(Other, mapped.Result.GetError()),
-            () => Assert.NotSame(failure, compensated),
-            () => Assert.True(compensated.Result.IsSuccess));
+            () => Assert.NotSame(failure, replaced),
+            () => Assert.True(replaced.Result.IsSuccess));
     }
 
     [Fact]
@@ -300,8 +300,8 @@ public sealed class CompletedTaskReuseTests
                 .Tap(static _ => { })
                 .TapError(static _ => { })
                 .MapError(static error => error)
-                .Recover(static _ => 0)
-                .Compensate(static _ => Result.Success(0));
+                .OrElse(static _ => 0)
+                .OrElse(static _ => Result.Success(0));
         }
     }
 #endif

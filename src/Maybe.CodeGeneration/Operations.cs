@@ -29,6 +29,7 @@ internal static class Operations
     private const string IfFound = "if (found)";
     private const string TapNoneName = "tapNone";
     private const string AlternativeName = "alternative";
+    private const string ReplacementName = "replacement";
     private const string FallbackName = "fallback";
     private const string OnSomeName = "onSome";
     private const string OnNoneName = "onNone";
@@ -58,7 +59,8 @@ internal static class Operations
         Contains(),
         Tap(),
         TapNone(),
-        Or(),
+        OrElse(),
+        OrElseValue(),
         ValueOr(),
         Match(),
         Switch(),
@@ -454,12 +456,12 @@ internal static class Operations
         ],
     };
 
-    private static OperationSpec Or() => new()
+    private static OperationSpec OrElse() => new()
     {
-        Stem = "Or",
+        Stem = "OrElse",
         KeepsValue = true,
         StateChange = StateChange.FromNone,
-        Name = "Or",
+        Name = "OrElse",
         ReceiverType = MaybeOfT,
         ReceiverTestType = MaybeOfInt,
         ReceiverDescription = MaybeReceiverDescription,
@@ -504,6 +506,50 @@ internal static class Operations
                 SomeOfTwo,
                 [Returns(AlternativeName, [], "Maybe.Some(5)", MaybeOfInt)],
                 [AssertValueIsTwo, "Assert.Equal(0, alternativeCalls);"]),
+        ],
+    };
+
+    private static OperationSpec OrElseValue() => new()
+    {
+        Stem = "OrElseValue",
+        KeepsValue = true,
+        StateChange = StateChange.FromNone,
+        Name = "OrElse",
+        ReceiverType = MaybeOfT,
+        ReceiverTestType = MaybeOfInt,
+        ReceiverDescription = MaybeReceiverDescription,
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        NotNull = ["T"],
+        Summary = "Gives a maybe without a value a replacement value. A maybe with a value passes through unchanged and the delegate is not called. " +
+            "A <see langword=\"null\"/> that the delegate produces leaves the result without a value.",
+        Delegates = [new(ReplacementName, [], "T", "Computes the replacement value when the receiver has no value.")],
+        ReturnType = MaybeOfT,
+        ReturnDescription = "The receiver when it has a value, otherwise a maybe that holds the replacement value.",
+        Body = ctx =>
+        [
+            Unpack(ctx, "_"),
+            string.Empty,
+            IfFound,
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var value = {ctx.Call(ReplacementName, string.Empty)};",
+            "return Maybe<T>.Of(value);",
+        ],
+        Tests =
+        [
+            Case(
+                "returns_a_maybe_of_the_replacement_value_when_the_receiver_has_no_value",
+                NoneOfInt,
+                [Returns(ReplacementName, [], "5", "int")],
+                ["Assert.True(outcome.IsSome);", "Assert.Equal(5, outcome.GetValue());", "Assert.Equal(1, replacementCalls);"]),
+            Case(
+                ReceiverSome,
+                SomeOfTwo,
+                [Returns(ReplacementName, [], "5", "int")],
+                [AssertValueIsTwo, "Assert.Equal(0, replacementCalls);"]),
         ],
     };
 

@@ -59,31 +59,31 @@ public sealed class CompletedTaskReuseTests
     }
 
     [Fact]
-    internal void Or_returns_the_receiver_task_when_it_has_a_value()
+    internal void OrElse_returns_the_receiver_task_when_it_has_a_value()
     {
         var receiver = Task.FromResult(Maybe.Some(2));
 
-        var returned = receiver.Or(static () => Maybe.Some(7));
+        var returned = receiver.OrElse(static () => Maybe.Some(7));
 
         Assert.Same(receiver, returned);
     }
 
     [Fact]
-    internal void Or_returns_the_receiver_task_when_the_alternative_is_none_as_well()
+    internal void OrElse_returns_the_receiver_task_when_the_alternative_is_none_as_well()
     {
         var receiver = Task.FromResult(Maybe.None<int>());
 
-        var returned = receiver.Or(static () => Maybe.None<int>());
+        var returned = receiver.OrElse(static () => Maybe.None<int>());
 
         Assert.Same(receiver, returned);
     }
 
     [Fact]
-    internal void Or_returns_a_new_task_with_the_alternative_when_the_receiver_is_none()
+    internal void OrElse_returns_a_new_task_with_the_alternative_when_the_receiver_is_none()
     {
         var receiver = Task.FromResult(Maybe.None<int>());
 
-        var returned = receiver.Or(static () => Maybe.Some(7));
+        var returned = receiver.OrElse(static () => Maybe.Some(7));
 
         Assert.Multiple(
             () => Assert.NotSame(receiver, returned),
@@ -134,7 +134,7 @@ public sealed class CompletedTaskReuseTests
                 .Filter(static x => x > 0)
                 .Tap(static _ => { })
                 .TapNone(static () => { })
-                .Or(static () => Maybe.Some(0));
+                .OrElse(static () => Maybe.Some(0));
         }
     }
 #endif
