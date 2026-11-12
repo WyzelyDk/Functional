@@ -31,7 +31,7 @@ One chain, no `await` in the middle, no `null` check between the steps: the firs
 
 ## Fluent from first step to last
 
-The whole railway is available as chained calls: `Map`, `Bind`, `Filter`, `Tap`, `TapNone` and `OrElse` continue the chain;
+The whole railway is available as chained calls: `Map`, `Bind`, `Filter`, `OfType`, `Tap`, `TapNone` and `OrElse` continue the chain;
 `ValueOr`, `Match` and `Switch` leave it. Each accepts a synchronous, `Task` or `ValueTask` receiver and delegate in any mix,
 so the chain above needs no `await` in the middle, and LINQ query syntax, `Zip` (two to five maybes) and `Flatten` follow the same rules.
 [The full list](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/the-railway.md).
