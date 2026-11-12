@@ -26,7 +26,7 @@ on:
         type: string
         default: '*'
 
-# One run at a time, and a run that has started is allowed to finish: a cancelled run leaves no results at all.
+# One run at a time, and a run that has started is allowed to finish: a canceled run leaves no results at all.
 concurrency:
   group: benchmarks
   cancel-in-progress: false

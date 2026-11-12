@@ -67,7 +67,7 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task Combine_stops_when_the_token_is_cancelled()
+    internal async Task Combine_stops_when_the_token_is_canceled()
     {
         using var source = CancellationTokenSource.CreateLinkedTokenSource(Token);
         await source.CancelAsync();
@@ -264,19 +264,19 @@ public sealed class ResultAsyncStreamTests
 
     // SelectEach starts its stream without a token, but the stream is built to combine a token of its own with the one of the consumer.
     [Fact]
-    internal async Task The_stream_combines_its_own_token_with_the_token_of_the_consumer_and_stops_when_either_is_cancelled()
+    internal async Task The_stream_combines_its_own_token_with_the_token_of_the_consumer_and_stops_when_either_is_canceled()
     {
         IEnumerable<int> items = [1, 2, 3];
         using var own = CancellationTokenSource.CreateLinkedTokenSource(Token);
         using var consumer = CancellationTokenSource.CreateLinkedTokenSource(Token);
-        using var ownCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
-        using var consumerCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
-        await ownCancelled.CancelAsync();
-        await consumerCancelled.CancelAsync();
+        using var ownCanceled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var consumerCanceled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        await ownCanceled.CancelAsync();
+        await consumerCanceled.CancelAsync();
 
         var all = await AsyncStreams.ToListAsync(Stream(items, own.Token), consumer.Token);
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Stream(items, ownCancelled.Token), consumer.Token));
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Stream(items, own.Token), consumerCancelled.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Stream(items, ownCanceled.Token), consumer.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Stream(items, own.Token), consumerCanceled.Token));
 
         Assert.Equal(3, all.Count);
     }
@@ -290,7 +290,7 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_stops_when_the_token_of_the_consumer_is_cancelled()
+    internal async Task SelectEach_stops_when_the_token_of_the_consumer_is_canceled()
     {
         using var source = CancellationTokenSource.CreateLinkedTokenSource(Token);
         await source.CancelAsync();

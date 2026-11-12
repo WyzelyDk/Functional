@@ -249,7 +249,7 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
 
     // When the receiver has already completed successfully there is nothing to wait for: run the synchronous variant (or the
     // one for the kind of the delegate) on its result and skip the state machine. Only a receiver that is still running,
-    // faulted or cancelled takes the slow path, which awaits it and lets the exception travel.
+    // faulted or canceled takes the slow path, which awaits it and lets the exception travel.
     private void EmitCompletedFastPath(CodeWriter writer, OperationSpec operation, Variant variant, List<string> parameters, string receiverName)
     {
         var completed = variant.Receiver == Wrapper.Task ? $"{receiverName}.Status == TaskStatus.RanToCompletion" : $"{receiverName}.IsCompletedSuccessfully";

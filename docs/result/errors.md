@@ -23,7 +23,7 @@ An `Error` is **immutable**: every `With...` method returns a modified copy.
 | `Details` | structured name/value pairs for logs and telemetry; mark secrets with `isSensitive: true` |
 | `RedactedMessage`, `ToRedactedString()` | the same text with sensitive values replaced by `***` |
 | `Code` | an optional, stable, machine-readable code |
-| `Kind` | an open set: `Validation`, `NotFound`, `Conflict`, `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout`, `Cancelled`, `Unexpected`, or your own `new ErrorKind("RateLimited")` |
+| `Kind` | an open set: `Validation`, `NotFound`, `Conflict`, `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout`, `Canceled`, `Unexpected`, or your own `new ErrorKind("RateLimited")` |
 | `IsTransient` | retrying might help; set by `Error.Unavailable` / `Error.Timeout` |
 | `Exception` | the cause, kept by `Error.FromException` and `Result.Try` |
 | `Context`, `WithContext(...)` | frames (`ErrorFrame`) added as the error passes layers; a frame is a template with details of its own; `ToString()` prints them outermost first |

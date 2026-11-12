@@ -17,7 +17,7 @@ public sealed class TryFamilySettingsTests : IDisposable
 
         var outcome = Result.Success(2).MapTry(Cancel);
 
-        Assert.Equal(ErrorKind.Cancelled, outcome.GetError().Kind);
+        Assert.Equal(ErrorKind.Canceled, outcome.GetError().Kind);
     }
 
     [Fact]

@@ -221,18 +221,18 @@ public sealed class MaybeAsyncStreamTests
 
     // Choose starts its stream without a token, but the stream is built to combine a token of its own with the one of the consumer.
     [Fact]
-    internal async Task The_chosen_stream_combines_its_own_token_with_the_token_of_the_consumer_and_stops_when_either_is_cancelled()
+    internal async Task The_chosen_stream_combines_its_own_token_with_the_token_of_the_consumer_and_stops_when_either_is_canceled()
     {
         using var own = CancellationTokenSource.CreateLinkedTokenSource(Token);
         using var consumer = CancellationTokenSource.CreateLinkedTokenSource(Token);
-        using var ownCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
-        using var consumerCancelled = CancellationTokenSource.CreateLinkedTokenSource(Token);
-        await ownCancelled.CancelAsync();
-        await consumerCancelled.CancelAsync();
+        using var ownCanceled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        using var consumerCanceled = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        await ownCanceled.CancelAsync();
+        await consumerCanceled.CancelAsync();
 
         var all = await AsyncStreams.ToListAsync(Chosen(own.Token), consumer.Token);
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Chosen(ownCancelled.Token), consumer.Token));
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Chosen(own.Token), consumerCancelled.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Chosen(ownCanceled.Token), consumer.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(Chosen(own.Token), consumerCanceled.Token));
 
         Assert.Equal([1, 2, 3], all);
     }
@@ -250,7 +250,7 @@ public sealed class MaybeAsyncStreamTests
     }
 
     [Fact]
-    internal async Task The_terminal_operations_stop_when_the_token_is_cancelled()
+    internal async Task The_terminal_operations_stop_when_the_token_is_canceled()
     {
         using var source = CancellationTokenSource.CreateLinkedTokenSource(Token);
         await source.CancelAsync();
@@ -262,7 +262,7 @@ public sealed class MaybeAsyncStreamTests
     }
 
     [Fact]
-    internal async Task Choose_stops_when_the_token_of_the_consumer_is_cancelled()
+    internal async Task Choose_stops_when_the_token_of_the_consumer_is_canceled()
     {
         using var source = CancellationTokenSource.CreateLinkedTokenSource(Token);
         await source.CancelAsync();

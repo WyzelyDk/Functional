@@ -151,7 +151,7 @@ and each item below is something this repository has and a hand-written type usu
 Every number is counted from the source or pinned by a test.
 
 - **An error that is more than a string.** One `Error` type with a message template and structured details, a kind (`NotFound`, `Validation`,
-  `Conflict`, `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout`, `Cancelled`, ...), an optional code, a `IsTransient` flag for retry decisions,
+  `Conflict`, `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout`, `Canceled`, ...), an optional code, a `IsTransient` flag for retry decisions,
   the causing exception, context frames added as the error travels up, aggregation of many errors into one, and redaction:
   a detail marked sensitive is shown by `Message` and hidden by `RedactedMessage` and `ToRedactedString()` ([errors](docs/result/errors.md)).
 - **A railway that needs no `await` in the middle.**

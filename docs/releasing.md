@@ -29,7 +29,7 @@ packs all packages, and publishes them to nuget.org without any stored password.
 
 A pull request that changes only documentation does not need a build, and it does not wait for one: `changes` notices, the build and test jobs are skipped,
 and `docs` plus the gate finish in well under a minute. The gate accepts "skipped" for the build jobs **only** when no code changed;
-it fails if a build job was skipped (or cancelled) although code did change, or if the detection itself failed.
+it fails if a build job was skipped (or canceled) although code did change, or if the detection itself failed.
 
 The push that a merged pull request makes to `main` is the exception: it always builds and tests, because it publishes the website and the
 website contains the coverage report. That is one build per merge, and the only one: the website is packaged by `build-and-test` itself.

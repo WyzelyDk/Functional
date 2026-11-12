@@ -5,7 +5,7 @@ namespace Wyzely.Functional;
 
 /// <content>
 /// The same questions for an asynchronous stream: the first, last or only element, the element at an index, and keeping the values of the maybes that have one.
-/// A stream is read once, in order, and only as far as the answer needs; the reading stops when the cancellation token is cancelled.
+/// A stream is read once, in order, and only as far as the answer needs; the reading stops when the cancellation token is canceled.
 /// A predicate may be asynchronous.
 /// </content>
 public static partial class MaybeCollectionExtensions

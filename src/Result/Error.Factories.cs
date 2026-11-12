@@ -61,12 +61,12 @@ public sealed partial class Error
     /// <returns>A new error that is marked as transient.</returns>
     public static Error Timeout(string message) => CreateTransient(message, ErrorKind.Timeout);
 
-    /// <summary>Creates an error of kind <see cref="ErrorKind.Cancelled"/>.</summary>
+    /// <summary>Creates an error of kind <see cref="ErrorKind.Canceled"/>.</summary>
     /// <param name="message">
-    /// The message, or message template. When omitted, <see cref="ResultOptions.CancelledMessage"/> is used (<c>The operation was cancelled.</c> by default).
+    /// The message, or message template. When omitted, <see cref="ResultOptions.CanceledMessage"/> is used (<c>The operation was canceled.</c> by default).
     /// </param>
     /// <returns>A new error.</returns>
-    public static Error Cancelled(string? message = null) => Create(message ?? ResultConfiguration.Current.CancelledMessage, ErrorKind.Cancelled);
+    public static Error Canceled(string? message = null) => Create(message ?? ResultConfiguration.Current.CanceledMessage, ErrorKind.Canceled);
 
     /// <summary>Creates an error from an exception and keeps the exception as the <see cref="Exception"/> of the error.</summary>
     /// <param name="exception">The exception to describe.</param>
@@ -75,7 +75,7 @@ public sealed partial class Error
     /// (braces in it are not treated as placeholders), or the type name of the exception when its message is empty.
     /// </param>
     /// <returns>
-    /// A new error. A <see cref="OperationCanceledException"/> yields <see cref="ErrorKind.Cancelled"/>,
+    /// A new error. A <see cref="OperationCanceledException"/> yields <see cref="ErrorKind.Canceled"/>,
     /// a <see cref="TimeoutException"/> a transient <see cref="ErrorKind.Timeout"/>, and any other exception <see cref="ErrorKind.Unexpected"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="exception"/> is <see langword="null"/>.</exception>
@@ -108,7 +108,7 @@ public sealed partial class Error
 
     private static ErrorKind KindOf(Exception exception) => exception switch
     {
-        OperationCanceledException => ErrorKind.Cancelled,
+        OperationCanceledException => ErrorKind.Canceled,
         TimeoutException => ErrorKind.Timeout,
         _ => ErrorKind.Unexpected,
     };

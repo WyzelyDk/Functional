@@ -13,7 +13,7 @@
 //  - Text that an Error has already rendered is not rendered again, so configure BEFORE the first error is created.
 //  - ResultConfiguration.Reset() restores every default. It is mainly useful in tests, and this example uses it.
 //
-// The nine settings are: AggregateMessage, ChildSeparator, ContextSeparator, CancelledMessage, RedactedValue,
+// The nine settings are: AggregateMessage, ChildSeparator, ContextSeparator, CanceledMessage, RedactedValue,
 // ExceptionMapper, ShouldCatch (both shown in ExceptionsExample), DefaultMaxDegreeOfParallelism and
 // ContinueOnCapturedContext (whether the library's awaits continue on the captured synchronization context; false
 // is the default and the right choice for libraries, so it is not demonstrated).
@@ -42,7 +42,7 @@ public static class ConfigurationExample
                 options.ContextSeparator = " > ";
                 options.RedactedValue = "[hidden]";
                 options.AggregateMessage = "Several problems occurred.";
-                options.CancelledMessage = "Cancelled by the user.";
+                options.CanceledMessage = "Canceled by the user.";
             });
 
             await output.WriteLineAsync($"ChildSeparator ' | ': {Error.Aggregate([name, email]).Message}");
@@ -56,7 +56,7 @@ public static class ConfigurationExample
             await output.WriteLineAsync($"RedactedValue '[hidden]': {secret.RedactedMessage}");
 
             await output.WriteLineAsync($"AggregateMessage: {Error.Aggregate([name, email]).Template}");
-            await output.WriteLineAsync($"CancelledMessage: {Error.Cancelled().Message}");
+            await output.WriteLineAsync($"CanceledMessage: {Error.Canceled().Message}");
 
             // The error that was rendered before the change keeps the text it had.
             await output.WriteLineAsync($"An error rendered before the change keeps its text: {early.Message}");
