@@ -39,6 +39,9 @@ A new public member goes in only if the answer to every question is yes:
   A `Zip` with a function does the same in one line (for two to five maybes), and the helpers multiply with every operator.
 - **`Zip` beyond five maybes.**
   The limit is a single setting of the code generator; more than five independent maybes is a sign to use query syntax or a small record instead.
+- **`Zip` for a `Task` or a `ValueTask` of a maybe.**
+  Every argument could be plain, a `Task` or a `ValueTask`, so a complete family has 3 to the power of the number of maybes overloads per form,
+  and a partial one leaves holes. Await the tasks first and zip the maybes ([Async](async.md#zip-and-tasks)).
 - **`Apply` and other applicative machinery.**
   `Zip` combines independent maybes, and query syntax chains dependent ones; a third style is a vocabulary cost without a use case here.
 - **`ToEither`, `ToValidation` and conversions to other libraries' types.**

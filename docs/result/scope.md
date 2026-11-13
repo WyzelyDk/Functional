@@ -35,6 +35,9 @@ A new public member goes in only if the answer to every question is yes:
   which references both, not in either.
 - **HTTP, ASP.NET Core, `ProblemDetails`, gRPC mapping.** An adapter package.
 - **Logging and telemetry.** An adapter package; the library does not log.
+- **`Zip` for a `Task` or a `ValueTask` of a result.**
+  Every argument could be plain, a `Task` or a `ValueTask`, so a complete family has 3 to the power of the number of results overloads per form,
+  and a partial one leaves holes. Await the tasks first and zip the results ([Async](async.md#zip-and-tasks)).
 - **Retry, circuit breaker, timeouts.** A resilience library already does this and can consume `Result`.
 - **Validation frameworks.** `Ensure` and `Combine` are the building blocks; the rest is the application's.
 - **Serialization attributes and JSON converters.** An adapter package.

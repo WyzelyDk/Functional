@@ -28,6 +28,19 @@ An already completed `Task`/`ValueTask` takes a synchronous fast path without a 
 and a synchronous receiver with an asynchronous delegate (for `Bind`, `Match` and `OrElse` with an alternative operation) hands back the delegate's own task.
 The 966 methods are generated from one catalog (see [Building from source](contributing.md)), together with a test for every variant.
 
+## Zip and tasks
+
+`Zip` combines plain results only. There is no variant for a `Task` or a `ValueTask` argument, because every argument could be any of the three
+and the combinations multiply (3 to the power of the number of results). Start the operations, await them, and zip the results.
+Both operations run at the same time, because they are started before the first `await`:
+
+```csharp
+var customer = FindCustomerAsync(7);    // Task<Result<Customer>>
+var stock = CheckStockAsync(3);         // Task<Result<int>>
+
+var pair = (await customer).Zip(await stock);   // Result<(Customer First, int Second)>, the errors of both when both failed
+```
+
 ## A `null` or `default` literal
 
 Where the receiver fixes the type of what a function returns (`ValueOr`, `OrElse`, and the predicate of `Ensure`, for example),
