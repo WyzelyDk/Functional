@@ -88,7 +88,7 @@ public sealed class ReadmeExamplesTests
         var found = Result.Success<IReadOnlyList<string>>(["a.txt", "bb.txt"]);
 
         var lengths = await found
-            .SelectEach(static async name =>
+            .BindEach(static async name =>
             {
                 await Task.Yield();
 

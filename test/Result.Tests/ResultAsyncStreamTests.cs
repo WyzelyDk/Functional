@@ -1,6 +1,6 @@
 namespace Wyzely.Functional.ResultTests;
 
-// The helpers for sequences of results exist for an asynchronous stream too: Combine and Partition collect it, SelectEach turns a result of a
+// The helpers for sequences of results exist for an asynchronous stream too: Combine and Partition collect it, BindEach turns a result of a
 // collection into a stream of results, and the parallel helpers run an operation for every item. The stream is read once, in order.
 public sealed class ResultAsyncStreamTests
 {
@@ -107,20 +107,20 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_yields_one_result_for_every_item()
+    internal async Task BindEach_yields_one_result_for_every_item()
     {
         var results = await AsyncStreams.ToListAsync(
-            Result.Success<IReadOnlyList<int>>([1, 2, 3]).SelectEach(static item => Result.Success(item * 10)),
+            Result.Success<IReadOnlyList<int>>([1, 2, 3]).BindEach(static item => Result.Success(item * 10)),
             Token);
 
         Assert.Equal([10, 20, 30], results.Select(static result => result.GetValue()));
     }
 
     [Fact]
-    internal async Task SelectEach_awaits_a_selector_that_returns_a_task()
+    internal async Task BindEach_awaits_a_selector_that_returns_a_task()
     {
         var results = await AsyncStreams.ToListAsync(
-            Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach(static async item =>
+            Result.Success<IReadOnlyList<int>>([1, 2]).BindEach(static async item =>
             {
                 await Task.Yield();
 
@@ -132,30 +132,30 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_awaits_a_selector_that_returns_a_value_task()
+    internal async Task BindEach_awaits_a_selector_that_returns_a_value_task()
     {
         var results = await AsyncStreams.ToListAsync(
-            Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach(static item => new ValueTask<Result<int>>(Result.Success(item * 10))),
+            Result.Success<IReadOnlyList<int>>([1, 2]).BindEach(static item => new ValueTask<Result<int>>(Result.Success(item * 10))),
             Token);
 
         Assert.Equal([10, 20], results.Select(static result => result.GetValue()));
     }
 
     [Fact]
-    internal async Task SelectEach_accepts_a_result_of_a_plain_sequence()
+    internal async Task BindEach_accepts_a_result_of_a_plain_sequence()
     {
         var results = await AsyncStreams.ToListAsync(
-            Result.Success<IEnumerable<int>>([1, 2]).SelectEach(static item => Result.Success(item + 1)),
+            Result.Success<IEnumerable<int>>([1, 2]).BindEach(static item => Result.Success(item + 1)),
             Token);
 
         Assert.Equal([2, 3], results.Select(static result => result.GetValue()));
     }
 
     [Fact]
-    internal async Task SelectEach_awaits_a_selector_that_returns_a_task_for_a_result_of_a_plain_sequence()
+    internal async Task BindEach_awaits_a_selector_that_returns_a_task_for_a_result_of_a_plain_sequence()
     {
         var results = await AsyncStreams.ToListAsync(
-            Result.Success<IEnumerable<int>>([1, 2]).SelectEach(static async item =>
+            Result.Success<IEnumerable<int>>([1, 2]).BindEach(static async item =>
             {
                 await Task.Yield();
 
@@ -167,22 +167,22 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_awaits_a_selector_that_returns_a_value_task_for_a_result_of_a_plain_sequence()
+    internal async Task BindEach_awaits_a_selector_that_returns_a_value_task_for_a_result_of_a_plain_sequence()
     {
         var results = await AsyncStreams.ToListAsync(
-            Result.Success<IEnumerable<int>>([1, 2]).SelectEach(static item => new ValueTask<Result<int>>(Result.Success(item * 10))),
+            Result.Success<IEnumerable<int>>([1, 2]).BindEach(static item => new ValueTask<Result<int>>(Result.Success(item * 10))),
             Token);
 
         Assert.Equal([10, 20], results.Select(static result => result.GetValue()));
     }
 
     [Fact]
-    internal async Task SelectEach_yields_the_failure_of_the_receiver_once_without_calling_the_selector()
+    internal async Task BindEach_yields_the_failure_of_the_receiver_once_without_calling_the_selector()
     {
         var calls = 0;
 
         var results = await AsyncStreams.ToListAsync(
-            Result.Failure<IReadOnlyList<int>>(First).SelectEach(item =>
+            Result.Failure<IReadOnlyList<int>>(First).BindEach(item =>
             {
                 calls++;
 
@@ -196,20 +196,20 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_keeps_going_after_a_failed_item()
+    internal async Task BindEach_keeps_going_after_a_failed_item()
     {
         var results = await AsyncStreams.ToListAsync(
-            Result.Success<IReadOnlyList<int>>([1, 2, 3]).SelectEach(static item => item == 2 ? Result.Failure<int>(First) : Result.Success(item)),
+            Result.Success<IReadOnlyList<int>>([1, 2, 3]).BindEach(static item => item == 2 ? Result.Failure<int>(First) : Result.Success(item)),
             Token);
 
         Assert.Equal([true, false, true], results.Select(static result => result.IsSuccess));
     }
 
     [Fact]
-    internal async Task SelectEach_calls_the_selector_only_for_the_items_that_are_read()
+    internal async Task BindEach_calls_the_selector_only_for_the_items_that_are_read()
     {
         var calls = 0;
-        var stream = Result.Success<IReadOnlyList<int>>([1, 2, 3]).SelectEach(item =>
+        var stream = Result.Success<IReadOnlyList<int>>([1, 2, 3]).BindEach(item =>
         {
             calls++;
 
@@ -223,9 +223,9 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_can_be_left_after_the_failure_of_the_receiver_without_reading_further()
+    internal async Task BindEach_can_be_left_after_the_failure_of_the_receiver_without_reading_further()
     {
-        var stream = Result.Failure<IReadOnlyList<int>>(First).SelectEach(static item => Result.Success(item));
+        var stream = Result.Failure<IReadOnlyList<int>>(First).BindEach(static item => Result.Success(item));
 
         await using var enumerator = stream.GetAsyncEnumerator(Token);
         var read = await enumerator.MoveNextAsync();
@@ -236,10 +236,10 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_can_be_enumerated_again_and_then_runs_the_selector_again_and_also_without_a_token()
+    internal async Task BindEach_can_be_enumerated_again_and_then_runs_the_selector_again_and_also_without_a_token()
     {
         var calls = 0;
-        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach(item =>
+        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).BindEach(item =>
         {
             calls++;
 
@@ -262,7 +262,7 @@ public sealed class ResultAsyncStreamTests
             () => Assert.Equal(6, calls));
     }
 
-    // SelectEach starts its stream without a token, but the stream is built to combine a token of its own with the one of the consumer.
+    // BindEach starts its stream without a token, but the stream is built to combine a token of its own with the one of the consumer.
     [Fact]
     internal async Task The_stream_combines_its_own_token_with_the_token_of_the_consumer_and_stops_when_either_is_canceled()
     {
@@ -282,31 +282,31 @@ public sealed class ResultAsyncStreamTests
     }
 
     [Fact]
-    internal async Task SelectEach_lets_an_exception_of_the_selector_escape()
+    internal async Task BindEach_lets_an_exception_of_the_selector_escape()
     {
-        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach<int, int>(static _ => throw new InvalidOperationException("boom"));
+        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).BindEach<int, int>(static _ => throw new InvalidOperationException("boom"));
 
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await AsyncStreams.ToListAsync(stream, Token));
     }
 
     [Fact]
-    internal async Task SelectEach_stops_when_the_token_of_the_consumer_is_canceled()
+    internal async Task BindEach_stops_when_the_token_of_the_consumer_is_canceled()
     {
         using var source = CancellationTokenSource.CreateLinkedTokenSource(Token);
         await source.CancelAsync();
-        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).SelectEach(static item => Result.Success(item));
+        var stream = Result.Success<IReadOnlyList<int>>([1, 2]).BindEach(static item => Result.Success(item));
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await AsyncStreams.ToListAsync(stream, source.Token));
     }
 
     [Fact]
-    internal void SelectEach_throws_when_the_selector_is_null()
+    internal void BindEach_throws_when_the_operation_is_null()
     {
         var result = Result.Success<IReadOnlyList<int>>([1]);
 
-        var exception = Record.Exception(() => result.SelectEach((Func<int, Result<int>>)null!));
+        var exception = Record.Exception(() => result.BindEach((Func<int, Result<int>>)null!));
 
-        Assert.Equal("selector", Assert.IsType<ArgumentNullException>(exception).ParamName);
+        Assert.Equal("bind", Assert.IsType<ArgumentNullException>(exception).ParamName);
     }
 
     [Fact]
@@ -395,5 +395,5 @@ public sealed class ResultAsyncStreamTests
     }
 
     private static IAsyncEnumerable<Result<int>> Stream(IEnumerable<int> items, CancellationToken own) =>
-        ResultCollectionExtensions.SelectEachCore<int, int>(null, items, static item => new ValueTask<Result<int>>(Result.Success(item)), own);
+        ResultCollectionExtensions.BindEachCore<int, int>(null, items, static item => new ValueTask<Result<int>>(Result.Success(item)), own);
 }

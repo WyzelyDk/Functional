@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace Wyzely.Functional;
 
 /// <content>
-/// The same helpers for an asynchronous stream of results: <c>Combine</c> and <c>Partition</c> read it, and <c>SelectEach</c> turns the result of a
+/// The same helpers for an asynchronous stream of results: <c>Combine</c> and <c>Partition</c> read it, and <c>BindEach</c> turns the result of a
 /// collection into a stream of results. A stream is read once, in order, and the reading stops when the cancellation token is canceled.
 /// </content>
 public static partial class ResultCollectionExtensions
@@ -89,129 +89,129 @@ public static partial class ResultCollectionExtensions
     }
 
     /// <summary>
-    /// Turns the result of a list into a stream of results: one for every item, as the selector produces it, and a single failure when the receiver failed.
-    /// The selector runs for an item when the stream is read up to it, not before.
+    /// Turns the result of a list into a stream of results: one for every item, as the operation produces it, and a single failure when the receiver failed.
+    /// The operation runs for an item when the stream is read up to it, not before.
     /// </summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
-    /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results that the operation returns.</typeparam>
     /// <param name="result">The result of the list.</param>
-    /// <param name="selector">The operation to run for an item.</param>
+    /// <param name="bind">The operation to run for an item.</param>
     /// <returns>A stream of results. A failed item does not stop it.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
-    public static IAsyncEnumerable<Result<TResult>> SelectEach<TSource, TResult>(
+    /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
+    public static IAsyncEnumerable<Result<TResult>> BindEach<TSource, TResult>(
         this Result<IReadOnlyList<TSource>> result,
-        Func<TSource, Result<TResult>> selector)
+        Func<TSource, Result<TResult>> bind)
     {
-        Guard.NotNull(selector, nameof(selector));
+        Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return SelectEachCore(failure, items, item => new ValueTask<Result<TResult>>(selector(item)));
+        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
     }
 
     /// <summary>
-    /// Turns the result of a list into a stream of results with an asynchronous selector.
-    /// See <see cref="SelectEach{TSource, TResult}(Result{IReadOnlyList{TSource}}, Func{TSource, Result{TResult}})"/>.
+    /// Turns the result of a list into a stream of results with an asynchronous operation.
+    /// See <see cref="BindEach{TSource, TResult}(Result{IReadOnlyList{TSource}}, Func{TSource, Result{TResult}})"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
-    /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results that the operation returns.</typeparam>
     /// <param name="result">The result of the list.</param>
-    /// <param name="selector">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
+    /// <param name="bind">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
     /// <returns>A stream of results. A failed item does not stop it.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]
-    public static IAsyncEnumerable<Result<TResult>> SelectEach<TSource, TResult>(
+    public static IAsyncEnumerable<Result<TResult>> BindEach<TSource, TResult>(
         this Result<IReadOnlyList<TSource>> result,
-        Func<TSource, Task<Result<TResult>>> selector)
+        Func<TSource, Task<Result<TResult>>> bind)
     {
-        Guard.NotNull(selector, nameof(selector));
+        Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return SelectEachCore(failure, items, item => new ValueTask<Result<TResult>>(selector(item)));
+        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
     }
 
-    /// <summary>Turns the result of a list into a stream of results with a selector that returns a <see cref="ValueTask{TResult}"/>.</summary>
+    /// <summary>Turns the result of a list into a stream of results with an operation that returns a <see cref="ValueTask{TResult}"/>.</summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
-    /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results that the operation returns.</typeparam>
     /// <param name="result">The result of the list.</param>
-    /// <param name="selector">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
+    /// <param name="bind">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
     /// <returns>A stream of results. A failed item does not stop it.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
-    public static IAsyncEnumerable<Result<TResult>> SelectEach<TSource, TResult>(
+    /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
+    public static IAsyncEnumerable<Result<TResult>> BindEach<TSource, TResult>(
         this Result<IReadOnlyList<TSource>> result,
-        Func<TSource, ValueTask<Result<TResult>>> selector)
+        Func<TSource, ValueTask<Result<TResult>>> bind)
     {
-        Guard.NotNull(selector, nameof(selector));
+        Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return SelectEachCore(failure, items, selector);
+        return BindEachCore(failure, items, bind);
     }
 
     /// <summary>Turns the result of a sequence into a stream of results: one for every item, and a single failure when the receiver failed.</summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
-    /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results that the operation returns.</typeparam>
     /// <param name="result">The result of the sequence.</param>
-    /// <param name="selector">The operation to run for an item.</param>
+    /// <param name="bind">The operation to run for an item.</param>
     /// <returns>A stream of results. A failed item does not stop it.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
-    public static IAsyncEnumerable<Result<TResult>> SelectEach<TSource, TResult>(
+    /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
+    public static IAsyncEnumerable<Result<TResult>> BindEach<TSource, TResult>(
         this Result<IEnumerable<TSource>> result,
-        Func<TSource, Result<TResult>> selector)
+        Func<TSource, Result<TResult>> bind)
     {
-        Guard.NotNull(selector, nameof(selector));
+        Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return SelectEachCore(failure, items, item => new ValueTask<Result<TResult>>(selector(item)));
+        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
     }
 
-    /// <summary>Turns the result of a sequence into a stream of results with an asynchronous selector.</summary>
+    /// <summary>Turns the result of a sequence into a stream of results with an asynchronous operation.</summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
-    /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results that the operation returns.</typeparam>
     /// <param name="result">The result of the sequence.</param>
-    /// <param name="selector">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
+    /// <param name="bind">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
     /// <returns>A stream of results. A failed item does not stop it.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]
-    public static IAsyncEnumerable<Result<TResult>> SelectEach<TSource, TResult>(
+    public static IAsyncEnumerable<Result<TResult>> BindEach<TSource, TResult>(
         this Result<IEnumerable<TSource>> result,
-        Func<TSource, Task<Result<TResult>>> selector)
+        Func<TSource, Task<Result<TResult>>> bind)
     {
-        Guard.NotNull(selector, nameof(selector));
+        Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return SelectEachCore(failure, items, item => new ValueTask<Result<TResult>>(selector(item)));
+        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
     }
 
-    /// <summary>Turns the result of a sequence into a stream of results with a selector that returns a <see cref="ValueTask{TResult}"/>.</summary>
+    /// <summary>Turns the result of a sequence into a stream of results with an operation that returns a <see cref="ValueTask{TResult}"/>.</summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
-    /// <typeparam name="TResult">The type of the values of the results that the selector returns.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results that the operation returns.</typeparam>
     /// <param name="result">The result of the sequence.</param>
-    /// <param name="selector">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
+    /// <param name="bind">The asynchronous operation to run for an item. It is awaited before the next item is read.</param>
     /// <returns>A stream of results. A failed item does not stop it.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
-    public static IAsyncEnumerable<Result<TResult>> SelectEach<TSource, TResult>(
+    /// <exception cref="ArgumentNullException"><paramref name="bind"/> is <see langword="null"/>.</exception>
+    public static IAsyncEnumerable<Result<TResult>> BindEach<TSource, TResult>(
         this Result<IEnumerable<TSource>> result,
-        Func<TSource, ValueTask<Result<TResult>>> selector)
+        Func<TSource, ValueTask<Result<TResult>>> bind)
     {
-        Guard.NotNull(selector, nameof(selector));
+        Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return SelectEachCore(failure, items, selector);
+        return BindEachCore(failure, items, bind);
     }
 
-    /// <summary>The stream behind <c>SelectEach</c>: one result for every item, or a single failure when the receiver failed.</summary>
+    /// <summary>The stream behind <c>BindEach</c>: one result for every item, or a single failure when the receiver failed.</summary>
     /// <typeparam name="TSource">The type of the items.</typeparam>
     /// <typeparam name="TResult">The type of the values of the results.</typeparam>
     /// <param name="failure">The error of the receiver, or <see langword="null"/> when it succeeded.</param>
     /// <param name="items">The items of a receiver that succeeded.</param>
-    /// <param name="selector">The operation to run for an item.</param>
+    /// <param name="bind">The operation to run for an item.</param>
     /// <param name="cancellationToken">
-    /// A token of the stream itself. <c>SelectEach</c> passes none; the token that a consumer gives to <c>WithCancellation</c> is combined with it.
+    /// A token of the stream itself. <c>BindEach</c> passes none; the token that a consumer gives to <c>WithCancellation</c> is combined with it.
     /// </param>
     /// <returns>The stream of results.</returns>
-    internal static async IAsyncEnumerable<Result<TResult>> SelectEachCore<TSource, TResult>(
+    internal static async IAsyncEnumerable<Result<TResult>> BindEachCore<TSource, TResult>(
         Error? failure,
         IEnumerable<TSource>? items,
-        Func<TSource, ValueTask<Result<TResult>>> selector,
+        Func<TSource, ValueTask<Result<TResult>>> bind,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         if (failure is not null)
@@ -225,7 +225,7 @@ public static partial class ResultCollectionExtensions
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            yield return await selector(item).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+            yield return await bind(item).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
         }
     }
 }

@@ -38,7 +38,7 @@ public sealed class StreamSettingsTests : IDisposable
     }
 
     [Fact]
-    internal async Task SelectEach_with_a_pending_selector_follows_the_setting()
+    internal async Task BindEach_with_a_pending_selector_follows_the_setting()
     {
         var before = await PostsAsync(static () => ReadAsync());
         ResultConfiguration.Configure(static options => options.ContinueOnCapturedContext = true);
@@ -53,7 +53,7 @@ public sealed class StreamSettingsTests : IDisposable
         AsyncStreams.Pending(Result.Success(1), Result.Success(2)).Combine(TestContext.Current.CancellationToken).AsTask();
 
     private static Task<List<Result<int>>> ReadAsync() => AsyncStreams.ToListAsync(
-        Result.Success<IReadOnlyList<int>>([1]).SelectEach(static async item =>
+        Result.Success<IReadOnlyList<int>>([1]).BindEach(static async item =>
         {
             await AsyncStreams.Later().ConfigureAwait(false);
 

@@ -53,7 +53,7 @@ internal static class NewOperations
     internal static async Task StreamsAsync(Action<string, bool> check)
     {
         IReadOnlyList<int> numbers = [1, 2, 3];
-        var each = Result.Success(numbers).SelectEach(static async x =>
+        var each = Result.Success(numbers).BindEach(static async x =>
         {
             await Task.Yield();
 

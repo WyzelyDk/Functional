@@ -13,12 +13,15 @@ var combined = Result.Combine(checks);
 | `Result.Combine(results)` / `results.Combine()` | many `Result` into one; many `Result<T>` into one `Result<IReadOnlyList<T>>` (values in order). Looks at **every** result, no short-circuit. |
 | `Result.Combine(tasks)` | the same for `IEnumerable<Task<Result>>`, `IEnumerable<Task<Result<T>>>` and the `ValueTask` equivalents: waits for all, observes all |
 | `stream.Combine(ct)` / `stream.Partition(ct)` | the same for an `IAsyncEnumerable<Result<T>>` (`net8.0` and later): the stream is read once, in order, and the value task completes when it ends |
-| `found.SelectEach(op)` | turns the result of a list (`Result<IReadOnlyList<T>>` or `Result<IEnumerable<T>>`) into a stream with one result per item, or a single failure when the list could not be read; `op` may be asynchronous |
+| `found.BindEach(op)` | turns the result of a list (`Result<IReadOnlyList<T>>` or `Result<IEnumerable<T>>`) into a stream with one result per item, or a single failure when the list could not be read; `op` may be asynchronous |
 | `results.FirstFailureOrSuccess()` | the first failed result, or a success; stops at the first failure instead of looking at every result (also for an `IAsyncEnumerable<Result>`) |
 | `tasks.CombineInOrder()` | `Combine` for tasks (and value tasks) that runs them **one at a time**: each task of a lazy sequence is created when the previous one has finished |
 | `results.Partition()` | `(values, errors)` of the successes and the failures; keeps the successes when something failed |
 | `items.SelectInParallel(op, maxDegreeOfParallelism, ct)` | runs `op` for every item with bounded parallelism; values come back in **source order** |
 | `items.ForEachInParallel(op, maxDegreeOfParallelism, ct)` | the same for operations that return no value |
+
+`BindEach` is named like `Bind` because its operation returns a result, and it starts from a result.
+`SelectInParallel` and `ForEachInParallel` start from a plain sequence, so they use the words of LINQ.
 
 ```csharp
 var lengths = await new[] { "a", "bb", "ccc" }.SelectInParallel(
@@ -31,14 +34,14 @@ var lengths = await new[] { "a", "bb", "ccc" }.SelectInParallel(
 ```
 
 A stream of results does not need a list in between.
-`SelectEach` makes one from the result of a list, running the operation for an item when the stream is read up to it,
+`BindEach` makes one from the result of a list, running the operation for an item when the stream is read up to it,
 and `Combine` or `Partition` collects a stream (they stop when the cancellation token is canceled):
 
 ```csharp
 var found = Result.Success<IReadOnlyList<string>>(["a.txt", "bb.txt"]);
 
 var lengths = await found
-    .SelectEach(static async name =>
+    .BindEach(static async name =>
     {
         await Task.Yield();
 
