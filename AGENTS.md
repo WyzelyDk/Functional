@@ -25,6 +25,11 @@ The library is judged by how it feels to use, not only by what it can do.
 
 - **The API reads like prose.** Functional names (`Map`, `Bind`, `Ensure`, `Match`), the same name for every sync/`Task`/`ValueTask`
   variant (no `Async` suffix), no abbreviations. A chain should read top to bottom without an `await` in the middle.
+- **A name says what the receiver is and what the delegate returns.** An operation on a result or a maybe uses the library's own words:
+  `Map` for a delegate that returns a plain value, `Bind` for one that returns a result or a maybe
+  (`BindEach`, not `SelectEach`, because the delegate returns a result). An operation on a plain sequence uses LINQ's words
+  (`SelectInParallel`, `ForEachInParallel`). A parameter that is a function over the value which keeps or checks it is called `predicate`
+  (`Filter`, `Any`, `All`, `Ensure`, `EnsureNot`); the gate of an `...If` operation, and any bool without a parameter, is `condition`.
 - **Generic type parameters begin with `T` and say what they are:** `T`, `TResult`, `TSource`, `TException`; never a bare `K`, `U` or `E`.
 - **Conversions are named by what they do.** `As...`
   re-presents the same data under another type without creating a new object and without losing information (`AsNullable`, like `AsEnumerable`); `To...`
