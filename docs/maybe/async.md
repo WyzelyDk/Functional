@@ -36,8 +36,8 @@ without a state machine, and a step that leaves the maybe as it was (`Filter` th
 The 127 methods (twelve operations times nine variants, the three variants of `Contains`, the five of `GetValueOrThrow`, the two of `ValueOr` with a value,
 and a second form of `Map` for nullable value types) are generated from one catalog (see [Building from source](contributing.md)),
 together with a test for every variant.
-`Flatten` for a `Maybe<Maybe<T>>` also takes a `Task` or a `ValueTask` receiver (it is `Bind` with the identity function), and `Zip` is generated too,
-but combines plain maybes only.
+`Flatten` for a `Maybe<Maybe<T>>` also takes a `Task` or a `ValueTask` receiver (it is `Bind` with the identity function).
+`Zip` combines plain maybes only, see [Zip and tasks](#zip-and-tasks).
 
 A `Task` chain over a **reference type** that ends in none allocates nothing: in the generated fast paths (8 of the generated files use it), a none is
 answered with one cached completed task per type instead of a new one. (The runtime already caches the completed task of `default` for value types without
@@ -48,6 +48,19 @@ of `Maybe<string>`, and a synchronous none bound to a `Task` delegate; other var
 The awaits inside the library follow the `ContinueOnCapturedContext` setting, which defaults to not capturing the context ([Configuration](configuration.md));
 `MaybeConfigurationTests` covers it. A runnable demonstration with a counting synchronization context is `samples/Maybe.Samples/ConfigurationExample.cs`,
 and all nine combinations side by side are in `AsyncExample.cs`.
+
+## Zip and tasks
+
+`Zip` combines plain maybes only. There is no variant for a `Task` or a `ValueTask` argument, because every argument could be any of the three
+and the combinations multiply (3 to the power of the number of maybes). Start the operations, await them, and zip the maybes.
+Both operations run at the same time, because they are started before the first `await`:
+
+```csharp
+var customer = FindCustomerAsync(7);    // Task<Maybe<Customer>>
+var email = FindEmailAsync(7);          // Task<Maybe<string>>
+
+var pair = (await customer).Zip(await email);   // Maybe<(Customer First, string Second)>, none when either is none
+```
 
 ## A `null` or `default` literal
 

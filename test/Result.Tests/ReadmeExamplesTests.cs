@@ -302,6 +302,18 @@ public sealed class ReadmeExamplesTests
             () => Assert.True(unfilled.IsSuccess));
     }
 
+    // The async page: tasks are started first, awaited, and then zipped.
+    [Fact]
+    internal async Task The_zip_and_tasks_example_zips_the_results_of_two_started_operations()
+    {
+        var customer = Task.FromResult(Result.Success("Ada"));
+        var stock = Task.FromResult(Result.Failure<int>("No stock."));
+
+        var pair = (await customer).Zip(await stock);
+
+        Assert.Equal("No stock.", pair.GetError().Message);
+    }
+
     [Fact]
     internal void The_zip_and_flatten_examples_combine_and_unnest_results()
     {

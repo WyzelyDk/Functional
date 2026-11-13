@@ -406,6 +406,18 @@ public sealed class ReadmeExamplesTests : IDisposable
             () => Assert.True(wrongType.IsNone));
     }
 
+    // The async page: tasks are started first, awaited, and then zipped.
+    [Fact]
+    internal async Task The_zip_and_tasks_example_zips_the_maybes_of_two_started_operations()
+    {
+        var customer = Task.FromResult(Maybe.Some("Ada"));
+        var email = Task.FromResult(Maybe.Some("ada@example.com"));
+
+        var pair = (await customer).Zip(await email);
+
+        Assert.Equal(("Ada", "ada@example.com"), pair.GetValue());
+    }
+
     // README: combine maybes.
     [Fact]
     internal void ReadmeCombineExample_zips_two_and_three_maybes_with_a_selector_and_flattens()
