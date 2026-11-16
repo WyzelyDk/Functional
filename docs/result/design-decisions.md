@@ -39,7 +39,7 @@ Decisions that were revised after a measurement, so that the reasoning is visibl
   an `Error` converts to `Result<T>` and to `Result` (a failure; a `null` error throws `ArgumentNullException`),
   and `Result<T>` converts to `Result`, which keeps the state and drops the value. Nothing converts out of a result.
   The reasons: it matches what the C# 15 compiler gives a union on `net11.0`, so people who know unions get the same experience;
-  and the operators exist in every asset, because a library compiled against the `net8.0` or `net10.0` asset that used the conversion would
+  and the operators exist in every asset, because a library compiled against the `netstandard2.0` or `net10.0` asset that used the conversion would
   otherwise fail with `MissingMethodException` when an app targeting `net11.0` picks the `net11.0` asset
   (reproduced with a scratch library, not yet with the real package).
   On `net11.0` the library's own operators take precedence and behave the same as the compiler's.

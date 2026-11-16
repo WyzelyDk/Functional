@@ -88,8 +88,7 @@ dotnet add package Wyzely.Functional.Maybe
 | Target | Package dependencies |
 |---|---|
 | `net10.0` | none |
-| `net8.0` (also used by .NET 9) | none |
-| `netstandard2.0` (.NET Framework 4.6.1+, Unity, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
+| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 | `net11.0` | none; adds [C# 15 union support](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/unions.md) |
 
 The analyzer comes with the package. Use **C# 13 or later** to write `async` lambdas without ambiguity
@@ -235,7 +234,7 @@ dotnet run --project samples/Maybe.Samples -c Release
 ## Performance, in short
 
 A `Maybe<int>` is 8 bytes, a `Maybe<string>` is two references wide, a synchronous chain allocates nothing, on success and on none, and a `Task` chain
-over a reference type that stays none allocates nothing either, because one completed task per type is cached (checked by tests, on .NET 8 and later). Timings
+over a reference type that stays none allocates nothing either, because one completed task per type is cached (checked by tests, on .NET 10 and later). Timings
 are measurements, not claims: benchmarked against five other libraries, for value and reference types, a four-step synchronous chain took 4 to 6 ns
 without allocating, as it did in LanguageExt and CSharpFunctionalExtensions for an `int`; Funcky and Optional took 1.8 to 4.3 times as long and allocated.
 [What is claimed and how to run the benchmarks](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/performance.md).

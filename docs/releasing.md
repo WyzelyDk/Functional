@@ -19,7 +19,7 @@ packs all packages, and publishes them to nuget.org without any stored password.
 | `changes` | always | Whether anything **other than documentation** changed (see below). A push to `main` always counts as code. |
 | `docs` | always | Every relative link in the Markdown files points at something that exists, and the documentation site builds with `mkdocs build --strict` (no warning). |
 | `validate` | when code changed | Every packable project uses the shared release tag prefix, the tag resolution and the change detection pass their own tests, and the workflows pass `actionlint`. |
-| `build-and-test` (Ubuntu, SDK 11) | when code changed | A clean Release build with `-warnaserror`, then every test project on every target framework it has (net8.0, net10.0, net11.0), and a pack smoke test. |
+| `build-and-test` (Ubuntu, SDK 11) | when code changed | A clean Release build with `-warnaserror`, then every test project on every target framework it has (net10.0, net11.0), and a pack smoke test. |
 | `sonarcloud` (Ubuntu) | when code changed | The SonarCloud analysis: the scanner wraps a build and the tests with coverage, and the job fails when the quality gate fails (see [SonarCloud](#sonarcloud)). |
 | `aot` (Ubuntu) | when code changed | Publishes all three libraries as a Native AOT app (no trim or AOT warning allowed) and runs the binary. |
 | `pages` | after a push to `main` | Deploys the website that `build-and-test` packaged (see [The website](#the-website)). Not part of the gate. |

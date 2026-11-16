@@ -1,5 +1,3 @@
-#if NET8_0_OR_GREATER
-
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -124,5 +122,3 @@ public sealed class PerformanceTests
         }
     }
 }
-
-#endif

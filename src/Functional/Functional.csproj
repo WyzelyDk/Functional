@@ -1,16 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0;net10.0;net11.0</TargetFrameworks>
     <Description>The Wyzely functional building blocks together: Result and Maybe, plus the methods that connect them (Maybe to Result and back), in one package.</Description>
     <PackageTags>result;maybe;option;error-handling;railway-oriented-programming;functional;async;valuetask;analyzers</PackageTags>
-    <IsTrimmable>true</IsTrimmable>
     <AssemblyName>$(ProductPrefix)</AssemblyName>
     <RootNamespace>$(ProductPrefix)</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>

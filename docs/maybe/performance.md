@@ -21,7 +21,7 @@ These facts are checked by tests (`PerformanceTests` in `test/Maybe.Tests`), not
 
 Limits of what is claimed:
 
-- The tests run on `net8.0`, `net10.0` and `net11.0`; the file is compiled for .NET 8 and later only. The `netstandard2.0` build is not covered by them.
+- The tests run on `net10.0` and `net11.0`. The `netstandard2.0` build is not covered by them.
 - The size claims are for the layout on a 64-bit runtime as the tests ran it; the test for a reference compares with `2 * nint.Size`.
 - Delegates that capture variables allocate a closure like in any C# code; use `static` lambdas on hot paths, as the tested chains do.
 - Asynchronous chains allocate what `Task` and `ValueTask` allocate. **We make no allocation claim for them**, apart from the none case above,

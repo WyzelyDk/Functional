@@ -1,5 +1,3 @@
-#if NET8_0_OR_GREATER
-
 using System.Diagnostics.CodeAnalysis;
 
 namespace Wyzely.Functional.ResultTests;
@@ -99,5 +97,3 @@ public sealed class ErrorAllocationTests
         return smallest;
     }
 }
-
-#endif

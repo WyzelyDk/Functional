@@ -3,7 +3,7 @@
   <PropertyGroup>
     <!-- A namespace Wyzely.Functional.Result.* would clash with the type Wyzely.Functional.Result. -->
     <RootNamespace>$(ProductPrefix).ResultTests</RootNamespace>
-    <TargetFrameworks>net8.0;net10.0;net11.0</TargetFrameworks>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

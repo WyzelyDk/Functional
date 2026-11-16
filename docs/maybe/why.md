@@ -145,8 +145,8 @@ Be clear-eyed: the established libraries have things this one does not. The fact
 - **It does less.** No `Apply`, `Sequence`, `Traverse` or arithmetic, no folds, no JSON, EF Core or ASP.NET Core integrations ([Scope](scope.md)).
 - **It is one team's opinion.** `where T : notnull`, `GetValue()` as a guarded method,
   and a `null` that becomes none in `Map` and in the implicit conversion are choices you may disagree with ([Design decisions](design-decisions.md)).
-- **Some paths are lighter on tests than others.** The `netstandard2.0` build is compile-checked, but the test suite runs on `net8.0`,
-  `net10.0` and `net11.0`.
+- **Some paths are lighter on tests than others.** The `netstandard2.0` build is compile-checked, but the test suite runs on `net10.0`
+  and `net11.0`.
 - **There is no community yet**: no Stack Overflow answers, no ecosystem of add-ons.
 
 ## Should you use it?

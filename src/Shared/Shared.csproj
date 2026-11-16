@@ -9,7 +9,7 @@
     still link its source themselves (as internal source, like the libraries do with Internal), so nothing references this project.
   -->
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
     <RootNamespace>$(ProductPrefix)</RootNamespace>
     <!-- Only the files listed below: the code that the libraries share, and the generator engine on the frameworks that can compile it. -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
-    <!-- The generator engine targets net8.0, so the netstandard2.0 build leaves it out. -->
+    <!-- The generator engine targets net10.0, so the netstandard2.0 build leaves it out. -->
     <Compile Include="CodeGeneration\*.cs" />
   </ItemGroup>
 
