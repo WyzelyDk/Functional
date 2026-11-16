@@ -1,6 +1,6 @@
 namespace Wyzely.Functional.ResultTests;
 
-// MapTry, BindTry, TapTry and TapIfTry run a delegate that may throw and turn the exception into a failure, like Result.Try.
+// MapTry, BindTry and TapTry run a delegate that may throw and turn the exception into a failure, like Result.Try.
 // The matrix tests cover every combination; these pin what a caller can write and what keeps travelling.
 public sealed class TryFamilyTests
 {
@@ -136,18 +136,6 @@ public sealed class TryFamilyTests
     }
 
     [Fact]
-    internal void TapIfTry_does_not_run_the_delegate_when_the_condition_does_not_hold()
-    {
-        var calls = 0;
-
-        var outcome = Result.Success(2).TapIfTry(static value => value > 5, _ => calls++);
-
-        Assert.Multiple(
-            () => Assert.Equal(2, outcome.GetValue()),
-            () => Assert.Equal(0, calls));
-    }
-
-    [Fact]
     internal async Task MapTry_turns_an_exception_thrown_by_an_async_delegate_into_a_failure()
     {
         var task = AsTask(Result.Success(2).MapTry(static async value =>
@@ -191,16 +179,6 @@ public sealed class TryFamilyTests
         var receiver = Task.FromResult(Result.Success(2));
 
         var returned = receiver.TapTry(static _ => { });
-
-        Assert.Same(receiver, returned);
-    }
-
-    [Fact]
-    internal void TapIfTry_returns_the_receiver_task_when_a_plain_condition_is_false()
-    {
-        var receiver = Task.FromResult(Result.Success(2));
-
-        var returned = receiver.TapIfTry(false, static _ => { });
 
         Assert.Same(receiver, returned);
     }
