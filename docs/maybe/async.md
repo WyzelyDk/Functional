@@ -80,7 +80,7 @@ var name = Maybe.None<string>().ValueOr((string)null!);
 An `async` lambda converts to both a `Task` and a `ValueTask` delegate, so a call such as `.Bind(async n => ...)`
 is ambiguous to the compiler unless something breaks the tie.
 This library marks the `Task` overloads with C# 13's `[OverloadResolutionPriority]`, so **with C# 13 or later `async` lambdas just work**.
-This also holds for the `netstandard2.0` and `net8.0` builds, because the attribute is polyfilled inside the assembly.
+This also holds for the `netstandard2.0` build, because the attribute is polyfilled inside the assembly.
 
 ```csharp
 using Wyzely.Functional;
@@ -92,7 +92,7 @@ var doubled = await Maybe.Some(21).Bind(async n =>
 });                                                  // Some(42)
 ```
 
-On **C# 12 or earlier**, the default language version for `net8.0` projects, the compiler reports `CS0121`. Any of these fixes it:
+On **C# 12 or earlier**, the default language version for projects that target .NET 8 or earlier, the compiler reports `CS0121`. Any of these fixes it:
 
 ```csharp
 // 1. Opt in to a newer language version (the compiler of the .NET 9+ SDK is needed)

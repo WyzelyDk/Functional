@@ -110,9 +110,9 @@ The library is judged by how it feels to use, not only by what it can do.
   so `Shared.csproj` only lists them), and the two analyzer test projects share `test/AnalyzerTesting`.
   **Duplication is a failure of the SonarCloud gate** (new code may not be duplicated by more than a few percent):
   when a new `Result` rule has a counterpart for `Maybe`, put what they have in common in one of these places instead of copying it.
-  `src/Shared/Shared.csproj` is the same code (both folders; the generator engine on net8.0 and later) as a real project,
+  `src/Shared/Shared.csproj` is the same code (both folders; the generator engine on net10.0) as a real project,
   for the IDE and for `test/Shared.Tests`; nothing references it and it is not packable (`Directory.Build.props` treats the name `Shared` as a tool project).
-  Its tests run on net8.0 and net10.0 only, so the `netstandard2.0` branches of the shared code are compiled but not run.
+  Its tests run on net10.0 only, so the `netstandard2.0` branches of the shared code are compiled but not run.
 - **The internal helpers have a namespace that matches their folder.** The types in the `Internal` folders (`src/Shared/Internal`,
   `src/Result/Internal`, `src/Maybe/Internal`) are in `Wyzely.Functional.Internal`, which `Directory.Build.props` imports into every library
   (and `Shared.csproj` and `Shared.Tests` import it themselves) with a global using. The polyfills of BCL attributes are the exception: the
@@ -210,9 +210,11 @@ dotnet pack src/Result -c Release
 ```
 
 - `global.json` pins SDK 11 (the exact stable version, `11.0.100`; `allowPrerelease` is off).
-  That one SDK builds every target framework: `netstandard2.0`, `net8.0`, `net10.0` and `net11.0` (C# 15 unions, for `Result<T>` and `Maybe<T>`).
+  That one SDK builds every target framework: `netstandard2.0`, `net10.0` and `net11.0` (C# 15 unions, for `Result<T>` and `Maybe<T>`).
+  `net8.0` was dropped when .NET 8 left support; consumers on .NET 8 and 9 get the `netstandard2.0` asset, which has no stream operations.
+  The lists are defined once in `Directory.Build.props` (`LibraryTargetFrameworks`, `TestTargetFrameworks`); change them there, not in a project file.
   `net11.0` is a target framework like the others, not an opt-in; the union code sits behind `#if NET11_0_OR_GREATER`.
-  The tests run on the .NET 8, 10 and 11 runtimes, so all three must be installed (the SDK 11 brings the last). Bump the pinned 11.0.x on purpose.
+  The tests run on the .NET 10 and 11 runtimes, so both must be installed (the SDK 11 brings the last). Bump the pinned 11.0.x on purpose.
 - Line endings follow `.gitattributes` (`text=auto`); the generator writes CRLF and the tests normalize, so do not fight it.
 - Before saying a task is done: Release build clean, the tests of **every** target framework green, the generated files current,
   and the documentation and examples updated where behavior changed.

@@ -48,8 +48,7 @@ dotnet add package Wyzely.Functional
 | Target | Package dependencies |
 |---|---|
 | `net11.0`, `net10.0` | `Wyzely.Functional.Result`, `Wyzely.Functional.Maybe` |
-| `net8.0` (also used by .NET 9) | `Wyzely.Functional.Result`, `Wyzely.Functional.Maybe` |
-| `netstandard2.0` (.NET Framework 4.6.1+, Unity, ...) | the same two, which bring `System.Threading.Tasks.Extensions` because `ValueTask` is not part of `netstandard2.0` |
+| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, ...) | the same two, which bring `System.Threading.Tasks.Extensions` because `ValueTask` is not part of `netstandard2.0` |
 
 The analyzers of both packages (`WYZ0101` and `WYZ0102` for `Result`, `WYZ0201` for `Maybe`) come with the dependencies; there is nothing else to install.
 (Checked once by packing the three packages and building a project that references only `Wyzely.Functional`: `WYZ0201` and `WYZ0102` were reported.

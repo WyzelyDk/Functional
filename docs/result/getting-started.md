@@ -11,8 +11,7 @@ dotnet add package Wyzely.Functional.Result
 | Target | Package dependencies |
 |---|---|
 | `net10.0` | none |
-| `net8.0` (also used by .NET 9) | none |
-| `netstandard2.0` (.NET Framework 4.6.1+, Unity, Xamarin, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
+| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, Xamarin, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 
 The analyzers are part of the package (`analyzers/dotnet/cs`); there is nothing else to install. For the best experience with
 `async` lambdas use **C# 13 or later**; see [Async lambdas and the language version](async.md#async-lambdas-and-the-language-version).

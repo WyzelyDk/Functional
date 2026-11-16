@@ -21,7 +21,7 @@ check the current version before relying on a cell. The `Maybe` types of these l
 
 | Library (version, released) | What it offers as a result | Targets | Repository, on 2026-10-18 |
 |---|---|---|---|
-| **Wyzely.Functional.Result** (this repository, not published yet) | `Result`, `Result<T>`, one aggregating `Error` | `netstandard2.0`, `net8.0`, `net10.0`, `net11.0` | not published yet |
+| **Wyzely.Functional.Result** (this repository, not published yet) | `Result`, `Result<T>`, one aggregating `Error` | `netstandard2.0`, `net10.0`, `net11.0` | not published yet |
 | [FluentResults](https://github.com/altmann/FluentResults) 4.0.0 (2025-06-29) | `Result`, `Result<T>`, a list of reasons (errors and successes) | `net8.0`, `net9.0`, `netstandard2.0`, `netstandard2.1` | 2,647 stars; last commit 2025-07-10, the release of 4.0 |
 | [CSharpFunctionalExtensions](https://github.com/vkhorikov/CSharpFunctionalExtensions) 3.7.0 (2026-03-02) | `Result`, `Result<T>`, `Result<T, E>`, `UnitResult<E>`; also `Maybe`, value objects and entities | `net6.0`, `net8.0`, `netstandard2.0` | 2,833 stars; last commit 2026-03-02, the release of 3.7.0; 101 open issues |
 | [ErrorOr](https://github.com/error-or/error-or) 2.1.1 (2026-05-15) | `ErrorOr<T>`, a value or a list of errors | `net8.0`, `net10.0`, `netstandard2.0` | 2,095 stars; last commit 2026-10-08 |
@@ -86,7 +86,7 @@ Only LanguageExt, Funcky and the class-based libraries make a forgotten assignme
 
 | | Extension methods in the assembly | Of those, mentioning `Task` / `ValueTask` | `Try` wrapper for throwing code | Settings | Analyzers in the package | Dependencies, per nuspec |
 |---|---|---|---|---|---|---|
-| **Wyzely.Functional.Result** | 223 | 117 / 115 | yes (`Result.Try`) | `ResultConfiguration`, 9 settings | yes, 2 rules and 1 code fix | none on `net8.0` and `net10.0` |
+| **Wyzely.Functional.Result** | 223 | 117 / 115 | yes (`Result.Try`) | `ResultConfiguration`, 9 settings | yes, 2 rules and 1 code fix | none on `net10.0` and `net11.0` |
 | FluentResults | 30 | 14 / 12 | yes (`Result.Try`) | `Result.Setup`: logger, factories, default `Try` handler | no | `Microsoft.Extensions.Logging.Abstractions`, `System.Threading.Tasks.Extensions` |
 | CSharpFunctionalExtensions | 1,664 | 751 / 634 | yes, several forms | `Result.Configuration`: error separator, default `ConfigureAwait`, default `Try` handler | no | none |
 | ErrorOr | 43 | 39 / 0 | no | none found | no | `Microsoft.Bcl.HashCode`, `System.Memory` (`netstandard2.0` only) |

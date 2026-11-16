@@ -114,7 +114,6 @@ public sealed class CompletedTaskReuseTests
             () => Assert.Equal(20, returned.Result.GetValue()));
     }
 
-#if NET8_0_OR_GREATER
     [Fact]
     internal void A_chain_of_steps_that_leave_the_maybe_as_it_was_allocates_nothing_on_a_completed_task()
     {
@@ -137,5 +136,4 @@ public sealed class CompletedTaskReuseTests
                 .OrElse(static () => Maybe.Some(0));
         }
     }
-#endif
 }

@@ -138,8 +138,7 @@ dotnet add package Wyzely.Functional.Result
 | Target | Package dependencies |
 |---|---|
 | `net10.0`, `net11.0` | none |
-| `net8.0` (also used by .NET 9) | none |
-| `netstandard2.0` (.NET Framework 4.6.1+, Unity, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
+| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 
 The analyzers and code fixes come with the package. Use **C# 13 or later** to write `async` lambdas without ambiguity
 ([why](https://github.com/WyzelyDk/Functional/blob/main/docs/result/async.md#async-lambdas-and-the-language-version)).

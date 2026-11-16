@@ -142,14 +142,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      # global.json pins the SDK (11, which builds every target framework); the runtimes of .NET 8 and 10 are added because the net8.0 and
-      # net10.0 tests need them. The exact stable version of SDK 11 is pinned there, so that a new SDK cannot break every
+      # global.json pins the SDK (11, which builds every target framework); the runtime of .NET 10 is added because the net10.0 tests need it.
+      # The exact stable version of SDK 11 is pinned there, so that a new SDK cannot break every
       # pull request by surprise; bump it deliberately.
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           dotnet-version: |
-            8.0.x
             10.0.x
 
       - uses: actions/cache@v6
@@ -165,7 +164,7 @@ jobs:
       - name: Build (no errors, no warnings)
         run: dotnet build Wyzely.Functional.slnx --configuration Release --no-restore -warnaserror
 
-      # Runs every test project on every target framework it has (net8.0, net10.0 and net11.0), and collects coverage.
+      # Runs every test project on every target framework it has (net10.0 and net11.0), and collects coverage.
       - name: Test with coverage
         run: dotnet test --solution Wyzely.Functional.slnx --configuration Release --no-build --coverage --coverage-output-format cobertura
 
@@ -271,7 +270,6 @@ jobs:
         with:
           global-json-file: global.json
           dotnet-version: |
-            8.0.x
             10.0.x
 
       - uses: actions/cache@v6

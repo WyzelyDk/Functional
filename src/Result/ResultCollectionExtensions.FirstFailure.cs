@@ -27,7 +27,7 @@ public static partial class ResultCollectionExtensions
         return Result.Success();
     }
 
-#if NET8_0_OR_GREATER
+#if !NETSTANDARD2_0
     /// <summary>
     /// Reads a stream of results up to the first failed one and returns it, or returns a successful result when none failed.
     /// The stream is not read further than the first failure.

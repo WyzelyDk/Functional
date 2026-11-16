@@ -11,8 +11,7 @@ dotnet add package Wyzely.Functional.Maybe
 | Target | Package dependencies |
 |---|---|
 | `net10.0` | none |
-| `net8.0` (also used by .NET 9) | none |
-| `netstandard2.0` (.NET Framework 4.6.1+, Unity, Xamarin, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
+| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, Xamarin, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 | `net11.0` | none; adds [C# 15 union support](unions.md) |
 
 The analyzer is part of the package; there is nothing else to install. For the best experience with `async` lambdas use **C# 13 or later**;
