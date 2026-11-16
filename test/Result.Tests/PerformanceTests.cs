@@ -234,7 +234,6 @@ public sealed class PerformanceTests
                 .MapTry(static value => value)
                 .BindTry(static value => Result.Success(value))
                 .TapTry(static _ => { })
-                .TapIfTry(true, static _ => { })
                 .Tap(static () => { })
                 .EnsureNot(static value => value < 0, Rejected)
                 .EnsureNot(static value => value < 0, "Negative.")

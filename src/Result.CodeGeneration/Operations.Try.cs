@@ -3,7 +3,7 @@ using Wyzely.Functional.CodeGeneration;
 namespace Wyzely.Functional.ResultCodeGeneration;
 
 /// <content>
-/// The <c>*Try</c> family: <c>MapTry</c>, <c>BindTry</c>, <c>TapTry</c> and <c>TapIfTry</c>, which run a delegate that may throw and turn the
+/// The <c>*Try</c> family: <c>MapTry</c>, <c>BindTry</c> and <c>TapTry</c>, which run a delegate that may throw and turn the
 /// exception into a failed result, like <c>Result.Try</c>. Each exists with a handler for any exception (which follows <c>ShouldCatch</c>) and with a
 /// handler for the one kind of exception that its parameter names.
 /// </content>
@@ -15,7 +15,6 @@ internal static partial class Operations
     private const string MapTryName = "MapTry";
     private const string BindTryName = "BindTry";
     private const string TapTryName = "TapTry";
-    private const string TapIfTryName = "TapIfTry";
     private const string ReceiverFailedFailure = "Result<TResult>.Failed(failure)";
     private const string HandledSetup = """var handled = Error.Create("Handled.");""";
     private const string AssertSameHandledOutcomeGetError = "Assert.Same(handled, outcome.GetError());";
@@ -31,8 +30,6 @@ internal static partial class Operations
     private const string ExceptionTypeDoc =
         "The type of the exception to catch, which is the type of the parameter of <paramref name=\"onException\"/>.";
 
-    private const string BoolConditionDoc = "Whether the delegate runs. When it is <see langword=\"false\"/> the receiver is returned as it was.";
-
     private const string DefaultExceptionSentence =
         " A thrown exception becomes a failed result unless <see cref=\"ResultOptions.ShouldCatch\"/> excludes it, as a cancellation is by default.";
 
@@ -47,12 +44,10 @@ internal static partial class Operations
         BindTryTypedToValueShape(),
         BindTryTypedToResultShape(),
         TapTryTypedShape(),
-        TapIfTryTypedShape(),
         MapTryUntypedShape(),
         BindTryUntypedToValueShape(),
         BindTryUntypedToResultShape(),
         TapTryUntypedShape(),
-        TapIfTryUntypedShape(),
     ];
 
     /// <summary>Gets the shape of the map of a typed result.</summary>
@@ -153,34 +148,6 @@ internal static partial class Operations
         OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
     };
 
-    /// <summary>Gets the shape of the conditional tap of a typed result.</summary>
-    private static TryShape TapIfTryTypedShape() =>
-    new()
-    {
-        Name = TapIfTryName,
-        Typed = true,
-        Conditional = true,
-        KeepsValue = true,
-        Summary = "Runs a side effect that may throw with the value of a successful result when a condition holds, " +
-            "and returns the result unchanged when it does not throw.",
-        TypeParameters = ["T"],
-        TypeParameterDocs = [new("T", TDoc)],
-        Delegate = new("tap", ["T"], "void", "The side effect to run with the value of the successful result."),
-        ReturnType = ResultOfT,
-        ReturnDescription = ReturnReceiverOrFailure,
-        OnReceiverFailed = ctx => ctx.R,
-        FailureFormat = "Result.Failure<T>({0})",
-        Act = ctx => [ctx.CallStatement("tap", InputName), $"return {ctx.R};"],
-        GateReceiver = SuccessOfTwo,
-        OtherReceiver = FailureOfInt,
-        Test = Does("tap", ["x"], "seen = x;"),
-        ThrowingTest = Does("tap", ["x"], BoomThrowStatement),
-        Setup = ["var seen = 0;"],
-        RunAsserts = [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, "Assert.Equal(2, seen);", AssertTapCalledOnce],
-        SkipAsserts = [AssertEqual2OutcomeGetValue, "Assert.Equal(0, seen);", AssertNoTapCalls],
-        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-    };
-
     /// <summary>Gets the shape of the map of a result without a value.</summary>
     private static TryShape MapTryUntypedShape() =>
     new()
@@ -278,60 +245,14 @@ internal static partial class Operations
         OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
     };
 
-    /// <summary>Gets the shape of the conditional tap of a result without a value.</summary>
-    private static TryShape TapIfTryUntypedShape() =>
-    new()
-    {
-        Name = TapIfTryName,
-        Typed = false,
-        Conditional = true,
-        KeepsValue = true,
-        Summary = "Runs a side effect that may throw for a successful result when a condition holds, " +
-            "and returns the result unchanged when it does not throw.",
-        TypeParameters = [],
-        TypeParameterDocs = [],
-        Delegate = new("tap", [], "void", "The side effect to run."),
-        ReturnType = ResultType,
-        ReturnDescription = ReturnReceiverOrFailure,
-        OnReceiverFailed = ctx => ctx.R,
-        FailureFormat = FailureOfResult,
-        Act = ctx => [ctx.CallStatement("tap", string.Empty), $"return {ctx.R};"],
-        GateReceiver = SuccessWithoutValue,
-        OtherReceiver = FailureWithError,
-        Test = Does("tap", []),
-        ThrowingTest = Does("tap", [], BoomThrowStatement),
-        RunAsserts = [AssertTrueOutcomeIsSuccess, AssertTapCalledOnce],
-        SkipAsserts = [AssertNoTapCalls],
-        OtherAsserts = [AssertSameErrorOutcomeGetError, AssertNoTapCalls],
-    };
-
     /// <summary>Gets the operations of the <c>*Try</c> family: every shape with a handler for any exception and with one for a named exception.</summary>
     private static IEnumerable<OperationSpec> TryFamily() => CreateTryShapes().SelectMany(TrySpecs);
 
-    private static IEnumerable<OperationSpec> TrySpecs(TryShape shape)
+    private static IEnumerable<OperationSpec> TrySpecs(TryShape shape) => [TrySpec(shape, false), TrySpec(shape, true)];
+
+    private static OperationSpec TrySpec(TryShape shape, bool named) => new()
     {
-        foreach (var named in new[] { false, true })
-        {
-            if (!shape.Conditional)
-            {
-                yield return TrySpec(shape, named, null);
-
-                continue;
-            }
-
-            yield return TrySpec(shape, named, IfCondition.Bool);
-            yield return TrySpec(shape, named, IfCondition.Function);
-
-            if (shape.Typed)
-            {
-                yield return TrySpec(shape, named, IfCondition.OfValue);
-            }
-        }
-    }
-
-    private static OperationSpec TrySpec(TryShape shape, bool named, IfCondition? condition) => new()
-    {
-        Stem = TryStem(shape, named, condition),
+        Stem = TryStem(shape, named),
         Name = shape.Name,
         KeepsValue = shape.KeepsValue,
         StateChange = shape.KeepsValue ? StateChange.ToFailure : StateChange.Any,
@@ -342,35 +263,22 @@ internal static partial class Operations
         TypeParameterDocs = TryTypeParameterDocs(shape, named),
         Constraints = named ? [$"where {TExceptionName} : Exception"] : [],
         Summary = shape.Summary + ReceiverPassesThrough + (named ? NamedExceptionSentence : DefaultExceptionSentence),
-        LeadingParameters = condition is { } kind ? [TryCondition(kind)] : [],
         Delegates = [shape.Delegate],
         ExtraParameters = named ? NamedHandlerParameters() : DefaultHandlerParameters(),
         ReturnType = shape.ReturnType,
         ReturnDescription = shape.ReturnDescription,
-        ForwardsTo = condition == IfCondition.Bool ? TapTryName : null,
-        Body = ctx => TryBody(shape, named, condition, ctx),
-        Tests = TryTests(shape, named, condition),
+        Body = ctx => TryBody(shape, named, ctx),
+        Tests = TryTests(shape, named),
     };
 
     /// <summary>Gets the stem of the file names of a <c>*Try</c> operation.</summary>
-    private static string TryStem(TryShape shape, bool named, IfCondition? condition) =>
-        $"{shape.StemPart ?? shape.Name}{(named ? "OfException" : string.Empty)}{(condition is { } kind ? IfStemKind(kind) : string.Empty)}" +
+    private static string TryStem(TryShape shape, bool named) =>
+        $"{shape.StemPart ?? shape.Name}{(named ? "OfException" : string.Empty)}" +
         $"From{(shape.Typed ? "ResultOfT" : ResultType)}";
 
     /// <summary>Gets the documentation of the type parameters of a <c>*Try</c> operation, with the exception type when the handler is named.</summary>
     private static TypeParameterDoc[] TryTypeParameterDocs(TryShape shape, bool named) =>
         named ? [.. shape.TypeParameterDocs, new TypeParameterDoc(TExceptionName, ExceptionTypeDoc)] : shape.TypeParameterDocs;
-
-    // The condition of a *Try operation. Only a shape with a value has a condition that takes it, so the last arm is the one for a value.
-    private static ExtraParameter TryCondition(IfCondition condition) => condition switch
-    {
-        IfCondition.Bool => new("bool", ConditionName, BoolConditionDoc, Validated: false),
-        IfCondition.Function => new("Func<bool>", ConditionName, "Decides whether the delegate runs. It is called only when the receiver succeeded."),
-        _ => new(
-            "Func<T, bool>",
-            ConditionName,
-            "Decides whether the delegate runs. It is called only when the receiver succeeded, with its value."),
-    };
 
     private static ExtraParameter[] DefaultHandlerParameters() =>
     [
@@ -394,7 +302,7 @@ internal static partial class Operations
     ];
 
     // Reads the state of the receiver once, returns it as it was when the delegate must not run, and otherwise runs the delegate inside a try.
-    private static string[] TryBody(TryShape shape, bool named, IfCondition? condition, BodyContext ctx)
+    private static string[] TryBody(TryShape shape, bool named, BodyContext ctx)
     {
         List<string> lines =
         [
@@ -406,12 +314,6 @@ internal static partial class Operations
             "}",
             string.Empty,
         ];
-
-        if (condition is { } kind)
-        {
-            var holds = kind == IfCondition.Function ? $"{ConditionName}()" : $"{ConditionName}({InputName})";
-            lines.AddRange([$"if (!{holds})", "{", $"    return {ctx.R};", "}", string.Empty]);
-        }
 
         var error = named ? "onException(exception)" : "Result.ErrorOf(exception, onException)";
 
@@ -426,38 +328,26 @@ internal static partial class Operations
         return [.. lines];
     }
 
-    private static TestCaseSpec[] TryTests(TryShape shape, bool named, IfCondition? condition) => new TryTestBuilder(shape, named, condition).Build();
+    private static TestCaseSpec[] TryTests(TryShape shape, bool named) => new TryTestBuilder(shape, named).Build();
 
-    private static string TryLeadingArgument(IfCondition condition, bool holds) => condition switch
-    {
-        IfCondition.Bool => holds ? "true" : "false",
-        IfCondition.Function => $"() => {{ conditionCalls++; return {(holds ? "true" : "false")}; }}",
-        _ => $"x => {{ conditionCalls++; return x == {(holds ? "2" : "3")}; }}",
-    };
-
-    /// <summary>One test of a <c>*Try</c> operation: what it runs, with which handler and condition, and what it expects.</summary>
+    /// <summary>One test of a <c>*Try</c> operation: what it runs, with which handler, and what it expects.</summary>
     /// <param name="Name">The name of the test.</param>
     /// <param name="Receiver">The receiver to call the operation on.</param>
     /// <param name="Test">How the delegate behaves.</param>
     /// <param name="Asserts">What the test asserts.</param>
     /// <param name="Handler">The handler to pass, or <see langword="null"/> to leave it out.</param>
-    /// <param name="Leading">The condition to pass, or <see langword="null"/> when the operation has none.</param>
-    /// <param name="ConditionCalls">How often the test expects the condition to have been evaluated.</param>
-    private sealed record TryCase(string Name, string Receiver, DelegateTest Test, string[] Asserts, string? Handler, string? Leading, int ConditionCalls);
+    private sealed record TryCase(string Name, string Receiver, DelegateTest Test, string[] Asserts, string? Handler);
 
     /// <summary>Writes the generated test cases of one <c>*Try</c> operation.</summary>
-    private sealed class TryTestBuilder(TryShape shape, bool named, IfCondition? condition)
+    private sealed class TryTestBuilder(TryShape shape, bool named)
     {
-        private readonly bool _counted = condition is IfCondition.Function or IfCondition.OfValue;
-        private readonly string? _yes = condition is { } holds ? TryLeadingArgument(holds, holds: true) : null;
-        private readonly string? _no = condition is { } fails ? TryLeadingArgument(fails, holds: false) : null;
         private readonly string? _handler = named ? NamedHandler : null;
 
         internal TestCaseSpec[] Build()
         {
             var cases = new List<TryCase>
             {
-                new("returns_the_outcome_of_the_delegate_when_the_receiver_succeeded", shape.GateReceiver, shape.Test, shape.RunAsserts, _handler, _yes, 1),
+                new("returns_the_outcome_of_the_delegate_when_the_receiver_succeeded", shape.GateReceiver, shape.Test, shape.RunAsserts, _handler),
             };
 
             if (shape.PassTest is not null)
@@ -467,21 +357,7 @@ internal static partial class Operations
                     shape.GateReceiver,
                     shape.PassTest,
                     [AssertTrueOutcomeIsSuccess, AssertEqual1BindCalls],
-                    _handler,
-                    _yes,
-                    1));
-            }
-
-            if (shape.Conditional)
-            {
-                cases.Add(new(
-                    "does_not_run_the_delegate_when_the_condition_does_not_hold",
-                    shape.GateReceiver,
-                    shape.Test,
-                    [AssertTrueOutcomeIsSuccess, .. shape.SkipAsserts],
-                    _handler,
-                    _no,
-                    1));
+                    _handler));
             }
 
             cases.Add(new(
@@ -489,9 +365,7 @@ internal static partial class Operations
                 shape.OtherReceiver,
                 shape.Test,
                 shape.OtherAsserts,
-                _handler,
-                _yes,
-                0));
+                _handler));
             cases.AddRange(ThrowingCases());
 
             return [.. cases.Select(Make)];
@@ -517,17 +391,12 @@ internal static partial class Operations
         }
 
         private TryCase ThrowingCase(string name, string[] asserts, string? handler) =>
-            new(name, shape.GateReceiver, shape.ThrowingTest, asserts, handler, _yes, 1);
+            new(name, shape.GateReceiver, shape.ThrowingTest, asserts, handler);
 
         /// <summary>Gets the lines that arrange one test.</summary>
         private List<string> SetupLines(TryCase test)
         {
             var setup = new List<string>();
-
-            if (_counted)
-            {
-                setup.Add("var conditionCalls = 0;");
-            }
 
             if (test.Test == shape.Test)
             {
@@ -546,11 +415,9 @@ internal static partial class Operations
         private TestCaseSpec Make(TryCase test)
         {
             var setup = SetupLines(test);
-            var asserts = _counted ? [.. test.Asserts, $"Assert.Equal({test.ConditionCalls}, conditionCalls);"] : test.Asserts;
             string[] handler = test.Handler is null ? [] : [test.Handler];
-            string[]? leading = test.Leading is null ? null : [test.Leading];
 
-            return new(test.Name, test.Receiver, [test.Test], handler, asserts, [.. setup], leading);
+            return new(test.Name, test.Receiver, [test.Test], handler, test.Asserts, [.. setup]);
         }
     }
 
@@ -565,9 +432,6 @@ internal static partial class Operations
 
         /// <summary>Gets a value indicating whether the receiver is a typed result.</summary>
         internal required bool Typed { get; init; }
-
-        /// <summary>Gets a value indicating whether the operation takes a condition, in three forms.</summary>
-        internal bool Conditional { get; init; }
 
         /// <summary>Gets a value indicating whether the operation keeps the value of its receiver.</summary>
         internal bool KeepsValue { get; init; }
@@ -628,9 +492,6 @@ internal static partial class Operations
 
         /// <summary>Gets what the tests assert when the delegate ran.</summary>
         internal required string[] RunAsserts { get; init; }
-
-        /// <summary>Gets what the tests assert when the condition did not hold.</summary>
-        internal string[] SkipAsserts { get; init; } = [];
 
         /// <summary>Gets what the tests assert for the receiver for which the delegate never runs.</summary>
         internal required string[] OtherAsserts { get; init; }
