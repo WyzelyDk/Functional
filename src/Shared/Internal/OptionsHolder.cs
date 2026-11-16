@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Wyzely.Functional.Internal;
 
 /// <summary>
@@ -11,8 +9,12 @@ namespace Wyzely.Functional.Internal;
 internal sealed class OptionsHolder<TOptions>
     where TOptions : class
 {
-    [SuppressMessage("Style", "IDE0330", Justification = "System.Threading.Lock does not exist on the older targets.")]
+    // System.Threading.Lock exists from .NET 9; the older targets lock on an object.
+#if NET9_0_OR_GREATER
+    private readonly Lock _gate = new();
+#else
     private readonly object _gate = new();
+#endif
 
     private readonly Func<TOptions> _create;
     private readonly Func<TOptions, TOptions> _clone;
