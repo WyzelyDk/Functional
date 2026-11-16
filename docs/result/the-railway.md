@@ -17,7 +17,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `Ensure(f)` | success | validates with an operation that returns a `Result` (or a typed result, whose value is ignored), keeping the original value; the operation may also take no parameter |
 | `MapIf(condition, f)`, `BindIf`, `TapIf`, `EnsureIf` | success | the same step, run only when the condition holds; the condition is a `bool`, a function, or a function of the value, and `MapIf` and `BindIf` keep the type of the value |
 | `TapErrorIf(condition, f)` | failure | `TapError`, run only when the condition holds; the condition can be a function of the error |
-| `MapTry(f)`, `BindTry`, `TapTry`, `TapIfTry` | success | the same step for a delegate that may throw: the exception becomes a failure, like `Result.Try`; a handler can create the error, and a handler that names an exception type catches only that type |
+| `MapTry(f)`, `BindTry`, `TapTry` | success | the same step for a delegate that may throw: the exception becomes a failure, like `Result.Try`; a handler can create the error, and a handler that names an exception type catches only that type |
 | `BindZip(f)` | success | chains an operation and keeps the value next to its value, in a tuple; on a tuple result it adds the value to the tuple, up to five |
 | `Map(f)`, `Bind(f)` on a tuple | success | the delegate takes the values of a tuple result (for example of `Zip` or `BindZip`) as separate parameters, up to five |
 | `OrElse(f)` | failure | takes over after a failure: `f` returns a replacement value, which turns the failure into a success, or an alternative `Result`, which can itself fail; it may take the error or not |
@@ -36,7 +36,7 @@ var price = Result.Success(100)
     .EnsureIf(static value => value > 50, static value => Result.SuccessIf(value < 1000, "Needs approval."));
 ```
 
-A delegate that may throw does not need a `try`/`catch` in the chain. `MapTry`, `BindTry`, `TapTry` and `TapIfTry` turn the exception into a failure,
+A delegate that may throw does not need a `try`/`catch` in the chain. `MapTry`, `BindTry` and `TapTry` turn the exception into a failure,
 as `Result.Try` does, so a cancellation keeps travelling unless `ShouldCatch` says otherwise.
 Name the exception type with the parameter of the handler to catch only that type; any other exception keeps travelling:
 
