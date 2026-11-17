@@ -17,7 +17,12 @@ public static class ResultLinqExtensions
     /// <param name="selector">Computes the new value from the value of a successful result.</param>
     /// <returns>A successful result with the new value, or a failed result with the error of the source.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
-    public static Result<TResult> Select<T, TResult>(this Result<T> source, Func<T, TResult> selector) => source.Map(selector);
+    public static Result<TResult> Select<T, TResult>(this Result<T> source, Func<T, TResult> selector)
+    {
+        Guard.NotNull(selector, nameof(selector));
+
+        return source.Map(selector);
+    }
 
     /// <summary>Chains an operation that can fail. This is <c>Bind</c> under the name that query syntax requires.</summary>
     /// <typeparam name="T">The type of the value of the source.</typeparam>
@@ -26,7 +31,12 @@ public static class ResultLinqExtensions
     /// <param name="selector">The operation to run with the value of a successful result.</param>
     /// <returns>The result of the selector, or a failed result with the error of the source.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
-    public static Result<TResult> SelectMany<T, TResult>(this Result<T> source, Func<T, Result<TResult>> selector) => source.Bind(selector);
+    public static Result<TResult> SelectMany<T, TResult>(this Result<T> source, Func<T, Result<TResult>> selector)
+    {
+        Guard.NotNull(selector, nameof(selector));
+
+        return source.Bind(selector);
+    }
 
     /// <summary>Chains an operation that can fail and combines both values. The compiler uses this for a query with two <c>from</c> clauses.</summary>
     /// <typeparam name="T">The type of the value of the source.</typeparam>

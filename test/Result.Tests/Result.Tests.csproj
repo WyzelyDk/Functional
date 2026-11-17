@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\ArgumentTesting\*.cs" Link="ArgumentTesting\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Result\Result.csproj" />
     <ProjectReference Include="..\..\src\Result.CodeGeneration\Result.CodeGeneration.csproj" />
   </ItemGroup>
