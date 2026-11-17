@@ -277,7 +277,7 @@ internal static class Rules
     private const string UncheckedAccessDescription =
         "GetError() and ConvertFailure() throw when the result succeeded and GetValue() throws when it failed. " +
         "Call them only where the state is known: inside an if on IsFailure or IsSuccess, after an early return, or after TryGetError or TryGetValue. " +
-        "Match, ValueOr and the railway methods need no check.";
+        "Match, ValueOr, GetValueOrThrow and the railway methods need no check.";
 
     private const string HelpLinkBase = "https://github.com/WyzelyDk/Functional/blob/main/docs/result/analyzers/";
 }

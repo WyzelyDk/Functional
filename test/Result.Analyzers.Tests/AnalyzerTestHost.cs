@@ -27,6 +27,10 @@ internal static class AnalyzerTestHost
     internal static Task<string[]> AnalyzeAsync(string members, DiagnosticAnalyzer analyzer) =>
         CodeFixTesting.AnalyzeAsync(Compile(members), analyzer, TestContext.Current.CancellationToken);
 
+    // Returns the messages of the diagnostics that the analyzer reports for the members of a class.
+    internal static Task<string[]> MessagesAsync(string members) =>
+        CodeFixTesting.MessagesAsync(Compile(members), new ResultUsageAnalyzer(), TestContext.Current.CancellationToken);
+
     // Returns the ids that the given analyzer reports for a whole source, for a snippet that needs a type of its own next to the class.
     internal static Task<string[]> AnalyzeSourceAsync(string source, DiagnosticAnalyzer analyzer) =>
         CodeFixTesting.AnalyzeAsync(CodeFixTesting.Compile(Header + source, References()), analyzer, TestContext.Current.CancellationToken);

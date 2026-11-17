@@ -68,6 +68,8 @@ public sealed class ReadmeExamplesTests
         var id = Result.Success(7)
             .GetValueOrThrow(static error => new KeyNotFoundException(error.Message));
 
+        var port = Result.Success(8080).GetValueOrThrow();
+
         var code = await Task.FromResult(Result.Success("A12"))
             .Map(static text => text.ToLowerInvariant())
             .GetValueOrThrow();
@@ -77,6 +79,7 @@ public sealed class ReadmeExamplesTests
 
         Assert.Multiple(
             () => Assert.Equal(7, id),
+            () => Assert.Equal(8080, port),
             () => Assert.Equal("a12", code),
             () => Assert.Equal("No such order.", Assert.IsType<KeyNotFoundException>(failed).Message));
     }

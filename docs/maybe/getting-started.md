@@ -124,7 +124,7 @@ each with the scenario and the reason in its heading comment:
 | File | Shows |
 |---|---|
 | `BasicsExample.cs` | `Some`, `None`, `From`, `SomeIf`, `NoneIf`, the implicit conversion, `TryGetValue`, `ValueOr`, `Match`, why `GetValue` is a method |
-| `RailwayExample.cs` | `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `Or`, `ValueOr(Func)`, `Match`, `Switch` |
+| `RailwayExample.cs` | `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `OrElse`, `ValueOr(Func)`, `Match`, `Switch` |
 | `AsyncExample.cs` | all nine sync, `Task` and `ValueTask` combinations, a mixed chain, async lambdas |
 | `CollectionsExample.cs` | `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose` |
 | `LinqExample.cs` | query syntax, `Zip`, `Flatten` |

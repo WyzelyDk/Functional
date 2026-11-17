@@ -9,7 +9,7 @@ internal static class Rules
     internal static readonly DiagnosticDescriptor UncheckedAccess = new(
         id: "WYZ0201",
         title: "Check that a Maybe has a value before calling GetValue()",
-        messageFormat: "'GetValue()' throws unless the maybe has a value; check 'IsSome' first, or use TryGetValue, ValueOr or Match",
+        messageFormat: UncheckedAccessMessage,
         category: Category,
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
@@ -118,10 +118,14 @@ internal static class Rules
         "maybe.ValueOr(fallback) evaluates the fallback even when the maybe has a value. " +
         "A fallback that calls a method or creates an object is better passed as a function, maybe.ValueOr(() => fallback), which is evaluated only for none.";
 
+    private const string UncheckedAccessMessage =
+        "'GetValue()' throws unless the maybe has a value; check 'IsSome' first, or use TryGetValue, ValueOr or Match " +
+        "(GetValueOrThrow() if an exception is what you want)";
+
     private const string UncheckedAccessDescription =
         "GetValue() throws InvalidOperationException when the maybe has no value. " +
         "Call it only where a value is known: inside an if on IsSome or IsNone, after an early return, or after TryGetValue. " +
-        "TryGetValue, ValueOr, Match and the railway methods need no check.";
+        "TryGetValue, ValueOr, Match, GetValueOrThrow and the railway methods need no check.";
 
     private const string HelpLinkBase = "https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/analyzers/";
 }

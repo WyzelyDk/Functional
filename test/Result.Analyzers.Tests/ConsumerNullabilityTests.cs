@@ -5,6 +5,22 @@ namespace Wyzely.Functional.ResultAnalyzersTests;
 public sealed class ConsumerNullabilityTests
 {
     [Fact]
+    internal void GetValueOrThrow_gives_a_value_that_is_not_null_for_a_result_of_a_reference_type()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("int M(Result<string> r) => r.GetValueOrThrow().Length;");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
+    internal void GetValueOrThrow_keeps_the_nullable_annotation_of_the_value_type_argument()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("int M(Result<string?> r) => r.GetValueOrThrow().Length;");
+
+        Assert.Equal(["CS8602"], warnings);
+    }
+
+    [Fact]
     internal void TryGetValue_makes_the_value_non_null_when_it_returns_true()
     {
         var warnings = AnalyzerTestHost.NullabilityWarnings("int M(Result<string> r) { if (r.TryGetValue(out var v)) { return v.Length; } return 0; }");
