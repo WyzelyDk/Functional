@@ -30,10 +30,12 @@ public sealed class ReadmeExamplesTests : IDisposable
     internal void GetValueOrThrow_example_returns_the_value_or_throws_the_exception_of_the_caller()
     {
         var title = Maybe.Some("Dune").GetValueOrThrow(static () => new KeyNotFoundException("No title."));
+        var year = Maybe.Some(1965).GetValueOrThrow();
         var missing = Record.Exception(() => Maybe.None<string>().GetValueOrThrow(static () => new KeyNotFoundException("No title.")));
 
         Assert.Multiple(
             () => Assert.Equal("Dune", title),
+            () => Assert.Equal(1965, year),
             () => Assert.Equal("No title.", Assert.IsType<KeyNotFoundException>(missing).Message));
     }
 

@@ -20,6 +20,14 @@ public readonly partial struct Result<T>
         return _value;
     }
 
+    /// <summary>
+    /// Returns the value of a successful result, or throws when the result failed: the explicit form of <see cref="GetValue"/> for code
+    /// where an exception is what is wanted. Use <see cref="GetValue"/> where the state has been checked.
+    /// </summary>
+    /// <returns>The value of the successful result.</returns>
+    /// <exception cref="ResultFailedException">The result failed. The exception carries the error.</exception>
+    public T GetValueOrThrow() => GetValue();
+
     /// <summary>Returns the error of a failed result. Check <see cref="IsFailure"/> first.</summary>
     /// <returns>The error of the failed result.</returns>
     /// <exception cref="InvalidOperationException">The result succeeded and therefore has no error.</exception>

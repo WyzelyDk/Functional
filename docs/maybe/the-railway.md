@@ -15,7 +15,7 @@ While there is a value the chain carries it along; the first none skips every st
 | `TapNone(f)` | there is none | runs a side effect, returns the maybe unchanged |
 | `OrElse(f)` | there is none | takes over when there is none: `f` returns an alternative `Maybe` or a replacement value |
 | `ValueOr(f)` | there is none | leaves the railway: the value, or what `f` computes; `ValueOr(fallback)` takes a plain value, as an instance method and for a `Task` or `ValueTask` |
-| `GetValueOrThrow(f)` | always | leaves the railway: the value, or the exception that `f` creates when there is none; without `f` on a `Task` or `ValueTask` it throws what `GetValue()` throws |
+| `GetValueOrThrow(f)` | always | leaves the railway: the value, or the exception that `f` creates when there is none; without `f` it throws what `GetValue()` throws, and `GetValueOrThrow()` on a maybe is the explicit form of `GetValue()` |
 | `Match(onSome, onNone)` | always | leaves the railway: one value out |
 | `Switch(onSome, onNone)` | always | leaves the railway for side effects |
 
@@ -61,7 +61,12 @@ and the form without it works on a `Task` or a `ValueTask`. It is the deliberate
 
 ```csharp
 var title = Maybe.Some("Dune").GetValueOrThrow(static () => new KeyNotFoundException("No title."));      // "Dune"
+
+var year = Maybe.Some(1965).GetValueOrThrow();                                                          // 1965, or an InvalidOperationException
 ```
+
+On a plain maybe `GetValueOrThrow()` without arguments does what `GetValue()` does, and says that an exception is what you want.
+Use `GetValue()` where you have checked `IsSome` first (the analyzer asks for that check, WYZ0201).
 
 `Map` turns a `null` result of its delegate into none, because a `Maybe<T>` cannot hold `null`. The delegate is a `Func<T, TResult?>`, so a
 lambda that returns a **nullable reference**, such as `person => person.Nickname` with a `string? Nickname`, compiles **without a warning**:

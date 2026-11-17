@@ -43,6 +43,16 @@ public sealed class MaybeConfigurationTests : IDisposable
     }
 
     [Fact]
+    internal void NoValueMessage_changes_the_message_of_GetValueOrThrow_on_none()
+    {
+        MaybeConfiguration.Configure(options => options.NoValueMessage = "Nothing there.");
+
+        var exception = Assert.Throws<InvalidOperationException>(() => Maybe.None<int>().GetValueOrThrow());
+
+        Assert.Equal("Nothing there.", exception.Message);
+    }
+
+    [Fact]
     internal void Hiding_the_value_replaces_it_with_the_redacted_text_in_ToString()
     {
         MaybeConfiguration.Configure(options =>

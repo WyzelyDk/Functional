@@ -5,6 +5,14 @@ namespace Wyzely.Functional.MaybeAnalyzersTests;
 public sealed class ConsumerNullabilityTests
 {
     [Fact]
+    internal void GetValueOrThrow_gives_a_value_that_is_not_null()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("int M(Maybe<string> m) => m.GetValueOrThrow().Length;");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
     internal void TryGetValue_makes_the_value_non_null_when_it_returns_true()
     {
         var warnings = AnalyzerTestHost.NullabilityWarnings("int M(Maybe<string> m) { if (m.TryGetValue(out var v)) { return v.Length; } return 0; }");

@@ -49,7 +49,9 @@ public sealed class ResultUsageAnalyzer : DiagnosticAnalyzer
         }
 
         var flag = needsFailure ? "IsFailure" : "IsSuccess";
-        var alternatives = needsFailure ? "TryGetError or Match" : "TryGetValue, ValueOr or Match";
+        var alternatives = needsFailure
+            ? "TryGetError or Match"
+            : "TryGetValue, ValueOr or Match (GetValueOrThrow() if an exception is what you want)";
         var state = needsFailure ? "failed" : "successful";
 
         context.ReportDiagnostic(Diagnostic.Create(Rules.UncheckedAccess, call.GetLocation(), method.Name + "()", state, flag, alternatives));

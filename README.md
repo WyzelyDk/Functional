@@ -61,7 +61,7 @@ Both types support the whole railway, not a sample of it.
 
 ### Maybe: absence is a value
 
-- **Every step has a fluent form:** `Map`, `Bind`, `Filter`, `Tap`, `TapNone` and `Or` continue the chain, and `ValueOr`, `Match` and `Switch` leave it,
+- **Every step has a fluent form:** `Map`, `Bind`, `Filter`, `Tap`, `TapNone` and `OrElse` continue the chain, and `ValueOr`, `Match` and `Switch` leave it,
   with the same names and the same shape as on `Result` ([the full list](docs/maybe/the-railway.md)).
 - **Synchronous and asynchronous steps mix freely:** each step accepts a plain, `Task` or `ValueTask` maybe and delegate,
   so a chain needs no `await` in the middle ([async](docs/maybe/async.md)).

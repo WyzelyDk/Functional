@@ -92,6 +92,37 @@ public sealed class MaybeOfTTests
     }
 
     [Fact]
+    internal void GetValueOrThrow_returns_the_value_when_there_is_one()
+    {
+        Assert.Equal(5, Maybe.Some(5).GetValueOrThrow());
+    }
+
+    [Fact]
+    internal void GetValueOrThrow_throws_with_a_helpful_message_when_there_is_no_value()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() => Maybe.None<int>().GetValueOrThrow());
+
+        Assert.Equal("The maybe has no value. Check IsSome first, or use TryGetValue.", exception.Message);
+    }
+
+    [Fact]
+    internal void GetValueOrThrow_throws_for_a_default_maybe()
+    {
+        Assert.Throws<InvalidOperationException>(() => default(Maybe<int>).GetValueOrThrow());
+    }
+
+    [Fact]
+    internal void GetValueOrThrow_throws_what_GetValue_throws()
+    {
+        var none = Maybe.None<int>();
+
+        var fromGetValue = Assert.Throws<InvalidOperationException>(() => none.GetValue());
+        var fromGetValueOrThrow = Assert.Throws<InvalidOperationException>(() => none.GetValueOrThrow());
+
+        Assert.Equal(fromGetValue.Message, fromGetValueOrThrow.Message);
+    }
+
+    [Fact]
     internal void TryGetValue_returns_the_value_and_true_when_there_is_one()
     {
         var found = Maybe.Some("x").TryGetValue(out var value);

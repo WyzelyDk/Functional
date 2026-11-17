@@ -21,7 +21,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `BindZip(f)` | success | chains an operation and keeps the value next to its value, in a tuple; on a tuple result it adds the value to the tuple, up to five |
 | `Map(f)`, `Bind(f)` on a tuple | success | the delegate takes the values of a tuple result (for example of `Zip` or `BindZip`) as separate parameters, up to five |
 | `OrElse(f)` | failure | takes over after a failure: `f` returns a replacement value, which turns the failure into a success, or an alternative `Result`, which can itself fail; it may take the error or not |
-| `GetValueOrThrow(f)`, `ThrowIfFailure(f)` | always | leaves the railway with an exception of your own type, created from the error; without `f` on a `Task` or `ValueTask` it throws a `ResultFailedException`, as `GetValue()` does |
+| `GetValueOrThrow(f)`, `ThrowIfFailure(f)` | always | leaves the railway with an exception of your own type, created from the error; without `f` it throws a `ResultFailedException` like `GetValue()` does, and `GetValueOrThrow()` on a result is the explicit form of `GetValue()` |
 | `ValueOr(fallback)` | always | leaves the railway: the value of a success, or a fallback for a failure; the fallback is a value, or a function with or without the error that is run only for a failure |
 | `Match(onSuccess, onFailure)` | always | leaves the railway: one value out |
 | `Switch(onSuccess, onFailure)` | always | leaves the railway for side effects |
@@ -80,10 +80,15 @@ Unlike `GetValue()` they are the deliberate way out, so the analyzer does not as
 var id = Result.Success(7)
     .GetValueOrThrow(static error => new KeyNotFoundException(error.Message));      // 7, or the exception of your own type
 
+var port = Result.Success(8080).GetValueOrThrow();                                  // 8080, or a ResultFailedException
+
 var code = await Task.FromResult(Result.Success("A12"))
     .Map(static text => text.ToLowerInvariant())
     .GetValueOrThrow();                                                             // "a12", or a ResultFailedException
 ```
+
+On a plain result `GetValueOrThrow()` without arguments does what `GetValue()` does, and says that an exception is what you want.
+Use `GetValue()` where you have checked the state first (the analyzer asks for that check, WYZ0102).
 
 A failure that has to travel on as a failure of another type is passed with `ConvertFailure<T>()`.
 It reads the error like `GetError()` does, so it belongs behind a check of `IsFailure`, and the analyzer asks for one (WYZ0102):

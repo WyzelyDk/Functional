@@ -62,6 +62,39 @@ public sealed class ResultAccessTests
         Assert.Equal(0, default(Result<int>).GetValue());
     }
 
+    [Fact]
+    internal void GetValueOrThrow_returns_the_value_of_a_successful_result()
+    {
+        Assert.Equal(42, Result.Success(42).GetValueOrThrow());
+    }
+
+    [Fact]
+    internal void GetValueOrThrow_throws_with_the_error_when_the_result_failed()
+    {
+        var exception = Assert.Throws<ResultFailedException>(() => Result.Failure<int>(Boom).GetValueOrThrow());
+
+        Assert.Same(Boom, exception.Error);
+    }
+
+    [Fact]
+    internal void GetValueOrThrow_returns_the_default_value_for_a_default_result()
+    {
+        Assert.Equal(0, default(Result<int>).GetValueOrThrow());
+    }
+
+    [Fact]
+    internal void GetValueOrThrow_throws_what_GetValue_throws()
+    {
+        var failed = Result.Failure<int>(Boom);
+
+        var fromGetValue = Assert.Throws<ResultFailedException>(() => failed.GetValue());
+        var fromGetValueOrThrow = Assert.Throws<ResultFailedException>(() => failed.GetValueOrThrow());
+
+        Assert.Multiple(
+            () => Assert.Same(fromGetValue.Error, fromGetValueOrThrow.Error),
+            () => Assert.Equal(fromGetValue.Message, fromGetValueOrThrow.Message));
+    }
+
     [Theory]
     [InlineData(typeof(Result), "Error")]
     [InlineData(typeof(Result<int>), "Error")]

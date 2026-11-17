@@ -138,7 +138,7 @@ Describe("alan");    // "nobody": filtered out
 Describe("zed");     // "nobody": not in the dictionary
 ```
 
-`Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `Or`, `ValueOr`, `Match` and `Switch`:
+`Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `OrElse`, `ValueOr`, `Match` and `Switch`:
 [the railway](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/the-railway.md). A delegate of `Map` may return a nullable reference
 (`person => person.Nickname` with a `string?`) or a nullable value type (`person => person.Age` with an `int?`) without a warning, and a `null` result
 becomes none; the result is a `Maybe<string>` or a `Maybe<int>`, never a `Maybe<string?>` or a `Maybe<int?>`.

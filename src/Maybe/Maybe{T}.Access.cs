@@ -22,6 +22,16 @@ public readonly partial struct Maybe<T>
         return _value;
     }
 
+    /// <summary>
+    /// Returns the value of a maybe that has one, or throws when it has none: the explicit form of <see cref="GetValue"/> for code
+    /// where an exception is what is wanted. Use <see cref="GetValue"/> where <see cref="IsSome"/> has been checked.
+    /// </summary>
+    /// <returns>The value of the maybe.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The maybe has no value. The message can be changed with <see cref="MaybeOptions.NoValueMessage"/>.
+    /// </exception>
+    public T GetValueOrThrow() => GetValue();
+
     /// <summary>Gets the value of a maybe without throwing when it has none.</summary>
     /// <param name="value">The value of the maybe, or <see langword="default"/> when it has none.</param>
     /// <returns><see langword="true"/> when the maybe holds a value.</returns>

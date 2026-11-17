@@ -60,7 +60,7 @@ Each point below was checked against the source and, where it says so, is pinned
   `Maybe.From(x)` turns a `null` into none, and `Maybe<string?>` is reported against the `notnull` constraint (CS8714; `ConsumerNullabilityTests`).
 - **The conversions are decided and pinned.** A `T` (and a `null` reference) converts to a `Maybe<T>` implicitly, so `return user;` works,
   and nothing converts out of a maybe; `ImplicitConversionTests` pins that this is the only conversion.
-- **The whole railway, in every sync / `Task` / `ValueTask` combination.** `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `Or`, `ValueOr`,
+- **The whole railway, in every sync / `Task` / `ValueTask` combination.** `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `OrElse`, `ValueOr`,
   `Match` and `Switch` exist for a maybe, a `Task<Maybe<T>>` and a `ValueTask<Maybe<T>>` receiver, times a synchronous, `Task` or `ValueTask` delegate:
   twelve operations times nine variants, plus the three of `Contains` and the two of `ValueOr` with a value, is **122 methods**
   (with the nullable-value form of `Map`),

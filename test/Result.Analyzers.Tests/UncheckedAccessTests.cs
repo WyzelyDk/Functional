@@ -24,6 +24,22 @@ public sealed class UncheckedAccessTests
     }
 
     [Fact]
+    internal async Task GetValueOrThrow_without_arguments_and_without_a_check_is_not_reported()
+    {
+        var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nint M(Result<int> r) => r.GetValueOrThrow();");
+
+        Assert.Empty(ids);
+    }
+
+    [Fact]
+    internal async Task The_message_of_an_unchecked_GetValue_names_GetValueOrThrow_for_the_case_that_an_exception_is_wanted()
+    {
+        var messages = await AnalyzerTestHost.MessagesAsync(Sources + "\nint M(Result<int> r) => r.GetValue();");
+
+        Assert.Contains("GetValueOrThrow()", Assert.Single(messages), StringComparison.Ordinal);
+    }
+
+    [Fact]
     internal async Task ThrowIfFailure_with_a_factory_without_a_check_is_not_reported()
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\nvoid M(Result r) => r.ThrowIfFailure(e => new InvalidOperationException(e.Message));");

@@ -28,6 +28,19 @@ internal static class CodeFixTesting
         return [.. diagnostics.Select(diagnostic => diagnostic.Id).OrderBy(id => id, StringComparer.Ordinal)];
     }
 
+    // Runs the analyzer over the compilation and returns the messages of what it reports, in the order of the ids.
+    internal static async Task<string[]> MessagesAsync(CSharpCompilation compilation, DiagnosticAnalyzer analyzer, CancellationToken token)
+    {
+        var diagnostics = await compilation.WithAnalyzers([analyzer]).GetAnalyzerDiagnosticsAsync(token);
+
+        return
+        [
+            .. diagnostics
+                .OrderBy(diagnostic => diagnostic.Id, StringComparer.Ordinal)
+                .Select(diagnostic => diagnostic.GetMessage(System.Globalization.CultureInfo.InvariantCulture)),
+        ];
+    }
+
     // Asks the provider for a fix of a diagnostic that is made up: the given id, reported at the first occurrence of the marker in the source.
     // It returns how many fixes the provider offered, which shows that it does not offer one for a diagnostic that is stale or does not fit the code.
     // The properties are the ones an analyzer would put on the diagnostic, for a rewrite that reads them.
