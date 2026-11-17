@@ -206,6 +206,7 @@ public sealed class ReadmeExamplesTests
         Assert.Multiple(
             () => Assert.Equal("Checkout: Order 7 of anna@example.com was not found.", error.ToString()),
             () => Assert.Equal("Checkout: Order 7 of *** was not found.", error.ToRedactedString()),
+            () => Assert.Equal("Order 7 of anna@example.com was not found.", error.Message),
             () => Assert.Equal("Order {OrderId} of {Customer} was not found.", error.Template),
             () => Assert.Equal(ErrorKind.NotFound, error.Kind));
     }

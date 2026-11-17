@@ -224,6 +224,17 @@ public sealed class ErrorTests
     }
 
     [Fact]
+    internal void Message_does_not_include_the_context_frames_that_ToString_prints()
+    {
+        var error = Error.Create("Upload failed.").WithContext("Checkout").WithContext("Import");
+
+        Assert.Multiple(
+            () => Assert.Equal("Upload failed.", error.Message),
+            () => Assert.Equal("Upload failed.", error.RedactedMessage),
+            () => Assert.Equal("Import: Checkout: Upload failed.", error.ToString()));
+    }
+
+    [Fact]
     internal void ToString_without_context_is_the_message()
     {
         Assert.Equal("Upload failed.", Error.Create("Upload failed.").ToString());
