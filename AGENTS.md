@@ -184,6 +184,11 @@ The library is judged by how it feels to use, not only by what it can do.
   sites share), and `+` between a string and an object (call `ToString()`). A pending asynchronous path is tested with a `TaskCompletionSource` and an
   assertion that it was pending, not with `Task.Yield()`, which has completed by the time of the check under instrumentation. An entry point that only
   calls tested code carries `[ExcludeFromCodeCoverage(Justification = "...")]`.
+- **Argument validation is probed by reflection.** `NullArgumentTests` (in `Result.Tests`, `Maybe.Tests` and `Functional.Tests`, using the shared
+  `test/ArgumentTesting/NullArgumentProbe.cs`) calls every public static method, instance method, constructor, property setter and conversion operator
+  once per non-nullable reference parameter with that argument set to null and asserts that an `ArgumentNullException` for that parameter is thrown at the
+  call, also when the method returns a task. A new public member is covered without a new test; a member that forwards to another one must validate its own
+  parameters first, or the exception names the wrong one.
 - **Allocation and size are tested**, not described (`PerformanceTests`): `GC.GetAllocatedBytesForCurrentThread` for the success path,
   `Unsafe.SizeOf` for the layout.
 - **Analyzers and code fixes are tested in a real Roslyn workspace** (`Analyzers.Tests`): snippets that must and must not be reported,

@@ -42,7 +42,13 @@ public readonly partial struct Result<T> : Result<T>.IUnionMembers
         /// <summary>Creates a failed result.</summary>
         /// <param name="value">The error of the failure.</param>
         /// <returns>A failed result.</returns>
-        static Result<T> Create(Error value) => Result.Failure<T>(value);
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+        static Result<T> Create(Error value)
+        {
+            Guard.NotNull(value, nameof(value));
+
+            return Result.Failure<T>(value);
+        }
 
         /// <summary>Gets the value without boxing.</summary>
         /// <param name="value">The value of a successful result.</param>

@@ -18,7 +18,12 @@ public static class MaybeLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
     public static Maybe<TResult> Select<T, TResult>(this Maybe<T> source, Func<T, TResult?> selector)
         where T : notnull
-        where TResult : notnull => source.Map(selector);
+        where TResult : notnull
+    {
+        Guard.NotNull(selector, nameof(selector));
+
+        return source.Map(selector);
+    }
 
     /// <summary>
     /// Transforms the value of a maybe with a selector that returns a nullable value type.
@@ -32,7 +37,12 @@ public static class MaybeLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
     public static Maybe<TResult> Select<T, TResult>(this Maybe<T> source, Func<T, TResult?> selector)
         where T : notnull
-        where TResult : struct => source.Map(selector);
+        where TResult : struct
+    {
+        Guard.NotNull(selector, nameof(selector));
+
+        return source.Map(selector);
+    }
 
     /// <summary>Chains an operation that may produce no value. This is <c>Bind</c> under the name that query syntax requires.</summary>
     /// <typeparam name="T">The type of the value of the source.</typeparam>
@@ -43,7 +53,12 @@ public static class MaybeLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> is <see langword="null"/>.</exception>
     public static Maybe<TResult> SelectMany<T, TResult>(this Maybe<T> source, Func<T, Maybe<TResult>> selector)
         where T : notnull
-        where TResult : notnull => source.Bind(selector);
+        where TResult : notnull
+    {
+        Guard.NotNull(selector, nameof(selector));
+
+        return source.Bind(selector);
+    }
 
     /// <summary>
     /// Chains an operation that may produce no value and combines both values. The compiler uses this for a query with two <c>from</c> clauses.

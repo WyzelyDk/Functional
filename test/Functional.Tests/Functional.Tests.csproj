@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\ArgumentTesting\*.cs" Link="ArgumentTesting\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Functional\Functional.csproj" />
   </ItemGroup>
 
