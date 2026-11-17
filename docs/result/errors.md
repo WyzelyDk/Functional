@@ -11,6 +11,7 @@ var error = Error.NotFound("Order {OrderId} of {Customer} was not found.")
 
 error.ToString();          // "Checkout: Order 7 of anna@example.com was not found."
 error.ToRedactedString();  // "Checkout: Order 7 of *** was not found."   <- safe to log
+error.Message;             // "Order 7 of anna@example.com was not found."   <- without the context frame
 error.Template;            // "Order {OrderId} of {Customer} was not found."   <- stable identity for grouping
 error.Kind;                // ErrorKind.NotFound
 ```
@@ -19,7 +20,7 @@ An `Error` is **immutable**: every `With...` method returns a modified copy.
 
 | Member | Purpose |
 |---|---|
-| `Template`, `Message` | the message is a *template*; `{Name}` placeholders are filled from the `Details` (`{{` and `}}` give a single brace; an unknown placeholder stays as written) |
+| `Template`, `Message` | the message is a *template*; `{Name}` placeholders are filled from the `Details` (`{{` and `}}` give a single brace; an unknown placeholder stays as written); `Message` does not include the context frames, `ToString()` does |
 | `Details` | structured name/value pairs for logs and telemetry; mark secrets with `isSensitive: true` |
 | `RedactedMessage`, `ToRedactedString()` | the same text with sensitive values replaced by `***` |
 | `Code` | an optional, stable, machine-readable code |
