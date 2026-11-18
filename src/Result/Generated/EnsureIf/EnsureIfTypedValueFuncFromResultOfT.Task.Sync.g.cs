@@ -24,30 +24,30 @@ public static partial class ResultExtensions
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value of the validation result, which is ignored.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="validation">The validation to run with the value of the successful result. The value of its result is ignored.</param>
     /// <returns>
     /// The receiver when it failed, the condition did not hold or the validation succeeded,
     /// otherwise a failed result with the error of the validation. The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="validation"/> is <see langword="null"/>.
+    /// <paramref name="result"/>, <paramref name="predicate"/>, <paramref name="validation"/> is <see langword="null"/>.
     /// </exception>
-    public static Task<Result<T>> EnsureIf<T, TResult>(this Task<Result<T>> result, Func<T, bool> condition, Func<T, Result<TResult>> validation)
+    public static Task<Result<T>> EnsureIf<T, TResult>(this Task<Result<T>> result, Func<T, bool> predicate, Func<T, Result<TResult>> validation)
     {
         Guard.NotNull(result, nameof(result));
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(validation, nameof(validation));
 
         if (result.Status == TaskStatus.RanToCompletion)
         {
-            var completed = EnsureIf(result.Result, condition, validation);
+            var completed = EnsureIf(result.Result, predicate, validation);
             return completed.HasSameStateAs(result.Result) ? result : Task.FromResult(completed);
         }
 
-        return Core(result, condition, validation);
+        return Core(result, predicate, validation);
 
-        static async Task<Result<T>> Core(Task<Result<T>> result, Func<T, bool> condition, Func<T, Result<TResult>> validation)
+        static async Task<Result<T>> Core(Task<Result<T>> result, Func<T, bool> predicate, Func<T, Result<TResult>> validation)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -58,7 +58,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return outcome;
             }

@@ -24,26 +24,26 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
-    /// <param name="replacement">Computes the replacement value when the result failed.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the result failed.</param>
     /// <returns>
     /// The successful receiver, or a successful result that holds the replacement value.
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(-1)]
-    public static ValueTask<Result<T>> OrElse<T>(this ValueTask<Result<T>> result, Func<Error, ValueTask<T>> replacement)
+    public static ValueTask<Result<T>> OrElse<T>(this ValueTask<Result<T>> result, Func<Error, ValueTask<T>> replacementFactory)
     {
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
         if (result.IsCompletedSuccessfully)
         {
-            var inner = OrElse(result.Result, replacement);
+            var inner = OrElse(result.Result, replacementFactory);
             return inner;
         }
 
-        return Core(result, replacement);
+        return Core(result, replacementFactory);
 
-        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<Error, ValueTask<T>> replacement)
+        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<Error, ValueTask<T>> replacementFactory)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -54,7 +54,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            var value = await replacement(failure).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+            var value = await replacementFactory(failure).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
             return Result<T>.Succeeded(value);
         }
     }

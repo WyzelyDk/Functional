@@ -22,27 +22,27 @@ public static partial class MaybeExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The task that produces the maybe to operate on. It must not be <see langword="null"/>.</param>
-    /// <param name="replacement">Computes the replacement value when the receiver has no value.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the receiver has no value.</param>
     /// <returns>
     /// The receiver when it has a value, otherwise a maybe that holds the replacement value.
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="maybe"/>, <paramref name="replacement"/> is <see langword="null"/>.</exception>
-    public static Task<Maybe<T>> OrElse<T>(this Task<Maybe<T>> maybe, Func<T> replacement)
+    /// <exception cref="ArgumentNullException"><paramref name="maybe"/>, <paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
+    public static Task<Maybe<T>> OrElse<T>(this Task<Maybe<T>> maybe, Func<T> replacementFactory)
         where T : notnull
     {
         Guard.NotNull(maybe, nameof(maybe));
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
         if (maybe.Status == TaskStatus.RanToCompletion)
         {
-            var completed = OrElse(maybe.Result, replacement);
+            var completed = OrElse(maybe.Result, replacementFactory);
             return completed.HasSameStateAs(maybe.Result) ? maybe : Task.FromResult(completed);
         }
 
-        return Core(maybe, replacement);
+        return Core(maybe, replacementFactory);
 
-        static async Task<Maybe<T>> Core(Task<Maybe<T>> maybe, Func<T> replacement)
+        static async Task<Maybe<T>> Core(Task<Maybe<T>> maybe, Func<T> replacementFactory)
         {
             var outcome = await maybe.ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
 
@@ -53,7 +53,7 @@ public static partial class MaybeExtensions
                 return outcome;
             }
 
-            var value = replacement();
+            var value = replacementFactory();
             return Maybe<T>.Of(value);
         }
     }

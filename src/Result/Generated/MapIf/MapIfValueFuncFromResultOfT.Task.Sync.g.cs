@@ -22,30 +22,30 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="map">Computes the new value from the value of the successful result.</param>
     /// <returns>
     /// A successful result that holds the value computed by the delegate when the condition held, otherwise the receiver.
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="map"/> is <see langword="null"/>.
+    /// <paramref name="result"/>, <paramref name="predicate"/>, <paramref name="map"/> is <see langword="null"/>.
     /// </exception>
-    public static Task<Result<T>> MapIf<T>(this Task<Result<T>> result, Func<T, bool> condition, Func<T, T> map)
+    public static Task<Result<T>> MapIf<T>(this Task<Result<T>> result, Func<T, bool> predicate, Func<T, T> map)
     {
         Guard.NotNull(result, nameof(result));
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(map, nameof(map));
 
         if (result.Status == TaskStatus.RanToCompletion)
         {
-            var completed = MapIf(result.Result, condition, map);
+            var completed = MapIf(result.Result, predicate, map);
             return Task.FromResult(completed);
         }
 
-        return Core(result, condition, map);
+        return Core(result, predicate, map);
 
-        static async Task<Result<T>> Core(Task<Result<T>> result, Func<T, bool> condition, Func<T, T> map)
+        static async Task<Result<T>> Core(Task<Result<T>> result, Func<T, bool> predicate, Func<T, T> map)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -56,7 +56,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return outcome;
             }

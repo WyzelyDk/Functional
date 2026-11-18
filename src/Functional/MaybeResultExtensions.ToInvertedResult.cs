@@ -31,22 +31,22 @@ public static partial class MaybeResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="maybe">The maybe to convert.</param>
-    /// <param name="error">Creates the error of the failed result from the value of the maybe.</param>
+    /// <param name="errorFactory">Creates the error of the failed result from the value of the maybe.</param>
     /// <returns>
-    /// A failed result with the error that <paramref name="error"/> created when the maybe has a value, otherwise a successful result without a value.
+    /// A failed result with the error that <paramref name="errorFactory"/> created when the maybe has a value, otherwise a successful result without a value.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>, or it returned <see langword="null"/>.</exception>
-    public static Result ToInvertedResult<T>(this Maybe<T> maybe, Func<T, Error> error)
+    /// <exception cref="ArgumentNullException"><paramref name="errorFactory"/> is <see langword="null"/>, or it returned <see langword="null"/>.</exception>
+    public static Result ToInvertedResult<T>(this Maybe<T> maybe, Func<T, Error> errorFactory)
         where T : notnull
     {
-        Guard.NotNull(error, nameof(error));
+        Guard.NotNull(errorFactory, nameof(errorFactory));
 
         if (!maybe.TryGetValue(out var value))
         {
             return Result.Success();
         }
 
-        var failure = error(value);
+        var failure = errorFactory(value);
 
         return Result.Failure(failure);
     }
@@ -81,21 +81,21 @@ public static partial class MaybeResultExtensions
     /// <summary>Turns the maybe that a task produces into a result with the meaning inverted, building the error from the value that was found.</summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="maybe">The task that produces the maybe. It must not be <see langword="null"/>.</param>
-    /// <param name="error">Creates the error of the failed result from the value of the maybe. It is not called when the maybe has no value.</param>
+    /// <param name="errorFactory">Creates the error of the failed result from the value of the maybe. It is not called when the maybe has no value.</param>
     /// <returns>
-    /// A task that produces a failed result with the error that <paramref name="error"/> created when the maybe has a value,
+    /// A task that produces a failed result with the error that <paramref name="errorFactory"/> created when the maybe has a value,
     /// otherwise a successful result without a value.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="maybe"/> or <paramref name="error"/> is <see langword="null"/>.</exception>
-    public static Task<Result> ToInvertedResult<T>(this Task<Maybe<T>> maybe, Func<T, Error> error)
+    /// <exception cref="ArgumentNullException"><paramref name="maybe"/> or <paramref name="errorFactory"/> is <see langword="null"/>.</exception>
+    public static Task<Result> ToInvertedResult<T>(this Task<Maybe<T>> maybe, Func<T, Error> errorFactory)
         where T : notnull
     {
         Guard.NotNull(maybe, nameof(maybe));
-        Guard.NotNull(error, nameof(error));
+        Guard.NotNull(errorFactory, nameof(errorFactory));
 
         if (maybe.Status == TaskStatus.RanToCompletion)
         {
-            var completed = maybe.Result.ToInvertedResult(error);
+            var completed = maybe.Result.ToInvertedResult(errorFactory);
 
             return Task.FromResult(completed);
         }
@@ -104,7 +104,7 @@ public static partial class MaybeResultExtensions
 
         Result FailureOf(T value)
         {
-            var failure = error(value);
+            var failure = errorFactory(value);
 
             return Result.Failure(failure);
         }
@@ -140,21 +140,21 @@ public static partial class MaybeResultExtensions
     /// <summary>Turns the maybe that a value task produces into a result with the meaning inverted, building the error from the value that was found.</summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="maybe">The value task that produces the maybe.</param>
-    /// <param name="error">Creates the error of the failed result from the value of the maybe. It is not called when the maybe has no value.</param>
+    /// <param name="errorFactory">Creates the error of the failed result from the value of the maybe. It is not called when the maybe has no value.</param>
     /// <returns>
-    /// A value task that produces a failed result with the error that <paramref name="error"/> created when the maybe has a value,
+    /// A value task that produces a failed result with the error that <paramref name="errorFactory"/> created when the maybe has a value,
     /// otherwise a successful result without a value.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="errorFactory"/> is <see langword="null"/>.</exception>
     [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
-    public static ValueTask<Result> ToInvertedResult<T>(this ValueTask<Maybe<T>> maybe, Func<T, Error> error)
+    public static ValueTask<Result> ToInvertedResult<T>(this ValueTask<Maybe<T>> maybe, Func<T, Error> errorFactory)
         where T : notnull
     {
-        Guard.NotNull(error, nameof(error));
+        Guard.NotNull(errorFactory, nameof(errorFactory));
 
         if (maybe.IsCompletedSuccessfully)
         {
-            var completed = maybe.Result.ToInvertedResult(error);
+            var completed = maybe.Result.ToInvertedResult(errorFactory);
 
             return new ValueTask<Result>(completed);
         }
@@ -163,7 +163,7 @@ public static partial class MaybeResultExtensions
 
         Result FailureOf(T value)
         {
-            var failure = error(value);
+            var failure = errorFactory(value);
 
             return Result.Failure(failure);
         }

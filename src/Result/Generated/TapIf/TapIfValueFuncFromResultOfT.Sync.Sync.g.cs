@@ -20,13 +20,13 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="tap">The side effect to run with the value of the successful result.</param>
     /// <returns>The receiver, unchanged.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="tap"/> is <see langword="null"/>.</exception>
-    public static Result<T> TapIf<T>(this Result<T> result, Func<T, bool> condition, Action<T> tap)
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="tap"/> is <see langword="null"/>.</exception>
+    public static Result<T> TapIf<T>(this Result<T> result, Func<T, bool> predicate, Action<T> tap)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(tap, nameof(tap));
 
         var failure = result.Unpack(out var input);
@@ -36,7 +36,7 @@ public static partial class ResultExtensions
             return result;
         }
 
-        if (!condition(input))
+        if (!predicate(input))
         {
             return result;
         }

@@ -20,12 +20,12 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="fallback">Computes the value to return from the error of the failed result.</param>
+    /// <param name="fallbackFactory">Computes the value to return from the error of the failed result.</param>
     /// <returns>The value of the successful result, or the value computed by the delegate.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="fallback"/> is <see langword="null"/>.</exception>
-    public static T ValueOr<T>(this Result<T> result, Func<Error, T> fallback)
+    /// <exception cref="ArgumentNullException"><paramref name="fallbackFactory"/> is <see langword="null"/>.</exception>
+    public static T ValueOr<T>(this Result<T> result, Func<Error, T> fallbackFactory)
     {
-        Guard.NotNull(fallback, nameof(fallback));
+        Guard.NotNull(fallbackFactory, nameof(fallbackFactory));
 
         var failure = result.Unpack(out var input);
 
@@ -34,6 +34,6 @@ public static partial class ResultExtensions
             return input;
         }
 
-        return fallback(failure);
+        return fallbackFactory(failure);
     }
 }

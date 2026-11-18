@@ -20,13 +20,13 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="map">Computes the new value from the value of the successful result.</param>
     /// <returns>A successful result that holds the value computed by the delegate when the condition held, otherwise the receiver.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="map"/> is <see langword="null"/>.</exception>
-    public static Result<T> MapIf<T>(this Result<T> result, Func<T, bool> condition, Func<T, T> map)
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="map"/> is <see langword="null"/>.</exception>
+    public static Result<T> MapIf<T>(this Result<T> result, Func<T, bool> predicate, Func<T, T> map)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(map, nameof(map));
 
         var failure = result.Unpack(out var input);
@@ -36,7 +36,7 @@ public static partial class ResultExtensions
             return result;
         }
 
-        if (!condition(input))
+        if (!predicate(input))
         {
             return result;
         }

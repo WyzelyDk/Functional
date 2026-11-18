@@ -11,6 +11,7 @@ namespace Wyzely.Functional.ResultCodeGeneration;
 internal static partial class Operations
 {
     private const string FallbackName = "fallback";
+    private const string FallbackFactoryName = "fallbackFactory";
     private const string FallbackReturnsNine = "9";
 
     private static IEnumerable<OperationSpec> ValueOrFamily()
@@ -31,7 +32,7 @@ internal static partial class Operations
         TypeParameterDocs = [new("T", TDoc)],
         Summary = "Leaves the railway: returns the value of a successful result, or computes a fallback from the error of a failed result. " +
             "The delegate is not called when the result succeeded.",
-        Delegates = [new(FallbackName, [ErrorType], "T", "Computes the value to return from the error of the failed result.")],
+        Delegates = [new(FallbackFactoryName, [ErrorType], "T", "Computes the value to return from the error of the failed result.")],
         ReturnType = "T",
         ReturnDescription = "The value of the successful result, or the value computed by the delegate.",
         Body = ctx =>
@@ -43,7 +44,7 @@ internal static partial class Operations
             "    return input;",
             "}",
             string.Empty,
-            $"return {ctx.Call(FallbackName, FailureName)};",
+            $"return {ctx.Call(FallbackFactoryName, FailureName)};",
         ],
         ForwardBody = ctx =>
         [
@@ -54,24 +55,24 @@ internal static partial class Operations
             $"    return {ctx.Done(InputName)};",
             "}",
             string.Empty,
-            "return fallback(failure);",
+            "return fallbackFactory(failure);",
         ],
         Tests =
         [
             Case(
                 "returns_the_value_without_running_the_delegate_when_the_receiver_succeeded",
                 SuccessOfTwo,
-                [Returns(FallbackName, ["e"], FallbackReturnsNine, "int")],
-                ["Assert.Equal(2, outcome);", "Assert.Equal(0, fallbackCalls);"]),
+                [Returns(FallbackFactoryName, ["e"], FallbackReturnsNine, "int")],
+                ["Assert.Equal(2, outcome);", "Assert.Equal(0, fallbackFactoryCalls);"]),
             Case(
                 "returns_the_value_of_the_delegate_when_the_receiver_failed",
                 FailureOfInt,
-                [Returns(FallbackName, ["e"], FallbackReturnsNine, "int")],
-                ["Assert.Equal(9, outcome);", "Assert.Equal(1, fallbackCalls);"]),
+                [Returns(FallbackFactoryName, ["e"], FallbackReturnsNine, "int")],
+                ["Assert.Equal(9, outcome);", "Assert.Equal(1, fallbackFactoryCalls);"]),
             Case(
                 "gives_the_error_of_the_receiver_to_the_delegate",
                 FailureOfInt,
-                [Returns(FallbackName, ["e"], "e.Message.Length", "int")],
+                [Returns(FallbackFactoryName, ["e"], "e.Message.Length", "int")],
                 ["Assert.Equal(5, outcome);"]),
         ],
     };
@@ -87,7 +88,7 @@ internal static partial class Operations
         TypeParameterDocs = [new("T", TDoc)],
         Summary = "Leaves the railway: returns the value of a successful result, or computes a fallback when the result failed. " +
             "The delegate is not called when the result succeeded.",
-        Delegates = [new(FallbackName, [], "T", "Computes the value to return when the result failed.")],
+        Delegates = [new(FallbackFactoryName, [], "T", "Computes the value to return when the result failed.")],
         ReturnType = "T",
         ReturnDescription = "The value of the successful result, or the value computed by the delegate.",
         Body = ctx =>
@@ -99,7 +100,7 @@ internal static partial class Operations
             "    return input;",
             "}",
             string.Empty,
-            $"return {ctx.Call(FallbackName, string.Empty)};",
+            $"return {ctx.Call(FallbackFactoryName, string.Empty)};",
         ],
         ForwardBody = ctx =>
         [
@@ -110,20 +111,20 @@ internal static partial class Operations
             $"    return {ctx.Done(InputName)};",
             "}",
             string.Empty,
-            "return fallback();",
+            "return fallbackFactory();",
         ],
         Tests =
         [
             Case(
                 "returns_the_value_without_running_the_delegate_when_the_receiver_succeeded",
                 SuccessOfTwo,
-                [Returns(FallbackName, [], FallbackReturnsNine, "int")],
-                ["Assert.Equal(2, outcome);", "Assert.Equal(0, fallbackCalls);"]),
+                [Returns(FallbackFactoryName, [], FallbackReturnsNine, "int")],
+                ["Assert.Equal(2, outcome);", "Assert.Equal(0, fallbackFactoryCalls);"]),
             Case(
                 "returns_the_value_of_the_delegate_when_the_receiver_failed",
                 FailureOfInt,
-                [Returns(FallbackName, [], FallbackReturnsNine, "int")],
-                ["Assert.Equal(9, outcome);", "Assert.Equal(1, fallbackCalls);"]),
+                [Returns(FallbackFactoryName, [], FallbackReturnsNine, "int")],
+                ["Assert.Equal(9, outcome);", "Assert.Equal(1, fallbackFactoryCalls);"]),
         ],
     };
 

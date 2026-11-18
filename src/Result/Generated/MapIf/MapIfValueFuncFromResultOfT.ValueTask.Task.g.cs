@@ -24,27 +24,27 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="map">Computes the new value from the value of the successful result.</param>
     /// <returns>
     /// A successful result that holds the value computed by the delegate when the condition held, otherwise the receiver.
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="map"/> is <see langword="null"/>.</exception>
-    public static ValueTask<Result<T>> MapIf<T>(this ValueTask<Result<T>> result, Func<T, bool> condition, Func<T, Task<T>> map)
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="map"/> is <see langword="null"/>.</exception>
+    public static ValueTask<Result<T>> MapIf<T>(this ValueTask<Result<T>> result, Func<T, bool> predicate, Func<T, Task<T>> map)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(map, nameof(map));
 
         if (result.IsCompletedSuccessfully)
         {
-            var inner = MapIf(result.Result, condition, map);
+            var inner = MapIf(result.Result, predicate, map);
             return new ValueTask<Result<T>>(inner);
         }
 
-        return Core(result, condition, map);
+        return Core(result, predicate, map);
 
-        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<T, bool> condition, Func<T, Task<T>> map)
+        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<T, bool> predicate, Func<T, Task<T>> map)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -55,7 +55,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return outcome;
             }

@@ -103,7 +103,7 @@ public sealed class FallbackCodeFixTests
     [Theory]
     [InlineData("int M(Result<int> r) => r.ValueOr(Compute());", "r.ValueOr(() => Compute())")]
     [InlineData("int M(Result<int> r) => r.ValueOr((Compute()));", "r.ValueOr(() => Compute())")]
-    [InlineData("int M(Result<int> r) => r.ValueOr(fallback: Compute());", "r.ValueOr(fallback: () => Compute())")]
+    [InlineData("int M(Result<int> r) => r.ValueOr(fallback: Compute());", "r.ValueOr(fallbackFactory: () => Compute())")]
     [InlineData("int M(Result<int> r) => r.ValueOr(Compute() + 1);", "r.ValueOr(() => Compute() + 1)")]
     [InlineData("List<int> M(Result<List<int>> r) => r.ValueOr(new List<int>());", "r.ValueOr(() => new List<int>())")]
     [InlineData("List<int> M(Result<List<int>> r) => r.ValueOr([1, 2]);", "r.ValueOr(() => [1, 2])")]

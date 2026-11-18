@@ -22,25 +22,25 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
-    /// <param name="fallback">Computes the value to return from the error of the failed result.</param>
+    /// <param name="fallbackFactory">Computes the value to return from the error of the failed result.</param>
     /// <returns>
     /// The value of the successful result, or the value computed by the delegate.
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="fallback"/> is <see langword="null"/>.</exception>
-    public static ValueTask<T> ValueOr<T>(this ValueTask<Result<T>> result, Func<Error, T> fallback)
+    /// <exception cref="ArgumentNullException"><paramref name="fallbackFactory"/> is <see langword="null"/>.</exception>
+    public static ValueTask<T> ValueOr<T>(this ValueTask<Result<T>> result, Func<Error, T> fallbackFactory)
     {
-        Guard.NotNull(fallback, nameof(fallback));
+        Guard.NotNull(fallbackFactory, nameof(fallbackFactory));
 
         if (result.IsCompletedSuccessfully)
         {
-            var completed = ValueOr(result.Result, fallback);
+            var completed = ValueOr(result.Result, fallbackFactory);
             return new ValueTask<T>(completed);
         }
 
-        return Core(result, fallback);
+        return Core(result, fallbackFactory);
 
-        static async ValueTask<T> Core(ValueTask<Result<T>> result, Func<Error, T> fallback)
+        static async ValueTask<T> Core(ValueTask<Result<T>> result, Func<Error, T> fallbackFactory)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -51,7 +51,7 @@ public static partial class ResultExtensions
                 return input;
             }
 
-            return fallback(failure);
+            return fallbackFactory(failure);
         }
     }
 }

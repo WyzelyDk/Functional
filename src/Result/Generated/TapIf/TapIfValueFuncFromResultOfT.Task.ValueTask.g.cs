@@ -24,27 +24,27 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="tap">The side effect to run with the value of the successful result.</param>
     /// <returns>The receiver, unchanged. The value is returned in a <see cref="Task{TResult}"/>.</returns>
     /// <exception cref="ArgumentNullException">
-    /// <paramref name="result"/>, <paramref name="condition"/>, <paramref name="tap"/> is <see langword="null"/>.
+    /// <paramref name="result"/>, <paramref name="predicate"/>, <paramref name="tap"/> is <see langword="null"/>.
     /// </exception>
-    public static Task<Result<T>> TapIf<T>(this Task<Result<T>> result, Func<T, bool> condition, Func<T, ValueTask> tap)
+    public static Task<Result<T>> TapIf<T>(this Task<Result<T>> result, Func<T, bool> predicate, Func<T, ValueTask> tap)
     {
         Guard.NotNull(result, nameof(result));
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(tap, nameof(tap));
 
         if (result.Status == TaskStatus.RanToCompletion)
         {
-            var inner = TapIf(result.Result, condition, tap);
+            var inner = TapIf(result.Result, predicate, tap);
             return inner.AsTask();
         }
 
-        return Core(result, condition, tap);
+        return Core(result, predicate, tap);
 
-        static async Task<Result<T>> Core(Task<Result<T>> result, Func<T, bool> condition, Func<T, ValueTask> tap)
+        static async Task<Result<T>> Core(Task<Result<T>> result, Func<T, bool> predicate, Func<T, ValueTask> tap)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -55,7 +55,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return outcome;
             }

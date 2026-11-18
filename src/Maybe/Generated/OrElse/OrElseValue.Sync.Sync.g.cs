@@ -20,13 +20,13 @@ public static partial class MaybeExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>
-    /// <param name="replacement">Computes the replacement value when the receiver has no value.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the receiver has no value.</param>
     /// <returns>The receiver when it has a value, otherwise a maybe that holds the replacement value.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
-    public static Maybe<T> OrElse<T>(this Maybe<T> maybe, Func<T> replacement)
+    /// <exception cref="ArgumentNullException"><paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
+    public static Maybe<T> OrElse<T>(this Maybe<T> maybe, Func<T> replacementFactory)
         where T : notnull
     {
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
         var found = maybe.Unpack(out _);
 
@@ -35,7 +35,7 @@ public static partial class MaybeExtensions
             return maybe;
         }
 
-        var value = replacement();
+        var value = replacementFactory();
         return Maybe<T>.Of(value);
     }
 }

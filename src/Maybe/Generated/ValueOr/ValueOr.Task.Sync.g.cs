@@ -22,24 +22,24 @@ public static partial class MaybeExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The task that produces the maybe to operate on. It must not be <see langword="null"/>.</param>
-    /// <param name="fallback">Computes the value to return when the receiver has no value.</param>
+    /// <param name="fallbackFactory">Computes the value to return when the receiver has no value.</param>
     /// <returns>The value of the receiver, or the value computed by the delegate. The value is returned in a <see cref="Task{TResult}"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="maybe"/>, <paramref name="fallback"/> is <see langword="null"/>.</exception>
-    public static Task<T> ValueOr<T>(this Task<Maybe<T>> maybe, Func<T> fallback)
+    /// <exception cref="ArgumentNullException"><paramref name="maybe"/>, <paramref name="fallbackFactory"/> is <see langword="null"/>.</exception>
+    public static Task<T> ValueOr<T>(this Task<Maybe<T>> maybe, Func<T> fallbackFactory)
         where T : notnull
     {
         Guard.NotNull(maybe, nameof(maybe));
-        Guard.NotNull(fallback, nameof(fallback));
+        Guard.NotNull(fallbackFactory, nameof(fallbackFactory));
 
         if (maybe.Status == TaskStatus.RanToCompletion)
         {
-            var completed = ValueOr(maybe.Result, fallback);
+            var completed = ValueOr(maybe.Result, fallbackFactory);
             return Task.FromResult(completed);
         }
 
-        return Core(maybe, fallback);
+        return Core(maybe, fallbackFactory);
 
-        static async Task<T> Core(Task<Maybe<T>> maybe, Func<T> fallback)
+        static async Task<T> Core(Task<Maybe<T>> maybe, Func<T> fallbackFactory)
         {
             var outcome = await maybe.ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
 
@@ -50,7 +50,7 @@ public static partial class MaybeExtensions
                 return input;
             }
 
-            return fallback();
+            return fallbackFactory();
         }
     }
 }

@@ -24,27 +24,27 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
-    /// <param name="replacement">Computes the replacement value when the result failed.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the result failed.</param>
     /// <returns>
     /// The successful receiver, or a successful result that holds the replacement value.
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="replacement"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(-1)]
-    public static Task<Result<T>> OrElse<T>(this Task<Result<T>> result, Func<Error, ValueTask<T>> replacement)
+    public static Task<Result<T>> OrElse<T>(this Task<Result<T>> result, Func<Error, ValueTask<T>> replacementFactory)
     {
         Guard.NotNull(result, nameof(result));
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
         if (result.Status == TaskStatus.RanToCompletion)
         {
-            var inner = OrElse(result.Result, replacement);
+            var inner = OrElse(result.Result, replacementFactory);
             return inner.AsTask();
         }
 
-        return Core(result, replacement);
+        return Core(result, replacementFactory);
 
-        static async Task<Result<T>> Core(Task<Result<T>> result, Func<Error, ValueTask<T>> replacement)
+        static async Task<Result<T>> Core(Task<Result<T>> result, Func<Error, ValueTask<T>> replacementFactory)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -55,7 +55,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            var value = await replacement(failure).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+            var value = await replacementFactory(failure).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
             return Result<T>.Succeeded(value);
         }
     }

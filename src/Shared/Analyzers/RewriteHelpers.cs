@@ -33,8 +33,15 @@ internal static class RewriteHelpers
         }
 
         var function = SyntaxFactory.ParenthesizedLambdaExpression(SyntaxFactory.ParameterList(), StripParentheses(arguments[0].Expression));
+        var argument = arguments[0].WithExpression(function);
 
-        return invocation.WithArgumentList(ArgumentsOf([arguments[0].WithExpression(function)]));
+        // The function form of the parameter is called fallbackFactory, so a name that was written for the value is changed with it.
+        if (argument.NameColon is { } nameColon)
+        {
+            argument = argument.WithNameColon(nameColon.WithName(SyntaxFactory.IdentifierName("fallbackFactory")));
+        }
+
+        return invocation.WithArgumentList(ArgumentsOf([argument]));
     }
 
     /// <summary>Renames a call, written as a member access or as a plain name.</summary>

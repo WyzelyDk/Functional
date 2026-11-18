@@ -21,18 +21,18 @@ public static partial class ResultExtensions
     /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
     /// <param name="tapError">The side effect to run with the error of the failed result.</param>
     /// <returns>The receiver, unchanged. The value is returned in a <see cref="ValueTask{TResult}"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
-    public static ValueTask<Result> TapErrorIf(this Result result, Func<Error, bool> condition, Func<Error, ValueTask> tapError)
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
+    public static ValueTask<Result> TapErrorIf(this Result result, Func<Error, bool> predicate, Func<Error, ValueTask> tapError)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(tapError, nameof(tapError));
 
-        return Core(result, condition, tapError);
+        return Core(result, predicate, tapError);
 
-        static async ValueTask<Result> Core(Result result, Func<Error, bool> condition, Func<Error, ValueTask> tapError)
+        static async ValueTask<Result> Core(Result result, Func<Error, bool> predicate, Func<Error, ValueTask> tapError)
         {
             var failure = result.FailureOrNull();
 
@@ -41,7 +41,7 @@ public static partial class ResultExtensions
                 return result;
             }
 
-            if (!condition(failure))
+            if (!predicate(failure))
             {
                 return result;
             }

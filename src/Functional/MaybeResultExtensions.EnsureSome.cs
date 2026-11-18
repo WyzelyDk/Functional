@@ -25,17 +25,17 @@ public static partial class MaybeResultExtensions
     /// <summary>Turns a result that holds a maybe into a result that holds the value, creating the error only when there is no value.</summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="result">The result to convert. A failed result passes through with its own error.</param>
-    /// <param name="error">Creates the error of the failed result. It is not called when the maybe has a value or the receiver failed.</param>
+    /// <param name="errorFactory">Creates the error of the failed result. It is not called when the maybe has a value or the receiver failed.</param>
     /// <returns>
-    /// A successful result with the value, or a failed result with the error of the receiver or the one that <paramref name="error"/> created.
+    /// A successful result with the value, or a failed result with the error of the receiver or the one that <paramref name="errorFactory"/> created.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>, or it returned <see langword="null"/>.</exception>
-    public static Result<T> EnsureSome<T>(this Result<Maybe<T>> result, Func<Error> error)
+    /// <exception cref="ArgumentNullException"><paramref name="errorFactory"/> is <see langword="null"/>, or it returned <see langword="null"/>.</exception>
+    public static Result<T> EnsureSome<T>(this Result<Maybe<T>> result, Func<Error> errorFactory)
         where T : notnull
     {
-        Guard.NotNull(error, nameof(error));
+        Guard.NotNull(errorFactory, nameof(errorFactory));
 
-        return result.TryGetValue(out var maybe) ? maybe.ToResult(error) : result.ConvertFailure<T>();
+        return result.TryGetValue(out var maybe) ? maybe.ToResult(errorFactory) : result.ConvertFailure<T>();
     }
 
     /// <summary>Turns the result of a task that holds a maybe into a result that holds the value, with the given error when the maybe has no value.</summary>
@@ -63,23 +63,23 @@ public static partial class MaybeResultExtensions
     /// <summary>Turns the result of a task that holds a maybe into a result that holds the value, creating the error only when there is no value.</summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="result">The task that produces the result. It must not be <see langword="null"/>.</param>
-    /// <param name="error">Creates the error of the failed result. It is not called when the maybe has a value or the receiver failed.</param>
+    /// <param name="errorFactory">Creates the error of the failed result. It is not called when the maybe has a value or the receiver failed.</param>
     /// <returns>A task that produces a successful result with the value, or a failed result.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="result"/> or <paramref name="error"/> is <see langword="null"/>.</exception>
-    public static Task<Result<T>> EnsureSome<T>(this Task<Result<Maybe<T>>> result, Func<Error> error)
+    /// <exception cref="ArgumentNullException"><paramref name="result"/> or <paramref name="errorFactory"/> is <see langword="null"/>.</exception>
+    public static Task<Result<T>> EnsureSome<T>(this Task<Result<Maybe<T>>> result, Func<Error> errorFactory)
         where T : notnull
     {
         Guard.NotNull(result, nameof(result));
-        Guard.NotNull(error, nameof(error));
+        Guard.NotNull(errorFactory, nameof(errorFactory));
 
         if (result.Status == TaskStatus.RanToCompletion)
         {
-            var completed = result.Result.EnsureSome(error);
+            var completed = result.Result.EnsureSome(errorFactory);
 
             return Task.FromResult(completed);
         }
 
-        return result.Bind(maybe => maybe.ToResult(error));
+        return result.Bind(maybe => maybe.ToResult(errorFactory));
     }
 
     /// <summary>
@@ -111,22 +111,22 @@ public static partial class MaybeResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="result">The value task that produces the result.</param>
-    /// <param name="error">Creates the error of the failed result. It is not called when the maybe has a value or the receiver failed.</param>
+    /// <param name="errorFactory">Creates the error of the failed result. It is not called when the maybe has a value or the receiver failed.</param>
     /// <returns>A value task that produces a successful result with the value, or a failed result.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="errorFactory"/> is <see langword="null"/>.</exception>
     [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
-    public static ValueTask<Result<T>> EnsureSome<T>(this ValueTask<Result<Maybe<T>>> result, Func<Error> error)
+    public static ValueTask<Result<T>> EnsureSome<T>(this ValueTask<Result<Maybe<T>>> result, Func<Error> errorFactory)
         where T : notnull
     {
-        Guard.NotNull(error, nameof(error));
+        Guard.NotNull(errorFactory, nameof(errorFactory));
 
         if (result.IsCompletedSuccessfully)
         {
-            var completed = result.Result.EnsureSome(error);
+            var completed = result.Result.EnsureSome(errorFactory);
 
             return new ValueTask<Result<T>>(completed);
         }
 
-        return result.Bind(maybe => maybe.ToResult(error));
+        return result.Bind(maybe => maybe.ToResult(errorFactory));
     }
 }

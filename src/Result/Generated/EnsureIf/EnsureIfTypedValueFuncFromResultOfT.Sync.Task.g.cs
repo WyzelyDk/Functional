@@ -24,22 +24,22 @@ public static partial class ResultExtensions
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value of the validation result, which is ignored.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="validation">The validation to run with the value of the successful result. The value of its result is ignored.</param>
     /// <returns>
     /// The receiver when it failed, the condition did not hold or the validation succeeded,
     /// otherwise a failed result with the error of the validation. The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="validation"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="validation"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]
-    public static Task<Result<T>> EnsureIf<T, TResult>(this Result<T> result, Func<T, bool> condition, Func<T, Task<Result<TResult>>> validation)
+    public static Task<Result<T>> EnsureIf<T, TResult>(this Result<T> result, Func<T, bool> predicate, Func<T, Task<Result<TResult>>> validation)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(validation, nameof(validation));
 
-        return Core(result, condition, validation);
+        return Core(result, predicate, validation);
 
-        static async Task<Result<T>> Core(Result<T> result, Func<T, bool> condition, Func<T, Task<Result<TResult>>> validation)
+        static async Task<Result<T>> Core(Result<T> result, Func<T, bool> predicate, Func<T, Task<Result<TResult>>> validation)
         {
             var failure = result.Unpack(out var input);
 
@@ -48,7 +48,7 @@ public static partial class ResultExtensions
                 return result;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return result;
             }

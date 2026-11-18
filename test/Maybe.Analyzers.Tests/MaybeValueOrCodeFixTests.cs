@@ -94,7 +94,7 @@ public sealed class MaybeValueOrCodeFixTests
     [Theory]
     [InlineData("int M(Maybe<int> m) => m.ValueOr(Compute());", "m.ValueOr(() => Compute())")]
     [InlineData("int M(Maybe<int> m) => m.ValueOr((Compute()));", "m.ValueOr(() => Compute())")]
-    [InlineData("int M(Maybe<int> m) => m.ValueOr(fallback: Compute());", "m.ValueOr(fallback: () => Compute())")]
+    [InlineData("int M(Maybe<int> m) => m.ValueOr(fallback: Compute());", "m.ValueOr(fallbackFactory: () => Compute())")]
     [InlineData("int M(Maybe<int> m) => m.ValueOr(Compute() + 1);", "m.ValueOr(() => Compute() + 1)")]
     [InlineData("List<int> M(Maybe<List<int>> m) => m.ValueOr(new List<int>());", "m.ValueOr(() => new List<int>())")]
     [InlineData("List<int> M(Maybe<List<int>> m) => m.ValueOr([1, 2]);", "m.ValueOr(() => [1, 2])")]

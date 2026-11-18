@@ -127,7 +127,7 @@ public sealed class EnsureSomeTests
 
         Assert.Multiple(
             () => Assert.Equal("error", Assert.IsType<ArgumentNullException>(noError).ParamName),
-            () => Assert.Equal("error", Assert.IsType<ArgumentNullException>(noFactory).ParamName),
+            () => Assert.Equal("errorFactory", Assert.IsType<ArgumentNullException>(noFactory).ParamName),
             () => Assert.Equal("result", Assert.IsType<ArgumentNullException>(noTask).ParamName));
     }
 }

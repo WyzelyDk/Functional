@@ -12,417 +12,417 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal void ValueOr_on_sync_receiver_with_sync_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Success(2);
-        var outcome = receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var outcome = receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_sync_receiver_with_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Success(2);
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_sync_receiver_with_value_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Success(2);
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_sync_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Success(2));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_sync_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Success(2));
         var outcome = await call;
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Success(2));
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var call = receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Success(2));
         var outcome = await call;
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_value_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Success(2));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_value_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Success(2));
         var outcome = await call;
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_sync_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Success(2));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_sync_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Success(2));
         var outcome = await call;
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Success(2));
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var call = receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Success(2));
         var outcome = await call;
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_value_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Success(2));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_value_task_delegate_returns_the_value_without_running_the_delegate_when_the_receiver_succeeded_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Success(2));
         var outcome = await call;
 
         Assert.Equal(2, outcome);
-        Assert.Equal(0, fallbackCalls);
+        Assert.Equal(0, fallbackFactoryCalls);
     }
 
     [Fact]
     internal void ValueOr_on_sync_receiver_with_sync_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Failure<int>(error);
-        var outcome = receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var outcome = receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_sync_receiver_with_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Failure<int>(error);
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_sync_receiver_with_value_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Failure<int>(error);
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_sync_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_sync_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var call = receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_value_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_task_receiver_with_value_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_sync_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_sync_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(e => { fallbackCalls++; return 9; });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return 9; });
+        var call = receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return 9; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_value_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal async Task ValueOr_on_value_task_receiver_with_value_task_delegate_returns_the_value_of_the_delegate_when_the_receiver_failed_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(9); });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(9); });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
 
         Assert.Equal(9, outcome);
-        Assert.Equal(1, fallbackCalls);
+        Assert.Equal(1, fallbackFactoryCalls);
     }
 
     [Fact]
     internal void ValueOr_on_sync_receiver_with_sync_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Failure<int>(error);
-        var outcome = receiver.ValueOr(e => { fallbackCalls++; return e.Message.Length; });
+        var outcome = receiver.ValueOr(e => { fallbackFactoryCalls++; return e.Message.Length; });
 
         Assert.Equal(5, outcome);
     }
@@ -431,9 +431,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_sync_receiver_with_task_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Failure<int>(error);
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return e.Message.Length; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return e.Message.Length; });
 
         Assert.Equal(5, outcome);
     }
@@ -442,9 +442,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_sync_receiver_with_value_task_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Result.Failure<int>(error);
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(e.Message.Length); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(e.Message.Length); });
 
         Assert.Equal(5, outcome);
     }
@@ -453,9 +453,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_task_receiver_with_sync_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return e.Message.Length; });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return e.Message.Length; });
 
         Assert.Equal(5, outcome);
     }
@@ -464,10 +464,10 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_task_receiver_with_sync_delegate_gives_the_error_of_the_receiver_to_the_delegate_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(e => { fallbackCalls++; return e.Message.Length; });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return e.Message.Length; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
@@ -479,9 +479,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_task_receiver_with_task_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return e.Message.Length; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return e.Message.Length; });
 
         Assert.Equal(5, outcome);
     }
@@ -490,10 +490,10 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_task_receiver_with_task_delegate_gives_the_error_of_the_receiver_to_the_delegate_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return e.Message.Length; });
+        var call = receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return e.Message.Length; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
@@ -505,9 +505,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_task_receiver_with_value_task_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = Task.FromResult(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(e.Message.Length); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(e.Message.Length); });
 
         Assert.Equal(5, outcome);
     }
@@ -516,10 +516,10 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_task_receiver_with_value_task_delegate_gives_the_error_of_the_receiver_to_the_delegate_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = source.Task;
-        var call = receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(e.Message.Length); });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(e.Message.Length); });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
@@ -531,9 +531,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_value_task_receiver_with_sync_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return e.Message.Length; });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return e.Message.Length; });
 
         Assert.Equal(5, outcome);
     }
@@ -542,10 +542,10 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_value_task_receiver_with_sync_delegate_gives_the_error_of_the_receiver_to_the_delegate_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(e => { fallbackCalls++; return e.Message.Length; });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return e.Message.Length; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
@@ -557,9 +557,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_value_task_receiver_with_task_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return e.Message.Length; });
+        var outcome = await receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return e.Message.Length; });
 
         Assert.Equal(5, outcome);
     }
@@ -568,10 +568,10 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_value_task_receiver_with_task_delegate_gives_the_error_of_the_receiver_to_the_delegate_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(async e => { fallbackCalls++; await Task.Yield(); return e.Message.Length; });
+        var call = receiver.ValueOr(async e => { fallbackFactoryCalls++; await Task.Yield(); return e.Message.Length; });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;
@@ -583,9 +583,9 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_value_task_receiver_with_value_task_delegate_gives_the_error_of_the_receiver_to_the_delegate()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var receiver = new ValueTask<Result<int>>(Result.Failure<int>(error));
-        var outcome = await receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(e.Message.Length); });
+        var outcome = await receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(e.Message.Length); });
 
         Assert.Equal(5, outcome);
     }
@@ -594,10 +594,10 @@ public sealed class ValueOrWithErrorFromResultOfTMatrixTests
     internal async Task ValueOr_on_value_task_receiver_with_value_task_delegate_gives_the_error_of_the_receiver_to_the_delegate_when_the_receiver_completes_later()
     {
         var error = Error.Create("Boom.");
-        var fallbackCalls = 0;
+        var fallbackFactoryCalls = 0;
         var source = new TaskCompletionSource<Result<int>>();
         var receiver = new ValueTask<Result<int>>(source.Task);
-        var call = receiver.ValueOr(e => { fallbackCalls++; return new ValueTask<int>(e.Message.Length); });
+        var call = receiver.ValueOr(e => { fallbackFactoryCalls++; return new ValueTask<int>(e.Message.Length); });
         Assert.False(call.IsCompleted);
         source.SetResult(Result.Failure<int>(error));
         var outcome = await call;

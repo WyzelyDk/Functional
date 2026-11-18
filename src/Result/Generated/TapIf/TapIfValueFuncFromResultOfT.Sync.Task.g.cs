@@ -22,19 +22,19 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="tap">The side effect to run with the value of the successful result.</param>
     /// <returns>The receiver, unchanged. The value is returned in a <see cref="Task{TResult}"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="tap"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="tap"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]
-    public static Task<Result<T>> TapIf<T>(this Result<T> result, Func<T, bool> condition, Func<T, Task> tap)
+    public static Task<Result<T>> TapIf<T>(this Result<T> result, Func<T, bool> predicate, Func<T, Task> tap)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(tap, nameof(tap));
 
-        return Core(result, condition, tap);
+        return Core(result, predicate, tap);
 
-        static async Task<Result<T>> Core(Result<T> result, Func<T, bool> condition, Func<T, Task> tap)
+        static async Task<Result<T>> Core(Result<T> result, Func<T, bool> predicate, Func<T, Task> tap)
         {
             var failure = result.Unpack(out var input);
 
@@ -43,7 +43,7 @@ public static partial class ResultExtensions
                 return result;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return result;
             }
