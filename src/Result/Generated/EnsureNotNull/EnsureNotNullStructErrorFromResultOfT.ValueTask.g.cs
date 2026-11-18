@@ -53,7 +53,9 @@ public static partial class ResultExtensions
                 return Result<T>.Failed(error);
             }
 
-            return Result<T>.Succeeded(input.GetValueOrDefault());
+            var value = input.GetValueOrDefault();
+
+            return Result<T>.Succeeded(value);
         }
     }
 }

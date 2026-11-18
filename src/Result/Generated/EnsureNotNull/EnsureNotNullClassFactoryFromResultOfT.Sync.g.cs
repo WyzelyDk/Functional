@@ -36,7 +36,9 @@ public static partial class ResultExtensions
 
         if (input is null)
         {
-            return Result.Failure<T>(errorFactory());
+            var error = errorFactory();
+
+            return Result.Failure<T>(error);
         }
 
         return Result<T>.Succeeded(input);

@@ -89,9 +89,14 @@ public static class MaybeLinqExtensions
             return default;
         }
 
-        return collectionSelector(sourceValue).Unpack(out var innerValue)
-            ? Maybe<TResult>.Of(resultSelector(sourceValue, innerValue))
-            : default;
+        if (!collectionSelector(sourceValue).Unpack(out var innerValue))
+        {
+            return default;
+        }
+
+        var combined = resultSelector(sourceValue, innerValue);
+
+        return Maybe<TResult>.Of(combined);
     }
 
     /// <summary>
@@ -126,7 +131,14 @@ public static class MaybeLinqExtensions
 
         var value = resultSelector(sourceValue, innerValue);
 
-        return value.HasValue ? new Maybe<TResult>(value.GetValueOrDefault()) : default;
+        if (!value.HasValue)
+        {
+            return default;
+        }
+
+        var inner = value.GetValueOrDefault();
+
+        return new Maybe<TResult>(inner);
     }
 
     /// <summary>Keeps the value of a maybe only when it satisfies a condition. This is <c>Filter</c> under the name that query syntax requires.</summary>

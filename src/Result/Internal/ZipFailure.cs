@@ -15,6 +15,8 @@ internal static class ZipFailure
     {
         var failures = errors.OfType<Error>().ToList();
 
-        return Result<T>.Failed(failures.Count == 1 ? failures[0] : Error.Aggregate(failures));
+        var error = failures.Count == 1 ? failures[0] : Error.Aggregate(failures);
+
+        return Result<T>.Failed(error);
     }
 }

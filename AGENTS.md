@@ -30,6 +30,12 @@ The library is judged by how it feels to use, not only by what it can do.
   (`BindEach`, not `SelectEach`, because the delegate returns a result). An operation on a plain sequence uses LINQ's words
   (`SelectInParallel`, `ForEachInParallel`). A parameter that is a function over the value which keeps or checks it is called `predicate`
   (`Filter`, `Any`, `All`, `Ensure`, `EnsureNot`); the gate of an `...If` operation, and any bool without a parameter, is `condition`.
+- **No call, `new` or `await` as the argument of another call.** An argument is a name, a literal, a member access, `nameof`, a lambda or a method group;
+  a call, an object creation with arguments or an `await` goes in a local first (`var combined = await Task.WhenAll(results)...; return CombineCore(combined);`,
+  not `CombineCore(await Task.WhenAll(results)...)`), so that a line does one thing and a debugger can step through it. A guard is a statement
+  (`Guard.NotNull(x, nameof(x));`), not an argument. Fluent chains, where the call is the receiver, are unaffected, and so are field initializers, which cannot
+  hold a local. This holds for the libraries and for what the generators emit; the tests, the benchmarks and the tooling (the generator catalogs, the Roslyn
+  code fixes, the analyzers) are exempt, because a builder style such as `SyntaxFactory` or the catalog's `Returns(...)` is nested by design.
 - **Generic type parameters begin with `T` and say what they are:** `T`, `TResult`, `TSource`, `TException`; never a bare `K`, `U` or `E`.
 - **Conversions are named by what they do.** `As...`
   re-presents the same data under another type without creating a new object and without losing information (`AsNullable`, like `AsEnumerable`); `To...`

@@ -34,6 +34,15 @@ public readonly partial struct Maybe<T>
     public override bool Equals(object? obj) => obj is Maybe<T> other && Equals(other);
 
     /// <inheritdoc />
-    public override int GetHashCode() =>
-        IsSome ? HashCodeHelper.Combine(SomeHashSeed, EqualityComparer<T>.Default.GetHashCode(_value)) : 0;
+    public override int GetHashCode()
+    {
+        if (!IsSome)
+        {
+            return 0;
+        }
+
+        var valueHash = EqualityComparer<T>.Default.GetHashCode(_value);
+
+        return HashCodeHelper.Combine(SomeHashSeed, valueHash);
+    }
 }

@@ -26,9 +26,14 @@ public static partial class MaybeResultExtensions
     {
         Guard.NotNull(result, nameof(result));
 
-        return result.Status == TaskStatus.RanToCompletion
-            ? Task.FromResult(result.Result.ToMaybe())
-            : result.Match(static value => (Maybe<T>)value, static _ => default);
+        if (result.Status == TaskStatus.RanToCompletion)
+        {
+            var completed = result.Result.ToMaybe();
+
+            return Task.FromResult(completed);
+        }
+
+        return result.Match(static value => (Maybe<T>)value, static _ => default);
     }
 
     /// <summary>
@@ -37,10 +42,17 @@ public static partial class MaybeResultExtensions
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="result">The value task that produces the result.</param>
     /// <returns>A value task that produces a maybe with the value of a success, or none for a failure.</returns>
-    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]
+    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
     public static ValueTask<Maybe<T>> ToMaybe<T>(this ValueTask<Result<T>> result)
-        where T : notnull =>
-        result.IsCompletedSuccessfully
-            ? new ValueTask<Maybe<T>>(result.Result.ToMaybe())
-            : result.Match(static value => (Maybe<T>)value, static _ => default);
+        where T : notnull
+    {
+        if (result.IsCompletedSuccessfully)
+        {
+            var completed = result.Result.ToMaybe();
+
+            return new ValueTask<Maybe<T>>(completed);
+        }
+
+        return result.Match(static value => (Maybe<T>)value, static _ => default);
+    }
 }

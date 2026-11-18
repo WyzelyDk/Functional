@@ -72,6 +72,14 @@ internal sealed record BodyContext(Variant Variant, string ReturnType, Generator
         _ => expression,
     };
 
+    /// <summary>
+    /// Renders the lines of a return statement for a body that returns the task of an asynchronous delegate itself and short-circuits, inside a block:
+    /// the value is put in a local first, so that no call is nested in the call that creates the task.
+    /// </summary>
+    /// <param name="expression">The value that the returned task holds.</param>
+    /// <returns>The lines, indented for the block.</returns>
+    internal string[] ReturnDone(string expression) => [$"    var done = {expression};", string.Empty, $"    return {Done("done")};"];
+
     // For `default(Maybe<X>)` returns X, so that the cached completed task of none can be used instead of allocating one.
     private static string? NoneOf(string expression) =>
         expression.StartsWith("default(Maybe<", StringComparison.Ordinal) && expression.EndsWith(">)", StringComparison.Ordinal)

@@ -41,7 +41,14 @@ public static partial class MaybeResultExtensions
     {
         Guard.NotNull(error, nameof(error));
 
-        return maybe.TryGetValue(out var value) ? Result.Failure(error(value)) : Result.Success();
+        if (!maybe.TryGetValue(out var value))
+        {
+            return Result.Success();
+        }
+
+        var failure = error(value);
+
+        return Result.Failure(failure);
     }
 
     /// <summary>
@@ -61,9 +68,14 @@ public static partial class MaybeResultExtensions
         Guard.NotNull(maybe, nameof(maybe));
         Guard.NotNull(error, nameof(error));
 
-        return maybe.Status == TaskStatus.RanToCompletion
-            ? Task.FromResult(maybe.Result.ToInvertedResult(error))
-            : maybe.Match(_ => Result.Failure(error), static () => Result.Success());
+        if (maybe.Status == TaskStatus.RanToCompletion)
+        {
+            var completed = maybe.Result.ToInvertedResult(error);
+
+            return Task.FromResult(completed);
+        }
+
+        return maybe.Match(_ => Result.Failure(error), static () => Result.Success());
     }
 
     /// <summary>Turns the maybe that a task produces into a result with the meaning inverted, building the error from the value that was found.</summary>
@@ -81,9 +93,21 @@ public static partial class MaybeResultExtensions
         Guard.NotNull(maybe, nameof(maybe));
         Guard.NotNull(error, nameof(error));
 
-        return maybe.Status == TaskStatus.RanToCompletion
-            ? Task.FromResult(maybe.Result.ToInvertedResult(error))
-            : maybe.Match(value => Result.Failure(error(value)), static () => Result.Success());
+        if (maybe.Status == TaskStatus.RanToCompletion)
+        {
+            var completed = maybe.Result.ToInvertedResult(error);
+
+            return Task.FromResult(completed);
+        }
+
+        return maybe.Match(FailureOf, static () => Result.Success());
+
+        Result FailureOf(T value)
+        {
+            var failure = error(value);
+
+            return Result.Failure(failure);
+        }
     }
 
     /// <summary>
@@ -97,15 +121,20 @@ public static partial class MaybeResultExtensions
     /// A value task that produces a failed result with <paramref name="error"/> when the maybe has a value, otherwise a successful result without a value.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]
+    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
     public static ValueTask<Result> ToInvertedResult<T>(this ValueTask<Maybe<T>> maybe, Error error)
         where T : notnull
     {
         Guard.NotNull(error, nameof(error));
 
-        return maybe.IsCompletedSuccessfully
-            ? new ValueTask<Result>(maybe.Result.ToInvertedResult(error))
-            : maybe.Match(_ => Result.Failure(error), static () => Result.Success());
+        if (maybe.IsCompletedSuccessfully)
+        {
+            var completed = maybe.Result.ToInvertedResult(error);
+
+            return new ValueTask<Result>(completed);
+        }
+
+        return maybe.Match(_ => Result.Failure(error), static () => Result.Success());
     }
 
     /// <summary>Turns the maybe that a value task produces into a result with the meaning inverted, building the error from the value that was found.</summary>
@@ -117,14 +146,26 @@ public static partial class MaybeResultExtensions
     /// otherwise a successful result without a value.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]
+    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
     public static ValueTask<Result> ToInvertedResult<T>(this ValueTask<Maybe<T>> maybe, Func<T, Error> error)
         where T : notnull
     {
         Guard.NotNull(error, nameof(error));
 
-        return maybe.IsCompletedSuccessfully
-            ? new ValueTask<Result>(maybe.Result.ToInvertedResult(error))
-            : maybe.Match(value => Result.Failure(error(value)), static () => Result.Success());
+        if (maybe.IsCompletedSuccessfully)
+        {
+            var completed = maybe.Result.ToInvertedResult(error);
+
+            return new ValueTask<Result>(completed);
+        }
+
+        return maybe.Match(FailureOf, static () => Result.Success());
+
+        Result FailureOf(T value)
+        {
+            var failure = error(value);
+
+            return Result.Failure(failure);
+        }
     }
 }

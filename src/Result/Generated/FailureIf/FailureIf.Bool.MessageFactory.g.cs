@@ -25,6 +25,13 @@ public readonly partial struct Result
     {
         Guard.NotNull(messageFactory, nameof(messageFactory));
 
-        return condition ? Failure(messageFactory()) : Success();
+        if (!condition)
+        {
+            return Success();
+        }
+
+        var failure = messageFactory();
+
+        return Failure(failure);
     }
 }

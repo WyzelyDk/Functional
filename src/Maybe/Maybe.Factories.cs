@@ -39,7 +39,17 @@ public static partial class Maybe
     /// <param name="value">The nullable value.</param>
     /// <returns>A maybe that holds the value, or none when the nullable has no value.</returns>
     public static Maybe<T> From<T>(T? value)
-        where T : struct => value.HasValue ? new Maybe<T>(value.GetValueOrDefault()) : default;
+        where T : struct
+    {
+        if (!value.HasValue)
+        {
+            return default;
+        }
+
+        var inner = value.GetValueOrDefault();
+
+        return new Maybe<T>(inner);
+    }
 
     /// <summary>Creates a maybe that holds a value only when a condition is true.</summary>
     /// <typeparam name="T">The type of the value.</typeparam>

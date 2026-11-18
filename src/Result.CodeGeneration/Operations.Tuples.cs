@@ -59,7 +59,7 @@ internal static partial class Operations
         string.Empty,
         IfFailureIsNotNull,
         "{",
-        $"    return {ctx.Done("Result<TResult>.Failed(failure)")};",
+        .. ctx.ReturnDone("Result<TResult>.Failed(failure)"),
         "}",
         string.Empty,
         $"return {name}({spread});",

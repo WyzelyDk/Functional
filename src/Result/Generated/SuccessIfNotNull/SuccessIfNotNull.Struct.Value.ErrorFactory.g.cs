@@ -26,6 +26,15 @@ public readonly partial struct Result
     {
         Guard.NotNull(errorFactory, nameof(errorFactory));
 
-        return value.HasValue ? Success(value.GetValueOrDefault()) : Failure<T>(errorFactory());
+        if (!value.HasValue)
+        {
+            var failure = errorFactory();
+
+            return Failure<T>(failure);
+        }
+
+        var unwrapped = value.GetValueOrDefault();
+
+        return Success(unwrapped);
     }
 }

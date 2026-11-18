@@ -72,6 +72,8 @@ public static class ResultLinqExtensions
             return Result.Failure<TResult>(innerError);
         }
 
-        return Result.Success(resultSelector(sourceValue, innerValue));
+        var combined = resultSelector(sourceValue, innerValue);
+
+        return Result.Success(combined);
     }
 }

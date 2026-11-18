@@ -36,7 +36,9 @@ public static partial class ResultExtensions
 
         if (failure is not null)
         {
-            return Task.FromResult(new Result(failure));
+            var done = new Result(failure);
+
+            return Task.FromResult(done);
         }
 
         return bind(input);

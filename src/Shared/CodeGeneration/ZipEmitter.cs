@@ -10,6 +10,9 @@ namespace Wyzely.Functional.CodeGeneration;
 internal sealed class ZipEmitter(GeneratorProfile profile, ZipKind kind)
 {
     private const string AssertIsNone = "Assert.True(outcome.IsNone);";
+    private const string NullableValueTail =
+        "\n\n    if (!value.HasValue)\n    {\n        return default;\n    }\n\n" +
+        "    var inner = value.GetValueOrDefault();\n\n    return new Maybe<TResult>(inner);";
 
     private static readonly string[] Ordinals = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth"];
     private static readonly string[] TupleNames = ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth"];
@@ -261,10 +264,12 @@ internal sealed class ZipEmitter(GeneratorProfile profile, ZipKind kind)
     {
         if (nullableStruct)
         {
-            return $"    var value = {call};\n    return value.HasValue ? new Maybe<TResult>(value.GetValueOrDefault()) : default;";
+            return $"    var value = {call};" + NullableValueTail;
         }
 
-        return selector ? $"    return Maybe<TResult>.Of({call});" : $"    return new Maybe<{resultType}>(({values}));";
+        return selector
+            ? $"    var combined = {call};\n\n    return Maybe<TResult>.Of(combined);"
+            : $"    return new Maybe<{resultType}>(({values}));";
     }
 
     private static string Call(string[] arguments, string? selector) =>

@@ -26,6 +26,13 @@ public readonly partial struct Result
     {
         Guard.NotNull(errorFactory, nameof(errorFactory));
 
-        return value is null ? Failure<T>(errorFactory()) : Success<T>(value);
+        if (value is null)
+        {
+            var failure = errorFactory();
+
+            return Failure<T>(failure);
+        }
+
+        return Success<T>(value);
     }
 }

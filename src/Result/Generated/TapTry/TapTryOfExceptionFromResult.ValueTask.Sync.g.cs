@@ -65,7 +65,9 @@ public static partial class ResultExtensions
             }
             catch (TException exception) when (Result.Matches(when, exception))
             {
-                return Result.Failure(onException(exception));
+                var error = onException(exception);
+
+                return Result.Failure(error);
             }
         }
     }

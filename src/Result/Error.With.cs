@@ -12,8 +12,12 @@ public sealed partial class Error
     /// <returns>A modified copy of the error.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="code"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="code"/> is empty or consists only of white space.</exception>
-    public Error WithCode(string code) =>
-        new(Template, Kind, Guard.NotNullOrWhiteSpace(code, nameof(code)), IsTransient, Exception, Details, Context, Children);
+    public Error WithCode(string code)
+    {
+        Guard.NotNullOrWhiteSpace(code, nameof(code));
+
+        return new(Template, Kind, code, IsTransient, Exception, Details, Context, Children);
+    }
 
     /// <summary>Returns a copy of the error with another kind.</summary>
     /// <param name="kind">The new kind.</param>
@@ -32,15 +36,24 @@ public sealed partial class Error
     /// <returns>A modified copy of the error.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="name"/> is empty or consists only of white space.</exception>
-    public Error WithDetail(string name, object? value, bool isSensitive = false) =>
-        new(Template, Kind, Code, IsTransient, Exception, Append(Details, new ErrorDetail(name, value, isSensitive)), Context, Children);
+    public Error WithDetail(string name, object? value, bool isSensitive = false)
+    {
+        var detail = new ErrorDetail(name, value, isSensitive);
+        var details = Append(Details, detail);
+
+        return new(Template, Kind, Code, IsTransient, Exception, details, Context, Children);
+    }
 
     /// <summary>Returns a copy of the error with the exception that caused it.</summary>
     /// <param name="exception">The cause of the error.</param>
     /// <returns>A modified copy of the error.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="exception"/> is <see langword="null"/>.</exception>
-    public Error WithException(Exception exception) =>
-        new(Template, Kind, Code, IsTransient, Guard.NotNull(exception, nameof(exception)), Details, Context, Children);
+    public Error WithException(Exception exception)
+    {
+        Guard.NotNull(exception, nameof(exception));
+
+        return new(Template, Kind, Code, IsTransient, exception, Details, Context, Children);
+    }
 
     /// <summary>Returns a copy of the error with a context frame as the new outermost frame.</summary>
     /// <param name="context">
@@ -52,7 +65,13 @@ public sealed partial class Error
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="context"/> is empty or consists only of white space.</exception>
-    public Error WithContext(string context) => WithContext(new ErrorFrame(Guard.NotNullOrWhiteSpace(context, nameof(context)), NoDetails));
+    public Error WithContext(string context)
+    {
+        Guard.NotNullOrWhiteSpace(context, nameof(context));
+        var frame = new ErrorFrame(context, NoDetails);
+
+        return WithContext(frame);
+    }
 
     /// <summary>Returns a copy of the error with a context frame, and one detail that fills a placeholder of the frame, as the new outermost frame.</summary>
     /// <param name="context">What the caller was doing, as a message template such as <c>Checkout of order {OrderId}</c>. It must not be empty.</param>
@@ -62,10 +81,15 @@ public sealed partial class Error
     /// <returns>A modified copy of the error. For an aggregate error the frame is added to every child.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="name"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="context"/> or <paramref name="name"/> is empty or consists only of white space.</exception>
-    public Error WithContext(string context, string name, object? value, bool isSensitive = false) =>
-        WithContext(new ErrorFrame(
-            Guard.NotNullOrWhiteSpace(context, nameof(context)),
-            new ReadOnlyCollection<ErrorDetail>([new ErrorDetail(name, value, isSensitive)])));
+    public Error WithContext(string context, string name, object? value, bool isSensitive = false)
+    {
+        Guard.NotNullOrWhiteSpace(context, nameof(context));
+        var detail = new ErrorDetail(name, value, isSensitive);
+        var details = new ReadOnlyCollection<ErrorDetail>([detail]);
+        var frame = new ErrorFrame(context, details);
+
+        return WithContext(frame);
+    }
 
     /// <summary>Returns a copy of the error with a context frame and the details that fill its placeholders as the new outermost frame.</summary>
     /// <param name="context">
@@ -75,10 +99,15 @@ public sealed partial class Error
     /// <returns>A modified copy of the error. For an aggregate error the frame is added to every child.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="details"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="context"/> is empty or consists only of white space.</exception>
-    public Error WithContext(string context, params ErrorDetail[] details) =>
-        WithContext(new ErrorFrame(
-            Guard.NotNullOrWhiteSpace(context, nameof(context)),
-            new ReadOnlyCollection<ErrorDetail>([.. Guard.NotNull(details, nameof(details))])));
+    public Error WithContext(string context, params ErrorDetail[] details)
+    {
+        Guard.NotNullOrWhiteSpace(context, nameof(context));
+        Guard.NotNull(details, nameof(details));
+        var frameDetails = new ReadOnlyCollection<ErrorDetail>([.. details]);
+        var frame = new ErrorFrame(context, frameDetails);
+
+        return WithContext(frame);
+    }
 
     private static ReadOnlyCollection<T> Append<T>(IReadOnlyList<T> source, T item)
     {
@@ -115,12 +144,17 @@ public sealed partial class Error
 
             foreach (var child in Children)
             {
-                children.Add(child.WithContext(frame));
+                var withFrame = child.WithContext(frame);
+                children.Add(withFrame);
             }
 
-            return new Error(Template, Kind, Code, IsTransient, Exception, Details, Context, new ReadOnlyCollection<Error>(children));
+            var wrapped = new ReadOnlyCollection<Error>(children);
+
+            return new Error(Template, Kind, Code, IsTransient, Exception, Details, Context, wrapped);
         }
 
-        return new Error(Template, Kind, Code, IsTransient, Exception, Details, Prepend(Context, frame), Children);
+        var frames = Prepend(Context, frame);
+
+        return new Error(Template, Kind, Code, IsTransient, Exception, Details, frames, Children);
     }
 }

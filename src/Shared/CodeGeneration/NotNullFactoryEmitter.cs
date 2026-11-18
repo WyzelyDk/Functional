@@ -75,14 +75,9 @@ internal sealed class NotNullFactoryEmitter(GeneratorProfile profile)
         lines.Add($"Guard.NotNull({error.Parameter}, nameof({error.Parameter}));");
         lines.Add(string.Empty);
 
-        var failure = $"Failure<T>({error.Evaluate})";
-        var choose = isStruct
-            ? $"resolved.HasValue ? Success(resolved.GetValueOrDefault()) : {failure}"
-            : $"resolved is null ? {failure} : Success<T>(resolved)";
-
         if (value.Returns == Wrapper.None)
         {
-            lines.Add($"return {choose.Replace("resolved", "value", StringComparison.Ordinal)};");
+            lines.AddRange(Choose("value", isStruct, error));
 
             return [.. lines];
         }
@@ -96,10 +91,24 @@ internal sealed class NotNullFactoryEmitter(GeneratorProfile profile)
         lines.Add("{");
         lines.Add("    var resolved = await value.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);");
         lines.Add(string.Empty);
-        lines.Add($"    return {choose};");
+        lines.AddRange(Choose("resolved", isStruct, error).Select(static line => line.Length == 0 ? line : "    " + line));
         lines.Add("}");
 
         return [.. lines];
+    }
+
+    // The lines that return the failure or the success for the value that is held in the named variable. The error that a function creates is put in a local.
+    private static string[] Choose(string subject, bool isStruct, ErrorForm error)
+    {
+        string[] failure = error.Lazy
+            ? ["    var failure = " + error.Evaluate + ";", string.Empty, "    return Failure<T>(failure);"]
+            : [$"    return Failure<T>({error.Evaluate});"];
+        var absent = isStruct ? $"if (!{subject}.HasValue)" : $"if ({subject} is null)";
+        string[] present = isStruct
+            ? [$"var unwrapped = {subject}.GetValueOrDefault();", string.Empty, "return Success(unwrapped);"]
+            : [$"return Success<T>({subject});"];
+
+        return [absent, "{", .. failure, "}", string.Empty, .. present];
     }
 
     private string EmitLibrary(ValueForm value, bool isStruct, ErrorForm error, bool stubs)

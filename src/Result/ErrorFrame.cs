@@ -69,7 +69,12 @@ public sealed class ErrorFrame : IEquatable<ErrorFrame>
     public override bool Equals(object? obj) => Equals(obj as ErrorFrame);
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCodeHelper.Combine(StringComparer.Ordinal.GetHashCode(Template), Details.Count);
+    public override int GetHashCode()
+    {
+        var templateHash = StringComparer.Ordinal.GetHashCode(Template);
+
+        return HashCodeHelper.Combine(templateHash, Details.Count);
+    }
 
     /// <summary>Returns the text of the frame, including the values of sensitive details.</summary>
     /// <returns>The same text as <see cref="Message"/>.</returns>

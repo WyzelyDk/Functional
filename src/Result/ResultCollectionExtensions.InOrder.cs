@@ -29,7 +29,8 @@ public static partial class ResultCollectionExtensions
 
             foreach (var task in items)
             {
-                outcomes.Add(await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var outcome = await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+                outcomes.Add(outcome);
             }
 
             return Result.Combine(outcomes);
@@ -59,7 +60,8 @@ public static partial class ResultCollectionExtensions
 
             foreach (var task in items)
             {
-                outcomes.Add(await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var outcome = await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+                outcomes.Add(outcome);
             }
 
             return Result.Combine(outcomes);
@@ -85,7 +87,8 @@ public static partial class ResultCollectionExtensions
 
             foreach (var task in items)
             {
-                outcomes.Add(await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var outcome = await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+                outcomes.Add(outcome);
             }
 
             return Result.Combine(outcomes);
@@ -112,7 +115,8 @@ public static partial class ResultCollectionExtensions
 
             foreach (var task in items)
             {
-                outcomes.Add(await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var outcome = await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+                outcomes.Add(outcome);
             }
 
             return Result.Combine(outcomes);

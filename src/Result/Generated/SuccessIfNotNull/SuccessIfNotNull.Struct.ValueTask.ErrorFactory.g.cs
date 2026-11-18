@@ -42,7 +42,16 @@ public readonly partial struct Result
         {
             var resolved = await value.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
-            return resolved.HasValue ? Success(resolved.GetValueOrDefault()) : Failure<T>(errorFactory());
+            if (!resolved.HasValue)
+            {
+                var failure = errorFactory();
+
+                return Failure<T>(failure);
+            }
+
+            var unwrapped = resolved.GetValueOrDefault();
+
+            return Success(unwrapped);
         }
     }
 }

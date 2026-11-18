@@ -23,6 +23,11 @@ public readonly partial struct Result
     {
         Guard.NotNull(error, nameof(error));
 
-        return value is null ? Failure<T>(error) : Success<T>(value);
+        if (value is null)
+        {
+            return Failure<T>(error);
+        }
+
+        return Success<T>(value);
     }
 }

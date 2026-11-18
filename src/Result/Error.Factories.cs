@@ -18,8 +18,12 @@ public sealed partial class Error
     /// <returns>A new error.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="message"/> is empty or consists only of white space.</exception>
-    public static Error Create(string message, ErrorKind kind) =>
-        new(Guard.NotNullOrWhiteSpace(message, nameof(message)), kind, null, false, null, NoDetails, NoContext, NoChildren);
+    public static Error Create(string message, ErrorKind kind)
+    {
+        Guard.NotNullOrWhiteSpace(message, nameof(message));
+
+        return new(message, kind, null, false, null, NoDetails, NoContext, NoChildren);
+    }
 
     /// <summary>Creates an error of kind <see cref="ErrorKind.Unexpected"/>.</summary>
     /// <param name="message">The message, or message template. It must not be empty.</param>
@@ -82,11 +86,13 @@ public sealed partial class Error
     public static Error FromException(Exception exception, string? message = null)
     {
         Guard.NotNull(exception, nameof(exception));
-        var template = message ?? EscapeBraces(MessageOf(exception));
+        var template = message ?? EscapedMessageOf(exception);
+        Guard.NotNullOrWhiteSpace(template, nameof(message));
+        var kind = KindOf(exception);
 
         return new(
-            Guard.NotNullOrWhiteSpace(template, nameof(message)),
-            KindOf(exception),
+            template,
+            kind,
             null,
             exception is TimeoutException,
             exception,
@@ -95,8 +101,19 @@ public sealed partial class Error
             NoChildren);
     }
 
-    private static Error CreateTransient(string message, ErrorKind kind) =>
-        new(Guard.NotNullOrWhiteSpace(message, nameof(message)), kind, null, true, null, NoDetails, NoContext, NoChildren);
+    private static Error CreateTransient(string message, ErrorKind kind)
+    {
+        Guard.NotNullOrWhiteSpace(message, nameof(message));
+
+        return new(message, kind, null, true, null, NoDetails, NoContext, NoChildren);
+    }
+
+    private static string EscapedMessageOf(Exception exception)
+    {
+        var message = MessageOf(exception);
+
+        return EscapeBraces(message);
+    }
 
     // The message is read once: some exceptions, such as ArgumentException, build it again on every read.
     private static string MessageOf(Exception exception)

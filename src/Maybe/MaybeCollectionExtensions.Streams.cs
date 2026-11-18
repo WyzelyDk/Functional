@@ -37,7 +37,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(predicate, nameof(predicate));
 
-        return FirstCore(source, item => new ValueTask<bool>(predicate(item)), cancellationToken);
+        return FirstCore(source, Test, cancellationToken);
+
+        ValueTask<bool> Test(T item)
+        {
+            var task = predicate(item);
+
+            return new ValueTask<bool>(task);
+        }
     }
 
     /// <summary>Returns the first element that satisfies an asynchronous condition, or none when there is no such element.</summary>
@@ -57,7 +64,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(predicate, nameof(predicate));
 
-        return FirstCore(source, item => new ValueTask<bool>(predicate(item)), cancellationToken);
+        return FirstCore(source, Test, cancellationToken);
+
+        ValueTask<bool> Test(T item)
+        {
+            var task = predicate(item);
+
+            return new ValueTask<bool>(task);
+        }
     }
 
     /// <summary>
@@ -108,7 +122,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(predicate, nameof(predicate));
 
-        return LastCore(source, item => new ValueTask<bool>(predicate(item)), cancellationToken);
+        return LastCore(source, Test, cancellationToken);
+
+        ValueTask<bool> Test(T item)
+        {
+            var task = predicate(item);
+
+            return new ValueTask<bool>(task);
+        }
     }
 
     /// <summary>Returns the last element that satisfies an asynchronous condition, or none when there is no such element.</summary>
@@ -128,7 +149,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(predicate, nameof(predicate));
 
-        return LastCore(source, item => new ValueTask<bool>(predicate(item)), cancellationToken);
+        return LastCore(source, Test, cancellationToken);
+
+        ValueTask<bool> Test(T item)
+        {
+            var task = predicate(item);
+
+            return new ValueTask<bool>(task);
+        }
     }
 
     /// <summary>
@@ -179,7 +207,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(predicate, nameof(predicate));
 
-        return SingleCore(source, item => new ValueTask<bool>(predicate(item)), cancellationToken);
+        return SingleCore(source, Test, cancellationToken);
+
+        ValueTask<bool> Test(T item)
+        {
+            var task = predicate(item);
+
+            return new ValueTask<bool>(task);
+        }
     }
 
     /// <summary>Returns the only element that satisfies an asynchronous condition, or none when there is no such element or there are several.</summary>
@@ -199,7 +234,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(predicate, nameof(predicate));
 
-        return SingleCore(source, item => new ValueTask<bool>(predicate(item)), cancellationToken);
+        return SingleCore(source, Test, cancellationToken);
+
+        ValueTask<bool> Test(T item)
+        {
+            var task = predicate(item);
+
+            return new ValueTask<bool>(task);
+        }
     }
 
     /// <summary>
@@ -265,7 +307,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(selector, nameof(selector));
 
-        return ChooseCore(source, item => new ValueTask<Maybe<TResult>>(selector(item)));
+        return ChooseCore(source, Project);
+
+        ValueTask<Maybe<TResult>> Project(T item)
+        {
+            var task = selector(item);
+
+            return new ValueTask<Maybe<TResult>>(task);
+        }
     }
 
     /// <summary>Maps every element of a stream to a maybe with an asynchronous selector and keeps the values of the ones that have one, in order.</summary>
@@ -282,7 +331,14 @@ public static partial class MaybeCollectionExtensions
         Guard.NotNull(source, nameof(source));
         Guard.NotNull(selector, nameof(selector));
 
-        return ChooseCore(source, item => new ValueTask<Maybe<TResult>>(selector(item)));
+        return ChooseCore(source, Project);
+
+        ValueTask<Maybe<TResult>> Project(T item)
+        {
+            var task = selector(item);
+
+            return new ValueTask<Maybe<TResult>>(task);
+        }
     }
 
     /// <summary>

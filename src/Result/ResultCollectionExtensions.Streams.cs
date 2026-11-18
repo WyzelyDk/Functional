@@ -24,8 +24,12 @@ public static partial class ResultCollectionExtensions
 
         return CombineCore(results, cancellationToken);
 
-        static async ValueTask<Result> CombineCore(IAsyncEnumerable<Result> items, CancellationToken token) =>
-            Result.Combine(await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+        static async ValueTask<Result> CombineCore(IAsyncEnumerable<Result> items, CancellationToken token)
+        {
+            var results = await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            return Result.Combine(results);
+        }
     }
 
     /// <summary>
@@ -43,8 +47,12 @@ public static partial class ResultCollectionExtensions
 
         return CombineCore(results, cancellationToken);
 
-        static async ValueTask<Result<IReadOnlyList<T>>> CombineCore(IAsyncEnumerable<Result<T>> items, CancellationToken token) =>
-            Result.Combine(await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+        static async ValueTask<Result<IReadOnlyList<T>>> CombineCore(IAsyncEnumerable<Result<T>> items, CancellationToken token)
+        {
+            var results = await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            return Result.Combine(results);
+        }
     }
 
     /// <summary>
@@ -105,7 +113,7 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, item => Start(bind, item));
     }
 
     /// <summary>
@@ -126,7 +134,7 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, item => Start(bind, item));
     }
 
     /// <summary>Turns the result of a list into a stream of results with an operation that returns a <see cref="ValueTask{TResult}"/>.</summary>
@@ -160,7 +168,7 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, item => Start(bind, item));
     }
 
     /// <summary>Turns the result of a sequence into a stream of results with an asynchronous operation.</summary>
@@ -178,7 +186,7 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, item => Start(bind, item));
     }
 
     /// <summary>Turns the result of a sequence into a stream of results with an operation that returns a <see cref="ValueTask{TResult}"/>.</summary>
@@ -227,6 +235,32 @@ public static partial class ResultCollectionExtensions
 
             yield return await bind(item).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
         }
+    }
+
+    /// <summary>Runs the operation of <c>BindEach</c> for an item and hands back its outcome as a value task.</summary>
+    /// <typeparam name="TSource">The type of the items.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results.</typeparam>
+    /// <param name="bind">The operation to run for the item.</param>
+    /// <param name="item">The item.</param>
+    /// <returns>The outcome of the operation, already completed.</returns>
+    private static ValueTask<Result<TResult>> Start<TSource, TResult>(Func<TSource, Result<TResult>> bind, TSource item)
+    {
+        var outcome = bind(item);
+
+        return new ValueTask<Result<TResult>>(outcome);
+    }
+
+    /// <summary>Runs the asynchronous operation of <c>BindEach</c> for an item and hands back its task as a value task.</summary>
+    /// <typeparam name="TSource">The type of the items.</typeparam>
+    /// <typeparam name="TResult">The type of the values of the results.</typeparam>
+    /// <param name="bind">The operation to run for the item.</param>
+    /// <param name="item">The item.</param>
+    /// <returns>The task of the operation as a value task.</returns>
+    private static ValueTask<Result<TResult>> Start<TSource, TResult>(Func<TSource, Task<Result<TResult>>> bind, TSource item)
+    {
+        var task = bind(item);
+
+        return new ValueTask<Result<TResult>>(task);
     }
 }
 #endif

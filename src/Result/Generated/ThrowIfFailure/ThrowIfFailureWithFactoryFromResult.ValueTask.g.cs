@@ -37,7 +37,10 @@ public static partial class ResultExtensions
 
             if (failure is not null)
             {
-                throw Guard.NotNull(exceptionFactory(failure), nameof(exceptionFactory));
+                var exception = exceptionFactory(failure);
+                Guard.NotNull(exception, nameof(exceptionFactory));
+
+                throw exception;
             }
         }
     }

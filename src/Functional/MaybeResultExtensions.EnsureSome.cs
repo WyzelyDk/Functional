@@ -50,9 +50,14 @@ public static partial class MaybeResultExtensions
         Guard.NotNull(result, nameof(result));
         Guard.NotNull(error, nameof(error));
 
-        return result.Status == TaskStatus.RanToCompletion
-            ? Task.FromResult(result.Result.EnsureSome(error))
-            : result.Bind(maybe => maybe.ToResult(error));
+        if (result.Status == TaskStatus.RanToCompletion)
+        {
+            var completed = result.Result.EnsureSome(error);
+
+            return Task.FromResult(completed);
+        }
+
+        return result.Bind(maybe => maybe.ToResult(error));
     }
 
     /// <summary>Turns the result of a task that holds a maybe into a result that holds the value, creating the error only when there is no value.</summary>
@@ -67,9 +72,14 @@ public static partial class MaybeResultExtensions
         Guard.NotNull(result, nameof(result));
         Guard.NotNull(error, nameof(error));
 
-        return result.Status == TaskStatus.RanToCompletion
-            ? Task.FromResult(result.Result.EnsureSome(error))
-            : result.Bind(maybe => maybe.ToResult(error));
+        if (result.Status == TaskStatus.RanToCompletion)
+        {
+            var completed = result.Result.EnsureSome(error);
+
+            return Task.FromResult(completed);
+        }
+
+        return result.Bind(maybe => maybe.ToResult(error));
     }
 
     /// <summary>
@@ -80,15 +90,20 @@ public static partial class MaybeResultExtensions
     /// <param name="error">The error of the failed result that is returned when the maybe has no value.</param>
     /// <returns>A value task that produces a successful result with the value, or a failed result.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]
+    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
     public static ValueTask<Result<T>> EnsureSome<T>(this ValueTask<Result<Maybe<T>>> result, Error error)
         where T : notnull
     {
         Guard.NotNull(error, nameof(error));
 
-        return result.IsCompletedSuccessfully
-            ? new ValueTask<Result<T>>(result.Result.EnsureSome(error))
-            : result.Bind(maybe => maybe.ToResult(error));
+        if (result.IsCompletedSuccessfully)
+        {
+            var completed = result.Result.EnsureSome(error);
+
+            return new ValueTask<Result<T>>(completed);
+        }
+
+        return result.Bind(maybe => maybe.ToResult(error));
     }
 
     /// <summary>
@@ -99,14 +114,19 @@ public static partial class MaybeResultExtensions
     /// <param name="error">Creates the error of the failed result. It is not called when the maybe has a value or the receiver failed.</param>
     /// <returns>A value task that produces a successful result with the value, or a failed result.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]
+    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
     public static ValueTask<Result<T>> EnsureSome<T>(this ValueTask<Result<Maybe<T>>> result, Func<Error> error)
         where T : notnull
     {
         Guard.NotNull(error, nameof(error));
 
-        return result.IsCompletedSuccessfully
-            ? new ValueTask<Result<T>>(result.Result.EnsureSome(error))
-            : result.Bind(maybe => maybe.ToResult(error));
+        if (result.IsCompletedSuccessfully)
+        {
+            var completed = result.Result.EnsureSome(error);
+
+            return new ValueTask<Result<T>>(completed);
+        }
+
+        return result.Bind(maybe => maybe.ToResult(error));
     }
 }

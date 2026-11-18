@@ -205,12 +205,14 @@ internal static partial class Operations
             $"Creates the error that is returned when the value is {NullWord}. It is called only then."),
     };
 
-    /// <summary>Gets the expression that creates the failed result of <c>EnsureNotNull</c>.</summary>
-    private static string EnsureNotNullFailure(NullError form) => form switch
+    /// <summary>
+    /// Gets the lines that return the failed result of <c>EnsureNotNull</c>, inside a block. The error that a factory creates is put in a local.
+    /// </summary>
+    private static string[] EnsureNotNullFailure(NullError form) => form switch
     {
-        NullError.Error => "Result<T>.Failed(error)",
-        NullError.Message => "Result.Failure<T>(message)",
-        _ => $"Result.Failure<T>({ErrorFactoryParameter}())",
+        NullError.Error => ["    return Result<T>.Failed(error);"],
+        NullError.Message => ["    return Result.Failure<T>(message);"],
+        _ => [$"    var error = {ErrorFactoryParameter}();", string.Empty, "    return Result.Failure<T>(error);"],
     };
 
     /// <summary>Gets the argument that the generated tests of <c>EnsureNotNull</c> pass for the error.</summary>
@@ -222,7 +224,7 @@ internal static partial class Operations
     };
 
     /// <summary>Gets the body of <c>EnsureNotNull</c>.</summary>
-    private static string[] EnsureNotNullBody(BodyContext ctx, bool isStruct, string failure) =>
+    private static string[] EnsureNotNullBody(BodyContext ctx, bool isStruct, string[] failure) =>
     [
         Unpack(ctx),
         string.Empty,
@@ -233,11 +235,15 @@ internal static partial class Operations
         string.Empty,
         isStruct ? "if (!input.HasValue)" : "if (input is null)",
         "{",
-        $"    return {failure};",
+        .. failure,
         "}",
         string.Empty,
-        isStruct ? "return Result<T>.Succeeded(input.GetValueOrDefault());" : "return Result<T>.Succeeded(input);",
+        .. SucceededLines(isStruct),
     ];
+
+    private static string[] SucceededLines(bool isStruct) => isStruct
+        ? ["var value = input.GetValueOrDefault();", string.Empty, "return Result<T>.Succeeded(value);"]
+        : ["return Result<T>.Succeeded(input);"];
 
     /// <summary>Gets the generated tests of <c>EnsureNotNull</c>.</summary>
     private static TestCaseSpec[] EnsureNotNullTests(bool isStruct, NullError form)

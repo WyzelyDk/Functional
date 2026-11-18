@@ -42,6 +42,13 @@ public static partial class MaybeExtensions
         }
 
         var value = map(input);
-        return value.HasValue ? new Maybe<TResult>(value.GetValueOrDefault()) : default;
+        if (!value.HasValue)
+        {
+            return default;
+        }
+
+        var inner = value.GetValueOrDefault();
+
+        return new Maybe<TResult>(inner);
     }
 }

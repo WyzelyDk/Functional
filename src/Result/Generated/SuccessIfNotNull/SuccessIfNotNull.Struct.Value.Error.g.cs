@@ -23,6 +23,13 @@ public readonly partial struct Result
     {
         Guard.NotNull(error, nameof(error));
 
-        return value.HasValue ? Success(value.GetValueOrDefault()) : Failure<T>(error);
+        if (!value.HasValue)
+        {
+            return Failure<T>(error);
+        }
+
+        var unwrapped = value.GetValueOrDefault();
+
+        return Success(unwrapped);
     }
 }
