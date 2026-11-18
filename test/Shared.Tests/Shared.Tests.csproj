@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- NestedCallFinder reads C# source with Roslyn. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Shared\Shared.csproj" />
 
     <!-- The shared helpers are internal and live in this namespace. -->

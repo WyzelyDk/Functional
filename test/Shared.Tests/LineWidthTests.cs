@@ -13,7 +13,7 @@ public sealed class LineWidthTests
     [Fact]
     internal void No_line_of_C_sharp_is_wider_than_the_limit()
     {
-        var root = FindRoot();
+        var root = RepositoryRoot.Find();
 
         var files = SourceFolders
             .SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.cs", SearchOption.AllDirectories))
@@ -25,7 +25,7 @@ public sealed class LineWidthTests
     [Fact]
     internal void No_line_of_Markdown_is_wider_than_the_limit_except_a_table_row()
     {
-        var root = FindRoot();
+        var root = RepositoryRoot.Find();
 
         AssertNoLineIsTooWide(root, FilesOf(root, "*.md"), line => !IsMarkdownTableRow(line));
     }
@@ -33,7 +33,7 @@ public sealed class LineWidthTests
     [Fact]
     internal void No_line_of_a_PowerShell_script_is_wider_than_the_limit()
     {
-        var root = FindRoot();
+        var root = RepositoryRoot.Find();
 
         AssertNoLineIsTooWide(root, FilesOf(root, "*.ps1"), _ => true);
     }
@@ -87,17 +87,5 @@ public sealed class LineWidthTests
         var segments = path.Replace('\\', '/').Split('/');
 
         return segments.Contains("bin") || segments.Contains("obj") || segments.Any(segment => ToolFolders.Contains(segment));
-    }
-
-    private static string FindRoot()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Wyzely.Functional.slnx")))
-        {
-            directory = directory.Parent;
-        }
-
-        return directory?.FullName ?? throw new InvalidOperationException("The repository root (the folder with Wyzely.Functional.slnx) was not found.");
     }
 }
