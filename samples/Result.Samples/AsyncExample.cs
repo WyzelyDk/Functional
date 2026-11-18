@@ -22,22 +22,24 @@ public static class AsyncExample
     public static async Task RunAsync(TextWriter output)
     {
         // One chain. The comments say which of the nine variants each step uses.
+        var closedError = Error.Conflict("The order is closed.");
         foreach (var orderId in new[] { 7, 8 })
         {
             var outcome = await SampleShop.FindOrderAsync(orderId) // a Task<Result<Order>> receiver
-                .Ensure(order => order.IsOpen, Error.Conflict("The order is closed.")) // sync delegate
+                .Ensure(order => order.IsOpen, closedError) // sync delegate
                 .Ensure(SampleShop.ReserveStockAsync) // Task delegate
                 .Bind(SampleShop.ChargeAsync) // ValueTask delegate
                 .Map(receipt => receipt.Number) // sync delegate
                 .MapError(error => error.WithContext("Checkout"));
 
-            await output.WriteLineAsync($"Chain, order {orderId}: " + outcome.Match(number => number, error => error.ToString()));
+            var summary = outcome.Match(number => number, error => error.ToString());
+            await output.WriteLineAsync($"Chain, order {orderId}: " + summary);
         }
 
         // A failing step skips the rest: the charge is never made for the closed order.
         var charges = 0;
         _ = await SampleShop.FindOrderAsync(8)
-            .Ensure(order => order.IsOpen, Error.Conflict("The order is closed."))
+            .Ensure(order => order.IsOpen, closedError)
             .Bind(order =>
             {
                 charges++;
@@ -79,7 +81,8 @@ public static class AsyncExample
 
                 return receipt.Number + " (checked)";
             });
-        await output.WriteLineAsync("Async lambda: " + lambda.ValueOr("?"));
+        var checkedNumber = lambda.ValueOr("?");
+        await output.WriteLineAsync("Async lambda: " + checkedNumber);
 
         // Argument checks happen at the call. A null delegate throws here, not later inside the returned task.
         try

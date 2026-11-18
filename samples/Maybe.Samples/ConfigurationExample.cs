@@ -18,13 +18,16 @@ public static class ConfigurationExample
             MaybeConfiguration.Reset();
         }
 
-        output.WriteLine($"After Reset: {Maybe.Some(5)}");
+        var afterReset = Maybe.Some(5);
+        output.WriteLine($"After Reset: {afterReset}");
     }
 
     private static void RunConfigured(TextWriter output)
     {
-        output.WriteLine($"Default some: {Maybe.Some(5)}");
-        output.WriteLine($"Default none: {Maybe.None<int>()}");
+        var defaultSome = Maybe.Some(5);
+        output.WriteLine($"Default some: {defaultSome}");
+        var defaultNone = Maybe.None<int>();
+        output.WriteLine($"Default none: {defaultNone}");
 
         // SomeFormat ({0} is the value), NoneText and NoValueMessage (the message of the exception GetValue() throws on a none).
         MaybeConfiguration.Configure(options =>
@@ -33,25 +36,33 @@ public static class ConfigurationExample
             options.NoneText = "Nothing";
             options.NoValueMessage = "There is nothing to read here.";
         });
-        output.WriteLine($"Custom some: {Maybe.Some(5)}");
-        output.WriteLine($"Custom none: {Maybe.None<int>()}");
-        output.WriteLine($"Custom message: {MessageOfGetValueOnNone()}");
+        var customSome = Maybe.Some(5);
+        output.WriteLine($"Custom some: {customSome}");
+        var customNone = Maybe.None<int>();
+        output.WriteLine($"Custom none: {customNone}");
+        var customMessage = MessageOfGetValueOnNone();
+        output.WriteLine($"Custom message: {customMessage}");
 
         // ShowValueInToString = false keeps data out of logs: the value is replaced by RedactedValue. A none has nothing to hide.
         MaybeConfiguration.Reset();
         MaybeConfiguration.Configure(options => options.ShowValueInToString = false);
-        output.WriteLine($"Redacted some: {Maybe.Some("secret")}");
-        output.WriteLine($"Redacted none: {Maybe.None<string>()}");
+        var redactedSome = Maybe.Some("secret");
+        output.WriteLine($"Redacted some: {redactedSome}");
+        var redactedNone = Maybe.None<string>();
+        output.WriteLine($"Redacted none: {redactedNone}");
 
         MaybeConfiguration.Configure(options => options.RedactedValue = "[hidden]");
-        output.WriteLine($"Custom redaction: {Maybe.Some("secret")}");
+        var customRedaction = Maybe.Some("secret");
+        output.WriteLine($"Custom redaction: {customRedaction}");
 
         // A setting is validated when it is set: a format without {0} cannot show a value.
         MaybeConfiguration.Reset();
-        output.WriteLine($"A format without {{0}} is rejected: {ExceptionNameOf(() => MaybeConfiguration.Configure(options => options.SomeFormat = "Just"))}");
+        var rejection = ExceptionNameOf(() => MaybeConfiguration.Configure(options => options.SomeFormat = "Just"));
+        output.WriteLine($"A format without {{0}} is rejected: {rejection}");
 
         // Configure applies the change atomically: when the action throws, nothing is changed.
-        output.WriteLine($"A Configure that throws changes nothing: {ChangeThatThrows()}");
+        var unchanged = ChangeThatThrows();
+        output.WriteLine($"A Configure that throws changes nothing: {unchanged}");
 
         ShowContinueOnCapturedContext(output);
     }

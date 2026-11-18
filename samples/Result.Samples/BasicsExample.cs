@@ -19,7 +19,8 @@ public static class BasicsExample
     {
         // A success and a failure of the same type. Both are plain values: no exception has been thrown.
         var ok = Result.Success(42);
-        var failed = Result.Failure<int>(Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", 7));
+        var notFound = Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", 7);
+        var failed = Result.Failure<int>(notFound);
 
         // The state.
         output.WriteLine($"ok.IsSuccess: {ok.IsSuccess}");
@@ -39,14 +40,18 @@ public static class BasicsExample
 
         // Match leaves the railway: one value out, whichever way the result went. Both branches are required,
         // so a failure cannot be forgotten.
-        output.WriteLine("Match on the success: " + ok.Match(number => $"value {number}", problem => $"error {problem.Message}"));
-        output.WriteLine("Match on the failure: " + failed.Match(number => $"value {number}", problem => $"error {problem.Message}"));
+        var okText = ok.Match(number => $"value {number}", problem => $"error {problem.Message}");
+        var failedText = failed.Match(number => $"value {number}", problem => $"error {problem.Message}");
+        output.WriteLine("Match on the success: " + okText);
+        output.WriteLine("Match on the failure: " + failedText);
 
         // ValueOr is the shortest way to say "or else this".
-        output.WriteLine($"ValueOr on the failure: {failed.ValueOr(-1)}");
+        var fallback = failed.ValueOr(-1);
+        output.WriteLine($"ValueOr on the failure: {fallback}");
 
         // Pass a function to compute the fallback only for a failure; it can read the error.
-        output.WriteLine($"ValueOr with a function: {failed.ValueOr(static problem => problem.Kind == ErrorKind.NotFound ? 0 : -1)}");
+        var computedFallback = failed.ValueOr(static problem => problem.Kind == ErrorKind.NotFound ? 0 : -1);
+        output.WriteLine($"ValueOr with a function: {computedFallback}");
 
         // GetValue() on a failure throws, and the exception carries the error. The text is redacted: sensitive details never end up in an exception message.
         try
@@ -75,7 +80,8 @@ public static class BasicsExample
 
         // ToString is safe in every state, so logging and debuggers never crash. It prints the REDACTED text.
         output.WriteLine($"ToString of the failure: {failed}");
-        output.WriteLine($"ToString of an untyped success: {Result.Success()}");
+        var untypedSuccess = Result.Success();
+        output.WriteLine($"ToString of an untyped success: {untypedSuccess}");
 
         // A struct always has a default value, and for a result it is a success: default(Result) is Result.Success() and default(Result<int>) is
         // Result.Success(0). A field or an array slot that nobody filled in therefore holds a success,

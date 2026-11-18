@@ -30,25 +30,29 @@ public static class CollectionsExample
 
         // 1. FirstOrNone: the first element, or none, instead of FirstOrDefault and a null check. It composes with the Maybe railway.
         var firstUnpaid = orders.FirstOrNone(order => !order.IsPaid);
-        output.WriteLine($"FirstOrNone, first unpaid order: {firstUnpaid.Match(order => order.Id.ToString(CultureInfo.InvariantCulture), () => "none")}");
+        var firstUnpaidId = firstUnpaid.Match(order => order.Id.ToString(CultureInfo.InvariantCulture), () => "none");
+        output.WriteLine($"FirstOrNone, first unpaid order: {firstUnpaidId}");
 
         var customerOfFirstUnpaid = firstUnpaid
             .Map(order => order.CustomerEmail)
             .Bind(directory.FindByEmail);
-        output.WriteLine($"Customer of the first unpaid order: {customerOfFirstUnpaid.Match(customer => customer.Name, () => "none")}");
+        var customerName = customerOfFirstUnpaid.Match(customer => customer.Name, () => "none");
+        output.WriteLine($"Customer of the first unpaid order: {customerName}");
         var expensive = orders.FirstOrNone(order => order.Total > 1000).Match(order => order.Id.ToString(CultureInfo.InvariantCulture), () => "none");
         output.WriteLine($"FirstOrNone, order above 1000: {expensive}");
 
         // When a step already returns a Maybe, Map would give a Maybe<Maybe<T>>. Flatten makes it one Maybe (Bind does the same in one step).
         // Result<Result<T>> has a Flatten too.
         var nested = firstUnpaid.Map(order => directory.FindByEmail(order.CustomerEmail));
-        output.WriteLine($"Flatten, Maybe<Maybe<Customer>>: {nested.Flatten().Match(customer => customer.Name, () => "none")}");
+        var flattenedName = nested.Flatten().Match(customer => customer.Name, () => "none");
+        output.WriteLine($"Flatten, Maybe<Maybe<Customer>>: {flattenedName}");
 
         // 2. Choose: map every element to a Maybe and keep only the ones that have a value.
         var known = Emails
             .Choose(directory.FindByEmail)
             .Select(customer => customer.Name);
-        output.WriteLine($"Choose, customers that exist: {string.Join(", ", known)}");
+        var knownNames = string.Join(", ", known);
+        output.WriteLine($"Choose, customers that exist: {knownNames}");
 
         // 3. GetValueOrNone: a dictionary lookup as a Maybe. It exists for IReadOnlyDictionary only (a Dictionary is one).
         var milk = prices.GetValueOrNone("MILK").Match(price => price.ToString(CultureInfo.InvariantCulture), () => "unknown");
@@ -83,20 +87,32 @@ public static class CollectionsExample
 
         // 5. Partition: keep what worked and what did not, side by side, when a partial answer is useful.
         var (priced, rejected) = badResults.Partition();
-        output.WriteLine($"Partition: {priced.Count} priced ({string.Join(", ", priced)}), {rejected.Count} rejected");
+        var pricedTotals = string.Join(", ", priced);
+        output.WriteLine($"Partition: {priced.Count} priced ({pricedTotals}), {rejected.Count} rejected");
 
         // 6. Zip: a few independent values of different types, in one step. For Maybe the result is none unless all have a value.
         var buyer = directory.FindByEmail("grace@example.com");
-        var milkOrder = buyer.Zip(prices.GetValueOrNone("MILK"), (customer, price) => $"{customer.Name} buys MILK at {price}").ValueOr("none");
-        var cakeOrder = buyer.Zip(prices.GetValueOrNone("CAKE"), (customer, price) => $"{customer.Name} buys CAKE at {price}").ValueOr("none");
+        var milkPrice = prices.GetValueOrNone("MILK");
+        var cakePrice = prices.GetValueOrNone("CAKE");
+        var milkOrder = buyer.Zip(milkPrice, (customer, price) => $"{customer.Name} buys MILK at {price}").ValueOr("none");
+        var cakeOrder = buyer.Zip(cakePrice, (customer, price) => $"{customer.Name} buys CAKE at {price}").ValueOr("none");
         output.WriteLine($"Maybe.Zip, both present: {milkOrder}");
         output.WriteLine($"Maybe.Zip, one missing: {cakeOrder}");
 
         // For Result, Zip reports every failure, not just the first: here a missing customer AND an unknown SKU, in argument order.
-        var missingBuyer = directory.FindByEmail("nobody@example.com").ToResult(Error.NotFound("No customer with that email address."));
-        var unknownPrice = PriceOf(new OrderLine("CAKE", 1));
+        var noSuchCustomer = Error.NotFound("No customer with that email address.");
+        var missingBuyer = directory.FindByEmail("nobody@example.com").ToResult(noSuchCustomer);
+        var cakeLine = new OrderLine("CAKE", 1);
+        var unknownPrice = PriceOf(cakeLine);
         var zipped = missingBuyer.Zip(unknownPrice, (customer, total) => $"{customer.Name} owes {total}");
-        var messages = zipped.Match(_ => "success", error => string.Join(" | ", error.Flatten().Select(child => child.Message)));
+        var messages = zipped.Match(
+            static _ => "success",
+            static error =>
+            {
+                var childMessages = error.Flatten().Select(static child => child.Message);
+
+                return string.Join(" | ", childMessages);
+            });
         output.WriteLine($"Result.Zip, both failed, in argument order: {messages}");
     }
 

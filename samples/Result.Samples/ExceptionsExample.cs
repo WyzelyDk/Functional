@@ -26,26 +26,27 @@ public static class ExceptionsExample
     {
         // A function that returns a value, and one that throws.
         var parsed = Result.Try(() => int.Parse("42", System.Globalization.CultureInfo.InvariantCulture));
-        await output.WriteLineAsync($"Try, success: {parsed.ValueOr(-1)}");
+        var parsedNumber = parsed.ValueOr(-1);
+        await output.WriteLineAsync($"Try, success: {parsedNumber}");
 
         var failed = Result.Try(() => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture));
-        await output.WriteLineAsync($"Try, failure: kind {ErrorOf(failed)?.Kind}, cause {ErrorOf(failed)?.Exception?.GetType().Name}");
+        var failedError = ErrorOf(failed);
+        var failedCause = failedError?.Exception?.GetType().Name;
+        await output.WriteLineAsync($"Try, failure: kind {failedError?.Kind}, cause {failedCause}");
 
         // Your own mapping, for one call: a message that makes sense to the user, the exception kept as the cause.
         var quantity = Result.Try(
             () => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture),
             exception => Error.Validation("'{Text}' is not a valid quantity.").WithDetail("Text", "abc").WithException(exception));
-        await output.WriteLineAsync(
-            "Try with your own mapping: " +
-            quantity.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})"));
+        var quantityOutcome = quantity.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})");
+        await output.WriteLineAsync("Try with your own mapping: " + quantityOutcome);
 
         // One kind of exception, named by the parameter of the handler: the value and the exception type are both inferred.
         var narrow = Result.Try(
             () => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture),
             (FormatException exception) => Error.Validation("'{Text}' is not a number.").WithDetail("Text", "abc").WithException(exception));
-        await output.WriteLineAsync(
-            "Try for one kind of exception: " +
-            narrow.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})"));
+        var narrowOutcome = narrow.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})");
+        await output.WriteLineAsync("Try for one kind of exception: " + narrowOutcome);
 
         // Another kind of exception keeps travelling.
         try
@@ -64,7 +65,8 @@ public static class ExceptionsExample
             ThrowCanceled,
             (OperationCanceledException exception) => Error.Timeout("The request timed out.").WithException(exception),
             when: _ => !CancellationToken.None.IsCancellationRequested);
-        await output.WriteLineAsync($"A named cancellation is caught: kind {ErrorOf(timedOut)?.Kind}");
+        var timedOutError = ErrorOf(timedOut);
+        await output.WriteLineAsync($"A named cancellation is caught: kind {timedOutError?.Kind}");
 
         // An action that returns nothing gives an untyped Result.
         var untyped = Result.Try(Console.Out.Flush);
@@ -77,10 +79,13 @@ public static class ExceptionsExample
 
             throw new InvalidOperationException("The warehouse is closed.");
         });
-        await output.WriteLineAsync($"Async Try (Task): kind {ErrorOf(task)?.Kind}, cause {ErrorOf(task)?.Exception?.GetType().Name}");
+        var taskError = ErrorOf(task);
+        var taskCause = taskError?.Exception?.GetType().Name;
+        await output.WriteLineAsync($"Async Try (Task): kind {taskError?.Kind}, cause {taskCause}");
 
         var valueTask = await Result.Try(static () => ThrowTimeoutAsync());
-        await output.WriteLineAsync($"Async Try (ValueTask): kind {ErrorOf(valueTask)?.Kind}, transient {ErrorOf(valueTask)?.IsTransient}");
+        var valueTaskError = ErrorOf(valueTask);
+        await output.WriteLineAsync($"Async Try (ValueTask): kind {valueTaskError?.Kind}, transient {valueTaskError?.IsTransient}");
 
         // Cancellation keeps travelling as an exception.
         try
@@ -97,22 +102,26 @@ public static class ExceptionsExample
         await output.WriteLineAsync($"Error.Canceled(): {canceled.Message} (kind {canceled.Kind})");
 
         // ...FromException builds the same kind of error from an exception directly...
-        var fromException = Result.FromException<int>(new TimeoutException("Gateway timed out."));
-        await output.WriteLineAsync($"FromException: kind {ErrorOf(fromException)?.Kind}, transient {ErrorOf(fromException)?.IsTransient}");
+        var gatewayTimeout = new TimeoutException("Gateway timed out.");
+        var fromException = Result.FromException<int>(gatewayTimeout);
+        var fromExceptionError = ErrorOf(fromException);
+        await output.WriteLineAsync($"FromException: kind {fromExceptionError?.Kind}, transient {fromExceptionError?.IsTransient}");
 
         // ...or change which exceptions Try catches, for the whole application. Always reset afterwards.
         try
         {
             ResultConfiguration.Configure(options => options.ShouldCatch = static _ => true);
             var caught = Result.Try(ThrowCanceled);
-            await output.WriteLineAsync($"ShouldCatch lets Try catch cancellation: kind {ErrorOf(caught)?.Kind}");
+            var caughtError = ErrorOf(caught);
+            await output.WriteLineAsync($"ShouldCatch lets Try catch cancellation: kind {caughtError?.Kind}");
 
             // The default mapping is a setting too. Here every exception becomes the same user-facing error with a code,
             // and the exception stays the cause for the logs.
             ResultConfiguration.Configure(options => options.ExceptionMapper = static exception =>
                 Error.Unexpected("Something went wrong.").WithCode("E_UNEXPECTED").WithException(exception));
             var mapped = Result.Try(() => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture));
-            await output.WriteLineAsync($"ExceptionMapper: code {ErrorOf(mapped)?.Code}, message {ErrorOf(mapped)?.Message}");
+            var mappedError = ErrorOf(mapped);
+            await output.WriteLineAsync($"ExceptionMapper: code {mappedError?.Code}, message {mappedError?.Message}");
         }
         finally
         {
@@ -120,12 +129,14 @@ public static class ExceptionsExample
         }
 
         var defaults = Result.Try(() => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture));
-        await output.WriteLineAsync($"After Reset the defaults are back: kind {ErrorOf(defaults)?.Kind}");
+        var defaultsError = ErrorOf(defaults);
+        await output.WriteLineAsync($"After Reset the defaults are back: kind {defaultsError?.Kind}");
 
         // The other direction: leave the railway as an exception. The exception carries the Error.
         try
         {
-            Result.Failure(Error.Conflict("The order changed.")).ThrowIfFailure();
+            var conflict = Error.Conflict("The order changed.");
+            Result.Failure(conflict).ThrowIfFailure();
         }
         catch (ResultFailedException exception)
         {

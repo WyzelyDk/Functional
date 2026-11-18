@@ -45,10 +45,12 @@ public static class AnalyzersExample
 
         if (ada.IsSome)
         {
-            output.WriteLine($"IsSome guard before GetValue: {ada.GetValue().Name}");
+            var adaName = ada.GetValue().Name;
+            output.WriteLine($"IsSome guard before GetValue: {adaName}");
         }
 
-        output.WriteLine($"Match instead of GetValue: {directory.FindByEmail("nobody@example.com").Match(customer => customer.Name, () => "no customer")}");
+        var nobodyName = directory.FindByEmail("nobody@example.com").Match(customer => customer.Name, () => "no customer");
+        output.WriteLine($"Match instead of GetValue: {nobodyName}");
 
         // WYZ0101: ignoring what a call returns (also for Task<Result> and ValueTask<Result>). The code fix assigns it or discards it.
         //
@@ -58,7 +60,8 @@ public static class AnalyzersExample
         // failure, GetError() throws InvalidOperationException for a success.
         //
         //     var error = Charge(customer).GetError();                                   // WYZ0102
-        var failure = Result.Failure<Receipt>(Error.Unavailable("The payment gateway did not answer."));
+        var unavailable = Error.Unavailable("The payment gateway did not answer.");
+        var failure = Result.Failure<Receipt>(unavailable);
 
         if (failure.TryGetError(out var error))
         {
@@ -67,9 +70,11 @@ public static class AnalyzersExample
 
         if (failure.IsFailure)
         {
-            output.WriteLine($"IsFailure guard before GetError: {failure.GetError().Kind}");
+            var failureKind = failure.GetError().Kind;
+            output.WriteLine($"IsFailure guard before GetError: {failureKind}");
         }
 
-        output.WriteLine($"ValueOr on a failure: {failure.Map(receipt => receipt.Amount).ValueOr(0)}");
+        var amountOrZero = failure.Map(receipt => receipt.Amount).ValueOr(0);
+        output.WriteLine($"ValueOr on a failure: {amountOrZero}");
     }
 }
