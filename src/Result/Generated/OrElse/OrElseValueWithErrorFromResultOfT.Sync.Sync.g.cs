@@ -20,12 +20,12 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="replacement">Computes the replacement value when the result failed.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the result failed.</param>
     /// <returns>The successful receiver, or a successful result that holds the replacement value.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
-    public static Result<T> OrElse<T>(this Result<T> result, Func<Error, T> replacement)
+    /// <exception cref="ArgumentNullException"><paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
+    public static Result<T> OrElse<T>(this Result<T> result, Func<Error, T> replacementFactory)
     {
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
         var failure = result.Unpack(out _);
 
@@ -34,7 +34,7 @@ public static partial class ResultExtensions
             return result;
         }
 
-        var value = replacement(failure);
+        var value = replacementFactory(failure);
         return Result<T>.Succeeded(value);
     }
 }

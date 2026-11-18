@@ -24,28 +24,28 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="bind">The operation to run with the value of the successful result.</param>
     /// <returns>
     /// The result of the delegate when the condition held, otherwise the receiver.
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="bind"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(-1)]
-    public static ValueTask<Result<T>> BindIf<T>(this ValueTask<Result<T>> result, Func<T, bool> condition, Func<T, ValueTask<Result<T>>> bind)
+    public static ValueTask<Result<T>> BindIf<T>(this ValueTask<Result<T>> result, Func<T, bool> predicate, Func<T, ValueTask<Result<T>>> bind)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(bind, nameof(bind));
 
         if (result.IsCompletedSuccessfully)
         {
-            var inner = BindIf(result.Result, condition, bind);
+            var inner = BindIf(result.Result, predicate, bind);
             return inner;
         }
 
-        return Core(result, condition, bind);
+        return Core(result, predicate, bind);
 
-        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<T, bool> condition, Func<T, ValueTask<Result<T>>> bind)
+        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<T, bool> predicate, Func<T, ValueTask<Result<T>>> bind)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -56,7 +56,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return outcome;
             }

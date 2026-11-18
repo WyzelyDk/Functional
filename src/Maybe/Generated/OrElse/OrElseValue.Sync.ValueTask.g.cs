@@ -22,21 +22,21 @@ public static partial class MaybeExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>
-    /// <param name="replacement">Computes the replacement value when the receiver has no value.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the receiver has no value.</param>
     /// <returns>
     /// The receiver when it has a value, otherwise a maybe that holds the replacement value.
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(-1)]
-    public static ValueTask<Maybe<T>> OrElse<T>(this Maybe<T> maybe, Func<ValueTask<T>> replacement)
+    public static ValueTask<Maybe<T>> OrElse<T>(this Maybe<T> maybe, Func<ValueTask<T>> replacementFactory)
         where T : notnull
     {
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
-        return Core(maybe, replacement);
+        return Core(maybe, replacementFactory);
 
-        static async ValueTask<Maybe<T>> Core(Maybe<T> maybe, Func<ValueTask<T>> replacement)
+        static async ValueTask<Maybe<T>> Core(Maybe<T> maybe, Func<ValueTask<T>> replacementFactory)
         {
             var found = maybe.Unpack(out _);
 
@@ -45,7 +45,7 @@ public static partial class MaybeExtensions
                 return maybe;
             }
 
-            var value = await replacement().ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
+            var value = await replacementFactory().ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
             return Maybe<T>.Of(value);
         }
     }

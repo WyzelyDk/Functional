@@ -20,13 +20,13 @@ public static partial class MaybeExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The maybe to operate on.</param>
-    /// <param name="fallback">Computes the value to return when the receiver has no value.</param>
+    /// <param name="fallbackFactory">Computes the value to return when the receiver has no value.</param>
     /// <returns>The value of the receiver, or the value computed by the delegate.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="fallback"/> is <see langword="null"/>.</exception>
-    public static T ValueOr<T>(this Maybe<T> maybe, Func<T> fallback)
+    /// <exception cref="ArgumentNullException"><paramref name="fallbackFactory"/> is <see langword="null"/>.</exception>
+    public static T ValueOr<T>(this Maybe<T> maybe, Func<T> fallbackFactory)
         where T : notnull
     {
-        Guard.NotNull(fallback, nameof(fallback));
+        Guard.NotNull(fallbackFactory, nameof(fallbackFactory));
 
         var found = maybe.Unpack(out var input);
 
@@ -35,6 +35,6 @@ public static partial class MaybeExtensions
             return input;
         }
 
-        return fallback();
+        return fallbackFactory();
     }
 }

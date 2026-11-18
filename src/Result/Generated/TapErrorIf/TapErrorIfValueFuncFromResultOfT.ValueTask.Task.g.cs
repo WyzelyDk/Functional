@@ -24,25 +24,25 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
     /// <param name="tapError">The side effect to run with the error of the failed result.</param>
     /// <returns>The receiver, unchanged. The value is returned in a <see cref="ValueTask{TResult}"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(1)]
-    public static ValueTask<Result<T>> TapErrorIf<T>(this ValueTask<Result<T>> result, Func<Error, bool> condition, Func<Error, Task> tapError)
+    public static ValueTask<Result<T>> TapErrorIf<T>(this ValueTask<Result<T>> result, Func<Error, bool> predicate, Func<Error, Task> tapError)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(tapError, nameof(tapError));
 
         if (result.IsCompletedSuccessfully)
         {
-            var inner = TapErrorIf(result.Result, condition, tapError);
+            var inner = TapErrorIf(result.Result, predicate, tapError);
             return new ValueTask<Result<T>>(inner);
         }
 
-        return Core(result, condition, tapError);
+        return Core(result, predicate, tapError);
 
-        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<Error, bool> condition, Func<Error, Task> tapError)
+        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<Error, bool> predicate, Func<Error, Task> tapError)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -53,7 +53,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(failure))
+            if (!predicate(failure))
             {
                 return outcome;
             }

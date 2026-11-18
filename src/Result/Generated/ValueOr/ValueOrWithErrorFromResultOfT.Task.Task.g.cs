@@ -24,23 +24,23 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The task that produces the result to operate on. It must not be <see langword="null"/>.</param>
-    /// <param name="fallback">Computes the value to return from the error of the failed result.</param>
+    /// <param name="fallbackFactory">Computes the value to return from the error of the failed result.</param>
     /// <returns>The value of the successful result, or the value computed by the delegate. The value is returned in a <see cref="Task{TResult}"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="fallback"/> is <see langword="null"/>.</exception>
-    public static Task<T> ValueOr<T>(this Task<Result<T>> result, Func<Error, Task<T>> fallback)
+    /// <exception cref="ArgumentNullException"><paramref name="result"/>, <paramref name="fallbackFactory"/> is <see langword="null"/>.</exception>
+    public static Task<T> ValueOr<T>(this Task<Result<T>> result, Func<Error, Task<T>> fallbackFactory)
     {
         Guard.NotNull(result, nameof(result));
-        Guard.NotNull(fallback, nameof(fallback));
+        Guard.NotNull(fallbackFactory, nameof(fallbackFactory));
 
         if (result.Status == TaskStatus.RanToCompletion)
         {
-            var inner = ValueOr(result.Result, fallback);
+            var inner = ValueOr(result.Result, fallbackFactory);
             return inner;
         }
 
-        return Core(result, fallback);
+        return Core(result, fallbackFactory);
 
-        static async Task<T> Core(Task<Result<T>> result, Func<Error, Task<T>> fallback)
+        static async Task<T> Core(Task<Result<T>> result, Func<Error, Task<T>> fallbackFactory)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -51,7 +51,7 @@ public static partial class ResultExtensions
                 return input;
             }
 
-            return await fallback(failure).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+            return await fallbackFactory(failure).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
         }
     }
 }

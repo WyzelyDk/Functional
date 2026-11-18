@@ -26,30 +26,30 @@ public static partial class ResultExtensions
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <typeparam name="TResult">The type of the value of the validation result, which is ignored.</typeparam>
     /// <param name="result">The value task that produces the result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver succeeded, with its value.</param>
     /// <param name="validation">The validation to run with the value of the successful result. The value of its result is ignored.</param>
     /// <returns>
     /// The receiver when it failed, the condition did not hold or the validation succeeded,
     /// otherwise a failed result with the error of the validation. The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="validation"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="validation"/> is <see langword="null"/>.</exception>
     public static ValueTask<Result<T>> EnsureIf<T, TResult>(
         this ValueTask<Result<T>> result,
-        Func<T, bool> condition,
+        Func<T, bool> predicate,
         Func<T, ValueTask<Result<TResult>>> validation)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(validation, nameof(validation));
 
         if (result.IsCompletedSuccessfully)
         {
-            var inner = EnsureIf(result.Result, condition, validation);
+            var inner = EnsureIf(result.Result, predicate, validation);
             return inner;
         }
 
-        return Core(result, condition, validation);
+        return Core(result, predicate, validation);
 
-        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<T, bool> condition, Func<T, ValueTask<Result<TResult>>> validation)
+        static async ValueTask<Result<T>> Core(ValueTask<Result<T>> result, Func<T, bool> predicate, Func<T, ValueTask<Result<TResult>>> validation)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -60,7 +60,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(input))
+            if (!predicate(input))
             {
                 return outcome;
             }

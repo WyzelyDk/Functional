@@ -206,7 +206,7 @@ public sealed class IfFamilyTests
 
         var exception = Record.Exception(() => result.MapIf((Func<int, bool>)null!, static value => value));
 
-        Assert.Equal("condition", Assert.IsType<ArgumentNullException>(exception).ParamName);
+        Assert.Equal("predicate", Assert.IsType<ArgumentNullException>(exception).ParamName);
     }
 
     // Passing the call through a parameter of an exact type pins the type the overload returns.

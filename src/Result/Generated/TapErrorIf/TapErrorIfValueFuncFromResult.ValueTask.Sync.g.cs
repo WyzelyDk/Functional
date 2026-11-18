@@ -21,24 +21,24 @@ public static partial class ResultExtensions
     /// unless <see cref="ResultOptions.ContinueOnCapturedContext"/> says otherwise.
     /// </summary>
     /// <param name="result">The value task that produces the result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
     /// <param name="tapError">The side effect to run with the error of the failed result.</param>
     /// <returns>The receiver, unchanged. The value is returned in a <see cref="ValueTask{TResult}"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
-    public static ValueTask<Result> TapErrorIf(this ValueTask<Result> result, Func<Error, bool> condition, Action<Error> tapError)
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
+    public static ValueTask<Result> TapErrorIf(this ValueTask<Result> result, Func<Error, bool> predicate, Action<Error> tapError)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(tapError, nameof(tapError));
 
         if (result.IsCompletedSuccessfully)
         {
-            var completed = TapErrorIf(result.Result, condition, tapError);
+            var completed = TapErrorIf(result.Result, predicate, tapError);
             return new ValueTask<Result>(completed);
         }
 
-        return Core(result, condition, tapError);
+        return Core(result, predicate, tapError);
 
-        static async ValueTask<Result> Core(ValueTask<Result> result, Func<Error, bool> condition, Action<Error> tapError)
+        static async ValueTask<Result> Core(ValueTask<Result> result, Func<Error, bool> predicate, Action<Error> tapError)
         {
             var outcome = await result.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
@@ -49,7 +49,7 @@ public static partial class ResultExtensions
                 return outcome;
             }
 
-            if (!condition(failure))
+            if (!predicate(failure))
             {
                 return outcome;
             }

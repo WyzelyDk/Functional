@@ -22,19 +22,19 @@ public static partial class ResultExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver result.</typeparam>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="replacement">Computes the replacement value when the result failed.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the result failed.</param>
     /// <returns>
     /// The successful receiver, or a successful result that holds the replacement value.
     /// The value is returned in a <see cref="Task{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
-    public static Task<Result<T>> OrElse<T>(this Result<T> result, Func<Task<T>> replacement)
+    /// <exception cref="ArgumentNullException"><paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
+    public static Task<Result<T>> OrElse<T>(this Result<T> result, Func<Task<T>> replacementFactory)
     {
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
-        return Core(result, replacement);
+        return Core(result, replacementFactory);
 
-        static async Task<Result<T>> Core(Result<T> result, Func<Task<T>> replacement)
+        static async Task<Result<T>> Core(Result<T> result, Func<Task<T>> replacementFactory)
         {
             var failure = result.Unpack(out _);
 
@@ -43,7 +43,7 @@ public static partial class ResultExtensions
                 return result;
             }
 
-            var value = await replacement().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+            var value = await replacementFactory().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
             return Result<T>.Succeeded(value);
         }
     }

@@ -10,7 +10,7 @@ namespace Wyzely.Functional.ResultCodeGeneration;
 internal static partial class Operations
 {
     private const string AlternativeName = "alternative";
-    private const string ReplacementName = "replacement";
+    private const string ReplacementFactoryName = "replacementFactory";
     private const string OrElseSuccessOfFive = "Result.Success(5)";
 
     private static IEnumerable<OperationSpec> OrElseFamily()
@@ -141,7 +141,7 @@ internal static partial class Operations
             TypeParameterDocs = [new("T", TDoc)],
             Summary = "Turns a failed result into a success by computing a replacement value" + (withError ? " from the error" : string.Empty) + ". " +
                 "A successful result passes through unchanged and the delegate is not called.",
-            Delegates = [new(ReplacementName, OrElseParameters(withError), "T", "Computes the replacement value when the result failed.")],
+            Delegates = [new(ReplacementFactoryName, OrElseParameters(withError), "T", "Computes the replacement value when the result failed.")],
             ReturnType = ResultOfT,
             ReturnDescription = "The successful receiver, or a successful result that holds the replacement value.",
             Body = ctx =>
@@ -153,7 +153,7 @@ internal static partial class Operations
                 $"    return {ctx.R};",
                 "}",
                 string.Empty,
-                $"var value = {ctx.Call(ReplacementName, withError ? FailureName : string.Empty)};",
+                $"var value = {ctx.Call(ReplacementFactoryName, withError ? FailureName : string.Empty)};",
                 "return Result<T>.Succeeded(value);",
             ],
             Tests =
@@ -161,13 +161,13 @@ internal static partial class Operations
                 Case(
                     "returns_a_success_with_the_replacement_value_when_the_receiver_failed",
                     FailureOfInt,
-                    [Returns(ReplacementName, parameters, "5", "int")],
-                    [AssertTrueOutcomeIsSuccess, "Assert.Equal(5, outcome.GetValue());", "Assert.Equal(1, replacementCalls);"]),
+                    [Returns(ReplacementFactoryName, parameters, "5", "int")],
+                    [AssertTrueOutcomeIsSuccess, "Assert.Equal(5, outcome.GetValue());", "Assert.Equal(1, replacementFactoryCalls);"]),
                 Case(
                     ReceiverSucceeded,
                     SuccessOfTwo,
-                    [Returns(ReplacementName, parameters, "5", "int")],
-                    [AssertEqual2OutcomeGetValue, "Assert.Equal(0, replacementCalls);"]),
+                    [Returns(ReplacementFactoryName, parameters, "5", "int")],
+                    [AssertEqual2OutcomeGetValue, "Assert.Equal(0, replacementFactoryCalls);"]),
             ],
         };
     }

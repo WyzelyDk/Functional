@@ -24,26 +24,26 @@ public static partial class MaybeExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The value task that produces the maybe to operate on.</param>
-    /// <param name="replacement">Computes the replacement value when the receiver has no value.</param>
+    /// <param name="replacementFactory">Computes the replacement value when the receiver has no value.</param>
     /// <returns>
     /// The receiver when it has a value, otherwise a maybe that holds the replacement value.
     /// The value is returned in a <see cref="ValueTask{TResult}"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="replacement"/> is <see langword="null"/>.</exception>
-    public static ValueTask<Maybe<T>> OrElse<T>(this ValueTask<Maybe<T>> maybe, Func<Task<T>> replacement)
+    /// <exception cref="ArgumentNullException"><paramref name="replacementFactory"/> is <see langword="null"/>.</exception>
+    public static ValueTask<Maybe<T>> OrElse<T>(this ValueTask<Maybe<T>> maybe, Func<Task<T>> replacementFactory)
         where T : notnull
     {
-        Guard.NotNull(replacement, nameof(replacement));
+        Guard.NotNull(replacementFactory, nameof(replacementFactory));
 
         if (maybe.IsCompletedSuccessfully)
         {
-            var inner = OrElse(maybe.Result, replacement);
+            var inner = OrElse(maybe.Result, replacementFactory);
             return new ValueTask<Maybe<T>>(inner);
         }
 
-        return Core(maybe, replacement);
+        return Core(maybe, replacementFactory);
 
-        static async ValueTask<Maybe<T>> Core(ValueTask<Maybe<T>> maybe, Func<Task<T>> replacement)
+        static async ValueTask<Maybe<T>> Core(ValueTask<Maybe<T>> maybe, Func<Task<T>> replacementFactory)
         {
             var outcome = await maybe.ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
 
@@ -54,7 +54,7 @@ public static partial class MaybeExtensions
                 return outcome;
             }
 
-            var value = await replacement().ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
+            var value = await replacementFactory().ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
             return Maybe<T>.Of(value);
         }
     }

@@ -300,7 +300,7 @@ internal static partial class Operations
         Summary = shape.Summary,
         LeadingParameters =
         [
-            new(ConditionType(shape, condition), ConditionName, ConditionDocumentation(shape, condition), Validated: condition != IfCondition.Bool),
+            new(ConditionType(shape, condition), GateName(condition), ConditionDocumentation(shape, condition), Validated: condition != IfCondition.Bool),
         ],
         Delegates = [shape.Delegate],
         ReturnType = shape.ReturnType,
@@ -322,6 +322,9 @@ internal static partial class Operations
         IfCondition.Function => "Func",
         _ => "ValueFunc",
     };
+
+    // A bool and a function without parameters is the condition; a function of the value or of the error is a predicate.
+    private static string GateName(IfCondition condition) => condition == IfCondition.OfValue ? PredicateName : ConditionName;
 
     private static string ConditionType(IfShape shape, IfCondition condition) => condition switch
     {
@@ -358,7 +361,7 @@ internal static partial class Operations
         var holds = condition switch
         {
             IfCondition.Function => $"{ConditionName}()",
-            _ => $"{ConditionName}({(shape.FailureGated ? FailureName : InputName)})",
+            _ => $"{PredicateName}({(shape.FailureGated ? FailureName : InputName)})",
         };
 
         List<string> lines =

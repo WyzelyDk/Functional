@@ -30,8 +30,9 @@ internal static class Operations
     private const string IfFound = "if (found)";
     private const string TapNoneName = "tapNone";
     private const string AlternativeName = "alternative";
-    private const string ReplacementName = "replacement";
+    private const string ReplacementFactoryName = "replacementFactory";
     private const string FallbackName = "fallback";
+    private const string FallbackFactoryName = "fallbackFactory";
     private const string OnSomeName = "onSome";
     private const string OnNoneName = "onNone";
     private const string StringType = "string";
@@ -532,7 +533,7 @@ internal static class Operations
         NotNull = ["T"],
         Summary = "Gives a maybe without a value a replacement value. A maybe with a value passes through unchanged and the delegate is not called. " +
             "A <see langword=\"null\"/> that the delegate produces leaves the result without a value.",
-        Delegates = [new(ReplacementName, [], "T", "Computes the replacement value when the receiver has no value.")],
+        Delegates = [new(ReplacementFactoryName, [], "T", "Computes the replacement value when the receiver has no value.")],
         ReturnType = MaybeOfT,
         ReturnDescription = "The receiver when it has a value, otherwise a maybe that holds the replacement value.",
         Body = ctx =>
@@ -544,7 +545,7 @@ internal static class Operations
             $"    return {ctx.R};",
             "}",
             string.Empty,
-            $"var value = {ctx.Call(ReplacementName, string.Empty)};",
+            $"var value = {ctx.Call(ReplacementFactoryName, string.Empty)};",
             "return Maybe<T>.Of(value);",
         ],
         Tests =
@@ -552,13 +553,13 @@ internal static class Operations
             Case(
                 "returns_a_maybe_of_the_replacement_value_when_the_receiver_has_no_value",
                 NoneOfInt,
-                [Returns(ReplacementName, [], "5", "int")],
-                ["Assert.True(outcome.IsSome);", "Assert.Equal(5, outcome.GetValue());", "Assert.Equal(1, replacementCalls);"]),
+                [Returns(ReplacementFactoryName, [], "5", "int")],
+                ["Assert.True(outcome.IsSome);", "Assert.Equal(5, outcome.GetValue());", "Assert.Equal(1, replacementFactoryCalls);"]),
             Case(
                 ReceiverSome,
                 SomeOfTwo,
-                [Returns(ReplacementName, [], "5", "int")],
-                [AssertValueIsTwo, "Assert.Equal(0, replacementCalls);"]),
+                [Returns(ReplacementFactoryName, [], "5", "int")],
+                [AssertValueIsTwo, "Assert.Equal(0, replacementFactoryCalls);"]),
         ],
     };
 
@@ -574,7 +575,7 @@ internal static class Operations
         NotNull = ["T"],
         Summary = "Leaves the railway: returns the value of a maybe, or computes a fallback when there is none. " +
             "The delegate is not called when there is a value.",
-        Delegates = [new(FallbackName, [], "T", "Computes the value to return when the receiver has no value.")],
+        Delegates = [new(FallbackFactoryName, [], "T", "Computes the value to return when the receiver has no value.")],
         ReturnType = "T",
         ReturnDescription = "The value of the receiver, or the value computed by the delegate.",
         Body = ctx =>
@@ -586,7 +587,7 @@ internal static class Operations
             "    return input;",
             "}",
             string.Empty,
-            $"return {ctx.Call(FallbackName, string.Empty)};",
+            $"return {ctx.Call(FallbackFactoryName, string.Empty)};",
         ],
         ForwardBody = ctx =>
         [
@@ -597,20 +598,20 @@ internal static class Operations
             $"    return {ctx.Done(InputName)};",
             "}",
             string.Empty,
-            "return fallback();",
+            "return fallbackFactory();",
         ],
         Tests =
         [
             Case(
                 "returns_the_value_of_the_delegate_when_the_receiver_has_no_value",
                 NoneOfInt,
-                [Returns(FallbackName, [], "9", "int")],
-                ["Assert.Equal(9, outcome);", "Assert.Equal(1, fallbackCalls);"]),
+                [Returns(FallbackFactoryName, [], "9", "int")],
+                ["Assert.Equal(9, outcome);", "Assert.Equal(1, fallbackFactoryCalls);"]),
             Case(
                 "returns_the_value_without_running_the_delegate_when_the_receiver_has_a_value",
                 SomeOfTwo,
-                [Returns(FallbackName, [], "9", "int")],
-                [AssertOutcomeIsTwo, "Assert.Equal(0, fallbackCalls);"]),
+                [Returns(FallbackFactoryName, [], "9", "int")],
+                [AssertOutcomeIsTwo, "Assert.Equal(0, fallbackFactoryCalls);"]),
         ],
     };
 

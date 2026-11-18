@@ -29,7 +29,11 @@ The library is judged by how it feels to use, not only by what it can do.
   `Map` for a delegate that returns a plain value, `Bind` for one that returns a result or a maybe
   (`BindEach`, not `SelectEach`, because the delegate returns a result). An operation on a plain sequence uses LINQ's words
   (`SelectInParallel`, `ForEachInParallel`). A parameter that is a function over the value which keeps or checks it is called `predicate`
-  (`Filter`, `Any`, `All`, `Ensure`, `EnsureNot`); the gate of an `...If` operation, and any bool without a parameter, is `condition`.
+  (`Filter`, `Any`, `All`, `Ensure`, `EnsureNot`), and so is the gate of an `...If` operation that is a function of the value or of the error
+  (`MapIf(predicate, map)`); a bool, and a function without parameters, is the `condition`.
+- **A delegate is never named like what it returns.** A function that makes a value says so: `errorFactory`, `messageFactory`, `exceptionFactory`,
+  `fallbackFactory`, `replacementFactory`; the value form of the same overload keeps the plain name (`error`, `fallback`). A role name says what the delegate
+  does and is fine (`map`, `bind`, `tap`, `selector`, `alternative`, `onException`). `DelegateParameterNameTests` in the three test projects enforces this.
 - **No call, `new` or `await` as the argument of another call.** An argument is a name, a literal, a member access, `nameof`, a lambda or a method group;
   a call, an object creation with arguments or an `await` goes in a local first (`var combined = await Task.WhenAll(results)...; return CombineCore(combined);`,
   not `CombineCore(await Task.WhenAll(results)...)`), so that a line does one thing and a debugger can step through it. A guard is a statement

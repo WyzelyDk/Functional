@@ -19,13 +19,13 @@ public static partial class ResultExtensions
     /// The delegate is not called for a successful result or when the condition does not hold.
     /// </summary>
     /// <param name="result">The result to operate on.</param>
-    /// <param name="condition">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
+    /// <param name="predicate">Decides whether the delegate runs. It is called only when the receiver failed, with its error.</param>
     /// <param name="tapError">The side effect to run with the error of the failed result.</param>
     /// <returns>The receiver, unchanged.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="condition"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
-    public static Result TapErrorIf(this Result result, Func<Error, bool> condition, Action<Error> tapError)
+    /// <exception cref="ArgumentNullException"><paramref name="predicate"/>, <paramref name="tapError"/> is <see langword="null"/>.</exception>
+    public static Result TapErrorIf(this Result result, Func<Error, bool> predicate, Action<Error> tapError)
     {
-        Guard.NotNull(condition, nameof(condition));
+        Guard.NotNull(predicate, nameof(predicate));
         Guard.NotNull(tapError, nameof(tapError));
 
         var failure = result.FailureOrNull();
@@ -35,7 +35,7 @@ public static partial class ResultExtensions
             return result;
         }
 
-        if (!condition(failure))
+        if (!predicate(failure))
         {
             return result;
         }

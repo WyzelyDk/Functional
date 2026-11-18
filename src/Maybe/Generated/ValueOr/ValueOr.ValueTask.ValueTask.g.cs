@@ -23,24 +23,24 @@ public static partial class MaybeExtensions
     /// </summary>
     /// <typeparam name="T">The type of the value of the receiver maybe.</typeparam>
     /// <param name="maybe">The value task that produces the maybe to operate on.</param>
-    /// <param name="fallback">Computes the value to return when the receiver has no value.</param>
+    /// <param name="fallbackFactory">Computes the value to return when the receiver has no value.</param>
     /// <returns>The value of the receiver, or the value computed by the delegate. The value is returned in a <see cref="ValueTask{TResult}"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="fallback"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="fallbackFactory"/> is <see langword="null"/>.</exception>
     [OverloadResolutionPriority(-1)]
-    public static ValueTask<T> ValueOr<T>(this ValueTask<Maybe<T>> maybe, Func<ValueTask<T>> fallback)
+    public static ValueTask<T> ValueOr<T>(this ValueTask<Maybe<T>> maybe, Func<ValueTask<T>> fallbackFactory)
         where T : notnull
     {
-        Guard.NotNull(fallback, nameof(fallback));
+        Guard.NotNull(fallbackFactory, nameof(fallbackFactory));
 
         if (maybe.IsCompletedSuccessfully)
         {
-            var inner = ValueOr(maybe.Result, fallback);
+            var inner = ValueOr(maybe.Result, fallbackFactory);
             return inner;
         }
 
-        return Core(maybe, fallback);
+        return Core(maybe, fallbackFactory);
 
-        static async ValueTask<T> Core(ValueTask<Maybe<T>> maybe, Func<ValueTask<T>> fallback)
+        static async ValueTask<T> Core(ValueTask<Maybe<T>> maybe, Func<ValueTask<T>> fallbackFactory)
         {
             var outcome = await maybe.ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
 
@@ -51,7 +51,7 @@ public static partial class MaybeExtensions
                 return input;
             }
 
-            return await fallback().ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
+            return await fallbackFactory().ConfigureAwait(MaybeConfiguration.ContinueOnCapturedContext);
         }
     }
 }
