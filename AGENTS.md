@@ -36,6 +36,8 @@ The library is judged by how it feels to use, not only by what it can do.
   (`Guard.NotNull(x, nameof(x));`), not an argument. Fluent chains, where the call is the receiver, are unaffected, and so are field initializers, which cannot
   hold a local. This holds for the libraries and for what the generators emit; the tests, the benchmarks and the tooling (the generator catalogs, the Roslyn
   code fixes, the analyzers) are exempt, because a builder style such as `SyntaxFactory` or the catalog's `Returns(...)` is nested by design.
+  `NestedCallRuleTests` in `Shared.Tests` enforces the rule for the libraries, the generated code and the samples: `NestedCallFinder` reads each file with
+  Roslyn twice, for `net11.0` and for `netstandard2.0`, so that the code behind `#if` is checked too.
 - **Generic type parameters begin with `T` and say what they are:** `T`, `TResult`, `TSource`, `TException`; never a bare `K`, `U` or `E`.
 - **Conversions are named by what they do.** `As...`
   re-presents the same data under another type without creating a new object and without losing information (`AsNullable`, like `AsEnumerable`); `To...`

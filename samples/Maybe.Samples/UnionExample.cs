@@ -12,20 +12,29 @@ public static class UnionExample
 {
     public static void Run(TextWriter output)
     {
-        output.WriteLine($"Switch on a some: {Describe(SampleData.FindCustomer(1))}");
-        output.WriteLine($"Switch on a none: {Describe(SampleData.FindCustomer(99))}");
+        var someCustomer = SampleData.FindCustomer(1);
+        var noCustomer = SampleData.FindCustomer(99);
+        var someDescription = Describe(someCustomer);
+        var noneDescription = Describe(noCustomer);
+        output.WriteLine($"Switch on a some: {someDescription}");
+        output.WriteLine($"Switch on a none: {noneDescription}");
 
         // A default maybe is none, so it matches the null arm.
-        output.WriteLine($"Switch on a default maybe: {Describe(default)}");
+        var defaultDescription = Describe(default);
+        output.WriteLine($"Switch on a default maybe: {defaultDescription}");
 
         // A union gives the language an implicit conversion from its case type (the library already had one from T).
         Maybe<int> converted = 5;
         output.WriteLine($"Implicit conversion from the case type: {converted}");
 
         // The arms are ordinary patterns, so they can be nested: here a property pattern on the customer.
-        output.WriteLine($"Switch with a nested pattern, active customer: {Mailability(SampleData.FindCustomer(1))}");
-        output.WriteLine($"Switch with a nested pattern, inactive customer: {Mailability(SampleData.FindCustomer(3))}");
-        output.WriteLine($"Switch with a nested pattern, nobody: {Mailability(SampleData.FindCustomer(99))}");
+        var inactiveCustomer = SampleData.FindCustomer(3);
+        var activeMailability = Mailability(someCustomer);
+        var inactiveMailability = Mailability(inactiveCustomer);
+        var nobodyMailability = Mailability(noCustomer);
+        output.WriteLine($"Switch with a nested pattern, active customer: {activeMailability}");
+        output.WriteLine($"Switch with a nested pattern, inactive customer: {inactiveMailability}");
+        output.WriteLine($"Switch with a nested pattern, nobody: {nobodyMailability}");
     }
 
     [SuppressMessage(

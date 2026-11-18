@@ -20,14 +20,21 @@ public static class UnionsExample
 {
     public static void Run(TextWriter output)
     {
-        output.WriteLine("Describe a success: " + Describe(Result.Success(42)));
-        output.WriteLine("Describe a failure: " + Describe(Result.Failure<int>(Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", 7))));
+        var success = Result.Success(42);
+        var notFound = Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", 7);
+        var failure = Result.Failure<int>(notFound);
+        var successText = Describe(success);
+        var failureText = Describe(failure);
+        output.WriteLine("Describe a success: " + successText);
+        output.WriteLine("Describe a failure: " + failureText);
 
         // The conversions are the same on every target; on net11.0 they match those of a union.
         Result<int> fromValue = 5;
         Result<int> fromError = Error.Conflict("Closed.");
-        output.WriteLine("A value converts to a result: " + Describe(fromValue));
-        output.WriteLine("An error converts to a result: " + Describe(fromError));
+        var fromValueText = Describe(fromValue);
+        var fromErrorText = Describe(fromError);
+        output.WriteLine("A value converts to a result: " + fromValueText);
+        output.WriteLine("An error converts to a result: " + fromErrorText);
     }
 
     // No discard arm: the compiler knows that a Result<int> is either an int or an Error.
