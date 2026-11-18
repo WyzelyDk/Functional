@@ -28,18 +28,8 @@ Check("maybe sync", maybeValue == 42);
 
 var someA = Maybe.Some("a");
 var maybeAsync = await Task.FromResult(someA)
-    .Map(static async s =>
-    {
-        await Task.Yield();
-
-        return s + "b";
-    })
-    .Bind(static s =>
-    {
-        var someText = Maybe.Some(s + "c");
-
-        return new ValueTask<Maybe<string>>(someText);
-    });
+    .Map(static async s => await AppendAsync(s, "b"))
+    .Bind(static s => SomeAppended(s, "c"));
 var maybeAsyncValue = maybeAsync.GetValue();
 Check("maybe async", maybeAsyncValue == "abc");
 
@@ -102,12 +92,7 @@ var secretDetail = new ErrorDetail("pw", "secret", isSensitive: true);
 var secretText = secretDetail.ToString();
 Check("result redaction", secretText == "pw=***");
 
-var parallel = await oneTwoThree.SelectInParallel(static async (x, _) =>
-{
-    await Task.Yield();
-
-    return Result.Success(x * 2);
-});
+var parallel = await oneTwoThree.SelectInParallel(static async (x, _) => await DoubleAsync(x));
 var parallelSum = parallel.GetValue().Sum();
 Check("result parallel", parallelSum == 12);
 
@@ -144,11 +129,7 @@ NewOperations.Exits(Check);
 await NewOperations.StreamsAsync(Check);
 
 // Settings are respected under AOT too.
-MaybeConfiguration.Configure(static o =>
-{
-    o.SomeFormat = "Just {0}";
-    o.NoneText = "Nothing";
-});
+MaybeConfiguration.Configure(UseJustAndNothing);
 var justText = someOne.ToString();
 var nothingText = noneInt.ToString();
 Check("maybe settings", justText == "Just 1" && nothingText == "Nothing");
@@ -177,3 +158,30 @@ return failures.Count;
 
 static string Summarize(List<string> failures) =>
     failures.Count == 0 ? "AOT OK: all checks passed" : "AOT FAILURES: " + string.Join(", ", failures);
+
+static async Task<string> AppendAsync(string text, string suffix)
+{
+    await Task.Yield();
+
+    return text + suffix;
+}
+
+static ValueTask<Maybe<string>> SomeAppended(string text, string suffix)
+{
+    var someText = Maybe.Some(text + suffix);
+
+    return new ValueTask<Maybe<string>>(someText);
+}
+
+static async Task<Result<int>> DoubleAsync(int x)
+{
+    await Task.Yield();
+
+    return Result.Success(x * 2);
+}
+
+static void UseJustAndNothing(MaybeOptions options)
+{
+    options.SomeFormat = "Just {0}";
+    options.NoneText = "Nothing";
+}

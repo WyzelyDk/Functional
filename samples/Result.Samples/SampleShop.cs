@@ -87,12 +87,7 @@ public static class SampleShop
         return found
             .Ensure(customer => !customer.IsBlocked, blocked)
             .Ensure(_ => order.Id != 12, unavailable)
-            .Map(_ =>
-            {
-                var amount = PriceInCents(order);
-
-                return new Receipt("R-" + order.Id, amount);
-            });
+            .Map(_ => ReceiptOf(order));
     }
 
     // The fallback payment method: it always works in this shop.
@@ -140,6 +135,13 @@ public static class SampleShop
             [11] = new Order(11, 1, threeCoffee, IsOpen: true),
             [12] = new Order(12, 1, oneTea, IsOpen: true),
         };
+    }
+
+    private static Receipt ReceiptOf(Order order)
+    {
+        var amount = PriceInCents(order);
+
+        return new Receipt("R-" + order.Id, amount);
     }
 
     private static int PriceInCents(Order order)

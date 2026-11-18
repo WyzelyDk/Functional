@@ -247,5 +247,9 @@ internal sealed record OperationSpec
 
     private bool IsFixedValue(DelegateSpec delegateSpec) =>
         !delegateSpec.ReturnsVoid
-        && !TypeParameters.Any(parameter => Mentions(delegateSpec.ReturnType, parameter) && !Mentions(ReceiverType, parameter));
+        && !TypeParameters.Any(parameter => IsInferredFromReturnType(delegateSpec, parameter));
+
+    // A type parameter that the delegate returns and that the receiver does not mention is inferred from the delegate.
+    private bool IsInferredFromReturnType(DelegateSpec delegateSpec, string parameter) =>
+        Mentions(delegateSpec.ReturnType, parameter) && !Mentions(ReceiverType, parameter);
 }

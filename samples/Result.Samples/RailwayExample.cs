@@ -58,8 +58,7 @@ public static class RailwayExample
         // Only a transient failure is taken over here (the gateway is down); a blocked customer stays a failure.
         foreach (var orderId in new[] { 12, 9 })
         {
-            var paid = SampleShop.FindOrder(orderId).Bind(order => SampleShop.Charge(order).OrElse(
-                error => error.IsTransient ? SampleShop.Invoice(order) : Result.Failure<Receipt>(error)));
+            var paid = SampleShop.FindOrder(orderId).Bind(ChargeOrInvoice);
 
             var paidOutcome = paid.Match(receipt => receipt.Number, error => error.Message);
             output.WriteLine($"OrElse with an operation, order {orderId}: " + paidOutcome);
@@ -105,5 +104,13 @@ public static class RailwayExample
             .Bind(SampleShop.Charge)
             .Tap(receipt => output.WriteLine($"Tap: logged receipt {receipt.Number}"))
             .MapError(error => error.WithContext("Checkout"));
+    }
+
+    // A transient failure is taken over by an invoice; any other failure stays as it is.
+    private static Result<Receipt> ChargeOrInvoice(Order order)
+    {
+        var charged = SampleShop.Charge(order);
+
+        return charged.OrElse(error => error.IsTransient ? SampleShop.Invoice(order) : Result.Failure<Receipt>(error));
     }
 }

@@ -30,12 +30,7 @@ public static class ConfigurationExample
         output.WriteLine($"Default none: {defaultNone}");
 
         // SomeFormat ({0} is the value), NoneText and NoValueMessage (the message of the exception GetValue() throws on a none).
-        MaybeConfiguration.Configure(options =>
-        {
-            options.SomeFormat = "Just({0})";
-            options.NoneText = "Nothing";
-            options.NoValueMessage = "There is nothing to read here.";
-        });
+        MaybeConfiguration.Configure(UseCustomTexts);
         var customSome = Maybe.Some(5);
         output.WriteLine($"Custom some: {customSome}");
         var customNone = Maybe.None<int>();
@@ -110,12 +105,7 @@ public static class ConfigurationExample
     {
         try
         {
-            MaybeConfiguration.Configure(options =>
-            {
-                options.SomeFormat = "Changed({0})";
-
-                throw new InvalidOperationException("The change fails half way.");
-            });
+            MaybeConfiguration.Configure(ChangeAndThrow);
         }
         catch (InvalidOperationException)
         {
@@ -149,6 +139,20 @@ public static class ConfigurationExample
         {
             return exception.GetType().Name;
         }
+    }
+
+    private static void UseCustomTexts(MaybeOptions options)
+    {
+        options.SomeFormat = "Just({0})";
+        options.NoneText = "Nothing";
+        options.NoValueMessage = "There is nothing to read here.";
+    }
+
+    private static void ChangeAndThrow(MaybeOptions options)
+    {
+        options.SomeFormat = "Changed({0})";
+
+        throw new InvalidOperationException("The change fails half way.");
     }
 
     private sealed class CountingSynchronizationContext : SynchronizationContext

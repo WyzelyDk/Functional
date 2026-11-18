@@ -64,7 +64,7 @@ public static partial class ResultParallelExtensions
         Guard.NotNull(operation, nameof(operation));
         var degree = ResolveDegree(maxDegreeOfParallelism);
 
-        return SelectFromStreamAsync(source, (item, token) => operation(item, token).AsTask(), degree, cancellationToken);
+        return SelectFromStreamAsync(source, (item, token) => AsTask(operation, item, token), degree, cancellationToken);
     }
 
     /// <summary>Reads a stream, runs an asynchronous operation that returns a result for every item, and combines the results.</summary>
@@ -118,7 +118,7 @@ public static partial class ResultParallelExtensions
         Guard.NotNull(operation, nameof(operation));
         var degree = ResolveDegree(maxDegreeOfParallelism);
 
-        return ForEachFromStreamAsync(source, (item, token) => operation(item, token).AsTask(), degree, cancellationToken);
+        return ForEachFromStreamAsync(source, (item, token) => AsTask(operation, item, token), degree, cancellationToken);
     }
 
     private static async Task<Result<IReadOnlyList<TResult>>> SelectFromStreamAsync<TSource, TResult>(

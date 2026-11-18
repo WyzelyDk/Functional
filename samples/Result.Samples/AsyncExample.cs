@@ -38,14 +38,17 @@ public static class AsyncExample
 
         // A failing step skips the rest: the charge is never made for the closed order.
         var charges = 0;
+
+        ValueTask<Result<Receipt>> ChargeAndCount(Order order)
+        {
+            charges++;
+
+            return SampleShop.ChargeAsync(order);
+        }
+
         _ = await SampleShop.FindOrderAsync(8)
             .Ensure(order => order.IsOpen, closedError)
-            .Bind(order =>
-            {
-                charges++;
-
-                return SampleShop.ChargeAsync(order);
-            });
+            .Bind(ChargeAndCount);
         await output.WriteLineAsync($"Charges made for the closed order: {charges}");
 
         // The nine variants of one operation (Map), side by side. All of them produce Success(2).
@@ -75,12 +78,7 @@ public static class AsyncExample
         // An async lambda converts to both a Task and a ValueTask delegate; with C# 13 or later the Task overload wins.
         var lambda = await SampleShop.FindOrderAsync(7)
             .Bind(SampleShop.ChargeAsync)
-            .Map(async receipt =>
-            {
-                await Task.Yield();
-
-                return receipt.Number + " (checked)";
-            });
+            .Map(async receipt => await CheckAsync(receipt.Number));
         var checkedNumber = lambda.ValueOr("?");
         await output.WriteLineAsync("Async lambda: " + checkedNumber);
 
@@ -93,5 +91,12 @@ public static class AsyncExample
         {
             await output.WriteLineAsync("A null delegate throws at the call, before any await: ArgumentNullException");
         }
+    }
+
+    private static async Task<string> CheckAsync(string number)
+    {
+        await Task.Yield();
+
+        return number + " (checked)";
     }
 }

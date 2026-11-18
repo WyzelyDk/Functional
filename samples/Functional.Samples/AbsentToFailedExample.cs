@@ -29,12 +29,17 @@ public static class AbsentToFailedExample
         //    RedactedMessage and ToRedactedString() hide it, which is what you want in a log.
         var factoryCalls = 0;
 
-        Result<Customer> Lookup(string email) => directory.FindByEmail(email).ToResult(() =>
+        Result<Customer> Lookup(string email)
         {
-            factoryCalls++;
+            Error NoCustomerWithEmail()
+            {
+                factoryCalls++;
 
-            return Error.NotFound("No customer with email {Email}.").WithDetail("Email", email, isSensitive: true);
-        });
+                return Error.NotFound("No customer with email {Email}.").WithDetail("Email", email, isSensitive: true);
+            }
+
+            return directory.FindByEmail(email).ToResult(NoCustomerWithEmail);
+        }
 
         var lazyFound = Lookup("ada@example.com");
         Describe(output, "Lazy error, customer found", lazyFound);
@@ -48,7 +53,8 @@ public static class AbsentToFailedExample
         // 3. The same absence can mean different things, so the kind is yours to choose. The kind is what a caller (an API layer,
         //    a retry policy) switches on; it is not text.
         var typed = missing.ToResult(NoSuchCustomer);
-        var broken = missing.ToResult(() => Error.Unexpected("Order {OrderId} points at a customer that does not exist.").WithDetail("OrderId", 17));
+        var broken = missing.ToResult(() => Error.Unexpected("Order {OrderId} points at a customer that does not exist.")
+            .WithDetail("OrderId", 17));
         var typedKind = typed.Match(_ => "none", error => error.Kind.ToString());
         var brokenKind = broken.Match(_ => "none", error => error.Kind.ToString());
         output.WriteLine($"Kind for an email somebody typed: {typedKind}");

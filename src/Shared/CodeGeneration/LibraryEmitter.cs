@@ -194,13 +194,16 @@ internal sealed class LibraryEmitter(GeneratorProfile profile)
     }
 
     // The parameters of the signature: the plain list, with the default value of the parameters that have one.
-    private static IEnumerable<string> WithDefaults(OperationSpec operation, List<string> parameters) => parameters.Select(parameter =>
+    private static IEnumerable<string> WithDefaults(OperationSpec operation, List<string> parameters) =>
+        parameters.Select(parameter => WithDefault(operation, parameter));
+
+    private static string WithDefault(OperationSpec operation, string parameter)
     {
         var name = parameter[(parameter.LastIndexOf(' ') + 1)..];
         var extra = operation.ExtraParameters.FirstOrDefault(candidate => candidate.Name == name && candidate.DefaultValue is not null);
 
         return extra is null ? parameter : $"{parameter} = {extra.DefaultValue}";
-    });
+    }
 
     private static void EmitGuards(CodeWriter writer, List<string> guarded)
     {

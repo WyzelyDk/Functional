@@ -67,26 +67,30 @@ public static class AsyncExample
 
         // An async lambda converts to both a Task and a ValueTask delegate.
         // The library marks the Task overloads with [OverloadResolutionPriority], so with C# 13 or later this compiles without ambiguity.
-        var doubled = await Maybe.Some(21).Bind(async number =>
-        {
-            await Task.Yield();
-
-            return Maybe.Some(number * 2);
-        });
+        var doubled = await Maybe.Some(21).Bind(async number => await ScaleAsync(number, 2));
         await output.WriteLineAsync($"Async lambda: {doubled}");
 
         // A none skips the delegate, including an asynchronous one: it is never called.
         var called = false;
         var absent = Maybe.None<int>();
         var absentTask = Task.FromResult(absent);
-        _ = await absentTask.Map(async number =>
+        _ = await absentTask.Map(RecordCallAsync);
+        await output.WriteLineAsync($"A none skips the Task delegate: {called}");
+
+        async Task<int> RecordCallAsync(int number)
         {
             called = true;
             await Task.Yield();
 
             return number;
-        });
-        await output.WriteLineAsync($"A none skips the Task delegate: {called}");
+        }
+    }
+
+    private static async Task<Maybe<int>> ScaleAsync(int number, int factor)
+    {
+        await Task.Yield();
+
+        return Maybe.Some(number * factor);
     }
 
     private static Maybe<int> Is(Maybe<int> value) => value;

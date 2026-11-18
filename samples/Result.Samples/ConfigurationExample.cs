@@ -36,14 +36,7 @@ public static class ConfigurationExample
 
         try
         {
-            ResultConfiguration.Configure(options =>
-            {
-                options.ChildSeparator = " | ";
-                options.ContextSeparator = " > ";
-                options.RedactedValue = "[hidden]";
-                options.AggregateMessage = "Several problems occurred.";
-                options.CanceledMessage = "Canceled by the user.";
-            });
+            ResultConfiguration.Configure(UseCustomWording);
 
             var separatedMessage = Error.Aggregate([name, email]).Message;
             await output.WriteLineAsync($"ChildSeparator ' | ': {separatedMessage}");
@@ -76,23 +69,24 @@ public static class ConfigurationExample
             // The default degree of parallelism is used when the caller passes no limit of their own.
             ResultConfiguration.Configure(options => options.DefaultMaxDegreeOfParallelism = 2);
             var gauge = new ConcurrencyGauge();
-            _ = await Items.SelectInParallel(
-                async (item, token) =>
-                {
-                    gauge.Enter();
-
-                    try
-                    {
-                        await Task.Delay(5, token);
-
-                        return Result.Success(item);
-                    }
-                    finally
-                    {
-                        gauge.Exit();
-                    }
-                });
+            _ = await Items.SelectInParallel(DelayWithinGauge);
             await output.WriteLineAsync($"DefaultMaxDegreeOfParallelism 2, never more than 2 at the same time: {gauge.Peak <= 2}");
+
+            async Task<Result<int>> DelayWithinGauge(int item, CancellationToken token)
+            {
+                gauge.Enter();
+
+                try
+                {
+                    await Task.Delay(5, token);
+
+                    return Result.Success(item);
+                }
+                finally
+                {
+                    gauge.Exit();
+                }
+            }
         }
         finally
         {
@@ -101,5 +95,14 @@ public static class ConfigurationExample
 
         var resetMessage = Error.Aggregate([name, email]).Message;
         await output.WriteLineAsync($"After Reset: {resetMessage}");
+    }
+
+    private static void UseCustomWording(ResultOptions options)
+    {
+        options.ChildSeparator = " | ";
+        options.ContextSeparator = " > ";
+        options.RedactedValue = "[hidden]";
+        options.AggregateMessage = "Several problems occurred.";
+        options.CanceledMessage = "Canceled by the user.";
     }
 }

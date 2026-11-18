@@ -51,7 +51,8 @@ public static class FailedToAbsentExample
 
         // The usual reason to come back to Maybe: keep what worked and skip the rest. ToMaybe + Choose is "the successes".
         var passed = MailingList
-            .Select(email => Validate(email).ToMaybe())
+            .Select(email => Validate(email)
+                .ToMaybe())
             .Choose()
             .Select(customer => customer.Name);
         var passedNames = string.Join(", ", passed);

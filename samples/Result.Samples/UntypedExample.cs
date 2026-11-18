@@ -23,18 +23,15 @@ public static class UntypedExample
         output.WriteLine($"ToResult drops the value: {converted}");
 
         // A chain that mixes both: reserve the stock (no value), THEN charge (a value).
-        var receipt = SampleShop.FindOrder(7).Bind(order => SampleShop.ReserveStock(order).Bind(() => SampleShop.Charge(order)));
+        var receipt = SampleShop.FindOrder(7).Bind(order => SampleShop.ReserveStock(order)
+            .Bind(() => SampleShop.Charge(order)));
         var receiptNumber = receipt.Match(value => value.Number, error => error.Message);
         output.WriteLine("Reserve then charge: " + receiptNumber);
 
         // When the untyped step fails, the next step never runs.
         var charges = 0;
-        var refused = SampleShop.FindOrder(11).Bind(order => SampleShop.ReserveStock(order).Bind(() =>
-        {
-            charges++;
-
-            return SampleShop.Charge(order);
-        }));
+        var refused = SampleShop.FindOrder(11).Bind(order => SampleShop.ReserveStock(order)
+            .Bind(() => ChargeAndCount(order)));
         var refusal = refused.Match(value => value.Number, error => $"{error.Message} (charges: {charges})");
         output.WriteLine("Reserve fails, charge never runs: " + refusal);
 
@@ -61,5 +58,12 @@ public static class UntypedExample
         Result[] checks = [Result.SuccessIf(false, "Name is missing."), Result.Success()];
         var combined = Result.Combine(checks).Match(() => "ok", error => error.Message);
         output.WriteLine("Untyped combine: " + combined);
+
+        Result<Receipt> ChargeAndCount(Order order)
+        {
+            charges++;
+
+            return SampleShop.Charge(order);
+        }
     }
 }

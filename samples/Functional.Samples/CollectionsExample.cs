@@ -63,7 +63,8 @@ public static class CollectionsExample
         // 4. Maybe becomes Result for every element, then Combine. A line whose SKU is not in the price list is a NotFound failure that
         //    names the SKU. The factory (Func<Error>) is used so that an error is only built for the lines that need one.
         Result<int> PriceOf(OrderLine line) => prices.GetValueOrNone(line.Sku)
-            .ToResult(() => Error.NotFound("Unknown SKU {Sku}.").WithDetail("Sku", line.Sku))
+            .ToResult(() => Error.NotFound("Unknown SKU {Sku}.")
+                .WithDetail("Sku", line.Sku))
             .Map(price => price * line.Quantity);
 
         var combined = GoodLines.Select(PriceOf).Combine();
@@ -107,13 +108,15 @@ public static class CollectionsExample
         var zipped = missingBuyer.Zip(unknownPrice, (customer, total) => $"{customer.Name} owes {total}");
         var messages = zipped.Match(
             static _ => "success",
-            static error =>
-            {
-                var childMessages = error.Flatten().Select(static child => child.Message);
-
-                return string.Join(" | ", childMessages);
-            });
+            JoinChildMessages);
         output.WriteLine($"Result.Zip, both failed, in argument order: {messages}");
+    }
+
+    private static string JoinChildMessages(Error error)
+    {
+        var childMessages = error.Flatten().Select(static child => child.Message);
+
+        return string.Join(" | ", childMessages);
     }
 
     private sealed record OrderSummary(int Id, string CustomerEmail, int Total, bool IsPaid);

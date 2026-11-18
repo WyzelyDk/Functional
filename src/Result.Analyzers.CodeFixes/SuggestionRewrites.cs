@@ -364,7 +364,10 @@ internal static class SuggestionRewrites
             .Where(call => call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "GetError" } access
                 && access.Expression.WithoutTrivia().ToString() == receiver.ToString());
 
-        return expression.ReplaceNodes(reads, (original, _) => SyntaxFactory.IdentifierName("error").WithTriviaFrom(original));
+        return expression.ReplaceNodes(
+            reads,
+            (original, _) => SyntaxFactory.IdentifierName("error")
+                .WithTriviaFrom(original));
     }
 
     private static PrefixUnaryExpressionSyntax Negated(ExpressionSyntax condition)

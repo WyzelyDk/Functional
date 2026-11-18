@@ -37,14 +37,18 @@ public static class ExceptionsExample
         // Your own mapping, for one call: a message that makes sense to the user, the exception kept as the cause.
         var quantity = Result.Try(
             () => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture),
-            exception => Error.Validation("'{Text}' is not a valid quantity.").WithDetail("Text", "abc").WithException(exception));
+            exception => Error.Validation("'{Text}' is not a valid quantity.")
+                .WithDetail("Text", "abc")
+                .WithException(exception));
         var quantityOutcome = quantity.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})");
         await output.WriteLineAsync("Try with your own mapping: " + quantityOutcome);
 
         // One kind of exception, named by the parameter of the handler: the value and the exception type are both inferred.
         var narrow = Result.Try(
             () => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture),
-            (FormatException exception) => Error.Validation("'{Text}' is not a number.").WithDetail("Text", "abc").WithException(exception));
+            (FormatException exception) => Error.Validation("'{Text}' is not a number.")
+                .WithDetail("Text", "abc")
+                .WithException(exception));
         var narrowOutcome = narrow.Match(_ => "ok", error => $"{error.Message} (cause {error.Exception?.GetType().Name})");
         await output.WriteLineAsync("Try for one kind of exception: " + narrowOutcome);
 
@@ -63,7 +67,8 @@ public static class ExceptionsExample
         // Naming the type is also how a cancellation is caught on purpose; `when` keeps a cancellation by the caller out of it.
         var timedOut = Result.Try(
             ThrowCanceled,
-            (OperationCanceledException exception) => Error.Timeout("The request timed out.").WithException(exception),
+            (OperationCanceledException exception) => Error.Timeout("The request timed out.")
+                .WithException(exception),
             when: _ => !CancellationToken.None.IsCancellationRequested);
         var timedOutError = ErrorOf(timedOut);
         await output.WriteLineAsync($"A named cancellation is caught: kind {timedOutError?.Kind}");
@@ -73,12 +78,7 @@ public static class ExceptionsExample
         await output.WriteLineAsync($"Untyped Try: {untyped}");
 
         // Asynchronous code: the Task and ValueTask overloads await the code for you.
-        var task = await Result.Try(static async () =>
-        {
-            await Task.Yield();
-
-            throw new InvalidOperationException("The warehouse is closed.");
-        });
+        var task = await Result.Try(static async () => await ThrowWarehouseClosedAsync());
         var taskError = ErrorOf(task);
         var taskCause = taskError?.Exception?.GetType().Name;
         await output.WriteLineAsync($"Async Try (Task): kind {taskError?.Kind}, cause {taskCause}");
@@ -117,8 +117,7 @@ public static class ExceptionsExample
 
             // The default mapping is a setting too. Here every exception becomes the same user-facing error with a code,
             // and the exception stays the cause for the logs.
-            ResultConfiguration.Configure(options => options.ExceptionMapper = static exception =>
-                Error.Unexpected("Something went wrong.").WithCode("E_UNEXPECTED").WithException(exception));
+            ResultConfiguration.Configure(UseUnexpectedErrorMapper);
             var mapped = Result.Try(() => int.Parse("abc", System.Globalization.CultureInfo.InvariantCulture));
             var mappedError = ErrorOf(mapped);
             await output.WriteLineAsync($"ExceptionMapper: code {mappedError?.Code}, message {mappedError?.Message}");
@@ -142,6 +141,20 @@ public static class ExceptionsExample
         {
             await output.WriteLineAsync($"ThrowIfFailure leaves the railway: ResultFailedException carrying kind {exception.Error.Kind}");
         }
+    }
+
+    private static void UseUnexpectedErrorMapper(ResultOptions options) => options.ExceptionMapper = MapToUnexpected;
+
+    private static Error MapToUnexpected(Exception exception) =>
+        Error.Unexpected("Something went wrong.")
+            .WithCode("E_UNEXPECTED")
+            .WithException(exception);
+
+    private static async Task ThrowWarehouseClosedAsync()
+    {
+        await Task.Yield();
+
+        throw new InvalidOperationException("The warehouse is closed.");
     }
 
     // A method that returns nothing converts only to an Action, so Try runs it right here and now.

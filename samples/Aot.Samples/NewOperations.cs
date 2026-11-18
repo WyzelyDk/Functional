@@ -20,7 +20,10 @@ internal static class NewOperations
         var ensuredNotNull = Result.Success<string?>(null).EnsureNotNull(nullError);
         check("result ensure not null", ensuredNotNull.IsFailure);
 
-        var tooSmall = Result.Success(1).Ensure(static x => x > 5, static x => Error.Validation("too small: {x}").WithDetail("x", x));
+        var tooSmall = Result.Success(1).Ensure(
+            static x => x > 5,
+            static x => Error.Validation("too small: {x}")
+                .WithDetail("x", x));
         var tooSmallMessage = tooSmall.GetError().Message;
         check("result ensure factory", tooSmallMessage == "too small: 1");
 
@@ -89,16 +92,18 @@ internal static class NewOperations
     internal static async Task StreamsAsync(Action<string, bool> check)
     {
         IReadOnlyList<int> numbers = [1, 2, 3];
-        var each = Result.Success(numbers).BindEach(static async x =>
-        {
-            await Task.Yield();
-
-            return x == 2 ? Result.Failure<int>("two") : Result.Success(x);
-        });
+        var each = Result.Success(numbers).BindEach(static async x => await FailOnTwoAsync(x));
 
         var (values, errors) = await each.Partition();
         check("result stream partition", values.Count == 2 && errors.Count == 1);
         var combined = await each.Combine();
         check("result stream combine", combined.IsFailure);
+    }
+
+    private static async Task<Result<int>> FailOnTwoAsync(int x)
+    {
+        await Task.Yield();
+
+        return x == 2 ? Result.Failure<int>("two") : Result.Success(x);
     }
 }

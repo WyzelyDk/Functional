@@ -21,8 +21,8 @@ public sealed class NestedCallRuleTests
         var root = RepositoryRoot.Find();
 
         var violations = CheckedFolders
-            .SelectMany(folder => CSharpFilesOf(root, folder))
-            .SelectMany(path => NestedCallFinder.Find(File.ReadAllText(path)).Select(call => $"{Relative(root, path)}:{call.Line}  {Shorten(call.Text)}"))
+            .SelectMany(folder => RepositoryRoot.CSharpFilesOf(root, folder))
+            .SelectMany(path => NestedCallFinder.Find(File.ReadAllText(path)).Select(call => Describe(root, path, call)))
             .ToList();
 
         var message = $"{violations.Count} call(s) are the argument of another call; put the inner call in a local first:{Environment.NewLine}"
@@ -36,28 +36,23 @@ public sealed class NestedCallRuleTests
     {
         var root = RepositoryRoot.Find();
 
-        var files = CheckedFolders.SelectMany(folder => CSharpFilesOf(root, folder)).Select(path => Relative(root, path)).ToList();
+        var files = CheckedFolders
+            .SelectMany(folder => RepositoryRoot.CSharpFilesOf(root, folder))
+            .Select(path => RepositoryRoot.Relative(root, path))
+            .ToList();
 
         Assert.Multiple(
             () => Assert.Contains(files, static path => path.StartsWith("src/Result/Generated/", StringComparison.Ordinal)),
             () => Assert.Contains(files, static path => path.StartsWith("src/Maybe/Generated/", StringComparison.Ordinal)),
             () => Assert.Contains(files, static path => path.StartsWith("src/Functional/", StringComparison.Ordinal)),
             () => Assert.Contains(files, static path => path.StartsWith("samples/Aot.Samples/", StringComparison.Ordinal)),
-            () => Assert.DoesNotContain(files, static path => IsBuildOutput(path)));
+            () => Assert.DoesNotContain(files, static path => RepositoryRoot.IsBuildOutput(path)));
     }
 
-    private static IEnumerable<string> CSharpFilesOf(string root, string folder) =>
-        Directory.EnumerateFiles(Path.Combine(root, folder), "*.cs", SearchOption.AllDirectories)
-            .Where(static path => !IsBuildOutput(path));
-
-    private static bool IsBuildOutput(string path)
+    private static string Describe(string root, string path, NestedCallFinder.NestedCall call)
     {
-        var segments = path.Replace('\\', '/').Split('/');
+        var text = call.Text.Length <= 110 ? call.Text : call.Text[..110] + "...";
 
-        return segments.Contains("bin") || segments.Contains("obj");
+        return $"{RepositoryRoot.Relative(root, path)}:{call.Line}  {text}";
     }
-
-    private static string Relative(string root, string path) => Path.GetRelativePath(root, path).Replace('\\', '/');
-
-    private static string Shorten(string text) => text.Length <= 110 ? text : text[..110] + "...";
 }
