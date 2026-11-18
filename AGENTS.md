@@ -38,6 +38,13 @@ The library is judged by how it feels to use, not only by what it can do.
   code fixes, the analyzers) are exempt, because a builder style such as `SyntaxFactory` or the catalog's `Returns(...)` is nested by design.
   `NestedCallRuleTests` in `Shared.Tests` enforces the rule for the libraries, the generated code and the samples: `NestedCallFinder` reads each file with
   Roslyn twice, for `net11.0` and for `netstandard2.0`, so that the code behind `#if` is checked too.
+- **A lambda is small.** It has no block body and is never a `delegate { }`: a block is a private method or a local function, passed as a method group
+  (a `static` one where the block captures nothing). A body that is one expression is fine: a name, a member access, one call, a comparison, a conditional,
+  a `switch` or a pattern, or a list (a collection expression, a tuple, an interpolated string). A body that calls two or more times is a chain with one
+  indented line per dot (`x => Error.NotFound("...")` then `.WithDetail("Sku", x)` on the next line), or it is named; two calls that are not a chain
+  (`F(G(x))`, `A(x) && B(x)`) are named. A sample that shows how an `async` lambda binds keeps the lambda and calls a named async function in it.
+  `NamedLambdaRuleTests` in `Shared.Tests` enforces this for the libraries, the generated code, the samples and the tooling;
+  the tests and the benchmarks are exempt.
 - **Generic type parameters begin with `T` and say what they are:** `T`, `TResult`, `TSource`, `TException`; never a bare `K`, `U` or `E`.
 - **Conversions are named by what they do.** `As...`
   re-presents the same data under another type without creating a new object and without losing information (`AsNullable`, like `AsEnumerable`); `To...`

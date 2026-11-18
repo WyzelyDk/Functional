@@ -76,7 +76,7 @@ internal sealed class TestEmitter(GeneratorProfile profile)
         writer.Lines(ReceiverLines(testCase.Receiver, operation.ReceiverTestType, variant.Receiver, pending, gated));
 
         var arguments = (testCase.LeadingArguments ?? [])
-            .Concat(delegates.Select(pair => RenderLambda(pair.Test, variant.WrapperOf(pair.Spec))))
+            .Concat(delegates.Select(pair => RenderArgument(variant, pair.Spec, pair.Test)))
             .Concat(testCase.ExtraArguments);
         var call = $"receiver.{operation.Name}({string.Join(", ", arguments)})";
 
@@ -157,6 +157,13 @@ internal sealed class TestEmitter(GeneratorProfile profile)
             Wrapper.Task => task,
             _ => pending ? $"new ValueTask<{receiverType}>({task})" : $"new ValueTask<{receiverType}>({expression})",
         };
+    }
+
+    private static string RenderArgument(Variant variant, DelegateSpec spec, DelegateTest test)
+    {
+        var wrapper = variant.WrapperOf(spec);
+
+        return RenderLambda(test, wrapper);
     }
 
     private static string RenderLambda(DelegateTest test, Wrapper wrapper)

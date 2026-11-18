@@ -57,7 +57,8 @@ public static class CheckoutExample
         // A Maybe<int> per line, made a Result<int>; Combine reports every unknown product, not just the first.
         var total = lines
             .Select(line => Prices.GetValueOrNone(line.Sku)
-                .ToResult(() => Error.NotFound("Unknown product {Sku}.").WithDetail("Sku", line.Sku))
+                .ToResult(() => Error.NotFound("Unknown product {Sku}.")
+                    .WithDetail("Sku", line.Sku))
                 .Map(price => price * line.Quantity))
             .Combine()
             .Map(totals => totals.Sum());
@@ -69,14 +70,16 @@ public static class CheckoutExample
             .Zip(total, (who, amount) => (Customer: who, Amount: amount))
             .Bind(order => ChargeAsync(order.Customer, order.Amount))
             .MapError(error => error.WithContext("Checkout"))
-            .TapError(error =>
-            {
-                var redacted = error.ToRedactedString();
-                log.Add(redacted);
-            })
+            .TapError(LogRedacted)
             .Match(
                 receipt => $"Paid {receipt}",
                 error => $"Rejected [{error.Kind}] {error}{(error.IsTransient ? " (retry later)" : string.Empty)}");
+
+        void LogRedacted(Error error)
+        {
+            var redacted = error.ToRedactedString();
+            log.Add(redacted);
+        }
     }
 
     private static async ValueTask<Result<string>> ChargeAsync(Customer customer, int amount)

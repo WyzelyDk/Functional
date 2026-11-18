@@ -33,12 +33,7 @@ public static class ParallelExample
             SampleShop.FindOrderAsync,
             maxDegreeOfParallelism: 2);
         var inOrder = found.Match(
-            orders =>
-            {
-                var ids = orders.Select(order => order.Id);
-
-                return string.Join(", ", ids);
-            },
+            JoinIds,
             error => error.Message);
         await output.WriteLineAsync("Values in source order: " + inOrder);
 
@@ -46,21 +41,7 @@ public static class ParallelExample
         // Every one of the four lookups was attempted, and no more than two ran at the same time.
         var gauge = new ConcurrencyGauge();
         var some = await FoundAndMissing.SelectInParallel(
-            async (id, token) =>
-            {
-                gauge.Enter();
-
-                try
-                {
-                    await Task.Delay(id == 98 ? 30 : 1, token);
-
-                    return await SampleShop.FindOrderAsync(id, token);
-                }
-                finally
-                {
-                    gauge.Exit();
-                }
-            },
+            FindOrderWithinGauge,
             maxDegreeOfParallelism: 2);
         var someText = some.Match(_ => "all found", error => error.Message);
         await output.WriteLineAsync("Errors in source order: " + someText);
@@ -69,16 +50,12 @@ public static class ParallelExample
 
         // ForEachInParallel is for operations that return no value. This one returns a ValueTask<Result>.
         var reserved = await Reservable.ForEachInParallel(
-            (id, token) =>
-            {
-                var reservation = SampleShop.FindOrder(id).Bind(SampleShop.ReserveStock);
-
-                return new ValueTask<Result>(reservation);
-            });
+            (id, token) => ReserveOrder(id));
         await output.WriteLineAsync($"ForEachInParallel (ValueTask): {reserved}");
 
         var notReserved = await ReservableAndShort.ForEachInParallel(
-            (id, token) => SampleShop.FindOrderAsync(id, token).Bind(SampleShop.ReserveStock));
+            (id, token) => SampleShop.FindOrderAsync(id, token)
+                .Bind(SampleShop.ReserveStock));
         var notReservedText = notReserved.Match(() => "ok", error => error.Message);
         await output.WriteLineAsync("ForEachInParallel with a failure: " + notReservedText);
 
@@ -119,6 +96,36 @@ public static class ParallelExample
         var combined = await Result.Combine(lookups);
         var combinedText = combined.Match(_ => "all found", problem => problem.Message);
         await output.WriteLineAsync("Combine of tasks: " + combinedText);
+
+        async Task<Result<Order>> FindOrderWithinGauge(int id, CancellationToken token)
+        {
+            gauge.Enter();
+
+            try
+            {
+                await Task.Delay(id == 98 ? 30 : 1, token);
+
+                return await SampleShop.FindOrderAsync(id, token);
+            }
+            finally
+            {
+                gauge.Exit();
+            }
+        }
+    }
+
+    private static string JoinIds(IReadOnlyList<Order> orders)
+    {
+        var ids = orders.Select(order => order.Id);
+
+        return string.Join(", ", ids);
+    }
+
+    private static ValueTask<Result> ReserveOrder(int id)
+    {
+        var reservation = SampleShop.FindOrder(id).Bind(SampleShop.ReserveStock);
+
+        return new ValueTask<Result>(reservation);
     }
 
     private static async Task<Result<int>> ExplodeAsync(int id, CancellationToken cancellationToken)

@@ -76,7 +76,7 @@ public static partial class ResultParallelExtensions
         Guard.NotNull(operation, nameof(operation));
         var degree = ResolveDegree(maxDegreeOfParallelism);
 
-        return SelectAsync(source, (item, token) => operation(item, token).AsTask(), degree, cancellationToken);
+        return SelectAsync(source, (item, token) => AsTask(operation, item, token), degree, cancellationToken);
     }
 
     /// <summary>Runs an asynchronous operation that returns a result for every item and combines the results.</summary>
@@ -132,7 +132,7 @@ public static partial class ResultParallelExtensions
         Guard.NotNull(operation, nameof(operation));
         var degree = ResolveDegree(maxDegreeOfParallelism);
 
-        return ForEachAsync(source, (item, token) => operation(item, token).AsTask(), degree, cancellationToken);
+        return ForEachAsync(source, (item, token) => AsTask(operation, item, token), degree, cancellationToken);
     }
 
     /// <summary>Checks that a degree of parallelism is positive or <c>-1</c> (no limit).</summary>
@@ -162,6 +162,23 @@ public static partial class ResultParallelExtensions
         return degree;
     }
 
+    private static Task<Result<TResult>> AsTask<TSource, TResult>(
+        Func<TSource, CancellationToken, ValueTask<Result<TResult>>> operation,
+        TSource item,
+        CancellationToken token)
+    {
+        var outcome = operation(item, token);
+
+        return outcome.AsTask();
+    }
+
+    private static Task<Result> AsTask<TSource>(Func<TSource, CancellationToken, ValueTask<Result>> operation, TSource item, CancellationToken token)
+    {
+        var outcome = operation(item, token);
+
+        return outcome.AsTask();
+    }
+
     private static async Task<Result<IReadOnlyList<TResult>>> SelectAsync<TSource, TResult>(
         IEnumerable<TSource> source,
         Func<TSource, CancellationToken, Task<Result<TResult>>> operation,
@@ -172,25 +189,7 @@ public static partial class ResultParallelExtensions
         var values = new TResult[items.Count];
         var errors = new Error?[items.Count];
 
-        await RunAsync(
-            items.Count,
-            maxDegreeOfParallelism,
-            async index =>
-            {
-                var outcome = await operation(items[index], cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
-
-                var failure = outcome.Unpack(out var value);
-
-                if (failure is null)
-                {
-                    values[index] = value;
-                }
-                else
-                {
-                    errors[index] = failure;
-                }
-            },
-            cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+        await RunAsync(items.Count, maxDegreeOfParallelism, Store, cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
         var failures = errors.OfType<Error>().ToList();
 
@@ -202,6 +201,22 @@ public static partial class ResultParallelExtensions
         var aggregate = Error.Aggregate(failures);
 
         return Result.Failure<IReadOnlyList<TResult>>(aggregate);
+
+        async Task Store(int index)
+        {
+            var outcome = await operation(items[index], cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            var failure = outcome.Unpack(out var value);
+
+            if (failure is null)
+            {
+                values[index] = value;
+            }
+            else
+            {
+                errors[index] = failure;
+            }
+        }
     }
 
     private static async Task<Result> ForEachAsync<TSource>(
@@ -213,19 +228,7 @@ public static partial class ResultParallelExtensions
         var items = source.ToList();
         var errors = new Error?[items.Count];
 
-        await RunAsync(
-            items.Count,
-            maxDegreeOfParallelism,
-            async index =>
-            {
-                var outcome = await operation(items[index], cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
-
-                if (outcome.TryGetError(out var error))
-                {
-                    errors[index] = error;
-                }
-            },
-            cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+        await RunAsync(items.Count, maxDegreeOfParallelism, Store, cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
         var failures = errors.OfType<Error>().ToList();
 
@@ -237,6 +240,16 @@ public static partial class ResultParallelExtensions
         var aggregate = Error.Aggregate(failures);
 
         return Result.Failure(aggregate);
+
+        async Task Store(int index)
+        {
+            var outcome = await operation(items[index], cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            if (outcome.TryGetError(out var error))
+            {
+                errors[index] = error;
+            }
+        }
     }
 
     private static async Task RunAsync(int count, int maxDegreeOfParallelism, Func<int, Task> body, CancellationToken cancellationToken)
