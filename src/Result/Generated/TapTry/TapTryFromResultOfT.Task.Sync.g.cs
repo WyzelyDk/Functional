@@ -59,7 +59,9 @@ public static partial class ResultExtensions
             }
             catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))
             {
-                return Result.Failure<T>(Result.ErrorOf(exception, onException));
+                var error = Result.ErrorOf(exception, onException);
+
+                return Result.Failure<T>(error);
             }
         }
     }

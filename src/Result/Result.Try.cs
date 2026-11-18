@@ -31,7 +31,9 @@ public readonly partial struct Result
         }
         catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))
         {
-            return Failure(ErrorOf(exception, onException));
+            var error = ErrorOf(exception, onException);
+
+            return Failure(error);
         }
     }
 
@@ -49,11 +51,15 @@ public readonly partial struct Result
 
         try
         {
-            return Success(function());
+            var value = function();
+
+            return Success(value);
         }
         catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))
         {
-            return Failure<T>(ErrorOf(exception, onException));
+            var error = ErrorOf(exception, onException);
+
+            return Failure<T>(error);
         }
     }
 
@@ -81,7 +87,9 @@ public readonly partial struct Result
             }
             catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))
             {
-                return Failure(ErrorOf(exception, onException));
+                var error = ErrorOf(exception, onException);
+
+                return Failure(error);
             }
         }
     }
@@ -105,11 +113,15 @@ public readonly partial struct Result
         {
             try
             {
-                return Success(await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var value = await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+                return Success(value);
             }
             catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))
             {
-                return Failure<T>(ErrorOf(exception, onException));
+                var error = ErrorOf(exception, onException);
+
+                return Failure<T>(error);
             }
         }
     }
@@ -137,7 +149,9 @@ public readonly partial struct Result
             }
             catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))
             {
-                return Failure(ErrorOf(exception, onException));
+                var error = ErrorOf(exception, onException);
+
+                return Failure(error);
             }
         }
     }
@@ -160,11 +174,15 @@ public readonly partial struct Result
         {
             try
             {
-                return Success(await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var value = await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+                return Success(value);
             }
             catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))
             {
-                return Failure<T>(ErrorOf(exception, onException));
+                var error = ErrorOf(exception, onException);
+
+                return Failure<T>(error);
             }
         }
     }

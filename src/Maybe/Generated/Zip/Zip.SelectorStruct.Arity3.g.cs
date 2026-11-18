@@ -37,7 +37,15 @@ public static partial class MaybeExtensions
         if (first.Unpack(out var value1) && second.Unpack(out var value2) && third.Unpack(out var value3))
         {
             var value = selector(value1, value2, value3);
-            return value.HasValue ? new Maybe<TResult>(value.GetValueOrDefault()) : default;
+
+            if (!value.HasValue)
+            {
+                return default;
+            }
+
+            var inner = value.GetValueOrDefault();
+
+            return new Maybe<TResult>(inner);
         }
 
         return default;

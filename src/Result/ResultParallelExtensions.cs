@@ -194,9 +194,14 @@ public static partial class ResultParallelExtensions
 
         var failures = errors.OfType<Error>().ToList();
 
-        return failures.Count == 0
-            ? Result.Success<IReadOnlyList<TResult>>(values)
-            : Result.Failure<IReadOnlyList<TResult>>(Error.Aggregate(failures));
+        if (failures.Count == 0)
+        {
+            return Result.Success<IReadOnlyList<TResult>>(values);
+        }
+
+        var aggregate = Error.Aggregate(failures);
+
+        return Result.Failure<IReadOnlyList<TResult>>(aggregate);
     }
 
     private static async Task<Result> ForEachAsync<TSource>(
@@ -224,7 +229,14 @@ public static partial class ResultParallelExtensions
 
         var failures = errors.OfType<Error>().ToList();
 
-        return failures.Count == 0 ? Result.Success() : Result.Failure(Error.Aggregate(failures));
+        if (failures.Count == 0)
+        {
+            return Result.Success();
+        }
+
+        var aggregate = Error.Aggregate(failures);
+
+        return Result.Failure(aggregate);
     }
 
     private static async Task RunAsync(int count, int maxDegreeOfParallelism, Func<int, Task> body, CancellationToken cancellationToken)

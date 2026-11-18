@@ -24,8 +24,12 @@ public static partial class ResultCollectionExtensions
 
         return CombineCore(results, cancellationToken);
 
-        static async ValueTask<Result> CombineCore(IAsyncEnumerable<Result> items, CancellationToken token) =>
-            Result.Combine(await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+        static async ValueTask<Result> CombineCore(IAsyncEnumerable<Result> items, CancellationToken token)
+        {
+            var results = await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            return Result.Combine(results);
+        }
     }
 
     /// <summary>
@@ -43,8 +47,12 @@ public static partial class ResultCollectionExtensions
 
         return CombineCore(results, cancellationToken);
 
-        static async ValueTask<Result<IReadOnlyList<T>>> CombineCore(IAsyncEnumerable<Result<T>> items, CancellationToken token) =>
-            Result.Combine(await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+        static async ValueTask<Result<IReadOnlyList<T>>> CombineCore(IAsyncEnumerable<Result<T>> items, CancellationToken token)
+        {
+            var results = await ResultStreams.ReadAsync(items, token).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            return Result.Combine(results);
+        }
     }
 
     /// <summary>
@@ -105,7 +113,14 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, Run);
+
+        ValueTask<Result<TResult>> Run(TSource item)
+        {
+            var task = bind(item);
+
+            return new ValueTask<Result<TResult>>(task);
+        }
     }
 
     /// <summary>
@@ -126,7 +141,14 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, Run);
+
+        ValueTask<Result<TResult>> Run(TSource item)
+        {
+            var task = bind(item);
+
+            return new ValueTask<Result<TResult>>(task);
+        }
     }
 
     /// <summary>Turns the result of a list into a stream of results with an operation that returns a <see cref="ValueTask{TResult}"/>.</summary>
@@ -160,7 +182,14 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, Run);
+
+        ValueTask<Result<TResult>> Run(TSource item)
+        {
+            var task = bind(item);
+
+            return new ValueTask<Result<TResult>>(task);
+        }
     }
 
     /// <summary>Turns the result of a sequence into a stream of results with an asynchronous operation.</summary>
@@ -178,7 +207,14 @@ public static partial class ResultCollectionExtensions
         Guard.NotNull(bind, nameof(bind));
         var failure = result.Unpack(out var items);
 
-        return BindEachCore(failure, items, item => new ValueTask<Result<TResult>>(bind(item)));
+        return BindEachCore(failure, items, Run);
+
+        ValueTask<Result<TResult>> Run(TSource item)
+        {
+            var task = bind(item);
+
+            return new ValueTask<Result<TResult>>(task);
+        }
     }
 
     /// <summary>Turns the result of a sequence into a stream of results with an operation that returns a <see cref="ValueTask{TResult}"/>.</summary>

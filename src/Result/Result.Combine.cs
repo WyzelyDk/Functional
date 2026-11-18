@@ -13,7 +13,12 @@ public readonly partial struct Result
     /// only error, or an aggregate of all errors in sequence order (see <see cref="Error.Aggregate(IEnumerable{Error})"/>).
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is <see langword="null"/>.</exception>
-    public static Result Combine(IEnumerable<Result> results) => CombineCore(Guard.NotNull(results, nameof(results)));
+    public static Result Combine(IEnumerable<Result> results)
+    {
+        Guard.NotNull(results, nameof(results));
+
+        return CombineCore(results);
+    }
 
     /// <summary>Combines results that carry a value into one result that carries the list of the values.</summary>
     /// <typeparam name="T">The type of the values.</typeparam>
@@ -23,7 +28,12 @@ public readonly partial struct Result
     /// Otherwise a failed result whose error is the only error, or an aggregate of all errors in sequence order.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is <see langword="null"/>.</exception>
-    public static Result<IReadOnlyList<T>> Combine<T>(IEnumerable<Result<T>> results) => CombineCore(Guard.NotNull(results, nameof(results)));
+    public static Result<IReadOnlyList<T>> Combine<T>(IEnumerable<Result<T>> results)
+    {
+        Guard.NotNull(results, nameof(results));
+
+        return CombineCore(results);
+    }
 
     /// <summary>Waits for all tasks and combines their results, which carry no value, into one result.</summary>
     /// <param name="results">The tasks that produce the results. They should already be running.</param>
@@ -36,8 +46,12 @@ public readonly partial struct Result
 
         return Core(results);
 
-        static async Task<Result> Core(IEnumerable<Task<Result>> results) =>
-            CombineCore(await Task.WhenAll(results).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+        static async Task<Result> Core(IEnumerable<Task<Result>> results)
+        {
+            var combined = await Task.WhenAll(results).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            return CombineCore(combined);
+        }
     }
 
     /// <summary>Waits for all tasks and combines their results, which carry a value, into one result that carries the list of the values.</summary>
@@ -52,8 +66,12 @@ public readonly partial struct Result
 
         return Core(results);
 
-        static async Task<Result<IReadOnlyList<T>>> Core(IEnumerable<Task<Result<T>>> results) =>
-            CombineCore(await Task.WhenAll(results).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+        static async Task<Result<IReadOnlyList<T>>> Core(IEnumerable<Task<Result<T>>> results)
+        {
+            var combined = await Task.WhenAll(results).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+            return CombineCore(combined);
+        }
     }
 
     /// <summary>Waits for all value tasks and combines their results, which carry no value, into one result.</summary>
@@ -65,7 +83,10 @@ public readonly partial struct Result
     {
         Guard.NotNull(results, nameof(results));
 
-        return new ValueTask<Result>(Combine(results.Select(task => task.AsTask())));
+        var tasks = results.Select(task => task.AsTask());
+        var combined = Combine(tasks);
+
+        return new ValueTask<Result>(combined);
     }
 
     /// <summary>Waits for all value tasks and combines their results, which carry a value, into one result that carries the list of the values.</summary>
@@ -78,7 +99,10 @@ public readonly partial struct Result
     {
         Guard.NotNull(results, nameof(results));
 
-        return new ValueTask<Result<IReadOnlyList<T>>>(Combine(results.Select(task => task.AsTask())));
+        var tasks = results.Select(task => task.AsTask());
+        var combined = Combine(tasks);
+
+        return new ValueTask<Result<IReadOnlyList<T>>>(combined);
     }
 
     private static Result CombineCore(IEnumerable<Result> results)
@@ -94,7 +118,14 @@ public readonly partial struct Result
             }
         }
 
-        return errors is null ? Success() : Failure(Error.Aggregate(errors));
+        if (errors is null)
+        {
+            return Success();
+        }
+
+        var aggregate = Error.Aggregate(errors);
+
+        return Failure(aggregate);
     }
 
     private static Result<IReadOnlyList<T>> CombineCore<T>(IEnumerable<Result<T>> results)
@@ -117,6 +148,13 @@ public readonly partial struct Result
             }
         }
 
-        return errors is null ? Success<IReadOnlyList<T>>(values) : Failure<IReadOnlyList<T>>(Error.Aggregate(errors));
+        if (errors is null)
+        {
+            return Success<IReadOnlyList<T>>(values);
+        }
+
+        var aggregate = Error.Aggregate(errors);
+
+        return Failure<IReadOnlyList<T>>(aggregate);
     }
 }

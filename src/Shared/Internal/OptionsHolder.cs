@@ -48,7 +48,8 @@ internal sealed class OptionsHolder<TOptions>
             configure(draft);
 
             // A second copy: the action may have kept a reference to the draft and could change it later.
-            Volatile.Write(ref _active, _clone(draft));
+            var copy = _clone(draft);
+            Volatile.Write(ref _active, copy);
         }
     }
 
@@ -57,7 +58,8 @@ internal sealed class OptionsHolder<TOptions>
     {
         lock (_gate)
         {
-            Volatile.Write(ref _active, _create());
+            var defaults = _create();
+            Volatile.Write(ref _active, defaults);
         }
     }
 }

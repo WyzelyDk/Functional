@@ -42,7 +42,9 @@ public readonly partial struct Result
         }
         catch (TException exception) when (Matches(when, exception))
         {
-            return Failure(onException(exception));
+            var error = onException(exception);
+
+            return Failure(error);
         }
     }
 
@@ -62,11 +64,15 @@ public readonly partial struct Result
 
         try
         {
-            return Success(function());
+            var value = function();
+
+            return Success(value);
         }
         catch (TException exception) when (Matches(when, exception))
         {
-            return Failure<T>(onException(exception));
+            var error = onException(exception);
+
+            return Failure<T>(error);
         }
     }
 
@@ -96,7 +102,9 @@ public readonly partial struct Result
             }
             catch (TException exception) when (Matches(when, exception))
             {
-                return Failure(onException(exception));
+                var error = onException(exception);
+
+                return Failure(error);
             }
         }
     }
@@ -122,11 +130,15 @@ public readonly partial struct Result
         {
             try
             {
-                return Success(await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var value = await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+                return Success(value);
             }
             catch (TException exception) when (Matches(when, exception))
             {
-                return Failure<T>(onException(exception));
+                var error = onException(exception);
+
+                return Failure<T>(error);
             }
         }
     }
@@ -156,7 +168,9 @@ public readonly partial struct Result
             }
             catch (TException exception) when (Matches(when, exception))
             {
-                return Failure(onException(exception));
+                var error = onException(exception);
+
+                return Failure(error);
             }
         }
     }
@@ -183,11 +197,15 @@ public readonly partial struct Result
         {
             try
             {
-                return Success(await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext));
+                var value = await function().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+                return Success(value);
             }
             catch (TException exception) when (Matches(when, exception))
             {
-                return Failure<T>(onException(exception));
+                var error = onException(exception);
+
+                return Failure<T>(error);
             }
         }
     }

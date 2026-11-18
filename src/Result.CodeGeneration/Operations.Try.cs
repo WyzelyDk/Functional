@@ -315,7 +315,7 @@ internal static partial class Operations
             string.Empty,
         ];
 
-        var error = named ? "onException(exception)" : "Result.ErrorOf(exception, onException)";
+        var createError = named ? "onException(exception)" : "Result.ErrorOf(exception, onException)";
 
         lines.AddRange(["try", "{"]);
         lines.AddRange(shape.Act(ctx).Select(line => line.Length == 0 ? line : "    " + line));
@@ -323,7 +323,9 @@ internal static partial class Operations
         lines.Add(named
             ? "catch (TException exception) when (Result.Matches(when, exception))"
             : "catch (Exception exception) when (ResultConfiguration.Current.ShouldCatch(exception))");
-        lines.AddRange(["{", $"    return {string.Format(System.Globalization.CultureInfo.InvariantCulture, shape.FailureFormat, error)};", "}"]);
+        var failure = string.Format(System.Globalization.CultureInfo.InvariantCulture, shape.FailureFormat, "error");
+
+        lines.AddRange(["{", $"    var error = {createError};", string.Empty, $"    return {failure};", "}"]);
 
         return [.. lines];
     }

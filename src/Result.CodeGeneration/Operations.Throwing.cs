@@ -12,13 +12,20 @@ internal static partial class Operations
     private const string ExceptionFactoryName = "exceptionFactory";
     private const string ExceptionFactoryType = "Func<Error, Exception>";
     private const string ThrownSetup = """var thrown = new InvalidOperationException("Thrown.");""";
-    private const string ThrowTheFactoryException = "    throw Guard.NotNull(exceptionFactory(failure), nameof(exceptionFactory));";
     private const string AssertSameThrownException = "Assert.Same(thrown, exception);";
     private const string AssertNoException = "Assert.Null(exception);";
     private const string FactoryReturnsThrown = "_ => thrown";
     private const string FactorySeesError = "e => { seen = e; return thrown; }";
     private const string SeenErrorSetup = "Error? seen = null;";
     private const string AssertFailedExceptionCarriesError = "Assert.Same(error, Assert.IsType<ResultFailedException>(exception).Error);";
+
+    private static readonly string[] ThrowTheFactoryException =
+    [
+        "    var exception = exceptionFactory(failure);",
+        "    Guard.NotNull(exception, nameof(exceptionFactory));",
+        string.Empty,
+        "    throw exception;",
+    ];
 
     private static IEnumerable<OperationSpec> Throwing()
     {
@@ -52,7 +59,7 @@ internal static partial class Operations
             string.Empty,
             IfFailureIsNotNull,
             "{",
-            ThrowTheFactoryException,
+            .. ThrowTheFactoryException,
             "}",
             string.Empty,
             "return input;",
@@ -140,7 +147,7 @@ internal static partial class Operations
             string.Empty,
             IfFailureIsNotNull,
             "{",
-            ThrowTheFactoryException,
+            .. ThrowTheFactoryException,
             "}",
         ],
         Tests =

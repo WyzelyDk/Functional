@@ -37,11 +37,14 @@ public sealed partial class Error
     public override bool Equals(object? obj) => Equals(obj as Error);
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCodeHelper.Combine(
-        StringComparer.Ordinal.GetHashCode(Template),
-        Code is null ? 0 : StringComparer.Ordinal.GetHashCode(Code),
-        Kind.GetHashCode(),
-        Children.Count);
+    public override int GetHashCode()
+    {
+        var templateHash = StringComparer.Ordinal.GetHashCode(Template);
+        var codeHash = Code is null ? 0 : StringComparer.Ordinal.GetHashCode(Code);
+        var kindHash = Kind.GetHashCode();
+
+        return HashCodeHelper.Combine(templateHash, codeHash, kindHash, Children.Count);
+    }
 
     private bool SameScalars(Error other) =>
         string.Equals(Template, other.Template, StringComparison.Ordinal)

@@ -82,7 +82,8 @@ public sealed partial class Error
         {
             if (string.Equals(details[index].Name, name, StringComparison.Ordinal))
             {
-                builder.Append(details[index].Render(redact));
+                var rendered = details[index].Render(redact);
+                builder.Append(rendered);
                 found = true;
             }
         }
@@ -102,7 +103,9 @@ public sealed partial class Error
             return Format(Template, Details, redact);
         }
 
-        return string.Join(ResultConfiguration.Current.ChildSeparator, Children.Select(child => child.Describe(redact)));
+        var descriptions = Children.Select(child => child.Describe(redact));
+
+        return string.Join(ResultConfiguration.Current.ChildSeparator, descriptions);
     }
 
     private string Describe(bool redact)

@@ -27,7 +27,8 @@ public sealed partial class Error
                 throw new ArgumentException("The errors cannot contain null.", nameof(errors));
             }
 
-            leaves.AddRange(error.Flatten());
+            var flattened = error.Flatten();
+            leaves.AddRange(flattened);
         }
 
         return leaves.Count switch
@@ -54,6 +55,8 @@ public sealed partial class Error
             isTransient &= leaf.IsTransient;
         }
 
+        var children = new ReadOnlyCollection<Error>(leaves);
+
         return new Error(
             ResultConfiguration.Current.AggregateMessage,
             sharesKind ? kind : default,
@@ -62,6 +65,6 @@ public sealed partial class Error
             null,
             NoDetails,
             NoContext,
-            new ReadOnlyCollection<Error>(leaves));
+            children);
     }
 }

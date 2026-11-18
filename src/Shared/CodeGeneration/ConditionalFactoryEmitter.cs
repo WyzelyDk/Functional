@@ -136,9 +136,30 @@ internal sealed class ConditionalFactoryEmitter(GeneratorProfile profile)
         return condition.Returns == Wrapper.None ? text : text[..^1] + $", in a {condition.Returns.Label()}.";
     }
 
-    private static string Choose(string method, string holds, ErrorForm error) => method == SuccessIf
-        ? $"{holds} ? Success() : Failure({error.Evaluate})"
-        : $"{holds} ? Failure({error.Evaluate}) : Success()";
+    // The lines that return the result for the outcome of the condition. An error that a function creates is put in a local before the failure is built.
+    private static string[] Choose(string method, string holds, ErrorForm error)
+    {
+        if (!error.Lazy)
+        {
+            return method == SuccessIf
+                ? [$"return {holds} ? Success() : Failure({error.Evaluate});"]
+                : [$"return {holds} ? Failure({error.Evaluate}) : Success();"];
+        }
+
+        var ends = method == SuccessIf ? holds : $"!{holds}";
+
+        return
+        [
+            $"if ({ends})",
+            "{",
+            "    return Success();",
+            "}",
+            string.Empty,
+            $"var failure = {error.Evaluate};",
+            string.Empty,
+            "return Failure(failure);",
+        ];
+    }
 
     private static string[] Body(string method, ConditionForm condition, ErrorForm error)
     {
@@ -154,7 +175,7 @@ internal sealed class ConditionalFactoryEmitter(GeneratorProfile profile)
 
         if (condition.Returns == Wrapper.None)
         {
-            lines.Add($"return {Choose(method, condition.Evaluate, error)};");
+            lines.AddRange(Choose(method, condition.Evaluate, error));
 
             return [.. lines];
         }
@@ -169,7 +190,7 @@ internal sealed class ConditionalFactoryEmitter(GeneratorProfile profile)
         lines.Add("{");
         lines.Add($"    var holds = {condition.Evaluate}.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);");
         lines.Add(string.Empty);
-        lines.Add($"    return {Choose(method, "holds", error)};");
+        lines.AddRange(Choose(method, "holds", error).Select(static line => line.Length == 0 ? line : "    " + line));
         lines.Add("}");
 
         return [.. lines];

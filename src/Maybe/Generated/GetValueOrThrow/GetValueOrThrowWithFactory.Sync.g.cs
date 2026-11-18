@@ -31,7 +31,10 @@ public static partial class MaybeExtensions
 
         if (!found)
         {
-            throw Guard.NotNull(exceptionFactory(), nameof(exceptionFactory));
+            var exception = exceptionFactory();
+            Guard.NotNull(exception, nameof(exceptionFactory));
+
+            throw exception;
         }
 
         return input;

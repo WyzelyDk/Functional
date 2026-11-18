@@ -53,7 +53,15 @@ public static partial class MaybeExtensions
             && fifth.Unpack(out var value5))
         {
             var value = selector(value1, value2, value3, value4, value5);
-            return value.HasValue ? new Maybe<TResult>(value.GetValueOrDefault()) : default;
+
+            if (!value.HasValue)
+            {
+                return default;
+            }
+
+            var inner = value.GetValueOrDefault();
+
+            return new Maybe<TResult>(inner);
         }
 
         return default;

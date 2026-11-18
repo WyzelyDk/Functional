@@ -42,7 +42,12 @@ public readonly partial struct Result
         {
             var resolved = await value.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
-            return resolved is null ? Failure<T>(message) : Success<T>(resolved);
+            if (resolved is null)
+            {
+                return Failure<T>(message);
+            }
+
+            return Success<T>(resolved);
         }
     }
 }

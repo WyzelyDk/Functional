@@ -48,7 +48,9 @@ public static partial class MaybeExtensions
             && fourth.Unpack(out var value4)
             && fifth.Unpack(out var value5))
         {
-            return Maybe<TResult>.Of(selector(value1, value2, value3, value4, value5));
+            var combined = selector(value1, value2, value3, value4, value5);
+
+            return Maybe<TResult>.Of(combined);
         }
 
         return default;

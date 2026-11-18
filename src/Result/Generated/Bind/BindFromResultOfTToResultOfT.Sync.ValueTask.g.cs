@@ -37,7 +37,9 @@ public static partial class ResultExtensions
 
         if (failure is not null)
         {
-            return new ValueTask<Result<TResult>>(Result<TResult>.Failed(failure));
+            var done = Result<TResult>.Failed(failure);
+
+            return new ValueTask<Result<TResult>>(done);
         }
 
         return bind(input);

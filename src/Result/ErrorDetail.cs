@@ -55,10 +55,13 @@ public readonly struct ErrorDetail(string name, object? value, bool isSensitive 
     public override bool Equals(object? obj) => obj is ErrorDetail other && Equals(other);
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCodeHelper.Combine(
-        StringComparer.Ordinal.GetHashCode(Name),
-        Value?.GetHashCode() ?? 0,
-        IsSensitive ? 1 : 0);
+    public override int GetHashCode()
+    {
+        var nameHash = StringComparer.Ordinal.GetHashCode(Name);
+        var valueHash = Value?.GetHashCode() ?? 0;
+
+        return HashCodeHelper.Combine(nameHash, valueHash, IsSensitive ? 1 : 0);
+    }
 
     /// <summary>Returns the detail as <c>Name=value</c>, with a sensitive value replaced by <c>***</c>.</summary>
     /// <returns>A redacted, human-readable form of the detail.</returns>

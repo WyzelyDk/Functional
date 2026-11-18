@@ -26,6 +26,11 @@ public readonly partial struct Result
     {
         Guard.NotNull(message, nameof(message));
 
-        return value is null ? Failure<T>(message) : Success<T>(value);
+        if (value is null)
+        {
+            return Failure<T>(message);
+        }
+
+        return Success<T>(value);
     }
 }

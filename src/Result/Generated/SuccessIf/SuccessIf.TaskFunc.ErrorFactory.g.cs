@@ -36,7 +36,14 @@ public readonly partial struct Result
         {
             var holds = await condition().ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
 
-            return holds ? Success() : Failure(errorFactory());
+            if (holds)
+            {
+                return Success();
+            }
+
+            var failure = errorFactory();
+
+            return Failure(failure);
         }
     }
 }

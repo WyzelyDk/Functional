@@ -32,7 +32,9 @@ public static partial class MaybeExtensions
 
         if (first.Unpack(out var value1) && second.Unpack(out var value2) && third.Unpack(out var value3))
         {
-            return Maybe<TResult>.Of(selector(value1, value2, value3));
+            var combined = selector(value1, value2, value3);
+
+            return Maybe<TResult>.Of(combined);
         }
 
         return default;

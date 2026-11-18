@@ -32,7 +32,14 @@ public static partial class MaybeResultExtensions
     {
         Guard.NotNull(error, nameof(error));
 
-        return maybe.TryGetValue(out var value) ? Result.Success(value) : Result.Failure<T>(error());
+        if (maybe.TryGetValue(out var value))
+        {
+            return Result.Success(value);
+        }
+
+        var failure = error();
+
+        return Result.Failure<T>(failure);
     }
 
     /// <summary>Turns the maybe that a task produces into a result: a value becomes a success, and no value becomes a failure with the given error.</summary>
@@ -47,9 +54,14 @@ public static partial class MaybeResultExtensions
         Guard.NotNull(maybe, nameof(maybe));
         Guard.NotNull(error, nameof(error));
 
-        return maybe.Status == TaskStatus.RanToCompletion
-            ? Task.FromResult(maybe.Result.ToResult(error))
-            : maybe.Match(static value => Result.Success(value), () => Result.Failure<T>(error));
+        if (maybe.Status == TaskStatus.RanToCompletion)
+        {
+            var completed = maybe.Result.ToResult(error);
+
+            return Task.FromResult(completed);
+        }
+
+        return maybe.Match(static value => Result.Success(value), () => Result.Failure<T>(error));
     }
 
     /// <summary>Turns the maybe that a task produces into a result, creating the error only when there is no value.</summary>
@@ -64,9 +76,21 @@ public static partial class MaybeResultExtensions
         Guard.NotNull(maybe, nameof(maybe));
         Guard.NotNull(error, nameof(error));
 
-        return maybe.Status == TaskStatus.RanToCompletion
-            ? Task.FromResult(maybe.Result.ToResult(error))
-            : maybe.Match(static value => Result.Success(value), () => Result.Failure<T>(error()));
+        if (maybe.Status == TaskStatus.RanToCompletion)
+        {
+            var completed = maybe.Result.ToResult(error);
+
+            return Task.FromResult(completed);
+        }
+
+        return maybe.Match(static value => Result.Success(value), FailureOf);
+
+        Result<T> FailureOf()
+        {
+            var failure = error();
+
+            return Result.Failure<T>(failure);
+        }
     }
 
     /// <summary>
@@ -77,15 +101,20 @@ public static partial class MaybeResultExtensions
     /// <param name="error">The error of the failed result that is returned when the maybe has no value.</param>
     /// <returns>A value task that produces a successful result with the value, or a failed result with <paramref name="error"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]
+    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
     public static ValueTask<Result<T>> ToResult<T>(this ValueTask<Maybe<T>> maybe, Error error)
         where T : notnull
     {
         Guard.NotNull(error, nameof(error));
 
-        return maybe.IsCompletedSuccessfully
-            ? new ValueTask<Result<T>>(maybe.Result.ToResult(error))
-            : maybe.Match(static value => Result.Success(value), () => Result.Failure<T>(error));
+        if (maybe.IsCompletedSuccessfully)
+        {
+            var completed = maybe.Result.ToResult(error);
+
+            return new ValueTask<Result<T>>(completed);
+        }
+
+        return maybe.Match(static value => Result.Success(value), () => Result.Failure<T>(error));
     }
 
     /// <summary>Turns the maybe that a value task produces into a result, creating the error only when there is no value.</summary>
@@ -96,14 +125,26 @@ public static partial class MaybeResultExtensions
     /// A value task that produces a successful result with the value, or a failed result with the error that <paramref name="error"/> created.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="error"/> is <see langword="null"/>.</exception>
-    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the same expression.")]
+    [SuppressMessage("Sonar", "S5034", Justification = "IsCompletedSuccessfully is checked in the if statement that guards the read.")]
     public static ValueTask<Result<T>> ToResult<T>(this ValueTask<Maybe<T>> maybe, Func<Error> error)
         where T : notnull
     {
         Guard.NotNull(error, nameof(error));
 
-        return maybe.IsCompletedSuccessfully
-            ? new ValueTask<Result<T>>(maybe.Result.ToResult(error))
-            : maybe.Match(static value => Result.Success(value), () => Result.Failure<T>(error()));
+        if (maybe.IsCompletedSuccessfully)
+        {
+            var completed = maybe.Result.ToResult(error);
+
+            return new ValueTask<Result<T>>(completed);
+        }
+
+        return maybe.Match(static value => Result.Success(value), FailureOf);
+
+        Result<T> FailureOf()
+        {
+            var failure = error();
+
+            return Result.Failure<T>(failure);
+        }
     }
 }
