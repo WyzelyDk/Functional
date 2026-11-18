@@ -21,7 +21,17 @@ internal static class SampleData
     // Maybe.From turns the null of a missing email into none.
     internal static Maybe<string> FindEmail(Customer customer) => Maybe.From(customer.Email);
 
-    internal static Task<Maybe<Customer>> FindCustomerAsync(int id) => Task.FromResult(FindCustomer(id));
+    internal static Task<Maybe<Customer>> FindCustomerAsync(int id)
+    {
+        var found = FindCustomer(id);
 
-    internal static ValueTask<Maybe<string>> FindEmailAsync(Customer customer) => new(FindEmail(customer));
+        return Task.FromResult(found);
+    }
+
+    internal static ValueTask<Maybe<string>> FindEmailAsync(Customer customer)
+    {
+        var email = FindEmail(customer);
+
+        return new ValueTask<Maybe<string>>(email);
+    }
 }

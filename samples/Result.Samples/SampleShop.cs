@@ -23,14 +23,7 @@ public static class SampleShop
         [2] = new Customer(2, "Bo", "bo@example.com", IsBlocked: true),
     };
 
-    private static readonly Dictionary<int, Order> Orders = new()
-    {
-        [7] = new Order(7, 1, [new OrderLine("TEA", 2)], IsOpen: true),
-        [8] = new Order(8, 1, [new OrderLine("TEA", 1)], IsOpen: false),
-        [9] = new Order(9, 2, [new OrderLine("TEA", 1)], IsOpen: true),
-        [11] = new Order(11, 1, [new OrderLine("COFFEE", 3)], IsOpen: true),
-        [12] = new Order(12, 1, [new OrderLine("TEA", 1)], IsOpen: true),
-    };
+    private static readonly Dictionary<int, Order> Orders = CreateOrders();
 
     private static readonly Dictionary<string, int> Stock = new() { ["TEA"] = 5, ["COFFEE"] = 1 };
 
@@ -38,15 +31,29 @@ public static class SampleShop
 
     // "Not found" is an ordinary outcome, not an exception. The message is a TEMPLATE: the placeholders are filled from the details,
     // and the template itself stays stable, which is what you group log entries by.
-    public static Result<Customer> FindCustomer(int id) =>
-        Customers.TryGetValue(id, out var customer)
-            ? Result.Success(customer)
-            : Result.Failure<Customer>(Error.NotFound("Customer {CustomerId} was not found.").WithDetail("CustomerId", id));
+    public static Result<Customer> FindCustomer(int id)
+    {
+        if (Customers.TryGetValue(id, out var customer))
+        {
+            return Result.Success(customer);
+        }
 
-    public static Result<Order> FindOrder(int id) =>
-        Orders.TryGetValue(id, out var order)
-            ? Result.Success(order)
-            : Result.Failure<Order>(Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", id));
+        var notFound = Error.NotFound("Customer {CustomerId} was not found.").WithDetail("CustomerId", id);
+
+        return Result.Failure<Customer>(notFound);
+    }
+
+    public static Result<Order> FindOrder(int id)
+    {
+        if (Orders.TryGetValue(id, out var order))
+        {
+            return Result.Success(order);
+        }
+
+        var notFound = Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", id);
+
+        return Result.Failure<Order>(notFound);
+    }
 
     // An operation that produces nothing but "it worked" or "it did not" returns the untyped Result.
     public static Result ReserveStock(Order order)
@@ -57,11 +64,12 @@ public static class SampleShop
 
             if (have < line.Quantity)
             {
-                return Result.Failure(
-                    Error.Conflict("Not enough {Sku} in stock (wanted {Wanted}, have {Have}).")
-                        .WithDetail("Sku", line.Sku)
-                        .WithDetail("Wanted", line.Quantity)
-                        .WithDetail("Have", have));
+                var shortage = Error.Conflict("Not enough {Sku} in stock (wanted {Wanted}, have {Have}).")
+                    .WithDetail("Sku", line.Sku)
+                    .WithDetail("Wanted", line.Quantity)
+                    .WithDetail("Have", have);
+
+                return Result.Failure(shortage);
             }
         }
 
@@ -70,16 +78,31 @@ public static class SampleShop
 
     // Charging a card: a blocked customer is refused (Forbidden), and order 12 meets a payment gateway that is down (Unavailable, which is marked transient:
     // trying again later might work).
-    public static Result<Receipt> Charge(Order order) =>
-        FindCustomer(order.CustomerId)
-            .Ensure(
-                customer => !customer.IsBlocked,
-                Error.Forbidden("Customer {CustomerId} is blocked.").WithDetail("CustomerId", order.CustomerId))
-            .Ensure(_ => order.Id != 12, Error.Unavailable("The payment gateway is unavailable."))
-            .Map(_ => new Receipt("R-" + order.Id, PriceInCents(order)));
+    public static Result<Receipt> Charge(Order order)
+    {
+        var found = FindCustomer(order.CustomerId);
+        var blocked = Error.Forbidden("Customer {CustomerId} is blocked.").WithDetail("CustomerId", order.CustomerId);
+        var unavailable = Error.Unavailable("The payment gateway is unavailable.");
+
+        return found
+            .Ensure(customer => !customer.IsBlocked, blocked)
+            .Ensure(_ => order.Id != 12, unavailable)
+            .Map(_ =>
+            {
+                var amount = PriceInCents(order);
+
+                return new Receipt("R-" + order.Id, amount);
+            });
+    }
 
     // The fallback payment method: it always works in this shop.
-    public static Result<Receipt> Invoice(Order order) => Result.Success(new Receipt("I-" + order.Id, PriceInCents(order)));
+    public static Result<Receipt> Invoice(Order order)
+    {
+        var amount = PriceInCents(order);
+        var receipt = new Receipt("I-" + order.Id, amount);
+
+        return Result.Success(receipt);
+    }
 
     public static async Task<Result<Order>> FindOrderAsync(int id, CancellationToken cancellationToken = default)
     {
@@ -101,6 +124,22 @@ public static class SampleShop
         await Task.Yield();
 
         return Charge(order);
+    }
+
+    private static Dictionary<int, Order> CreateOrders()
+    {
+        OrderLine[] twoTea = [new OrderLine("TEA", 2)];
+        OrderLine[] oneTea = [new OrderLine("TEA", 1)];
+        OrderLine[] threeCoffee = [new OrderLine("COFFEE", 3)];
+
+        return new Dictionary<int, Order>
+        {
+            [7] = new Order(7, 1, twoTea, IsOpen: true),
+            [8] = new Order(8, 1, oneTea, IsOpen: false),
+            [9] = new Order(9, 2, oneTea, IsOpen: true),
+            [11] = new Order(11, 1, threeCoffee, IsOpen: true),
+            [12] = new Order(12, 1, oneTea, IsOpen: true),
+        };
     }
 
     private static int PriceInCents(Order order)

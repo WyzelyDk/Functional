@@ -13,14 +13,22 @@ public static class ConfigurationExample
 
     private static async Task RunAsync(TextWriter output)
     {
+        var missing = Error.NotFound("Missing.");
+        var maybeCompletion = Maybe.Some(1);
+        var resultCompletion = Result.Success(1);
+
         try
         {
             // Each row converts a task that is NOT yet complete, so the library has to await it.
             // We count how often the await posted back to the synchronization context: 1 means "captured the context", 0 means "did not".
-            await RowAsync(output, "Task<Maybe<T>>.ToResult follows Maybe ", maybe => maybe.ToResult(Error.NotFound("Missing.")), Maybe.Some(1));
-            await RowAsync(output, "Task<Result<T>>.ToMaybe follows Result", result => result.ToMaybe(), Result.Success(1));
-            await RowAsync(output, "Task<Maybe<T>>.Filter follows Maybe   ", maybe => maybe.Filter(value => value > 0), Maybe.Some(1));
-            await RowAsync(output, "Task<Result<T>>.Ensure follows Result ", result => result.Ensure(value => value > 0, "Not positive."), Result.Success(1));
+            await RowAsync(output, "Task<Maybe<T>>.ToResult follows Maybe ", maybe => maybe.ToResult(missing), maybeCompletion);
+            await RowAsync(output, "Task<Result<T>>.ToMaybe follows Result", result => result.ToMaybe(), resultCompletion);
+            await RowAsync(output, "Task<Maybe<T>>.Filter follows Maybe   ", maybe => maybe.Filter(value => value > 0), maybeCompletion);
+            await RowAsync(
+                output,
+                "Task<Result<T>>.Ensure follows Result ",
+                result => result.Ensure(value => value > 0, "Not positive."),
+                resultCompletion);
         }
         finally
         {
@@ -29,7 +37,7 @@ public static class ConfigurationExample
         }
 
         // Reset puts both back to the defaults, which is what a test that touched the settings should do.
-        var posts = await CountPostsAsync(maybe => maybe.ToResult(Error.NotFound("Missing.")), Maybe.Some(1));
+        var posts = await CountPostsAsync(maybe => maybe.ToResult(missing), maybeCompletion);
         await output.WriteLineAsync($"Settings restored: {posts == 0}");
     }
 

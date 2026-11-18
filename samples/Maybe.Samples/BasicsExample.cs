@@ -24,18 +24,25 @@ public static class BasicsExample
         // From says "this may be null": a null reference becomes none instead of an exception.
         var missing = default(string);
         var present = (string?)"Ada";
-        output.WriteLine($"Maybe.From(null reference): {Maybe.From(missing)}");
-        output.WriteLine($"Maybe.From(non-null reference): {Maybe.From(present)}");
+        var fromNull = Maybe.From(missing);
+        output.WriteLine($"Maybe.From(null reference): {fromNull}");
+        var fromReference = Maybe.From(present);
+        output.WriteLine($"Maybe.From(non-null reference): {fromReference}");
 
         // From also accepts a nullable value type such as int?.
         int? score = 12;
-        output.WriteLine($"Maybe.From(int? with a value): {Maybe.From(score)}");
+        var fromScore = Maybe.From(score);
+        output.WriteLine($"Maybe.From(int? with a value): {fromScore}");
 
         // SomeIf / NoneIf: a value only when (or unless) a condition holds.
-        output.WriteLine($"Maybe.SomeIf(true, 3): {Maybe.SomeIf(true, 3)}");
-        output.WriteLine($"Maybe.SomeIf(false, 3): {Maybe.SomeIf(false, 3)}");
-        output.WriteLine($"Maybe.NoneIf(true, 3): {Maybe.NoneIf(true, 3)}");
-        output.WriteLine($"Maybe.NoneIf(false, 3): {Maybe.NoneIf(false, 3)}");
+        var someIfTrue = Maybe.SomeIf(true, 3);
+        output.WriteLine($"Maybe.SomeIf(true, 3): {someIfTrue}");
+        var someIfFalse = Maybe.SomeIf(false, 3);
+        output.WriteLine($"Maybe.SomeIf(false, 3): {someIfFalse}");
+        var noneIfTrue = Maybe.NoneIf(true, 3);
+        output.WriteLine($"Maybe.NoneIf(true, 3): {noneIfTrue}");
+        var noneIfFalse = Maybe.NoneIf(false, 3);
+        output.WriteLine($"Maybe.NoneIf(false, 3): {noneIfFalse}");
 
         // The implicit conversion: a plain value converts to a maybe and a null reference becomes none, so "return customer;" works in
         // a method that returns Maybe<Customer>. This is the one implicit conversion in the library, and it is deliberate: null
@@ -50,23 +57,29 @@ public static class BasicsExample
         Maybe<int> unassigned = default;
         output.WriteLine($"default(Maybe<int>) is none: {unassigned.IsNone}");
 
-        output.WriteLine($"Maybe.Some(null) throws: {ExceptionNameOf(() => Maybe.Some(missing!))}");
+        var someNullException = ExceptionNameOf(() => Maybe.Some(missing!));
+        output.WriteLine($"Maybe.Some(null) throws: {someNullException}");
 
         // ---- Reading a maybe the safe way ----------------------------------------------------------------------------------
 
         // TryGetValue is the non-throwing way. It is annotated, so after "if (...)" the compiler knows that name is not null.
         if (some.TryGetValue(out var name))
         {
-            output.WriteLine($"TryGetValue: {name} has {name.Length.ToString(CultureInfo.InvariantCulture)} letters");
+            var letterCount = name.Length.ToString(CultureInfo.InvariantCulture);
+            output.WriteLine($"TryGetValue: {name} has {letterCount} letters");
         }
 
         // ValueOr: the value, or a fallback.
-        output.WriteLine($"ValueOr on a some: {some.ValueOr("nobody")}");
-        output.WriteLine($"ValueOr on a none: {none.ValueOr("nobody")}");
+        var valueOfSome = some.ValueOr("nobody");
+        output.WriteLine($"ValueOr on a some: {valueOfSome}");
+        var valueOfNone = none.ValueOr("nobody");
+        output.WriteLine($"ValueOr on a none: {valueOfNone}");
 
         // Match: handle both cases and get one value out. It is the way to leave a maybe when the two cases need different code.
-        output.WriteLine($"Match on a some: {some.Match(value => $"Hello, {value}", () => "Hello, stranger")}");
-        output.WriteLine($"Match on a none: {none.Match(value => $"Hello, {value}", () => "Hello, stranger")}");
+        var greetingForSome = some.Match(value => $"Hello, {value}", () => "Hello, stranger");
+        output.WriteLine($"Match on a some: {greetingForSome}");
+        var greetingForNone = none.Match(value => $"Hello, {value}", () => "Hello, stranger");
+        output.WriteLine($"Match on a none: {greetingForNone}");
 
         // ---- GetValue: the one reading that can throw ----------------------------------------------------------------------
 
@@ -76,10 +89,12 @@ public static class BasicsExample
         // in your own project the unguarded call below would be a warning.)
         if (some.IsSome)
         {
-            output.WriteLine($"GetValue after an IsSome check: {some.GetValue()}");
+            var guardedValue = some.GetValue();
+            output.WriteLine($"GetValue after an IsSome check: {guardedValue}");
         }
 
-        output.WriteLine($"GetValue on a none throws: {ExceptionNameOf(() => none.GetValue())}");
+        var getValueException = ExceptionNameOf(() => none.GetValue());
+        output.WriteLine($"GetValue on a none throws: {getValueException}");
     }
 
     private static string ExceptionNameOf(Action action)

@@ -18,24 +18,52 @@ public static class AsyncExample
         // where it is printed.
         var maybe = Maybe.Some(1);
 
-        await output.WriteLineAsync($"Maybe receiver, sync delegate: {Is(maybe.Map(n => n + 1))}");
-        await output.WriteLineAsync($"Maybe receiver, Task delegate: {await Is(maybe.Map(n => Task.FromResult(n + 1)))}");
-        await output.WriteLineAsync($"Maybe receiver, ValueTask delegate: {await Is(maybe.Map(n => new ValueTask<int>(n + 1)))}");
+        var maybeSyncMapped = maybe.Map(n => n + 1);
+        var maybeSync = Is(maybeSyncMapped);
+        await output.WriteLineAsync($"Maybe receiver, sync delegate: {maybeSync}");
+        var maybeTaskMapped = maybe.Map(n => Task.FromResult(n + 1));
+        var maybeTask = await Is(maybeTaskMapped);
+        await output.WriteLineAsync($"Maybe receiver, Task delegate: {maybeTask}");
+        var maybeValueTaskMapped = maybe.Map(n => new ValueTask<int>(n + 1));
+        var maybeValueTask = await Is(maybeValueTaskMapped);
+        await output.WriteLineAsync($"Maybe receiver, ValueTask delegate: {maybeValueTask}");
 
-        await output.WriteLineAsync($"Task receiver, sync delegate: {await Is(TaskReceiver(maybe).Map(n => n + 1))}");
-        await output.WriteLineAsync($"Task receiver, Task delegate: {await Is(TaskReceiver(maybe).Map(n => Task.FromResult(n + 1)))}");
-        await output.WriteLineAsync($"Task receiver, ValueTask delegate: {await Is(TaskReceiver(maybe).Map(n => new ValueTask<int>(n + 1)))}");
+        var taskReceiverSync = TaskReceiver(maybe);
+        var taskSyncMapped = taskReceiverSync.Map(n => n + 1);
+        var taskSync = await Is(taskSyncMapped);
+        await output.WriteLineAsync($"Task receiver, sync delegate: {taskSync}");
+        var taskReceiverTask = TaskReceiver(maybe);
+        var taskTaskMapped = taskReceiverTask.Map(n => Task.FromResult(n + 1));
+        var taskTask = await Is(taskTaskMapped);
+        await output.WriteLineAsync($"Task receiver, Task delegate: {taskTask}");
+        var taskReceiverValueTask = TaskReceiver(maybe);
+        var taskValueTaskMapped = taskReceiverValueTask.Map(n => new ValueTask<int>(n + 1));
+        var taskValueTask = await Is(taskValueTaskMapped);
+        await output.WriteLineAsync($"Task receiver, ValueTask delegate: {taskValueTask}");
 
-        await output.WriteLineAsync($"ValueTask receiver, sync delegate: {await Is(ValueTaskReceiver(maybe).Map(n => n + 1))}");
-        await output.WriteLineAsync($"ValueTask receiver, Task delegate: {await Is(ValueTaskReceiver(maybe).Map(n => Task.FromResult(n + 1)))}");
-        await output.WriteLineAsync($"ValueTask receiver, ValueTask delegate: {await Is(ValueTaskReceiver(maybe).Map(n => new ValueTask<int>(n + 1)))}");
+        var valueTaskReceiverSync = ValueTaskReceiver(maybe);
+        var valueTaskSyncMapped = valueTaskReceiverSync.Map(n => n + 1);
+        var valueTaskSync = await Is(valueTaskSyncMapped);
+        await output.WriteLineAsync($"ValueTask receiver, sync delegate: {valueTaskSync}");
+        var valueTaskReceiverTask = ValueTaskReceiver(maybe);
+        var valueTaskTaskMapped = valueTaskReceiverTask.Map(n => Task.FromResult(n + 1));
+        var valueTaskTask = await Is(valueTaskTaskMapped);
+        await output.WriteLineAsync($"ValueTask receiver, Task delegate: {valueTaskTask}");
+        var valueTaskReceiverValueTask = ValueTaskReceiver(maybe);
+        var valueTaskValueTaskMapped = valueTaskReceiverValueTask.Map(n => new ValueTask<int>(n + 1));
+        var valueTaskValueTask = await Is(valueTaskValueTaskMapped);
+        await output.WriteLineAsync($"ValueTask receiver, ValueTask delegate: {valueTaskValueTask}");
 
         // ---- One chain that uses a Task step, a ValueTask step and synchronous steps ------------------------------------------
         // There is exactly one await, where the caller reads the result; none sits between the steps.
-        await output.WriteLineAsync($"Mixed chain, customer 1: {await MailMessageAsync(1)}");
-        await output.WriteLineAsync($"Mixed chain, customer 2 (no email): {await MailMessageAsync(2)}");
-        await output.WriteLineAsync($"Mixed chain, customer 3 (inactive): {await MailMessageAsync(3)}");
-        await output.WriteLineAsync($"Mixed chain, customer 99 (unknown): {await MailMessageAsync(99)}");
+        var messageForAda = await MailMessageAsync(1);
+        await output.WriteLineAsync($"Mixed chain, customer 1: {messageForAda}");
+        var messageForBob = await MailMessageAsync(2);
+        await output.WriteLineAsync($"Mixed chain, customer 2 (no email): {messageForBob}");
+        var messageForCleo = await MailMessageAsync(3);
+        await output.WriteLineAsync($"Mixed chain, customer 3 (inactive): {messageForCleo}");
+        var messageForUnknown = await MailMessageAsync(99);
+        await output.WriteLineAsync($"Mixed chain, customer 99 (unknown): {messageForUnknown}");
 
         // An async lambda converts to both a Task and a ValueTask delegate.
         // The library marks the Task overloads with [OverloadResolutionPriority], so with C# 13 or later this compiles without ambiguity.
@@ -49,7 +77,9 @@ public static class AsyncExample
 
         // A none skips the delegate, including an asynchronous one: it is never called.
         var called = false;
-        _ = await Task.FromResult(Maybe.None<int>()).Map(async number =>
+        var absent = Maybe.None<int>();
+        var absentTask = Task.FromResult(absent);
+        _ = await absentTask.Map(async number =>
         {
             called = true;
             await Task.Yield();

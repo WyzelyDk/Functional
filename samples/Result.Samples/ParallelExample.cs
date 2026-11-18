@@ -32,7 +32,14 @@ public static class ParallelExample
         var found = await Found.SelectInParallel(
             SampleShop.FindOrderAsync,
             maxDegreeOfParallelism: 2);
-        var inOrder = found.Match(orders => string.Join(", ", orders.Select(order => order.Id)), error => error.Message);
+        var inOrder = found.Match(
+            orders =>
+            {
+                var ids = orders.Select(order => order.Id);
+
+                return string.Join(", ", ids);
+            },
+            error => error.Message);
         await output.WriteLineAsync("Values in source order: " + inOrder);
 
         // Two lookups fail. Order 98 is deliberately SLOWER than order 99, yet the errors come back in source order.
@@ -55,18 +62,25 @@ public static class ParallelExample
                 }
             },
             maxDegreeOfParallelism: 2);
-        await output.WriteLineAsync("Errors in source order: " + some.Match(_ => "all found", error => error.Message));
+        var someText = some.Match(_ => "all found", error => error.Message);
+        await output.WriteLineAsync("Errors in source order: " + someText);
         await output.WriteLineAsync($"Lookups attempted: {gauge.Calls}");
         await output.WriteLineAsync($"Never more than 2 at the same time: {gauge.Peak <= 2}");
 
         // ForEachInParallel is for operations that return no value. This one returns a ValueTask<Result>.
         var reserved = await Reservable.ForEachInParallel(
-            (id, token) => new ValueTask<Result>(SampleShop.FindOrder(id).Bind(SampleShop.ReserveStock)));
+            (id, token) =>
+            {
+                var reservation = SampleShop.FindOrder(id).Bind(SampleShop.ReserveStock);
+
+                return new ValueTask<Result>(reservation);
+            });
         await output.WriteLineAsync($"ForEachInParallel (ValueTask): {reserved}");
 
         var notReserved = await ReservableAndShort.ForEachInParallel(
             (id, token) => SampleShop.FindOrderAsync(id, token).Bind(SampleShop.ReserveStock));
-        await output.WriteLineAsync("ForEachInParallel with a failure: " + notReserved.Match(() => "ok", error => error.Message));
+        var notReservedText = notReserved.Match(() => "ok", error => error.Message);
+        await output.WriteLineAsync("ForEachInParallel with a failure: " + notReservedText);
 
         // Cancellation stops the work and surfaces as an exception, not as a failed result.
         using var cancellation = new CancellationTokenSource();
@@ -90,17 +104,21 @@ public static class ParallelExample
         }
         catch (InvalidOperationException exception)
         {
-            await output.WriteLineAsync($"An exception in the operation escapes: {exception.GetType().Name}");
+            var exceptionName = exception.GetType().Name;
+            await output.WriteLineAsync($"An exception in the operation escapes: {exceptionName}");
         }
 
         // ...unless the operation is wrapped in Result.Try, which turns it into a failure of that item.
         var wrapped = await One.SelectInParallel((id, token) => Result.Try(() => ExplodeAsync(id, token)));
-        await output.WriteLineAsync($"Wrapped in Result.Try it becomes a failure: kind {(wrapped.TryGetError(out var error) ? error.Kind : "none")}");
+        var wrappedKind = wrapped.TryGetError(out var error) ? error.Kind.ToString() : "none";
+        await output.WriteLineAsync($"Wrapped in Result.Try it becomes a failure: kind {wrappedKind}");
 
         // Result.Combine also accepts a sequence of tasks: it waits for all of them and reports every failure.
         // Unlike SelectInParallel it does not limit how many run at once; the tasks have already started.
-        var combined = await Result.Combine(OneMissing.Select(id => SampleShop.FindOrderAsync(id)));
-        await output.WriteLineAsync("Combine of tasks: " + combined.Match(_ => "all found", problem => problem.Message));
+        var lookups = OneMissing.Select(id => SampleShop.FindOrderAsync(id));
+        var combined = await Result.Combine(lookups);
+        var combinedText = combined.Match(_ => "all found", problem => problem.Message);
+        await output.WriteLineAsync("Combine of tasks: " + combinedText);
     }
 
     private static async Task<Result<int>> ExplodeAsync(int id, CancellationToken cancellationToken)

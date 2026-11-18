@@ -45,7 +45,8 @@ public static class ConfigurationExample
                 options.CanceledMessage = "Canceled by the user.";
             });
 
-            await output.WriteLineAsync($"ChildSeparator ' | ': {Error.Aggregate([name, email]).Message}");
+            var separatedMessage = Error.Aggregate([name, email]).Message;
+            await output.WriteLineAsync($"ChildSeparator ' | ': {separatedMessage}");
 
             var framed = Error.NotFound("Order {OrderId} was not found.").WithDetail("OrderId", 7).WithContext("Checkout").WithContext("Web");
             await output.WriteLineAsync($"ContextSeparator ' > ': {framed}");
@@ -55,8 +56,10 @@ public static class ConfigurationExample
                 .WithDetail("Customer", "anna@example.com", isSensitive: true);
             await output.WriteLineAsync($"RedactedValue '[hidden]': {secret.RedactedMessage}");
 
-            await output.WriteLineAsync($"AggregateMessage: {Error.Aggregate([name, email]).Template}");
-            await output.WriteLineAsync($"CanceledMessage: {Error.Canceled().Message}");
+            var aggregateTemplate = Error.Aggregate([name, email]).Template;
+            await output.WriteLineAsync($"AggregateMessage: {aggregateTemplate}");
+            var canceledMessage = Error.Canceled().Message;
+            await output.WriteLineAsync($"CanceledMessage: {canceledMessage}");
 
             // The error that was rendered before the change keeps the text it had.
             await output.WriteLineAsync($"An error rendered before the change keeps its text: {early.Message}");
@@ -67,7 +70,8 @@ public static class ConfigurationExample
 
             kept?.ChildSeparator = "!!!";
 
-            await output.WriteLineAsync($"A kept options object changes nothing: {Error.Aggregate([name, email]).Message}");
+            var keptMessage = Error.Aggregate([name, email]).Message;
+            await output.WriteLineAsync($"A kept options object changes nothing: {keptMessage}");
 
             // The default degree of parallelism is used when the caller passes no limit of their own.
             ResultConfiguration.Configure(options => options.DefaultMaxDegreeOfParallelism = 2);
@@ -95,6 +99,7 @@ public static class ConfigurationExample
             ResultConfiguration.Reset();
         }
 
-        await output.WriteLineAsync($"After Reset: {Error.Aggregate([name, email]).Message}");
+        var resetMessage = Error.Aggregate([name, email]).Message;
+        await output.WriteLineAsync($"After Reset: {resetMessage}");
     }
 }

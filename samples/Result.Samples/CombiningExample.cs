@@ -22,61 +22,97 @@ public static class CombiningExample
     {
         // Combine over results without a value: success only when every check succeeded.
         Result[] valid = [ValidateName("Anna"), ValidateEmail("anna@example.com")];
-        output.WriteLine($"Valid signup: {Result.Combine(valid)}");
+        var validSignup = Result.Combine(valid);
+        output.WriteLine($"Valid signup: {validSignup}");
 
         // With failures: ONE failed result that holds both errors, in order.
         Result[] invalid = [ValidateName(string.Empty), ValidateEmail("not an email")];
         var combined = Result.Combine(invalid);
-        output.WriteLine($"Invalid signup: {combined.GetError().Message}");
-        output.WriteLine($"Invalid signup problems: {combined.GetError().Flatten().Count}");
+        var signupError = combined.GetError();
+        output.WriteLine($"Invalid signup: {signupError.Message}");
+
+        var problems = signupError.Flatten();
+        output.WriteLine($"Invalid signup problems: {problems.Count}");
 
         // Combine over results WITH values: one result holding the list of the values, in order.
-        var numbers = Result.Combine(OneTwoThree.Select(Result.Success));
-        output.WriteLine($"Typed combine values: {string.Join(", ", numbers.ValueOr([]))}");
+        var successes = OneTwoThree.Select(Result.Success);
+        var numbers = Result.Combine(successes);
+        var numberValues = numbers.ValueOr([]);
+        var joinedNumbers = string.Join(", ", numberValues);
+        output.WriteLine($"Typed combine values: {joinedNumbers}");
 
-        var orders = Result.Combine(OneMissing.Select(SampleShop.FindOrder));
-        output.WriteLine($"Typed combine with a failure: {orders.Match(_ => "all found", error => error.Message)}");
+        var lookups = OneMissing.Select(SampleShop.FindOrder);
+        var orders = Result.Combine(lookups);
+        var ordersOutcome = orders.Match(_ => "all found", error => error.Message);
+        output.WriteLine($"Typed combine with a failure: {ordersOutcome}");
 
         // Zip: combine a FEW independent values (2 to 5) into a tuple with named elements First, Second, Third...
         // If any of them failed you get the error, or an aggregate of all the errors in argument order.
-        var pair = SampleShop.FindCustomer(1).Zip(SampleShop.FindOrder(7));
-        output.WriteLine("Zip: " + pair.Match(both => $"{both.First.Name} has order {both.Second.Id}", error => error.Message));
+        var existingCustomer = SampleShop.FindCustomer(1);
+        var existingOrder = SampleShop.FindOrder(7);
+        var pair = existingCustomer.Zip(existingOrder);
+        var pairOutcome = pair.Match(both => $"{both.First.Name} has order {both.Second.Id}", error => error.Message);
+        output.WriteLine("Zip: " + pairOutcome);
 
-        var bothFail = SampleShop.FindCustomer(99).Zip(SampleShop.FindOrder(98));
-        output.WriteLine("Zip, both fail: " + bothFail.Match(_ => "ok", error => error.Message));
+        var missingCustomer = SampleShop.FindCustomer(99);
+        var missingOrder = SampleShop.FindOrder(98);
+        var bothFail = missingCustomer.Zip(missingOrder);
+        var bothFailOutcome = bothFail.Match(_ => "ok", error => error.Message);
+        output.WriteLine("Zip, both fail: " + bothFailOutcome);
 
         // Zip with a selector skips the tuple.
-        var label = SampleShop.FindCustomer(1).Zip(SampleShop.FindOrder(7), (customer, order) => $"{customer.Name}/{order.Id}");
-        output.WriteLine($"Zip with a selector: {label.ValueOr("?")}");
+        var label = existingCustomer.Zip(existingOrder, (customer, order) => $"{customer.Name}/{order.Id}");
+        var labelText = label.ValueOr("?");
+        output.WriteLine($"Zip with a selector: {labelText}");
 
         // Three values. The third is just a value here; it can be any result.
-        var three = SampleShop.FindCustomer(1).Zip(SampleShop.FindOrder(7), Result.Success(500));
-        output.WriteLine("Zip of three: " + three.Match(all => $"{all.First.Name}, order {all.Second.Id}, {all.Third} cents", error => error.Message));
+        var price = Result.Success(500);
+        var three = existingCustomer.Zip(existingOrder, price);
+        var threeOutcome = three.Match(all => $"{all.First.Name}, order {all.Second.Id}, {all.Third} cents", error => error.Message);
+        output.WriteLine("Zip of three: " + threeOutcome);
 
-        var twoFail = SampleShop.FindCustomer(99).Zip(SampleShop.FindOrder(98), Result.Success(500));
-        output.WriteLine("Zip of three, two fail: " + twoFail.Match(_ => "ok", error => error.Message));
+        var twoFail = missingCustomer.Zip(missingOrder, price);
+        var twoFailOutcome = twoFail.Match(_ => "ok", error => error.Message);
+        output.WriteLine("Zip of three, two fail: " + twoFailOutcome);
 
         // Partition: keep the successes AND collect the failures, when partial success is fine
         // (for example an import where the good rows are used and the bad rows are reported).
-        var (values, errors) = Mixed.Select(SampleShop.FindOrder).Partition();
+        var mixedLookups = Mixed.Select(SampleShop.FindOrder);
+        var (values, errors) = mixedLookups.Partition();
+        var valueIds = values.Select(order => order.Id);
+        var joinedIds = string.Join(", ", valueIds);
+        var messages = errors.Select(error => error.Message);
+        var joinedMessages = string.Join("; ", messages);
         output.WriteLine(
-            $"Partition: {values.Count} values ({string.Join(", ", values.Select(order => order.Id))}), " +
-            $"{errors.Count} errors ({string.Join("; ", errors.Select(error => error.Message))})");
+            $"Partition: {values.Count} values ({joinedIds}), " +
+            $"{errors.Count} errors ({joinedMessages})");
 
         // LINQ query syntax: the same as Bind, so it STOPS at the first failure.
         // Use it when each step needs the values of the earlier ones, and it reads better than nested lambdas.
         var placed = from customer in SampleShop.FindCustomer(1)
                      from order in SampleShop.FindOrder(7)
                      select $"{customer.Name} placed order {order.Id}";
-        output.WriteLine($"LINQ: {placed.ValueOr("?")}");
+        var placedText = placed.ValueOr("?");
+        output.WriteLine($"LINQ: {placedText}");
 
         var stopped = from customer in SampleShop.FindCustomer(99)
                       from order in SampleShop.FindOrder(98)
                       select customer.Name + "/" + order.Id;
-        output.WriteLine("LINQ stops at the first failure: " + stopped.Match(_ => "ok", error => error.Message));
+        var stoppedOutcome = stopped.Match(_ => "ok", error => error.Message);
+        output.WriteLine("LINQ stops at the first failure: " + stoppedOutcome);
     }
 
-    private static Result ValidateName(string name) => Result.SuccessIf(!string.IsNullOrWhiteSpace(name), "Name is missing.");
+    private static Result ValidateName(string name)
+    {
+        var hasName = !string.IsNullOrWhiteSpace(name);
 
-    private static Result ValidateEmail(string email) => Result.SuccessIf(email.Contains('@', StringComparison.Ordinal), "Email is invalid.");
+        return Result.SuccessIf(hasName, "Name is missing.");
+    }
+
+    private static Result ValidateEmail(string email)
+    {
+        var hasAtSign = email.Contains('@', StringComparison.Ordinal);
+
+        return Result.SuccessIf(hasAtSign, "Email is invalid.");
+    }
 }

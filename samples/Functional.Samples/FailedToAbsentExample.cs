@@ -16,17 +16,25 @@ public static class FailedToAbsentExample
         var directory = new CustomerDirectory();
 
         // The validation: a lookup (Maybe) made into a Result, then a rule on top of it.
-        Result<Customer> Validate(string email) => directory.FindByEmail(email)
-            .ToResult(Error.NotFound("No customer with that email address."))
-            .Ensure(customer => customer.IsActive, Error.Forbidden("The customer is blocked."));
+        Result<Customer> Validate(string email)
+        {
+            var noSuchCustomer = Error.NotFound("No customer with that email address.");
+            var blocked = Error.Forbidden("The customer is blocked.");
+
+            return directory.FindByEmail(email)
+                .ToResult(noSuchCustomer)
+                .Ensure(customer => customer.IsActive, blocked);
+        }
 
         foreach (var email in ShownEmails)
         {
             var result = Validate(email);
             var maybe = result.ToMaybe();
 
-            output.WriteLine($"Result for {email}: {result.Match(customer => $"success {customer.Name}", error => $"failure [{error.Kind}] {error.Message}")}");
-            output.WriteLine($"Maybe for {email}: {maybe.Match(customer => customer.Name, () => "none")}");
+            var resultText = result.Match(customer => $"success {customer.Name}", error => $"failure [{error.Kind}] {error.Message}");
+            var maybeText = maybe.Match(customer => customer.Name, () => "none");
+            output.WriteLine($"Result for {email}: {resultText}");
+            output.WriteLine($"Maybe for {email}: {maybeText}");
         }
 
         // What is dropped: two different failures become the same none. Nothing in the maybe tells them apart.
@@ -38,24 +46,30 @@ public static class FailedToAbsentExample
         // the value comes from code that is not null-aware (the ! below says "trust me", which is how it happens in practice).
         string? nicknameColumn = null;
         var withNull = Result.Success(nicknameColumn!);
-        output.WriteLine($"Success with a null value: IsSuccess is {withNull.IsSuccess}, ToMaybe is none: {withNull.ToMaybe().IsNone}");
+        var nullBecomesNone = withNull.ToMaybe().IsNone;
+        output.WriteLine($"Success with a null value: IsSuccess is {withNull.IsSuccess}, ToMaybe is none: {nullBecomesNone}");
 
         // The usual reason to come back to Maybe: keep what worked and skip the rest. ToMaybe + Choose is "the successes".
         var passed = MailingList
             .Select(email => Validate(email).ToMaybe())
             .Choose()
             .Select(customer => customer.Name);
-        output.WriteLine($"Customers that passed validation: {string.Join(", ", passed)}");
+        var passedNames = string.Join(", ", passed);
+        output.WriteLine($"Customers that passed validation: {passedNames}");
 
         // ToMaybe also exists for Task and ValueTask receivers, so it can end an async chain.
         var fromTask = CustomerNameAsync(directory).GetAwaiter().GetResult();
         output.WriteLine($"From Task<Result<Customer>>: {fromTask}");
     }
 
-    private static async Task<string> CustomerNameAsync(CustomerDirectory directory) =>
-        await directory.FindAsync(1)
-            .ToResult(Error.NotFound("No such customer."))
+    private static async Task<string> CustomerNameAsync(CustomerDirectory directory)
+    {
+        var noSuchCustomer = Error.NotFound("No such customer.");
+
+        return await directory.FindAsync(1)
+            .ToResult(noSuchCustomer)
             .ToMaybe()
             .Map(customer => customer.Name)
             .ValueOr(() => "nobody");
+    }
 }

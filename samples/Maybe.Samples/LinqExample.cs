@@ -9,28 +9,39 @@ public static class LinqExample
 {
     public static void Run(TextWriter output)
     {
-        output.WriteLine($"Query syntax, customer 1: {Describe(1)}");
-        output.WriteLine($"Query syntax, customer 2 (no email): {Describe(2)}");
-        output.WriteLine($"Query syntax, customer 3 (inactive): {Describe(3)}");
+        var customerOne = Describe(1);
+        output.WriteLine($"Query syntax, customer 1: {customerOne}");
+        var customerTwo = Describe(2);
+        output.WriteLine($"Query syntax, customer 2 (no email): {customerTwo}");
+        var customerThree = Describe(3);
+        output.WriteLine($"Query syntax, customer 3 (inactive): {customerThree}");
 
         // Zip: two to five maybes. Without a selector the result is a tuple with named elements (First, Second, ...).
         var customerName = SampleData.FindCustomer(1).Map(customer => customer.Name);
         var quantity = Maybe.Some(3);
-        output.WriteLine($"Zip into a tuple: {customerName.Zip(quantity)}");
+        var pair = customerName.Zip(quantity);
+        output.WriteLine($"Zip into a tuple: {pair}");
 
         // With a selector the values are combined at once; a null that the selector returns becomes none, like in Map.
         var unitPrice = Maybe.Some(4);
-        output.WriteLine($"Zip with a selector: {unitPrice.Zip(quantity, (price, count) => price * count)}");
-        output.WriteLine($"Zip with a missing side: {unitPrice.Zip(Maybe.None<int>(), (price, count) => price * count)}");
+        var total = unitPrice.Zip(quantity, (price, count) => price * count);
+        output.WriteLine($"Zip with a selector: {total}");
+        var missing = Maybe.None<int>();
+        var totalWithMissingSide = unitPrice.Zip(missing, (price, count) => price * count);
+        output.WriteLine($"Zip with a missing side: {totalWithMissingSide}");
 
         // Flatten: Map with a delegate that itself returns a Maybe gives a Maybe<Maybe<T>>; Flatten removes one level.
         var nested = Maybe.Some(1).Map(SampleData.FindCustomer);
-        output.WriteLine($"Flatten: {nested.Flatten().Map(customer => customer.Name)}");
-        output.WriteLine($"Flatten of an inner none: {Maybe.Some(99).Map(SampleData.FindCustomer).Flatten().Map(customer => customer.Name)}");
-        output.WriteLine($"Flatten of an outer none: {Maybe.None<int>().Map(SampleData.FindCustomer).Flatten().Map(customer => customer.Name)}");
+        var flattened = nested.Flatten().Map(customer => customer.Name);
+        output.WriteLine($"Flatten: {flattened}");
+        var innerNone = Maybe.Some(99).Map(SampleData.FindCustomer).Flatten().Map(customer => customer.Name);
+        output.WriteLine($"Flatten of an inner none: {innerNone}");
+        var outerNone = Maybe.None<int>().Map(SampleData.FindCustomer).Flatten().Map(customer => customer.Name);
+        output.WriteLine($"Flatten of an outer none: {outerNone}");
 
         // Flatten is Bind with the identity function, so when you are writing the step yourself, Bind says the same without nesting.
-        output.WriteLine($"Bind says the same without nesting: {Maybe.Some(1).Bind(SampleData.FindCustomer).Map(customer => customer.Name)}");
+        var bound = Maybe.Some(1).Bind(SampleData.FindCustomer).Map(customer => customer.Name);
+        output.WriteLine($"Bind says the same without nesting: {bound}");
     }
 
     private static Maybe<string> Describe(int customerId) =>

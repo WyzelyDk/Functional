@@ -36,7 +36,8 @@ public static class RailwayExample
         }
 
         // Map: transform the value. A failure passes through untouched, and the lambda is not called.
-        output.WriteLine("Map: " + SampleShop.FindCustomer(1).Map(customer => customer.Name).ValueOr("?"));
+        var customerName = SampleShop.FindCustomer(1).Map(customer => customer.Name).ValueOr("?");
+        output.WriteLine("Map: " + customerName);
 
         // TapError: look at a failure without changing it, typically to log it. It sits BEFORE any MapError here,
         // so it sees the original error.
@@ -45,11 +46,13 @@ public static class RailwayExample
         // MapError: replace the error. Here a lookup failure becomes a validation failure for the user.
         var mapped = SampleShop.FindCustomer(99)
             .MapError(error => error.Kind == ErrorKind.NotFound ? Error.Validation("Unknown customer.") : error);
-        output.WriteLine("MapError: " + mapped.Match(_ => "found", error => $"{error.Message} ({error.Kind})"));
+        var mappedOutcome = mapped.Match(_ => "found", error => $"{error.Message} ({error.Kind})");
+        output.WriteLine("MapError: " + mappedOutcome);
 
         // OrElse with a value: a failure becomes a success with a replacement VALUE. Use it for defaults.
         var guest = SampleShop.FindCustomer(99).OrElse(_ => new Customer(0, "Guest", string.Empty, IsBlocked: false));
-        output.WriteLine("OrElse with a value: " + guest.Match(customer => customer.Name, error => error.Message));
+        var guestOutcome = guest.Match(customer => customer.Name, error => error.Message);
+        output.WriteLine("OrElse with a value: " + guestOutcome);
 
         // OrElse with an operation: a failure triggers an alternative OPERATION, which can itself fail.
         // Only a transient failure is taken over here (the gateway is down); a blocked customer stays a failure.
@@ -58,20 +61,25 @@ public static class RailwayExample
             var paid = SampleShop.FindOrder(orderId).Bind(order => SampleShop.Charge(order).OrElse(
                 error => error.IsTransient ? SampleShop.Invoice(order) : Result.Failure<Receipt>(error)));
 
-            output.WriteLine($"OrElse with an operation, order {orderId}: " + paid.Match(receipt => receipt.Number, error => error.Message));
+            var paidOutcome = paid.Match(receipt => receipt.Number, error => error.Message);
+            output.WriteLine($"OrElse with an operation, order {orderId}: " + paidOutcome);
         }
 
         // Ensure with a message instead of an Error: a quick validation of the value.
-        var empty = Result.Success(new Order(20, 1, [], IsOpen: true)).Ensure(order => order.Lines.Count > 0, "The order has no lines.");
-        output.WriteLine("Ensure with a message: " + empty.Match(_ => "ok", error => error.Message));
+        var emptyOrder = new Order(20, 1, [], IsOpen: true);
+        var empty = Result.Success(emptyOrder).Ensure(order => order.Lines.Count > 0, "The order has no lines.");
+        var emptyOutcome = empty.Match(_ => "ok", error => error.Message);
+        output.WriteLine("Ensure with a message: " + emptyOutcome);
 
         // Ensure with an operation: validate with an operation that returns a Result, and KEEP the original value.
         // Compare with Bind(ReserveStock), which would replace the value with what ReserveStock returns (nothing).
         var reservedOrder = SampleShop.FindOrder(7).Ensure(SampleShop.ReserveStock).Map(order => order.Id);
-        output.WriteLine($"Ensure with an operation keeps the order: {reservedOrder.ValueOr(-1)}");
+        var reservedId = reservedOrder.ValueOr(-1);
+        output.WriteLine($"Ensure with an operation keeps the order: {reservedId}");
 
         // Bind into an untyped Result: the chain simply continues with a result that has no value.
-        output.WriteLine($"Bind to an untyped result: {SampleShop.FindOrder(7).Bind(SampleShop.ReserveStock)}");
+        var untyped = SampleShop.FindOrder(7).Bind(SampleShop.ReserveStock);
+        output.WriteLine($"Bind to an untyped result: {untyped}");
 
         // Switch: leave the railway for side effects only.
         SampleShop.FindOrder(99).Switch(
@@ -80,15 +88,22 @@ public static class RailwayExample
 
         // Flatten: a Result<Result<T>> becomes a Result<T>. It appears when a Map delegate returns a Result (use Bind to avoid that),
         // or when you meet a nested result from somewhere else.
-        var nested = Result.Success(Result.Success(5));
-        output.WriteLine($"Flatten: {nested.Flatten()}");
+        var inner = Result.Success(5);
+        var nested = Result.Success(inner);
+        var flattened = nested.Flatten();
+        output.WriteLine($"Flatten: {flattened}");
     }
 
-    private static Result<Receipt> Checkout(int orderId, TextWriter output) =>
-        SampleShop.FindOrder(orderId)
-            .Ensure(order => order.IsOpen, Error.Conflict("The order is closed."))
+    private static Result<Receipt> Checkout(int orderId, TextWriter output)
+    {
+        var found = SampleShop.FindOrder(orderId);
+        var closed = Error.Conflict("The order is closed.");
+
+        return found
+            .Ensure(order => order.IsOpen, closed)
             .Ensure(SampleShop.ReserveStock)
             .Bind(SampleShop.Charge)
             .Tap(receipt => output.WriteLine($"Tap: logged receipt {receipt.Number}"))
             .MapError(error => error.WithContext("Checkout"));
+    }
 }

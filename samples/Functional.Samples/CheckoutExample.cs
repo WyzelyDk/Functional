@@ -48,9 +48,11 @@ public static class CheckoutExample
     private static async Task<string> CheckoutAsync(string email, (string Sku, int Quantity)[] lines, List<string> log)
     {
         // Maybe<Customer>, made a Result, with a rule on top.
+        var noSuchCustomer = Error.NotFound("No customer with that email address.");
+        var blocked = Error.Forbidden("The customer is blocked.");
         var customer = Customers.GetValueOrNone(email)
-            .ToResult(Error.NotFound("No customer with that email address."))
-            .Ensure(found => found.IsActive, Error.Forbidden("The customer is blocked."));
+            .ToResult(noSuchCustomer)
+            .Ensure(found => found.IsActive, blocked);
 
         // A Maybe<int> per line, made a Result<int>; Combine reports every unknown product, not just the first.
         var total = lines
@@ -67,7 +69,11 @@ public static class CheckoutExample
             .Zip(total, (who, amount) => (Customer: who, Amount: amount))
             .Bind(order => ChargeAsync(order.Customer, order.Amount))
             .MapError(error => error.WithContext("Checkout"))
-            .TapError(error => log.Add(error.ToRedactedString()))
+            .TapError(error =>
+            {
+                var redacted = error.ToRedactedString();
+                log.Add(redacted);
+            })
             .Match(
                 receipt => $"Paid {receipt}",
                 error => $"Rejected [{error.Kind}] {error}{(error.IsTransient ? " (retry later)" : string.Empty)}");
@@ -77,9 +83,16 @@ public static class CheckoutExample
     {
         await Task.Yield();
 
-        return customer.Email.StartsWith("alan", StringComparison.Ordinal)
-            ? Result.Failure<string>(Error.Unavailable("The payment gateway did not answer."))
-            : Result.Success($"R-{customer.Email.Split('@')[0]} for {amount.ToString(CultureInfo.InvariantCulture)}");
+        if (customer.Email.StartsWith("alan", StringComparison.Ordinal))
+        {
+            var unavailable = Error.Unavailable("The payment gateway did not answer.");
+
+            return Result.Failure<string>(unavailable);
+        }
+
+        var receipt = $"R-{customer.Email.Split('@')[0]} for {amount.ToString(CultureInfo.InvariantCulture)}";
+
+        return Result.Success(receipt);
     }
 
     private sealed record Customer(string Email, bool IsActive);

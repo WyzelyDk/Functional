@@ -19,41 +19,88 @@ int[] oneTwoThree = [1, 2, 3];
 Result<int>[] oneAndTwo = [Result.Success(1), Result.Success(2)];
 var someOne = Maybe.Some(1);
 var someOneAgain = Maybe.Some(1);
+var noneInt = Maybe.None<int>();
 
 // Maybe: sync, Task and ValueTask receivers, all kinds of delegate.
 var maybe = Maybe.Some(20).Map(static x => x + 1).Filter(static x => x > 5).Bind(static x => Maybe.Some(x * 2));
-Check("maybe sync", maybe.GetValue() == 42);
+var maybeValue = maybe.GetValue();
+Check("maybe sync", maybeValue == 42);
 
-var maybeAsync = await Task.FromResult(Maybe.Some("a"))
+var someA = Maybe.Some("a");
+var maybeAsync = await Task.FromResult(someA)
     .Map(static async s =>
     {
         await Task.Yield();
 
         return s + "b";
     })
-    .Bind(static s => new ValueTask<Maybe<string>>(Maybe.Some(s + "c")));
-Check("maybe async", maybeAsync.GetValue() == "abc");
-Check("maybe none stays none", (await Task.FromResult(Maybe.None<string>()).Map(static s => s + "!")).IsNone);
-Check("maybe nullable struct", Maybe.Some(1).Map(static _ => (int?)null).IsNone);
-Check("maybe flatten", Maybe.Some(Maybe.Some(1)).Flatten().GetValue() == 1);
-Check("maybe zip5", Maybe.Some(1).Zip(Maybe.Some(2), Maybe.Some(3), Maybe.Some(4), Maybe.Some(5)).GetValue() == (1, 2, 3, 4, 5));
-Check("maybe lookups", threeAndFour.FirstOrNone(static x => x > 3).GetValue() == 4);
-Check("maybe text", Maybe.Some(7).ToString() == "Some(7)" && Maybe.None<int>().ToString() == "None");
-Check("maybe equality and order", someOne == someOneAgain && someOne.CompareTo(Maybe.None<int>()) > 0);
-Check("maybe linq", (from a in Maybe.Some(1) from b in Maybe.Some(2) select a + b).GetValue() == 3);
+    .Bind(static s =>
+    {
+        var someText = Maybe.Some(s + "c");
+
+        return new ValueTask<Maybe<string>>(someText);
+    });
+var maybeAsyncValue = maybeAsync.GetValue();
+Check("maybe async", maybeAsyncValue == "abc");
+
+var noneText = Maybe.None<string>();
+var stillNone = await Task.FromResult(noneText).Map(static s => s + "!");
+Check("maybe none stays none", stillNone.IsNone);
+
+var mappedToNull = Maybe.Some(1).Map(static _ => (int?)null);
+Check("maybe nullable struct", mappedToNull.IsNone);
+
+var nestedMaybe = Maybe.Some(someOne);
+var flattenedMaybeValue = nestedMaybe.Flatten().GetValue();
+Check("maybe flatten", flattenedMaybeValue == 1);
+
+var someTwo = Maybe.Some(2);
+var someThree = Maybe.Some(3);
+var someFour = Maybe.Some(4);
+var someFive = Maybe.Some(5);
+var zippedValues = Maybe.Some(1).Zip(someTwo, someThree, someFour, someFive).GetValue();
+Check("maybe zip5", zippedValues == (1, 2, 3, 4, 5));
+
+var firstOverThree = threeAndFour.FirstOrNone(static x => x > 3).GetValue();
+Check("maybe lookups", firstOverThree == 4);
+
+var someSevenText = Maybe.Some(7).ToString();
+var noneIntText = noneInt.ToString();
+Check("maybe text", someSevenText == "Some(7)" && noneIntText == "None");
+
+var comparison = someOne.CompareTo(noneInt);
+Check("maybe equality and order", someOne == someOneAgain && comparison > 0);
+
+var linqSum = (from a in Maybe.Some(1) from b in Maybe.Some(2) select a + b).GetValue();
+Check("maybe linq", linqSum == 3);
 
 // Result: errors, railway, async, combine, parallel, try.
-var result = Result.Success(2).Map(static x => x * 10).Ensure(static x => x > 5, Error.Validation("small")).Bind(static x => Result.Success(x + 1));
-Check("result sync", result.GetValue() == 21);
+var smallError = Error.Validation("small");
+var result = Result.Success(2).Map(static x => x * 10).Ensure(static x => x > 5, smallError).Bind(static x => Result.Success(x + 1));
+var resultValue = result.GetValue();
+Check("result sync", resultValue == 21);
 
-var failed = await Task.FromResult(Result.Success(1)).Ensure(static x => x > 5, Error.Conflict("c")).MapError(static e => e.WithContext("ctx"));
-Check("result failure", failed.GetError().ToString() == "ctx: c");
+var successOne = Result.Success(1);
+var conflict = Error.Conflict("c");
+var failed = await Task.FromResult(successOne).Ensure(static x => x > 5, conflict).MapError(static e => e.WithContext("ctx"));
+var failedText = failed.GetError().ToString();
+Check("result failure", failedText == "ctx: c");
 
-var aggregate = Result.Success(1).Zip(Result.Failure<int>("e1"), Result.Failure<int>("e2"));
-Check("result aggregate", aggregate.GetError().IsAggregate && aggregate.GetError().Children.Count == 2);
-Check("result combine", oneAndTwo.Combine().GetValue().Count == 2);
-Check("result try", Result.Try(static () => int.Parse("x", CultureInfo.InvariantCulture)).IsFailure);
-Check("result redaction", new ErrorDetail("pw", "secret", isSensitive: true).ToString() == "pw=***");
+var failureOne = Result.Failure<int>("e1");
+var failureTwo = Result.Failure<int>("e2");
+var aggregate = Result.Success(1).Zip(failureOne, failureTwo);
+var aggregateError = aggregate.GetError();
+Check("result aggregate", aggregateError.IsAggregate && aggregateError.Children.Count == 2);
+
+var combined = oneAndTwo.Combine().GetValue();
+Check("result combine", combined.Count == 2);
+
+var parsed = Result.Try(static () => int.Parse("x", CultureInfo.InvariantCulture));
+Check("result try", parsed.IsFailure);
+
+var secretDetail = new ErrorDetail("pw", "secret", isSensitive: true);
+var secretText = secretDetail.ToString();
+Check("result redaction", secretText == "pw=***");
 
 var parallel = await oneTwoThree.SelectInParallel(static async (x, _) =>
 {
@@ -61,18 +108,34 @@ var parallel = await oneTwoThree.SelectInParallel(static async (x, _) =>
 
     return Result.Success(x * 2);
 });
-Check("result parallel", parallel.GetValue().Sum() == 12);
-Check("result flatten", Result.Success(Result.Success(1)).Flatten().GetValue() == 1);
+var parallelSum = parallel.GetValue().Sum();
+Check("result parallel", parallelSum == 12);
+
+var nestedResult = Result.Success(successOne);
+var flattenedResultValue = nestedResult.Flatten().GetValue();
+Check("result flatten", flattenedResultValue == 1);
 
 // Interop in the umbrella package.
-Check("interop to result", Maybe.None<int>().ToResult(Error.NotFound("n")).GetError().Kind == ErrorKind.NotFound);
-Check("interop async", (await Task.FromResult(Maybe.Some(3)).ToResult(Error.NotFound("n"))).GetValue() == 3);
-Check("interop to maybe", Result.Failure<int>("x").ToMaybe().IsNone);
-Check(
-    "interop inverted",
-    Maybe.Some(1).ToInvertedResult(Error.Conflict("taken")).IsFailure && Maybe.None<int>().ToInvertedResult(Error.Conflict("taken")).IsSuccess);
-var invertedAsync = await Task.FromResult(Maybe.Some(1)).ToInvertedResult(static id => Error.Conflict($"{id} exists"));
-Check("interop inverted async", invertedAsync.GetError().Message == "1 exists");
+var notFound = Error.NotFound("n");
+var missing = noneInt.ToResult(notFound);
+var missingKind = missing.GetError().Kind;
+Check("interop to result", missingKind == ErrorKind.NotFound);
+
+var converted = await Task.FromResult(someThree).ToResult(notFound);
+var convertedValue = converted.GetValue();
+Check("interop async", convertedValue == 3);
+
+var asMaybe = Result.Failure<int>("x").ToMaybe();
+Check("interop to maybe", asMaybe.IsNone);
+
+var taken = Error.Conflict("taken");
+var invertedSome = someOne.ToInvertedResult(taken);
+var invertedNone = noneInt.ToInvertedResult(taken);
+Check("interop inverted", invertedSome.IsFailure && invertedNone.IsSuccess);
+
+var invertedAsync = await Task.FromResult(someOne).ToInvertedResult(static id => Error.Conflict($"{id} exists"));
+var invertedMessage = invertedAsync.GetError().Message;
+Check("interop inverted async", invertedMessage == "1 exists");
 
 // The operations added after the first release.
 NewOperations.Railway(Check);
@@ -86,9 +149,13 @@ MaybeConfiguration.Configure(static o =>
     o.SomeFormat = "Just {0}";
     o.NoneText = "Nothing";
 });
-Check("maybe settings", Maybe.Some(1).ToString() == "Just 1" && Maybe.None<int>().ToString() == "Nothing");
+var justText = someOne.ToString();
+var nothingText = noneInt.ToString();
+Check("maybe settings", justText == "Just 1" && nothingText == "Nothing");
+
 ResultConfiguration.Configure(static o => o.ContextSeparator = " > ");
-Check("result settings", Error.Create("m").WithContext("c").ToString() == "c > m");
+var contextText = Error.Create("m").WithContext("c").ToString();
+Check("result settings", contextText == "c > m");
 
 // Misuse throws the documented exceptions.
 try
@@ -103,7 +170,8 @@ catch (InvalidOperationException)
 
 Check("default result is a success", default(Result<int>).IsSuccess);
 
-await Console.Out.WriteLineAsync(Summarize(failures));
+var summary = Summarize(failures);
+await Console.Out.WriteLineAsync(summary);
 
 return failures.Count;
 

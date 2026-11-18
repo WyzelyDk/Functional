@@ -48,8 +48,15 @@ internal sealed class PaymentGateway
         Calls++;
         await Task.Yield();
 
-        return customer.Id == 5
-            ? Result.Failure<Receipt>(Error.Unavailable("The payment gateway did not answer."))
-            : Result.Success(new Receipt($"R-{customer.Id}", amount));
+        if (customer.Id == 5)
+        {
+            var unavailable = Error.Unavailable("The payment gateway did not answer.");
+
+            return Result.Failure<Receipt>(unavailable);
+        }
+
+        var receipt = new Receipt($"R-{customer.Id}", amount);
+
+        return Result.Success(receipt);
     }
 }
