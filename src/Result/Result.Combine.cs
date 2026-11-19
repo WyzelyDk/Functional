@@ -78,15 +78,15 @@ public readonly partial struct Result
     /// <param name="results">The value tasks that produce the results. They should already be running.</param>
     /// <returns>A value task that produces the combined result. See <see cref="Combine(IEnumerable{Result})"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is <see langword="null"/>.</exception>
-    /// <remarks>Every value task is awaited exactly once, so none is left unobserved even when another one throws.</remarks>
+    /// <remarks>
+    /// Every value task is consumed exactly once, so none is left unobserved even when another one throws.
+    /// A value task that has already completed is read as it is, without making a <see cref="Task"/> for it.
+    /// </remarks>
     public static ValueTask<Result> Combine(IEnumerable<ValueTask<Result>> results)
     {
         Guard.NotNull(results, nameof(results));
 
-        var tasks = results.Select(task => task.AsTask());
-        var combined = Combine(tasks);
-
-        return new ValueTask<Result>(combined);
+        return CombineValueTasks<Result, Result>(results, CombineCore);
     }
 
     /// <summary>Waits for all value tasks and combines their results, which carry a value, into one result that carries the list of the values.</summary>
@@ -94,16 +94,86 @@ public readonly partial struct Result
     /// <param name="results">The value tasks that produce the results. They should already be running.</param>
     /// <returns>A value task that produces the combined result. See <see cref="Combine{T}(IEnumerable{Result{T}})"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is <see langword="null"/>.</exception>
-    /// <remarks>Every value task is awaited exactly once, so none is left unobserved even when another one throws.</remarks>
+    /// <remarks>
+    /// Every value task is consumed exactly once, so none is left unobserved even when another one throws.
+    /// A value task that has already completed is read as it is, without making a <see cref="Task"/> for it.
+    /// </remarks>
     public static ValueTask<Result<IReadOnlyList<T>>> Combine<T>(IEnumerable<ValueTask<Result<T>>> results)
     {
         Guard.NotNull(results, nameof(results));
 
-        var tasks = results.Select(task => task.AsTask());
-        var combined = Combine(tasks);
-
-        return new ValueTask<Result<IReadOnlyList<T>>>(combined);
+        return CombineValueTasks<Result<T>, Result<IReadOnlyList<T>>>(results, CombineCore);
     }
+
+    // A value task that has already completed successfully is read as it is, so that no Task is made for it; only the others become tasks,
+    // and the call waits for those alone. Every value task is consumed once. An exception of the sequence ends up in the returned task, as it does
+    // for a sequence of tasks.
+    private static ValueTask<TCombined> CombineValueTasks<TResult, TCombined>(
+        IEnumerable<ValueTask<TResult>> results,
+        Func<List<TResult>, TCombined> combine)
+    {
+        try
+        {
+            var capacity = CapacityOf(results);
+            var slots = new List<TResult>(capacity);
+            List<(int Index, Task<TResult> Task)>? pending = null;
+
+            foreach (var valueTask in results)
+            {
+                if (valueTask.IsCompletedSuccessfully)
+                {
+                    slots.Add(valueTask.Result);
+                    continue;
+                }
+
+                pending ??= [];
+                var task = valueTask.AsTask();
+                pending.Add((slots.Count, task));
+                slots.Add(default!);
+            }
+
+            if (pending is null)
+            {
+                var combined = combine(slots);
+
+                return new ValueTask<TCombined>(combined);
+            }
+
+            var finishing = FinishAsync(slots, pending, combine);
+
+            return new ValueTask<TCombined>(finishing);
+        }
+        catch (Exception exception)
+        {
+            var faulted = Task.FromException<TCombined>(exception);
+
+            return new ValueTask<TCombined>(faulted);
+        }
+    }
+
+    private static async Task<TCombined> FinishAsync<TResult, TCombined>(
+        List<TResult> slots,
+        List<(int Index, Task<TResult> Task)> pending,
+        Func<List<TResult>, TCombined> combine)
+    {
+        var tasks = new Task[pending.Count];
+
+        for (var position = 0; position < tasks.Length; position++)
+        {
+            tasks[position] = pending[position].Task;
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+
+        foreach (var (index, task) in pending)
+        {
+            slots[index] = await task.ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
+        }
+
+        return combine(slots);
+    }
+
+    private static int CapacityOf<TItem>(IEnumerable<TItem> items) => items is ICollection<TItem> collection ? collection.Count : 0;
 
     private static Result CombineCore(IEnumerable<Result> results)
     {
