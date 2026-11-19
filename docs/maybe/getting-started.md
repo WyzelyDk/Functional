@@ -85,6 +85,7 @@ The reasoning is in [Design decisions](design-decisions.md#an-implicit-conversio
 | `Any(predicate)` | whether there is a value that satisfies the predicate (`false` for none) |
 | `All(predicate)` | whether there is no value, or the value satisfies the predicate (`true` for none) |
 | `Contains(value)` | whether there is a value equal to `value`, with the default equality of the type |
+| `Contains(value, comparer)` | the same, comparing with your own `IEqualityComparer<T>` |
 | `ToEnumerable()` | a sequence of zero or one values |
 | `AsNullable()` | for a maybe of a value type: the value as a `T?`, or `null` |
 
@@ -112,6 +113,23 @@ none.ToString();                          // "None"
 
 Two somes are equal when their values are, and two nones are always equal. None sorts before every some, and somes sort by their values.
 `ToString()` never throws; its text, and whether it shows the value at all, are [settings](configuration.md).
+
+Values are compared with the default equality of their type. To use your own, pass a comparer to `Equals`, `GetHashCode`, `CompareTo` or `Contains`,
+or create one for a collection with `Maybe.CreateEqualityComparer` and `Maybe.CreateComparer`:
+
+```csharp
+var names = new HashSet<Maybe<string>>(Maybe.CreateEqualityComparer<string>(StringComparer.OrdinalIgnoreCase))
+{
+    Maybe.Some("Ada"),
+    Maybe.Some("ADA"),
+};
+
+names.Count;                                                         // 1
+Maybe.Some("Ada").Contains("ADA", StringComparer.OrdinalIgnoreCase); // true
+```
+
+Name the type argument of `CreateEqualityComparer` and `CreateComparer` when the comparer is a `StringComparer`:
+it compares `string?`, so the compiler would infer `Maybe<string?>`, which violates `where T : notnull` (`CS8714`).
 
 On a `net11.0` build, a maybe is also a C# 15 union of its value and `null`,
 so `maybe switch { int value => ..., null => ... }` needs no discard arm ([C# 15 unions](unions.md)).

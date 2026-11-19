@@ -204,6 +204,23 @@ public sealed class ReadmeExamplesTests : IDisposable
 
     // docs/maybe/getting-started.md
     [Fact]
+    internal void GettingStartedComparers_snippet_compares_names_ignoring_case()
+    {
+        var names = new HashSet<Maybe<string>>(Maybe.CreateEqualityComparer<string>(StringComparer.OrdinalIgnoreCase))
+        {
+            Maybe.Some("Ada"),
+            Maybe.Some("ADA"),
+        };
+
+        var contains = Maybe.Some("Ada").Contains("ADA", StringComparer.OrdinalIgnoreCase);
+
+        Assert.Multiple(
+            () => Assert.Single(names),
+            () => Assert.True(contains));
+    }
+
+    // docs/maybe/getting-started.md
+    [Fact]
     internal void GettingStartedQuickStart_welcomes_an_adult_and_turns_everyone_else_away()
     {
         static string Welcome(string text) => ParseAge(text)

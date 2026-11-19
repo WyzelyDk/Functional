@@ -68,6 +68,13 @@ A value and an `Error` also convert to a result implicitly, see [Implicit conver
 | `ThrowIfFailure()` | leave the railway as an exception |
 | `ToResult()` / implicit conversion | drop the value of a `Result<T>` |
 
+Values are compared with the default equality of their type. To use your own, pass a comparer to `Equals` or `GetHashCode`,
+or create one for a collection with `Result.CreateEqualityComparer`. The comparer applies to the values of successes; errors compare as they always do.
+
+```csharp
+var same = Result.Success("Ada").Equals(Result.Success("ADA"), StringComparer.OrdinalIgnoreCase);   // true
+```
+
 ### Implicit conversions
 
 Like a C# 15 union, on every target framework:
