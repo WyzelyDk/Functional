@@ -41,6 +41,18 @@ public static class EqualityExample
         var secondHashCode = second.GetHashCode();
         output.WriteLine($"Equal values have equal hash codes: {firstHashCode == secondHashCode}");
 
+        // Your own equality: pass a comparer for the values, or create one for a collection.
+        var ada = Maybe.Some("Ada");
+        var loudAda = Maybe.Some("ADA");
+        var ignoreCase = StringComparer.OrdinalIgnoreCase;
+        var sameIgnoringCase = ada.Equals(loudAda, ignoreCase);
+        output.WriteLine($"Equal ignoring case: {sameIgnoringCase}");
+        var containsIgnoringCase = ada.Contains("ADA", ignoreCase);
+        output.WriteLine($"Contains ignoring case: {containsIgnoringCase}");
+        var namesComparer = Maybe.CreateEqualityComparer<string>(ignoreCase);
+        var names = new HashSet<Maybe<string>>(namesComparer) { ada, loudAda };
+        output.WriteLine($"Distinct names ignoring case: {names.Count}");
+
         // Formatting: the text is a setting (see ConfigurationExample), and the default is Some(value) and None.
         Maybe<int> unassigned = default;
         output.WriteLine($"ToString of a some: {five}");

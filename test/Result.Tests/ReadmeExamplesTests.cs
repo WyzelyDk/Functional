@@ -6,6 +6,14 @@ namespace Wyzely.Functional.ResultTests;
 public sealed class ReadmeExamplesTests
 {
     [Fact]
+    internal void The_comparer_example_compares_successes_ignoring_case()
+    {
+        var same = Result.Success("Ada").Equals(Result.Success("ADA"), StringComparer.OrdinalIgnoreCase);
+
+        Assert.True(same);
+    }
+
+    [Fact]
     internal void The_quick_start_example_works()
     {
         var message = ParseAge("42")

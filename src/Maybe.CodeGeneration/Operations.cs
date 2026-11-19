@@ -30,6 +30,13 @@ internal static class Operations
     private const string IfFound = "if (found)";
     private const string TapNoneName = "tapNone";
     private const string AlternativeName = "alternative";
+
+    // Two numbers are equal for this comparer when they have the same last digit; it shows that the comparer decides and not the default equality.
+    private const string TensComparer = "EqualityComparer<int>.Create(static (left, right) => left % 10 == right % 10)";
+
+    private const string ThrowingComparer =
+        "EqualityComparer<int>.Create(static (_, _) => throw new InvalidOperationException(\"The comparer must not be asked.\"))";
+
     private const string ReplacementFactoryName = "replacementFactory";
     private const string FallbackName = "fallback";
     private const string FallbackFactoryName = "fallbackFactory";
@@ -59,6 +66,7 @@ internal static class Operations
         Quantifier(all: false),
         Quantifier(all: true),
         Contains(),
+        ContainsWithComparer(),
         Tap(),
         TapNone(),
         OrElse(),
@@ -376,6 +384,54 @@ internal static class Operations
             Case("returns_true_when_the_value_equals_the_given_value", SomeOfTwo, [], [AssertTrueOutcome], extraArguments: ["2"]),
             Case("returns_false_when_the_value_differs_from_the_given_value", SomeOfTwo, [], [AssertFalseOutcome], extraArguments: ["3"]),
             Case("returns_false_when_the_receiver_has_no_value", NoneOfInt, [], [AssertFalseOutcome], extraArguments: ["2"]),
+        ],
+    };
+
+    private static OperationSpec ContainsWithComparer() => new()
+    {
+        Stem = "ContainsWithComparer",
+        Name = "Contains",
+        ReceiverType = MaybeOfT,
+        ReceiverTestType = MaybeOfInt,
+        ReceiverDescription = MaybeReceiverDescription,
+        TypeParameters = ["T"],
+        TypeParameterDocs = [new("T", TDoc)],
+        NotNull = ["T"],
+        Summary = "Leaves the railway: returns whether a maybe has a value that equals the given value, compared with the given comparer.",
+        ExtraParameters =
+        [
+            new("T", "value", "The value to look for.", Validated: false),
+            new("IEqualityComparer<T>", "comparer", "Decides whether the value of the maybe equals <paramref name=\"value\"/>."),
+        ],
+        ReturnType = "bool",
+        ReturnDescription = "<see langword=\"true\"/> when the receiver has a value that <paramref name=\"comparer\"/> finds equal to " +
+            "<paramref name=\"value\"/>, otherwise <see langword=\"false\"/>.",
+        Body = ctx =>
+        [
+            Unpack(ctx),
+            string.Empty,
+            "return found && comparer.Equals(input, value);",
+        ],
+        Tests =
+        [
+            Case(
+                "returns_true_when_the_comparer_finds_the_value_equal_to_the_given_value",
+                SomeOfTwo,
+                [],
+                [AssertTrueOutcome],
+                extraArguments: ["12", TensComparer]),
+            Case(
+                "returns_false_when_the_comparer_finds_the_value_different_from_the_given_value",
+                SomeOfTwo,
+                [],
+                [AssertFalseOutcome],
+                extraArguments: ["13", TensComparer]),
+            Case(
+                "returns_false_without_asking_the_comparer_when_the_receiver_has_no_value",
+                NoneOfInt,
+                [],
+                [AssertFalseOutcome],
+                extraArguments: ["2", ThrowingComparer]),
         ],
     };
 

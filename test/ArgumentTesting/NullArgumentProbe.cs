@@ -249,10 +249,24 @@ internal static class NullArgumentProbe
             return Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(type.GetGenericArguments()))!;
         }
 
+        if (definition == typeof(IEqualityComparer<>))
+        {
+            return DefaultOf(typeof(EqualityComparer<>), argument);
+        }
+
+        if (definition == typeof(IComparer<>))
+        {
+            return DefaultOf(typeof(Comparer<>), argument);
+        }
+
         var items = Array.CreateInstance(argument, 0);
 
         return type.IsInstanceOfType(items) ? items : CreateObject(type);
     }
+
+    // The Default comparer of a closed comparer type, such as EqualityComparer<int>.Default.
+    private static object DefaultOf(Type comparerDefinition, Type argument) =>
+        comparerDefinition.MakeGenericType(argument).GetProperty("Default")!.GetValue(null)!;
 
     // An object of a class: through its public constructor without parameters, or through a public static Create method that takes a text.
     private static object CreateObject(Type type)

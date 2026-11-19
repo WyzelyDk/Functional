@@ -37,6 +37,22 @@ public sealed class ConsumerNullabilityTests
     }
 
     [Fact]
+    internal void CreateEqualityComparer_with_a_string_comparer_infers_a_nullable_type_and_is_reported_against_the_notnull_constraint()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("object M() => Maybe.CreateEqualityComparer(StringComparer.OrdinalIgnoreCase);");
+
+        Assert.Equal(["CS8714"], warnings);
+    }
+
+    [Fact]
+    internal void CreateEqualityComparer_with_the_type_argument_named_is_accepted_for_a_string_comparer()
+    {
+        var warnings = AnalyzerTestHost.NullabilityWarnings("object M() => Maybe.CreateEqualityComparer<string>(StringComparer.OrdinalIgnoreCase);");
+
+        Assert.Empty(warnings);
+    }
+
+    [Fact]
     internal void A_nullable_reference_converts_to_a_maybe_without_a_warning()
     {
         var warnings = AnalyzerTestHost.NullabilityWarnings("Maybe<string> M(string? text) => text;");

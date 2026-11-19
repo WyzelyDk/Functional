@@ -41,4 +41,24 @@ public readonly partial struct Maybe<T>
 
         return other.IsSome ? Comparer<T>.Default.Compare(_value, other._value) : 1;
     }
+
+    /// <summary>Compares this maybe with another one, ordering the values with the given comparer instead of the default order of the type.</summary>
+    /// <param name="other">The maybe to compare with.</param>
+    /// <param name="comparer">Orders the values when both maybes have one.</param>
+    /// <returns>
+    /// A negative number when this maybe sorts before <paramref name="other"/>, zero when they are equal, a positive number otherwise.
+    /// None sorts before a some, and two nones are equal.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is <see langword="null"/>.</exception>
+    public int CompareTo(Maybe<T> other, IComparer<T> comparer)
+    {
+        Guard.NotNull(comparer, nameof(comparer));
+
+        if (!IsSome)
+        {
+            return other.IsSome ? -1 : 0;
+        }
+
+        return other.IsSome ? comparer.Compare(_value, other._value) : 1;
+    }
 }
