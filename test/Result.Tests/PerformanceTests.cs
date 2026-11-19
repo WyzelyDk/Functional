@@ -5,6 +5,11 @@ namespace Wyzely.Functional.ResultTests;
 // These tests back the performance claims of the README with measurements.
 public sealed class PerformanceTests
 {
+    // For ten completed value tasks. Before the fast path, Combine allocated 1,880 bytes (with a value) and 1,496 bytes (without) on net10.0,
+    // a Task for each value task among them; the fast path allocates 512 and 208. The ceilings leave a little room and sit far under the old numbers.
+    private const long CombineTypedCeiling = 600;
+    private const long CombineUntypedCeiling = 300;
+
     private static readonly Error Rejected = Error.Create("Rejected.");
     private static readonly Task<Result<int>> CompletedResult = Task.FromResult(Result.Success(43));
     private static readonly Task<string> CompletedText = Task.FromResult("done");
@@ -143,6 +148,71 @@ public sealed class PerformanceTests
 
     // A completed receiver and a synchronous delegate: the library answers with a completed task of a result without a value,
     // which is the same task every time.
+    [Fact]
+    internal void Combining_completed_value_tasks_allocates_less_than_a_task_for_each_of_them()
+    {
+        var tasks = CompletedValueTasks(10);
+        CombineCompleted(tasks);
+
+        var allocated = AllocationProbe.Smallest(() => CombineCompleted(tasks), out var combined);
+
+        Assert.Multiple(
+            () => Assert.Equal(10, combined.GetValue().Count),
+            () => Assert.InRange(allocated, 0, CombineTypedCeiling));
+    }
+
+    [Fact]
+    internal void Combining_completed_value_tasks_without_a_value_allocates_less_than_a_task_for_each_of_them()
+    {
+        var tasks = CompletedUntypedValueTasks(10);
+        CombineCompleted(tasks);
+
+        var allocated = AllocationProbe.Smallest(() => CombineCompleted(tasks), out var combined);
+
+        Assert.Multiple(
+            () => Assert.True(combined.IsSuccess),
+            () => Assert.InRange(allocated, 0, CombineUntypedCeiling));
+    }
+
+    [Fact]
+    internal void Combining_completed_value_tasks_hands_back_a_value_task_that_is_already_completed()
+    {
+        var typed = Result.Combine(CompletedValueTasks(3));
+        var untyped = Result.Combine(CompletedUntypedValueTasks(3));
+
+        Assert.Multiple(
+            () => Assert.True(typed.IsCompletedSuccessfully),
+            () => Assert.True(untyped.IsCompletedSuccessfully));
+    }
+
+    private static Result<IReadOnlyList<int>> CombineCompleted(ValueTask<Result<int>>[] tasks) => Result.Combine(tasks).GetAwaiter().GetResult();
+
+    private static Result CombineCompleted(ValueTask<Result>[] tasks) => Result.Combine(tasks).GetAwaiter().GetResult();
+
+    private static ValueTask<Result<int>>[] CompletedValueTasks(int count)
+    {
+        var tasks = new ValueTask<Result<int>>[count];
+
+        for (var index = 0; index < count; index++)
+        {
+            tasks[index] = new ValueTask<Result<int>>(Result.Success(index));
+        }
+
+        return tasks;
+    }
+
+    private static ValueTask<Result>[] CompletedUntypedValueTasks(int count)
+    {
+        var tasks = new ValueTask<Result>[count];
+
+        for (var index = 0; index < count; index++)
+        {
+            tasks[index] = new ValueTask<Result>(Result.Success());
+        }
+
+        return tasks;
+    }
+
     private static int ConvertValues(int iterations)
     {
         var successes = 0;
