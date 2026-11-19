@@ -4,7 +4,6 @@
 
 This page is a guided tour of the umbrella package.
 If you use only one of `Result` or `Maybe`, start with [Result](../result/getting-started.md) or [Maybe](../maybe/getting-started.md) instead.
-Nothing is published on NuGet yet, so the install command below describes the planned package.
 
 ## Install
 

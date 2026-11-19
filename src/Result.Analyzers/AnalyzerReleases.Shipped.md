@@ -31,3 +31,13 @@ WYZ0114 | Design | Info | ResultSuggestionsAnalyzer: use ValueOr instead of Matc
 WYZ0115 | Design | Info | ResultSuggestionsAnalyzer: remove a step that does not change the result
 WYZ0116 | Design | Info | ResultSuggestionsAnalyzer: pass the message to Result.Failure instead of creating the error
 WYZ0117 | Design | Info | ResultSuggestionsAnalyzer: use Flatten instead of Bind that returns the nested result
+
+## Release 0.3.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WYZ0118 | Design | Info | ResultSuggestionsAnalyzer: use MapError instead of OrElse that only returns an error
+WYZ0119 | Design | Info | ResultSuggestionsAnalyzer: use ValueOr instead of a conditional on the state of a result
+WYZ0120 | Design | Info | ResultSuggestionsAnalyzer: pass a function to ValueOr when the fallback does work
