@@ -339,7 +339,7 @@ ErrorOr, Ardalis.Result, Optional and OneOf do not, so a loop that a user would 
   Real code spends its time elsewhere, and only in loops over millions of results does the difference between 5 ns and 30 ns matter.
   FluentResults at 150 ns per chain is more than enough for most applications.
 - **Equivalents are our choice**, as described above, and a library may have a faster way to do the same that we did not find.
-- **No other runtime or platform.** Not the `netstandard2.0` builds, not Native AOT, not Linux or arm64. LanguageExt 5 (beta) is not included.
+- **No other runtime or platform.** Not Native AOT, not Linux or arm64. LanguageExt 5 (beta) is not included.
 - **Delegates that capture variables allocate a closure** like in any C# code; use `static` lambdas on hot paths, as these benchmarks do.
 
 Run them yourself (the whole suite takes about fifteen minutes; results differ by machine and runtime):

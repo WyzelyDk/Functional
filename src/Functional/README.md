@@ -48,11 +48,12 @@ dotnet add package Wyzely.Functional
 | Target | Package dependencies |
 |---|---|
 | `net11.0`, `net10.0` | `Wyzely.Functional.Result`, `Wyzely.Functional.Maybe` |
-| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, ...) | the same two, which bring `System.Threading.Tasks.Extensions` because `ValueTask` is not part of `netstandard2.0` |
+
+The last versions with a `netstandard2.0` asset (for .NET Framework, Unity, and .NET 8 or 9) are 0.3.x; a project on those stays on 0.3.x.
 
 The analyzers of both packages (`WYZ0101` and `WYZ0102` for `Result`, `WYZ0201` for `Maybe`) come with the dependencies; there is nothing else to install.
-(Checked once by packing the three packages and building a project that references only `Wyzely.Functional`: `WYZ0201` and `WYZ0102` were reported.
-That check is not part of the automated tests.)
+(CI checks it on every build: it packs the three packages, builds a project that references only `Wyzely.Functional` with every .NET 10 SDK,
+and requires `WYZ0102` and `WYZ0201` to be reported.)
 Use **C# 13 or later** to write `async` lambdas without ambiguity: under `LangVersion` 12 the compiler reports `CS0121` (an ambiguous call) for some of them,
 and under 13 it does not (verified by compiling a scratch project with both language versions).
 

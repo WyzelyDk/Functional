@@ -11,7 +11,7 @@ These extension methods turn the "maybe there is one" questions about sequences 
 | `source.LastOrNone()` / `source.LastOrNone(predicate)` | the last element (that satisfies the predicate), or none |
 | `source.SingleOrNone()` / `source.SingleOrNone(predicate)` | the only element (that satisfies the predicate); none when there are **none or several** |
 | `source.ElementAtOrNone(index)` | the element at the index, or none when it is out of range (a negative index is out of range) |
-| `stream.FirstOrNone(...)`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone` | the same for an `IAsyncEnumerable<T>` (`net10.0` and later, not in the `netstandard2.0` build): a `ValueTask<Maybe<T>>` that reads the stream once and only as far as the answer needs; the predicate may be asynchronous |
+| `stream.FirstOrNone(...)`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone` | the same for an `IAsyncEnumerable<T>` (`net10.0` and later): a `ValueTask<Maybe<T>>` that reads the stream once and only as far as the answer needs; the predicate may be asynchronous |
 | `streams.Choose()` / `stream.Choose(selector)` | the same for streams: an `IAsyncEnumerable<T>` of the values of the somes; the selector may be asynchronous |
 | `dictionary.GetValueOrNone(key)` | the value of the key, or none when the key is missing |
 | `maybes.Choose()` | the values of the somes, in order; the nones are dropped |

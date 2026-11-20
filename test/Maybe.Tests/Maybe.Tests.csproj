@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(SupportedTargetFrameworks)</TargetFrameworks>
     <!-- A namespace Wyzely.Functional.Maybe.* would clash with the type Wyzely.Functional.Maybe, so the tests use Wyzely.Functional.MaybeTests. -->
     <RootNamespace>$(ProductPrefix).MaybeTests</RootNamespace>
   </PropertyGroup>

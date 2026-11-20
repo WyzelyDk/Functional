@@ -98,12 +98,12 @@ public sealed class NestedCallFinderTests
     internal void Code_behind_a_directive_for_either_target_is_checked()
     {
         const string source =
-            "class C\n{\n#if NET8_0_OR_GREATER\n    void M() { F(G(1)); }\n#endif\n" +
-            "#if NETSTANDARD2_0\n    void N() { F(G(2)); }\n#endif\n}\n";
+            "class C\n{\n#if NET11_0_OR_GREATER\n    void M() { F(G(1)); }\n#else\n" +
+            "    void N() { F(G(2)); }\n#endif\n}\n";
 
         var found = NestedCallFinder.Find(source);
 
-        Assert.Equal([4, 7], found.Select(static call => call.Line));
+        Assert.Equal([4, 6], found.Select(static call => call.Line));
     }
 
     private static string Wrap(string member) => "class C\n{\n    " + member + "\n}\n";

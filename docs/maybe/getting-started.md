@@ -11,8 +11,9 @@ dotnet add package Wyzely.Functional.Maybe
 | Target | Package dependencies |
 |---|---|
 | `net10.0` | none |
-| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, Xamarin, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 | `net11.0` | none; adds [C# 15 union support](unions.md) |
+
+The last versions with a `netstandard2.0` asset (for .NET Framework, Unity, and .NET 8 or 9) are 0.3.x; a project on those stays on 0.3.x.
 
 The analyzer is part of the package; there is nothing else to install. It needs a compiler of **Roslyn 5.0 or newer**:
 the .NET 10 SDK (10.0.100 or later) or Visual Studio 2026. An older compiler does not load it and says nothing; the library works as before.
