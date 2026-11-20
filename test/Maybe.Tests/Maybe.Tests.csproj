@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Include="..\ArgumentTesting\*.cs" Link="ArgumentTesting\%(Filename)%(Extension)" />
+    <Compile Include="..\ApiSurface\*.cs" Link="ApiSurface\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

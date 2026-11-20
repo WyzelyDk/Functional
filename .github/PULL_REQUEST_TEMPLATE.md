@@ -7,5 +7,6 @@
 - [ ] Tests came first: there is a test that fails without this change.
 - [ ] The Release build has no errors or warnings, and the tests of every target framework pass (CI checks this).
 - [ ] New public API passes the admission test in the package's `scope.md`, and has XML documentation.
+- [ ] A change of the public API shows in `test/ApiSurface/Approved` and is intended (a rename of a parameter counts).
 - [ ] Documentation and README examples are updated where behavior changed.
 - [ ] A performance claim, if there is one, is backed by a test or a benchmark that measures the code the way it is used.

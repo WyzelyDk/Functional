@@ -191,6 +191,24 @@ They are build inputs of the release-tracking analyzers: a rule that is in neith
 **Never move or reuse a tag.** nuget.org versions are immutable.
 If a release is wrong, publish the next version and *unlist* the bad one on nuget.org (a published version cannot be deleted).
 
+### The public API, and package validation
+
+Two checks keep the public API from changing by accident.
+
+- **The approved API.** `PublicApiTests` (in `Result.Tests`, `Maybe.Tests` and `Functional.Tests`) describes the public API of each package by reflection
+  and compares it with `test/ApiSurface/Approved/<assembly>.<target framework>.txt`. A pull request that changes the API changes those files, so the change
+  is in the diff, with the names of the parameters, the nullable annotations and the generic constraints. To accept an intended change, run the tests of the
+  package once with the environment variable `UPDATE_PUBLIC_API` set to `1`, for `net10.0` and for `net11.0`, read the diff and commit it.
+- **Package validation.** `EnablePackageValidation` makes `dotnet pack` check that the assets of a package fit together (what the `net10.0` asset offers,
+  the `net11.0` asset offers too). It also compares with the last release when `PackageValidationBaselineVersion` is set.
+
+**After the release of 1.0.0**, set `PackageValidationBaselineVersion` in `Directory.Build.props` to that version, and to the version of each release after it.
+Pack then fails on a public member that the last release had and this one does not (`CP0002`), and on an asset that was dropped (`PKV006`).
+Run against 0.3.1 it already reports the dropped `netstandard2.0` asset, and the removal of a public method (checked by making one internal).
+A break that is intended (it needs a new major version, see the support policy) is accepted with the suppression file:
+rebuild once with `-p:ApiCompatGenerateSuppressionFile=true` and commit the file. The baseline package is restored from nuget.org, so the first restore after
+a release needs the network and the version must already be published.
+
 ### Several packages
 
 - **One tag, all packages, one version.** Every packable project under `src/` is released by the same tag and gets the same version.

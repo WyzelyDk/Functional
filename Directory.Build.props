@@ -49,6 +49,9 @@
     <PackageProjectUrl>https://github.com/WyzelyDk/Functional</PackageProjectUrl>
     <RepositoryUrl>https://github.com/WyzelyDk/Functional</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <!-- Pack checks that the assets of a package fit together (the net10.0 API must exist in the net11.0 asset). After a release, PackageValidationBaselineVersion
+         (the version of the last release) makes it check that nothing of that release was removed or changed: see docs/releasing.md. -->
+    <EnablePackageValidation>true</EnablePackageValidation>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
