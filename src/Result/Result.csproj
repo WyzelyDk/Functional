@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)..\Result.Analyzers\bin\$(Configuration)\netstandard2.0\$(ProductPrefix).Result.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)..\Result.Analyzers.CodeFixes\bin\$(Configuration)\netstandard2.0\$(ProductPrefix).Result.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\Result.Analyzers\bin\$(Configuration)\netstandard2.0\$(ProductPrefix).Result.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/$(AnalyzerRoslynFolder)/cs" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\Result.Analyzers.CodeFixes\bin\$(Configuration)\netstandard2.0\$(ProductPrefix).Result.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/$(AnalyzerRoslynFolder)/cs" Visible="false" />
   </ItemGroup>
 
 </Project>

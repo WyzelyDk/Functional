@@ -151,6 +151,16 @@ The library is judged by how it feels to use, not only by what it can do.
   Samples use the public API only and follow the same no-suppression rule as everything else. Every example may change and restore
   process-wide settings, so `Samples.Tests` disables test parallelization for the whole assembly (`AssemblyInfo.cs`) instead of relying on each
   class to opt in. CI runs on Linux only: the libraries make no operating-system calls and the tests normalise line endings and paths.
+- **The packages must work for a project on the long-term-support .NET, with every SDK it can be built with**
+  (today .NET 10, from SDK 10.0.100). The analyzers and code fixes are built against the Roslyn of the oldest such SDK, not the newest.
+  A compiler refuses an analyzer that references a newer Roslyn than itself (warning `CS9057`, an error when warnings are errors),
+  which switches the analyzers off or breaks the build for everyone on that SDK. The analyzer and code fix projects therefore override
+  the Roslyn package version with `AnalyzerRoslynVersion` (`Directory.Packages.props`), while the tests and the generators use the newest.
+  The analyzers are packed into `analyzers/dotnet/roslyn<version>/cs`, so that an older compiler gets nothing and says nothing.
+  Do not use an API that is newer than that version, and do not raise the property through a dependency update:
+  raise it on purpose and say so in the release notes. `AnalyzerRoslynVersionTests` checks the references of the assemblies,
+  and `Test-LtsConsumer.ps1` (a CI step and a step of the release workflow) builds a project against the packed packages
+  with every .NET 10 SDK and checks that the analyzers report what they should and that the library runs.
 - **The umbrella project overrides the naming rule.** `src/Functional` and `test/Functional.Tests` set `AssemblyName` and `RootNamespace` themselves,
   because the product prefix plus the folder name would give `Wyzely.Functional.Functional`.
   The package is plain `Wyzely.Functional`, and holds only what lies between the other packages (`MaybeResultExtensions`).

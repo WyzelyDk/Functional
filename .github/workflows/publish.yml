@@ -56,6 +56,7 @@ jobs:
           global-json-file: global.json
           dotnet-version: |
             10.0.x
+            10.0.100
 
       # Maps the tag to the version and to the packages, in the order in which they are pushed (a package after the packages it references),
       # and refuses a tag that is not a well-formed release tag.
@@ -94,6 +95,11 @@ jobs:
               exit 1
             fi
           done
+
+      # Nothing is published that a project on the long-term-support .NET cannot use (the analyzers must load in the compiler of every .NET 10 SDK).
+      - name: Check the packages with every .NET 10 SDK
+        shell: pwsh
+        run: ./.github/scripts/Test-LtsConsumer.ps1 -Packages artifacts
 
       - uses: actions/upload-artifact@v7
         with:

@@ -14,7 +14,9 @@ dotnet add package Wyzely.Functional.Maybe
 | `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, Xamarin, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 | `net11.0` | none; adds [C# 15 union support](unions.md) |
 
-The analyzer is part of the package; there is nothing else to install. For the best experience with `async` lambdas use **C# 13 or later**;
+The analyzer is part of the package; there is nothing else to install. It needs a compiler of **Roslyn 5.0 or newer**:
+the .NET 10 SDK (10.0.100 or later) or Visual Studio 2026. An older compiler does not load it and says nothing; the library works as before.
+For the best experience with `async` lambdas use **C# 13 or later**;
 see [Async lambdas and the language version](async.md#async-lambdas-and-the-language-version).
 If you also use `Result`, install the umbrella package [`Wyzely.Functional`](../../src/Functional/README.md) instead of the two separately.
 

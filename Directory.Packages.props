@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- The Roslyn that the shipped analyzers and code fixes are built against: the compiler of the oldest SDK that can build a project for the
+         oldest supported long-term-support .NET. A compiler refuses (warning CS9057, an error when warnings are errors) an analyzer that references
+         a newer Roslyn than itself, so a newer value would silently switch the analyzers off for the people on that SDK. 5.0 is the .NET 10 SDK
+         (10.0.1xx) and Visual Studio 2026 (18.0). The PackageVersion entries below are for the tests and the generators, which use the newest;
+         the analyzer projects override them with this property. Raise it on purpose (see docs/analyzers.md), never through a dependency update. -->
+    <AnalyzerRoslynVersion>5.0.0</AnalyzerRoslynVersion>
+    <!-- The analyzers are packed into the folder of that version (analyzers/dotnet/roslyn5.0/cs): the SDK passes them to a compiler of that version or
+         newer, and to an older compiler it passes nothing, so there is no warning either. -->
+    <AnalyzerRoslynFolder>roslyn$([System.Version]::Parse('$(AnalyzerRoslynVersion)').ToString(2))</AnalyzerRoslynFolder>
   </PropertyGroup>
 
   <ItemGroup>

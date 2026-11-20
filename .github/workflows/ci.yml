@@ -145,11 +145,14 @@ jobs:
       # global.json pins the SDK (11, which builds every target framework); the runtime of .NET 10 is added because the net10.0 tests need it.
       # The exact stable version of SDK 11 is pinned there, so that a new SDK cannot break every
       # pull request by surprise; bump it deliberately.
+      # 10.0.100 is the first SDK of .NET 10, the one with the oldest compiler that a project for the long-term-support .NET can be built with;
+      # Test-LtsConsumer.ps1 below builds with it as well as with the others.
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           dotnet-version: |
             10.0.x
+            10.0.100
 
       - uses: actions/cache@v6
         with:
@@ -171,6 +174,12 @@ jobs:
       # Proves that the packages can be produced and that they contain the net11.0 asset.
       - name: Pack (smoke test)
         run: dotnet pack Wyzely.Functional.slnx --configuration Release --no-build -p:PackageOutputPath="${{ github.workspace }}/artifacts"
+
+      # The packages must work for a project on the long-term-support .NET, with every SDK it can be built with: the analyzers must load in the
+      # compiler of the oldest SDK, report what they should, and the library must run on the .NET 10 runtime.
+      - name: Check the packages with every .NET 10 SDK
+        shell: pwsh
+        run: ./.github/scripts/Test-LtsConsumer.ps1 -Packages artifacts
 
       - name: List the package contents
         run: |
