@@ -12,6 +12,11 @@ A struct always has a default value, and for a result it is a success, so there 
 The consequence is that a forgotten field or an array slot that nobody assigned counts as "it worked": collect results with `Combine`,
 `Partition` or `SelectInParallel`, which never expose an unassigned slot, instead of filling an array yourself.
 
+`var (value, error) = result;` is the unchecked route: it reads both parts without a check and never throws. For a success `error` is `null`,
+for a failure `value` is `default`. No analyzer reports it, because nothing can go wrong on that line; the check moves to where `value` and `error`
+are used, and both are nullable to the compiler. Use it when you want both parts at once, and `TryGetValue`, `Match` or `ValueOr` when you want the
+compiler to see the check.
+
 The package ships analyzers, all enabled by default: `WYZ0101`, `WYZ0102` and `WYZ0111` are warnings,
 and the other rules from `WYZ0103` on are suggestions (info) that point at the method of the library that says what a piece of code does:
 

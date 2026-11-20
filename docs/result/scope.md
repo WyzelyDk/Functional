@@ -42,24 +42,35 @@ A new public member goes in only if the answer to every question is yes:
 - **Validation frameworks.** `Ensure` and `Combine` are the building blocks; the rest is the application's.
 - **Serialization attributes and JSON converters.** An adapter package.
 - **Throwing properties** for the error or value.
+- **`OfType` and `Cast` for a result.** A failed cast has no natural error to become: a result has no error for a value of the wrong type.
+  `Maybe` has `OfType` (the wrong type is none) and no `Cast`.
 
 ## Wider than the core today (candid review)
 
-These are in the library now but were the first to question. **Decision (2026-10-17): all of them stay.**
-The table is kept so that a later change of mind is deliberate.
-None is wrong; each would be a candidate to remove or move if the surface ever needs to shrink before 1.0. They are listed so the decision is deliberate.
+These are in the library but were the first to question. **Decision for 1.0 (2026-11-20): the surface is frozen as it is, and all of them stay.**
+It confirms the decision of 2026-10-17. After 1.0, removing any of them is a breaking change, and adding something is not, so what is unsure waits
+(see below) instead of going in now. The table is kept so that a later change of mind is deliberate.
 
-| Area | Why it is questionable | Suggestion |
+| Area | Why it was questioned | Decision for 1.0 |
 |---|---|---|
-| LINQ query syntax: `Select`, `SelectMany` (`ResultLinqExtensions`) | Duplicates `Map` and `Bind`; query syntax over results is an acquired taste. | Remove unless someone asks for it. |
-| `Zip` for 2 to 5 values and `Flatten` | Close to `Combine` and `Bind(x => x)`; added because they are common and `Zip` reports every failure. | Keep; the limit of 5 is one setting in the generator. |
-| `Result.Combine(...)` **and** `results.Combine()` | The same operation in two shapes, six times over. | Keep one shape (the extension reads best). |
-| `Combine` for `IEnumerable<Task<...>>` / `ValueTask` (and their duplicates) | `await Task.WhenAll(tasks)` followed by `Combine` does the same in one line. | Keep the `Task` forms at most. |
-| `SelectInParallel` / `ForEachInParallel` | About running work in parallel rather than about results; `Parallel.ForEachAsync` plus `Combine` is close. | Kept on request, with forms for an `IAsyncEnumerable<T>` added on request (2026-10-23): they read the stream first and then run, so they do not feed work while reading. Do not grow it further (no retries, no channels). A separate package if it ever needs more. |
-| `Deconstruct` (`var (value, error) = result`) | The one way to read the payload without a check that the analyzer does not see. | Consider removing, or document it as the unchecked route. |
-| `ContinueOnCapturedContext` setting | A process-wide switch for something that is almost always `false` in a library. | The first setting to drop if the configuration is trimmed. |
-| `AggregateMessage`, `CanceledMessage` settings | Text that is closer to localization than to behavior. | Keep only while someone needs it. |
-| Kind factories `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout` | HTTP-flavored; they match other libraries, but they are convenience over `Error.Create(message, kind)`. | Add no further kinds; users can use `new ErrorKind("...")`. |
+| LINQ query syntax: `Select`, `SelectMany` (`ResultLinqExtensions`) | Duplicates `Map` and `Bind`; query syntax over results is an acquired taste. | Stays. C# query syntax calls those two names, so they are the documented exception to the naming rule (`Map`, `Bind`). |
+| `Zip` for 2 to 5 values and `Flatten` | Close to `Combine` and `Bind(x => x)`. | Stays. `Zip` reports every failure; the limit of 5 is one setting of the generator. |
+| `Result.Combine(...)` **and** `results.Combine()` | The same operation in two shapes, six times over. | Both stay. A collection expression has no type of its own, so `[a, b].Combine()` does not compile (`CS9176`) while `Result.Combine([a, b])` does; the extension reads best for a sequence that already exists. |
+| `Combine` for `IEnumerable<Task<...>>` / `ValueTask` (and their duplicates) | `await Task.WhenAll(tasks)` followed by `Combine` does the same in one line. | Stays. A sequence of results can be combined in every receiver kind, and the `ValueTask` form reads a value task that has already completed without making a `Task` for it. |
+| `SelectInParallel` / `ForEachInParallel` | About running work in parallel rather than about results; `Parallel.ForEachAsync` plus `Combine` is close. | Stays. It was kept on request, with forms for an `IAsyncEnumerable<T>` added on request (2026-10-23): they read the stream first and then run, so they do not feed work while reading. Do not grow it further (no retries, no channels); a separate package if it ever needs more. The names follow the naming rule: an operation on a plain sequence uses LINQ's words. |
+| `Deconstruct` (`var (value, error) = result`) | The one way to read the payload without a check that the analyzer does not see. | Stays, and is documented as the unchecked route in [Safety and analyzers](safety-and-analyzers.md). |
+| `ContinueOnCapturedContext` setting | A process-wide switch for something that is almost always `false` in a library. | Stays; the default is `false` ([Configuration](configuration.md)). |
+| `AggregateMessage`, `CanceledMessage` settings | Text that is closer to localization than to behavior. | Stay; they are settings with defaults ([Configuration](configuration.md)). |
+| Kind factories `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout` | HTTP-flavored; they match other libraries, but they are convenience over `Error.Create(message, kind)`. | Stay. Add no further kinds; users can use `new ErrorKind("...")`. |
+
+## Considered, and not in 1.0
+
+Adding an operation later is not a breaking change, so a candidate waits until someone needs it, and then goes through the admission test above.
+Two were looked at for 1.0 and left out:
+
+- **`Error.Is(kind)`.** `error.Kind == ErrorKind.NotFound` already reads the same: `ErrorKind` has `==`, `!=` and `Equals`.
+- **`Tap`, `Match` and `Ensure` with separate parameters for a tuple value.** `Map` and `Bind` have them (the `Zip` family: a delegate that takes the elements
+  of the tuple); `Tap`, `Match` and `Ensure` take the tuple itself.
 
 ## How to propose a change
 

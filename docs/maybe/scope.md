@@ -53,6 +53,7 @@ A new public member goes in only if the answer to every question is yes:
 - **`Maybe.Try` (turning an exception into none).** It would throw the cause away; `Result.Try` keeps it,
   and `ToMaybe()` in the umbrella package drops the error on purpose when only the absence matters. See [Design decisions](design-decisions.md).
 - **JSON, EF Core and ASP.NET Core integrations, serialization attributes.** Adapter packages.
+- **`Maybe.Cast`.** A failed cast has no sensible meaning as none, and `OfType` already says what is meant: a value of another type is none.
 - **Logging and telemetry.** The library does not log.
 
 ## How to propose a change
