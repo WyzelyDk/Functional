@@ -58,7 +58,7 @@ What this library adds, point by point (each checked against the source or a tes
 
 **The honest cost.** A dependency to update; an API that can still change before 1.0;
 a vocabulary and a set of opinions (`GetValue()`/`GetError()` are guarded, a `default` result is a success) that the whole team must accept;
-and no public track record as a package yet. **Write your own** when the application is small,
+and a short public track record as a package (first released in October 2026). **Write your own** when the application is small,
 the error is a message, nobody mixes `Task` and `ValueTask`, and one team owns the code. **Use a library** when the type is shared,
 when errors must be logged safely and grouped, or when you would otherwise hand-write nine variants of every operation.
 
@@ -82,7 +82,7 @@ Be clear-eyed: the established libraries have things this one does not.
 
 - **It is a young package.** The code it grew from has been in production use in many codebases, then expanded,
   improved and documented with Claude Code (the [main README](../../README.md#where-this-code-comes-from) explains what that does and does not mean).
-  It has not been published to NuGet yet, so it has no track record *as a package*, and the API can change before 1.0.
+  It was first released in October 2026, so it has little track record *as a package*, and the API can change before 1.0.
 - **It does less.** `Maybe` is a separate package ([`Wyzely.Functional.Maybe`](../maybe/why.md)) and not part of this one.
   There are no value objects and no JSON, EF Core or ASP.NET Core integrations; those are not part of this package either.
 - **It is one team's opinion.** A `default` result is a success, and `GetValue()`/`GetError()` are guarded by an analyzer.

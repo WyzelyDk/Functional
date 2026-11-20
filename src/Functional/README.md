@@ -24,7 +24,7 @@ One chain from "maybe there is a customer" to "the charge went through", with no
 
 > **Lineage:** this is not code written from scratch. These libraries are built on code that has already been in production use in many codebases,
 > and for this repository that code was expanded, improved and documented with Claude Code.
-> The package depends on the two packages and adds only the methods between them. **Nothing is published on NuGet yet.**
+> The package depends on the two packages and adds only the methods between them.
 > [What that does and does not mean](https://github.com/WyzelyDk/Functional#where-this-code-comes-from).
 
 ## When to install this instead of the two packages
@@ -51,7 +51,8 @@ dotnet add package Wyzely.Functional
 
 The last versions with a `netstandard2.0` asset (for .NET Framework, Unity, and .NET 8 or 9) are 0.3.x; a project on those stays on 0.3.x.
 
-The analyzers of both packages (`WYZ0101` and `WYZ0102` for `Result`, `WYZ0201` for `Maybe`) come with the dependencies; there is nothing else to install.
+The analyzers of both packages (`WYZ0101` to `WYZ0120` for `Result`, `WYZ0201` to `WYZ0208` for `Maybe`) come with the dependencies;
+there is nothing else to install.
 (CI checks it on every build: it packs the three packages, builds a project that references only `Wyzely.Functional` with every .NET 10 SDK,
 and requires `WYZ0102` and `WYZ0201` to be reported.)
 Use **C# 13 or later** to write `async` lambdas without ambiguity: under `LangVersion` 12 the compiler reports `CS0121` (an ambiguous call) for some of them,

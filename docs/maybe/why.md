@@ -62,9 +62,9 @@ Each point below was checked against the source and, where it says so, is pinned
   and nothing converts out of a maybe; `ImplicitConversionTests` pins that this is the only conversion.
 - **The whole railway, in every sync / `Task` / `ValueTask` combination.** `Map`, `Bind`, `Filter`, `Tap`, `TapNone`, `OrElse`, `ValueOr`,
   `Match` and `Switch` exist for a maybe, a `Task<Maybe<T>>` and a `ValueTask<Maybe<T>>` receiver, times a synchronous, `Task` or `ValueTask` delegate:
-  twelve operations times nine variants, plus the three of `Contains` and the two of `ValueOr` with a value, is **122 methods**
-  (with the nullable-value form of `Map`),
-  generated from one catalog (122 files under `src/Maybe/Generated`, plus 12 more for `Zip`), each variant with a generated test.
+  eleven operations times nine variants (`Map` and `OrElse` have a second form each), plus the two of `ValueOr` with a value,
+  the three of `Contains` and three more with a comparer, and the five of `GetValueOrThrow`, is **130 methods**,
+  generated from one catalog (130 files under `src/Maybe/Generated`, plus 12 more for `Zip`), each variant with a generated test.
   Writing and testing those by hand is the part that is not twenty lines.
 - **No `await` in the middle of a chain.** Because the variants share one name, `FindAsync(...).Filter(...).Bind(...).Map(...)` reads top to bottom,
   with the first `await` where you read the result. An already completed `Task`/`ValueTask` receiver is read without a state machine ([Async](async.md)).
@@ -141,7 +141,8 @@ Be clear-eyed: the established libraries have things this one does not. The fact
 - **Where it comes from, and what that does not guarantee.**
   Like the other packages of this repository it is built on code that has been in production use in many codebases,
   then expanded, improved and documented with Claude Code (see the [main README](../../README.md#where-this-code-comes-from)).
-  It has not been run in production *as this package*, so treat the lineage as background, not as a guarantee. What backs the claims is the tests.
+  It is a young package (first released in October 2026) with no public track record, so treat the lineage as background, not as a guarantee.
+  What backs the claims is the tests.
 - **It does less.** No `Apply`, `Sequence`, `Traverse` or arithmetic, no folds, no JSON, EF Core or ASP.NET Core integrations ([Scope](scope.md)).
 - **It is one team's opinion.** `where T : notnull`, `GetValue()` as a guarded method,
   and a `null` that becomes none in `Map` and in the implicit conversion are choices you may disagree with ([Design decisions](design-decisions.md)).

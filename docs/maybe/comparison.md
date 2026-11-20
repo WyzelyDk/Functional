@@ -81,10 +81,12 @@ a `default` is a "some" holding the default value, and the package has had no co
 
 **This library** is deliberately small. It does not have what the table shows others have: arithmetic and `Apply` (`Add`, `Subtract`, `Product`,
 `Divide`, `Sum`, `Apply`), `Sequence`/`Traverse` and folds in LanguageExt, `Execute` and `ExecuteNoValue` in CSharpFunctionalExtensions, and `Contains`,
-`Exists` and `NotNull` in Optional. [Scope](scope.md) says why. It is also not published yet, so none of the others' track records applies to it.
+`Exists` and `NotNull` in Optional. [Scope](scope.md) says why.
+It was also not published yet when this comparison was made (the first release, 0.1.0, followed on 2026-10-19),
+so none of the others' track records applies to it.
 
 ## What was not compared
 
 - Behavior beyond `default` and `null`: equality and ordering of the absent state, `ToString`, serialization, and thread-safety.
-- Anything on a runtime other than .NET 10 on Windows; the `netstandard2.0` build of this library.
+- Anything on a runtime other than .NET 10 on Windows; the `netstandard2.0` build that this library had then (dropped since).
 - How much of each library's surface is *good*: the counts are counts.

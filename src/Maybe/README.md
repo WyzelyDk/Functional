@@ -6,9 +6,6 @@
 **A `Maybe` type for .NET: a value that may be absent, without `null`.
 A struct that allocates nothing, whose `default` is simply "no value", and that chains with synchronous and asynchronous steps alike.**
 
-> **Not published yet.** None of the packages of this repository has been released to NuGet at the time of writing,
-> so the NuGet badges above show "not found" until the first release, and the install command below works from then on.
-
 ```csharp
 using Wyzely.Functional;
 
@@ -50,10 +47,10 @@ and we wanted it to sit next to the [`Result` type](https://github.com/WyzelyDk/
   A struct always has a default value; here that value is a perfectly good "no value", so an unassigned field or array slot is never an error.
 - **`where T : notnull`.** Absence is what `None` is for, so a `Maybe<string?>` with two ways to be empty is not something you meet by accident.
 - **Every sync / `Task` / `ValueTask` combination under the same method name**, so chains never need an `await` in the middle.
-- **An analyzer in the package** for the one mistake that matters: `GetValue()` without a check.
+- **Analyzers in the package:** `WYZ0201` for the mistake that matters, `GetValue()` without a check, and seven suggestions with code fixes.
 - **No dependencies** outside the BCL, and **performance that is measured**: nothing allocated on the synchronous path.
 
-It also gives something up: it is not published yet and has not been run in production as this package,
+It also gives something up: it is young as a package (first released in October 2026) and has no public track record,
 it does less than the larger libraries (no arithmetic on options, no `Sequence`/`Traverse`, no JSON or EF Core integration), and it is opinionated.
 If you already use one of the libraries above and are happy, there is little reason to switch.
 [The honest long version, including when to use something else.](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/why.md)
@@ -66,16 +63,16 @@ What the library adds is everything around that core, and each item is checked a
 
 - **One way to be empty.** `Maybe.Some(null)` throws, `Maybe.From(x)` turns `null` into none, `Maybe<string?>` is reported against `notnull`.
 - **Decided conversions.** A `T` or a `null` reference converts to a maybe implicitly; nothing converts out of one (pinned by tests).
-- **The generated railway:** thirteen operations in every sync / `Task` / `ValueTask` combination (`Contains` has no delegate, so three),
-  **122 methods** (`Map` has a second form for nullable value types, and `ValueOr` one that takes the value for a `Task` or `ValueTask`),
-  each with a generated test, and no `await` in the middle of a chain.
+- **The generated railway:** eleven operations in every sync / `Task` / `ValueTask` combination (`Map` and `OrElse` have a second form each),
+  plus `ValueOr` with a value for a `Task` or `ValueTask`, `Contains` (three, and three more with a comparer, because it has no delegate)
+  and `GetValueOrThrow` (five): **130 methods**, each with a generated test, and no `await` in the middle of a chain.
 - **Lookups:** `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone`, `Choose`; and LINQ, `Zip` and `Flatten`.
-- **Analyzers and code fixes (`WYZ0201` and the suggestions `WYZ0202` to `WYZ0208`) and nullability annotations** that are pinned by tests which compile
-  consumer code.
-- **Configuration, equality, ordering and formatting**, including redaction of values in `ToString()`.
+- **Analyzers (`WYZ0201`, which has no code fix, and the suggestions `WYZ0202` to `WYZ0208`, which each have one) and nullability annotations**
+  that are pinned by tests which compile consumer code.
+- **Configuration, equality and ordering (also with your own comparer), and formatting**, including redaction of values in `ToString()`.
 - **Measured size and allocation** (only what `PerformanceTests` checks), **interop with `Result`** in the umbrella package, and **C# 15 union support**.
 
-A library costs something too: a vocabulary your team has to learn, generated code you did not write (123 files), one more package to keep updated,
+A library costs something too: a vocabulary your team has to learn, generated code you did not write (142 files), one more package to keep updated,
 and an API that can still change before 1.0. When your use is one corner of one project, with synchronous steps and a handful of call sites,
 writing your own is the better choice. [The whole argument, with the cost of a dependency.](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/why.md)
 
@@ -92,7 +89,7 @@ dotnet add package Wyzely.Functional.Maybe
 
 The last versions with a `netstandard2.0` asset (for .NET Framework, Unity, and .NET 8 or 9) are 0.3.x; a project on those stays on 0.3.x.
 
-The analyzer comes with the package. Use **C# 13 or later** to write `async` lambdas without ambiguity
+The analyzers come with the package. Use **C# 13 or later** to write `async` lambdas without ambiguity
 ([why](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/async.md#async-lambdas-and-the-language-version)).
 All public types are in the namespace `Wyzely.Functional`. If you use `Result` as well,
 install the umbrella package [`Wyzely.Functional`](https://github.com/WyzelyDk/Functional/blob/main/src/Functional/README.md) instead.
@@ -202,7 +199,7 @@ string Describe(Maybe<int> maybe) => maybe switch
 };                                      // no discard arm: the compiler knows the two cases; the none is the null case
 ```
 
-This needs a package built with the .NET 11 SDK, was built and tested with SDK `11.0.100` (7 tests):
+This needs a package built with the .NET 11 SDK, was built and tested with SDK `11.0.100` (8 tests):
 [C# 15 unions](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/unions.md).
 
 ## Samples

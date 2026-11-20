@@ -21,7 +21,7 @@ check the current version before relying on a cell. The `Maybe` types of these l
 
 | Library (version, released) | What it offers as a result | Targets | Repository, on 2026-10-18 |
 |---|---|---|---|
-| **Wyzely.Functional.Result** (this repository, not published yet) | `Result`, `Result<T>`, one aggregating `Error` | `netstandard2.0`, `net10.0`, `net11.0` | not published yet |
+| **Wyzely.Functional.Result** (this repository; 0.1.0 followed on 2026-10-19) | `Result`, `Result<T>`, one aggregating `Error` | `netstandard2.0`, `net10.0`, `net11.0` (`netstandard2.0` was dropped later) | this repository |
 | [FluentResults](https://github.com/altmann/FluentResults) 4.0.0 (2025-06-29) | `Result`, `Result<T>`, a list of reasons (errors and successes) | `net8.0`, `net9.0`, `netstandard2.0`, `netstandard2.1` | 2,647 stars; last commit 2025-07-10, the release of 4.0 |
 | [CSharpFunctionalExtensions](https://github.com/vkhorikov/CSharpFunctionalExtensions) 3.7.0 (2026-03-02) | `Result`, `Result<T>`, `Result<T, E>`, `UnitResult<E>`; also `Maybe`, value objects and entities | `net6.0`, `net8.0`, `netstandard2.0` | 2,833 stars; last commit 2026-03-02, the release of 3.7.0; 101 open issues |
 | [ErrorOr](https://github.com/error-or/error-or) 2.1.1 (2026-05-15) | `ErrorOr<T>`, a value or a list of errors | `net8.0`, `net10.0`, `netstandard2.0` | 2,095 stars; last commit 2026-10-08 |
@@ -141,7 +141,8 @@ It still works, and in the benchmarks a four-step chain allocated 24 B and took 
 
 ## Where this library is the weaker choice
 
-- **It is not published yet.** Every other library here has a public track record that this one does not.
+- **It is new.** It was not published yet when this comparison was made (2026-10-18; the first release, 0.1.0, followed on 2026-10-19),
+  so it has no public track record to set beside the others'.
   See the [scope](scope.md) and the [design decisions](design-decisions.md) for what it is and is not.
 - **One error type.** `Result<T, E>` with your own error type, as in CSharpFunctionalExtensions, Optional and OneOf, does not exist here.
   The `Error` is rich, but it is one type.
@@ -156,4 +157,4 @@ It still works, and in the benchmarks a four-step chain allocated 24 B and took 
   The `Task` extension methods are there so that a chain reads as one expression, not because they are the cheapest way. See [Performance](performance.md).
 - **Smaller ecosystem.** No JSON support, no ASP.NET Core integration, no value objects, no transaction helpers.
 - **Not every cell is checked everywhere.** The probes and benchmarks ran on .NET 10 on Windows.
-  The `netstandard2.0` build of this library and other platforms were not part of the comparison.
+  The `netstandard2.0` build that this library had then (dropped since) and other platforms were not part of the comparison.
