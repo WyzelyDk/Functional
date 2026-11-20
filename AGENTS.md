@@ -224,6 +224,10 @@ The library is judged by how it feels to use, not only by what it can do.
   parameter counts, because a caller may pass it by name. `PublicApiDumpTests` (in `Shared.Tests`) tests what the dump shows. Pack also validates the
   package (`EnablePackageValidation`); after a release, `PackageValidationBaselineVersion` makes it fail on a member that the last release had and this one
   does not (`docs/releasing.md`).
+- **System.Text.Json refuses the types on purpose.** `Result`, `Result<T>`, `Maybe<T>`, `Error`, `ErrorDetail`, `ErrorFrame` and `ErrorKind` carry a
+  `[JsonConverter]` guard (`*JsonGuard`, in the `Internal` folders; the shared part is `JsonRefusal`) that throws `NotSupportedException` on both directions;
+  `JsonGuardTests` pin it. The guards are public because a source-generated serializer context cannot use an internal converter, and `Aot.Samples` runs
+  one. Do not write a real serializer; the answer is the `## Serialization` section of each safety page.
 - **Allocation and size are tested**, not described (`PerformanceTests`): `GC.GetAllocatedBytesForCurrentThread` for the success path,
   `Unsafe.SizeOf` for the layout.
 - **Analyzers and code fixes are tested in a real Roslyn workspace** (`Analyzers.Tests`): snippets that must and must not be reported,

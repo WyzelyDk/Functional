@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 
 namespace Wyzely.Functional.ResultTests;
 
@@ -393,6 +394,21 @@ public sealed class ReadmeExamplesTests
             () => Assert.False(hazard.GetValue()));
     }
 
+    [Fact]
+    internal void The_serialization_example_maps_a_result_to_a_response_of_your_own_before_it_is_serialized()
+    {
+        var created = Result.Success(42).Match(
+            static id => new OrderResponse(id, null),
+            static error => new OrderResponse(null, error.Message));
+        var rejected = Result.Failure<int>(Error.NotFound("No such order.")).Match(
+            static id => new OrderResponse(id, null),
+            static error => new OrderResponse(null, error.Message));
+
+        Assert.Multiple(
+            () => Assert.Equal("{\"OrderId\":42,\"Problem\":null}", JsonSerializer.Serialize(created)),
+            () => Assert.Equal("{\"OrderId\":null,\"Problem\":\"No such order.\"}", JsonSerializer.Serialize(rejected)));
+    }
+
     private static Result<int> Quantity(string text)
     {
         if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var quantity))
@@ -434,4 +450,6 @@ public sealed class ReadmeExamplesTests
     private sealed record Order(int Id, bool IsOpen);
 
     private sealed record Receipt(string Number);
+
+    private sealed record OrderResponse(int? OrderId, string? Problem);
 }

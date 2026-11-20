@@ -40,7 +40,8 @@ A new public member goes in only if the answer to every question is yes:
   and a partial one leaves holes. Await the tasks first and zip the results ([Async](async.md#zip-and-tasks)).
 - **Retry, circuit breaker, timeouts.** A resilience library already does this and can consume `Result`.
 - **Validation frameworks.** `Ensure` and `Combine` are the building blocks; the rest is the application's.
-- **Serialization attributes and JSON converters.** An adapter package.
+- **JSON converters.** `System.Text.Json` refuses the types on purpose ([Serialization](safety-and-analyzers.md#serialization)); a converter that
+  reads and writes them would be an adapter package.
 - **Throwing properties** for the error or value.
 - **`OfType` and `Cast` for a result.** A failed cast has no natural error to become: a result has no error for a value of the wrong type.
   `Maybe` has `OfType` (the wrong type is none) and no `Cast`.

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace Wyzely.Functional;
 
@@ -19,6 +20,7 @@ namespace Wyzely.Functional;
 /// <param name="value">The value of the detail, which may be <see langword="null"/>.</param>
 /// <param name="isSensitive"><see langword="true"/> when the value must not appear in redacted output, for example a password.</param>
 [DebuggerDisplay("{ToString(),nq}")]
+[JsonConverter(typeof(ErrorDetailJsonGuard))]
 public readonly struct ErrorDetail(string name, object? value, bool isSensitive = false) : IEquatable<ErrorDetail>
 {
     [SuppressMessage("Style", "IDE0032", Justification = "A default value has no name, so the property substitutes a fallback and cannot be an auto-property.")]

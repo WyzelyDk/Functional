@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Wyzely.Functional.ArgumentTesting;
 
@@ -220,6 +221,8 @@ internal static class NullArgumentProbe
             _ when type == typeof(string) => "x",
             _ when type == typeof(Task) => Task.CompletedTask,
             _ when type == typeof(Exception) => new InvalidOperationException("x"),
+            _ when type == typeof(Type) => typeof(int),
+            _ when type == typeof(Utf8JsonWriter) => new Utf8JsonWriter(Stream.Null),
             _ when type.IsArray => Array.CreateInstance(type.GetElementType()!, 0),
             _ when typeof(Delegate).IsAssignableFrom(type) => CreateDelegate(type),
             _ when type.IsGenericType => ValidGenericArgument(type),
@@ -268,7 +271,8 @@ internal static class NullArgumentProbe
     private static object DefaultOf(Type comparerDefinition, Type argument) =>
         comparerDefinition.MakeGenericType(argument).GetProperty("Default")!.GetValue(null)!;
 
-    // An object of a class: through its public constructor without parameters, or through a public static Create method that takes a text.
+    // An object of a class: through its public constructor without parameters, through a public static Create method that takes a text, or through a
+    // non-public constructor with valid arguments (a type that only the library creates, such as an error frame).
     private static object CreateObject(Type type)
     {
         var constructor = type.GetConstructor(Type.EmptyTypes);
@@ -280,7 +284,16 @@ internal static class NullArgumentProbe
 
         var factory = type.GetMethod("Create", BindingFlags.Public | BindingFlags.Static, [typeof(string)]);
 
-        return factory?.Invoke(null, ["x"]) ?? throw new NotSupportedException("no valid argument for " + type);
+        if (factory is not null)
+        {
+            return factory.Invoke(null, ["x"])!;
+        }
+
+        var hidden = type.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).FirstOrDefault()
+            ?? throw new NotSupportedException("no valid argument for " + type);
+        var arguments = hidden.GetParameters().Select(static parameter => ValidArgument(parameter.ParameterType)).ToArray();
+
+        return hidden.Invoke(arguments);
     }
 
     private static Delegate CreateDelegate(Type delegateType)

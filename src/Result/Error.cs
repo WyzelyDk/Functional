@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace Wyzely.Functional;
 
@@ -24,6 +25,7 @@ namespace Wyzely.Functional;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]
+[JsonConverter(typeof(ErrorJsonGuard))]
 public sealed partial class Error : IEquatable<Error>
 {
     private static readonly IReadOnlyList<ErrorDetail> NoDetails = new ReadOnlyCollection<ErrorDetail>(Array.Empty<ErrorDetail>());

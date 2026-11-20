@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace Wyzely.Functional;
 
@@ -25,6 +26,7 @@ namespace Wyzely.Functional;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]
+[JsonConverter(typeof(ResultOfTJsonGuard))]
 public readonly partial struct Result<T> : IEquatable<Result<T>>
 {
     /// <summary>The value of a success, or <see langword="default"/> for a failure.</summary>

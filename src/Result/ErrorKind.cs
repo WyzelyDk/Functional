@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace Wyzely.Functional;
 
@@ -20,6 +21,7 @@ namespace Wyzely.Functional;
 /// empty or white space throws <see cref="ArgumentException"/>.
 /// </param>
 [DebuggerDisplay("{Name}")]
+[JsonConverter(typeof(ErrorKindJsonGuard))]
 public readonly struct ErrorKind(string name) : IEquatable<ErrorKind>
 {
     private const string FailureName = "Failure";
