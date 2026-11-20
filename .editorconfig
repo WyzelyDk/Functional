@@ -536,11 +536,6 @@ dotnet_diagnostic.SA1601.severity = none
 # Enumeration items should be documented (the same reason as above)
 dotnet_diagnostic.SA1602.severity = none
 
-# Polyfills of BCL attributes (the compiler finds them by their namespace, so they cannot follow the folder structure)
-[src/Shared/Internal/*Attribute.cs]
-# Namespace does not match folder structure
-dotnet_diagnostic.IDE0130.severity = none
-
 # Code generators (build-time tools, not part of the public API)
 [**/*CodeGeneration/**.cs]
 # Missing XML comment for publicly visible type or member (build-time tool, not part of the public API)

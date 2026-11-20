@@ -21,7 +21,7 @@ These facts are checked by tests (`PerformanceTests` in `test/Maybe.Tests`), not
 
 Limits of what is claimed:
 
-- The tests run on `net10.0` and `net11.0`. The `netstandard2.0` build is not covered by them.
+- The tests run on `net10.0` and `net11.0`.
 - The size claims are for the layout on a 64-bit runtime as the tests ran it; the test for a reference compares with `2 * nint.Size`.
 - Delegates that capture variables allocate a closure like in any C# code; use `static` lambdas on hot paths, as the tested chains do.
 - Asynchronous chains allocate what `Task` and `ValueTask` allocate. **We make no allocation claim for them**, apart from the none case above,
@@ -261,7 +261,7 @@ Funcky has none, so every option is turned into a sequence of one and joined wit
   runtime's tiered profile-guided optimization changes how well it inlines delegate calls. Do not read a rank from a 10 % difference.
 - **The scenarios are small on purpose.** They isolate the maybe type, with `static` lambdas and no I/O. Real code spends its time elsewhere.
 - **Equivalents are our choice**, and a library may have a faster way to do the same that we did not find.
-- **No other runtime or platform.** Not the `netstandard2.0` builds, not Native AOT, not Linux or arm64. LanguageExt 5 (beta) is not included.
+- **No other runtime or platform.** Not Native AOT, not Linux or arm64. LanguageExt 5 (beta) is not included.
 - **Delegates that capture variables allocate a closure** like in any C# code; use `static` lambdas on hot paths, as these benchmarks do.
 
 Run them yourself (the whole suite takes about nine minutes; results differ by machine and runtime):

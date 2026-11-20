@@ -93,8 +93,8 @@ Each point below was checked against the source and, where it says so, is pinned
 - **You adopt a vocabulary and a release cadence.** Your team has to learn `Bind`, `Match` and `OrElse`, and you follow our releases and our breaking changes.
 - **There is generated code you did not write.** A stack trace through `Map.Task.ValueTask` is longer than one through your own twenty lines.
   The generated files are in the repository and readable, but there are 123 of them.
-- **An extra package in every project that uses it.** The library has no dependencies outside the BCL (except
-  `System.Threading.Tasks.Extensions` on `netstandard2.0`); it still is one more thing to restore, scan and update.
+- **An extra package in every project that uses it.** The library has no dependencies outside the BCL;
+  it still is one more thing to restore, scan and update.
 - **It is opinionated** (`where T : notnull`, a guarded `GetValue()`, a `null` that becomes none); if you disagree,
   your own type is yours to shape ([Design decisions](design-decisions.md)).
 
@@ -145,8 +145,6 @@ Be clear-eyed: the established libraries have things this one does not. The fact
 - **It does less.** No `Apply`, `Sequence`, `Traverse` or arithmetic, no folds, no JSON, EF Core or ASP.NET Core integrations ([Scope](scope.md)).
 - **It is one team's opinion.** `where T : notnull`, `GetValue()` as a guarded method,
   and a `null` that becomes none in `Map` and in the implicit conversion are choices you may disagree with ([Design decisions](design-decisions.md)).
-- **Some paths are lighter on tests than others.** The `netstandard2.0` build is compile-checked, but the test suite runs on `net10.0`
-  and `net11.0`.
 - **There is no community yet**: no Stack Overflow answers, no ecosystem of add-ons.
 
 ## Should you use it?

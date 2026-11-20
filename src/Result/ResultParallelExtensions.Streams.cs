@@ -1,4 +1,3 @@
-#if !NETSTANDARD2_0
 using System.Runtime.CompilerServices;
 
 namespace Wyzely.Functional;
@@ -143,4 +142,3 @@ public static partial class ResultParallelExtensions
         return await ForEachAsync(items, operation, maxDegreeOfParallelism, cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
     }
 }
-#endif

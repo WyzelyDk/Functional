@@ -5,7 +5,7 @@ namespace Wyzely.Functional.Internal;
 
 /// <summary>
 /// Argument validation helpers shared by the public API. They exist so that every public method validates its input
-/// the same way and so that the library does not depend on <c>ArgumentNullException.ThrowIfNull</c>, which is missing on netstandard2.0.
+/// the same way, with the name of the parameter that the caller passes.
 /// </summary>
 internal static class Guard
 {

@@ -12,7 +12,7 @@ var combined = Result.Combine(checks);
 |---|---|
 | `Result.Combine(results)` / `results.Combine()` | many `Result` into one; many `Result<T>` into one `Result<IReadOnlyList<T>>` (values in order). Looks at **every** result, no short-circuit. |
 | `Result.Combine(tasks)` | the same for `IEnumerable<Task<Result>>`, `IEnumerable<Task<Result<T>>>` and the `ValueTask` equivalents: waits for all, observes all |
-| `stream.Combine(ct)` / `stream.Partition(ct)` | the same for an `IAsyncEnumerable<Result<T>>` (`net10.0` and later, not in the `netstandard2.0` build): the stream is read once, in order, and the value task completes when it ends |
+| `stream.Combine(ct)` / `stream.Partition(ct)` | the same for an `IAsyncEnumerable<Result<T>>` (`net10.0` and later): the stream is read once, in order, and the value task completes when it ends |
 | `found.BindEach(op)` | turns the result of a list (`Result<IReadOnlyList<T>>` or `Result<IEnumerable<T>>`) into a stream with one result per item, or a single failure when the list could not be read; `op` may be asynchronous |
 | `results.FirstFailureOrSuccess()` | the first failed result, or a success; stops at the first failure instead of looking at every result (also for an `IAsyncEnumerable<Result>`) |
 | `tasks.CombineInOrder()` | `Combine` for tasks (and value tasks) that runs them **one at a time**: each task of a lazy sequence is created when the previous one has finished |

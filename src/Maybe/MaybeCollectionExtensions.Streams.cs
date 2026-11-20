@@ -1,4 +1,3 @@
-#if !NETSTANDARD2_0
 using System.Runtime.CompilerServices;
 
 namespace Wyzely.Functional;
@@ -466,4 +465,3 @@ public static partial class MaybeCollectionExtensions
         return default;
     }
 }
-#endif

@@ -10,11 +10,11 @@ namespace Wyzely.Functional.SharedTests;
 // a name, a member access, one call, a comparison, and also a conditional, a switch or a pattern.
 internal static class NamedLambdaFinder
 {
-    // The source is read twice, once for the newest target and once for netstandard2.0, so that the code behind #if of either is checked.
+    // The source is read twice, once for the newest target (net11.0) and once for the older one (net10.0), so that the code behind #if of either is checked.
     private static readonly string[][] SymbolSets =
     [
         ["NET11_0_OR_GREATER", "NET10_0_OR_GREATER", "NET9_0_OR_GREATER", "NET8_0_OR_GREATER", "NET"],
-        ["NETSTANDARD2_0", "NETSTANDARD"],
+        ["NET10_0_OR_GREATER", "NET9_0_OR_GREATER", "NET8_0_OR_GREATER", "NET"],
     ];
 
     internal static IReadOnlyList<LambdaProblem> Find(string source)

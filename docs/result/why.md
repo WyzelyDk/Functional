@@ -88,8 +88,7 @@ Be clear-eyed: the established libraries have things this one does not.
 - **It is one team's opinion.** A `default` result is a success, and `GetValue()`/`GetError()` are guarded by an analyzer.
   A value converts to a success implicitly, so `Result<bool> M() => false;` is a success;
   if that bothers you, use `Result.Success` and `Result.Failure` throughout.
-- **Some paths are lighter on tests than others.**
-  The `netstandard2.0` build is compile-checked but the test suite does not run on it, and the C# 15 union support exists only in the `net11.0` build.
+- **The C# 15 union support exists only in the `net11.0` build.**
 - **There is no community yet**: no Stack Overflow answers, no ecosystem of add-ons.
 
 ## Should you use it?

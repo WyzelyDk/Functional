@@ -88,8 +88,9 @@ dotnet add package Wyzely.Functional.Maybe
 | Target | Package dependencies |
 |---|---|
 | `net10.0` | none |
-| `netstandard2.0` (.NET Framework 4.6.1+, .NET 8 and 9, Unity, ...) | `System.Threading.Tasks.Extensions`, only because `ValueTask` is not part of `netstandard2.0` |
 | `net11.0` | none; adds [C# 15 union support](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/unions.md) |
+
+The last versions with a `netstandard2.0` asset (for .NET Framework, Unity, and .NET 8 or 9) are 0.3.x; a project on those stays on 0.3.x.
 
 The analyzer comes with the package. Use **C# 13 or later** to write `async` lambdas without ambiguity
 ([why](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/async.md#async-lambdas-and-the-language-version)).

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(SupportedTargetFrameworks)</TargetFrameworks>
     <!-- The tests of the umbrella package are named after it: Wyzely.Functional.Tests. -->
     <AssemblyName>$(ProductPrefix).Tests</AssemblyName>
     <RootNamespace>$(ProductPrefix).Tests</RootNamespace>

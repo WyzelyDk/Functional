@@ -181,6 +181,12 @@ jobs:
         shell: pwsh
         run: ./.github/scripts/Test-LtsConsumer.ps1 -Packages artifacts
 
+      # Every package has an asset for net10.0 and one for net11.0 and nothing else, no dependency except the two that the umbrella package has on
+      # the others, and its analyzers in the folder of the Roslyn that they were built against.
+      - name: Check the contents of the packages
+        shell: pwsh
+        run: ./.github/scripts/Test-PackageContents.ps1 -Packages artifacts
+
       - name: List the package contents
         run: |
           for package in artifacts/*.nupkg; do

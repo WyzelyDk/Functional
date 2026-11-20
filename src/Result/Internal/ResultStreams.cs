@@ -1,4 +1,3 @@
-#if !NETSTANDARD2_0
 namespace Wyzely.Functional.Internal;
 
 /// <summary>Reads asynchronous streams for the helpers of results, which follow <see cref="ResultOptions.ContinueOnCapturedContext"/>.</summary>
@@ -21,4 +20,3 @@ internal static class ResultStreams
         return items;
     }
 }
-#endif

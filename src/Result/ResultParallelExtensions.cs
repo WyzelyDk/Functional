@@ -263,37 +263,20 @@ public static partial class ResultParallelExtensions
 
         var limit = maxDegreeOfParallelism == Unbounded ? count : Math.Min(maxDegreeOfParallelism, count);
 
-#if NET6_0_OR_GREATER
         // The limit is always explicit: Parallel.ForEachAsync treats the default of -1 as the number of processors,
         // which would silently throttle I/O-bound work that was asked to run without a limit.
         var options = new ParallelOptions { MaxDegreeOfParallelism = limit, CancellationToken = cancellationToken };
 
-        await Parallel.ForEachAsync(Enumerable.Range(0, count), options, (index, _) => new ValueTask(body(index)))
+        var indexes = Enumerable.Range(0, count);
+
+        await Parallel.ForEachAsync(indexes, options, (index, _) => AsValueTask(body, index))
             .ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
-#else
-        using var gate = new SemaphoreSlim(limit);
-        var tasks = new Task[count];
+    }
 
-        for (var index = 0; index < count; index++)
-        {
-            tasks[index] = RunOneAsync(index);
-        }
+    private static ValueTask AsValueTask(Func<int, Task> body, int index)
+    {
+        var task = body(index);
 
-        await Task.WhenAll(tasks).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
-
-        async Task RunOneAsync(int index)
-        {
-            await gate.WaitAsync(cancellationToken).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
-
-            try
-            {
-                await body(index).ConfigureAwait(ResultConfiguration.ContinueOnCapturedContext);
-            }
-            finally
-            {
-                gate.Release();
-            }
-        }
-#endif
+        return new ValueTask(task);
     }
 }

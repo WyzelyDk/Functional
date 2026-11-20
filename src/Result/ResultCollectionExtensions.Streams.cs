@@ -1,4 +1,3 @@
-#if !NETSTANDARD2_0
 using System.Runtime.CompilerServices;
 
 namespace Wyzely.Functional;
@@ -263,4 +262,3 @@ public static partial class ResultCollectionExtensions
         return new ValueTask<Result<TResult>>(task);
     }
 }
-#endif

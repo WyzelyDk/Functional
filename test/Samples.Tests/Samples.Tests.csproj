@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- The samples target net10.0 and net11.0, so the tests that run them do as well. -->
-    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(SupportedTargetFrameworks)</TargetFrameworks>
     <RootNamespace>$(ProductPrefix).SamplesTests</RootNamespace>
   </PropertyGroup>
 

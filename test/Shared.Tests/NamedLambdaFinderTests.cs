@@ -109,12 +109,12 @@ public sealed class NamedLambdaFinderTests
     internal void Code_behind_a_directive_for_either_target_is_checked()
     {
         const string source =
-            "class C\n{\n#if NET8_0_OR_GREATER\n    void M() { F(x => { return x; }); }\n#endif\n" +
-            "#if NETSTANDARD2_0\n    void N() { F(x => { return x; }); }\n#endif\n}\n";
+            "class C\n{\n#if NET11_0_OR_GREATER\n    void M() { F(x => { return x; }); }\n#else\n" +
+            "    void N() { F(x => { return x; }); }\n#endif\n}\n";
 
         var found = NamedLambdaFinder.Find(source);
 
-        Assert.Equal([4, 7], found.Select(static problem => problem.Line));
+        Assert.Equal([4, 6], found.Select(static problem => problem.Line));
     }
 
     private static string Wrap(string member) => "class C\n{\n    " + member + "\n}\n";

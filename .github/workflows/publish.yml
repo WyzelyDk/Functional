@@ -96,6 +96,10 @@ jobs:
             fi
           done
 
+      - name: Check the contents of the packages
+        shell: pwsh
+        run: ./.github/scripts/Test-PackageContents.ps1 -Packages artifacts
+
       # Nothing is published that a project on the long-term-support .NET cannot use (the analyzers must load in the compiler of every .NET 10 SDK).
       - name: Check the packages with every .NET 10 SDK
         shell: pwsh

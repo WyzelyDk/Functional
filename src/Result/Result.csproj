@@ -6,10 +6,6 @@
     <RootNamespace>$(ProductPrefix)</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Threading.Tasks.Extensions" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Result.Analyzers\Result.Analyzers.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Result.Analyzers.CodeFixes\Result.Analyzers.CodeFixes.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" />

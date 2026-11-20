@@ -41,7 +41,7 @@ The library is judged by how it feels to use, not only by what it can do.
   hold a local. This holds for the libraries and for what the generators emit; the tests, the benchmarks and the tooling (the generator catalogs, the Roslyn
   code fixes, the analyzers) are exempt, because a builder style such as `SyntaxFactory` or the catalog's `Returns(...)` is nested by design.
   `NestedCallRuleTests` in `Shared.Tests` enforces the rule for the libraries, the generated code and the samples: `NestedCallFinder` reads each file with
-  Roslyn twice, for `net11.0` and for `netstandard2.0`, so that the code behind `#if` is checked too.
+  Roslyn twice, for `net11.0` and for `net10.0`, so that the code behind `#if` is checked too.
 - **A lambda is small.** It has no block body and is never a `delegate { }`: a block is a private method or a local function, passed as a method group
   (a `static` one where the block captures nothing). A body that is one expression is fine: a name, a member access, one call, a comparison, a conditional,
   a `switch` or a pattern, or a list (a collection expression, a tuple, an interpolated string). A body that calls two or more times is a chain with one
@@ -131,7 +131,6 @@ The library is judged by how it feels to use, not only by what it can do.
   when a new `Result` rule has a counterpart for `Maybe`, put what they have in common in one of these places instead of copying it.
   `src/Shared/Shared.csproj` is the same code (both folders; the generator engine on net10.0) as a real project,
   for the IDE and for `test/Shared.Tests`; nothing references it and it is not packable (`Directory.Build.props` treats the name `Shared` as a tool project).
-  Its tests run on net10.0 only, so the `netstandard2.0` branches of the shared code are compiled but not run.
 - **The internal helpers have a namespace that matches their folder.** The types in the `Internal` folders (`src/Shared/Internal`,
   `src/Result/Internal`, `src/Maybe/Internal`) are in `Wyzely.Functional.Internal`, which `Directory.Build.props` imports into every library
   (and `Shared.csproj` and `Shared.Tests` import it themselves) with a global using. The polyfills of BCL attributes are the exception: the
@@ -244,9 +243,11 @@ dotnet pack src/Result -c Release
 ```
 
 - `global.json` pins SDK 11 (the exact stable version, `11.0.100`; `allowPrerelease` is off).
-  That one SDK builds every target framework: `netstandard2.0`, `net10.0` and `net11.0` (C# 15 unions, for `Result<T>` and `Maybe<T>`).
-  `net8.0` was dropped when .NET 8 left support; consumers on .NET 8 and 9 get the `netstandard2.0` asset, which has no stream operations.
-  The lists are defined once in `Directory.Build.props` (`LibraryTargetFrameworks`, `TestTargetFrameworks`); change them there, not in a project file.
+  That one SDK builds every target framework: `net10.0` and `net11.0` (C# 15 unions, for `Result<T>` and `Maybe<T>`).
+  The libraries are for modern .NET only, so `net8.0` and `netstandard2.0` are gone (the last version with a `netstandard2.0` asset is 0.3.x); the analyzers
+  are the one exception, because a compiler loads them as `netstandard2.0` whatever the project targets.
+  The list is defined once in `Directory.Build.props` (`SupportedTargetFrameworks`), for the libraries and for the tests that run on every shipped asset;
+  change it there, not in a project file.
   `net11.0` is a target framework like the others, not an opt-in; the union code sits behind `#if NET11_0_OR_GREATER`.
   The tests run on the .NET 10 and 11 runtimes, so both must be installed (the SDK 11 brings the last). Bump the pinned 11.0.x on purpose.
 - Line endings follow `.gitattributes` (`text=auto`); the generator writes CRLF and the tests normalize, so do not fight it.
