@@ -515,7 +515,7 @@ stylecop.documentation.documentPrivateFields = false
 generated_code = true
 
 # Test projects, and the test code that several test projects share as source
-[{**/*.Tests/**.cs,test/AnalyzerTesting/**.cs,test/ArgumentTesting/**.cs}]
+[{**/*.Tests/**.cs,test/AnalyzerTesting/**.cs,test/ApiSurface/**.cs,test/ArgumentTesting/**.cs}]
 # Identifiers should not contain underscores (to allow underscores in test method names)
 dotnet_diagnostic.CA1707.severity = none
 # Do not initialize unnecessarily (make assignments in tests more explicit)

@@ -27,6 +27,8 @@ Release builds treat warnings as errors, and every public and internal member ha
 ## How the work is done here
 
 - **Tests first.** A behavior change starts with a failing test (failing at run time, with a stub so that it compiles), then the code.
+- **The public API is approved.** `PublicApiTests` compares what a caller can see of the package with `test/ApiSurface/Approved`. When a change of the API
+  is intended, run the tests once with `UPDATE_PUBLIC_API=1` (for `net10.0` and `net11.0`), read the diff and commit it.
 - **Benchmarks before performance claims.**
   A change that is meant to be faster is measured, and a measurement that contradicts the expectation wins (see [Design decisions](design-decisions.md)).
 - **README examples are tests.** If you change a snippet, change the test that holds it.

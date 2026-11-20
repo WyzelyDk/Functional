@@ -216,6 +216,14 @@ The library is judged by how it feels to use, not only by what it can do.
   once per non-nullable reference parameter with that argument set to null and asserts that an `ArgumentNullException` for that parameter is thrown at the
   call, also when the method returns a task. A new public member is covered without a new test; a member that forwards to another one must validate its own
   parameters first, or the exception names the wrong one.
+- **The public API is approved, not just reviewed.** `PublicApiTests` (in `Result.Tests`, `Maybe.Tests` and `Functional.Tests`, using the shared
+  `test/ApiSurface/PublicApiDump.cs`) describes everything a caller can see of the package (types, members, parameter names and defaults, nullable
+  annotations, generic constraints, tuple element names, `[OverloadResolutionPriority]` and the nullable flow attributes) and compares it with the text in
+  `test/ApiSurface/Approved`, one file per assembly and target framework. A change of the public API is therefore a change of those files, which a reviewer
+  reads. When it is intended, run the tests once with `UPDATE_PUBLIC_API=1` for `net10.0` and for `net11.0`, read the diff, and commit it; a rename of a
+  parameter counts, because a caller may pass it by name. `PublicApiDumpTests` (in `Shared.Tests`) tests what the dump shows. Pack also validates the
+  package (`EnablePackageValidation`); after a release, `PackageValidationBaselineVersion` makes it fail on a member that the last release had and this one
+  does not (`docs/releasing.md`).
 - **Allocation and size are tested**, not described (`PerformanceTests`): `GC.GetAllocatedBytesForCurrentThread` for the success path,
   `Unsafe.SizeOf` for the layout.
 - **Analyzers and code fixes are tested in a real Roslyn workspace** (`Analyzers.Tests`): snippets that must and must not be reported,

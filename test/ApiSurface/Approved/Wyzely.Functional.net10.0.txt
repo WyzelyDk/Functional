@@ -1,0 +1,22 @@
+static class Wyzely.Functional.MaybeResultExtensions
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> ToMaybe<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Result<T>> result) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Result<T>> EnsureSome<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Result<Wyzely.Functional.Maybe<T>>> result, System.Func<Wyzely.Functional.Error> errorFactory) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Result<T>> EnsureSome<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Result<Wyzely.Functional.Maybe<T>>> result, Wyzely.Functional.Error error) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Result<T>> ToResult<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<Wyzely.Functional.Error> errorFactory) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Result<T>> ToResult<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, Wyzely.Functional.Error error) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Result> ToInvertedResult<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, Wyzely.Functional.Error> errorFactory) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Result> ToInvertedResult<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, Wyzely.Functional.Error error) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> ToMaybe<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<T>> result) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<T>> EnsureSome<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<Wyzely.Functional.Maybe<T>>> result, System.Func<Wyzely.Functional.Error> errorFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<T>> EnsureSome<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<Wyzely.Functional.Maybe<T>>> result, Wyzely.Functional.Error error) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<T>> ToResult<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<Wyzely.Functional.Error> errorFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<T>> ToResult<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, Wyzely.Functional.Error error) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Result> ToInvertedResult<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, Wyzely.Functional.Error> errorFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Result> ToInvertedResult<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, Wyzely.Functional.Error error) where T : notnull
+  static Wyzely.Functional.Maybe<T> ToMaybe<T>(this Wyzely.Functional.Result<T> result) where T : notnull
+  static Wyzely.Functional.Result ToInvertedResult<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, Wyzely.Functional.Error> errorFactory) where T : notnull
+  static Wyzely.Functional.Result ToInvertedResult<T>(this Wyzely.Functional.Maybe<T> maybe, Wyzely.Functional.Error error) where T : notnull
+  static Wyzely.Functional.Result<T> EnsureSome<T>(this Wyzely.Functional.Result<Wyzely.Functional.Maybe<T>> result, System.Func<Wyzely.Functional.Error> errorFactory) where T : notnull
+  static Wyzely.Functional.Result<T> EnsureSome<T>(this Wyzely.Functional.Result<Wyzely.Functional.Maybe<T>> result, Wyzely.Functional.Error error) where T : notnull
+  static Wyzely.Functional.Result<T> ToResult<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<Wyzely.Functional.Error> errorFactory) where T : notnull
+  static Wyzely.Functional.Result<T> ToResult<T>(this Wyzely.Functional.Maybe<T> maybe, Wyzely.Functional.Error error) where T : notnull

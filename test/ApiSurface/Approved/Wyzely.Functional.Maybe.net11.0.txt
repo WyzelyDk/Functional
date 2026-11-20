@@ -1,0 +1,234 @@
+static class Wyzely.Functional.Maybe
+  static System.Collections.Generic.IComparer<Wyzely.Functional.Maybe<T>> CreateComparer<T>(System.Collections.Generic.IComparer<T> valueComparer) where T : notnull
+  static System.Collections.Generic.IEqualityComparer<Wyzely.Functional.Maybe<T>> CreateEqualityComparer<T>(System.Collections.Generic.IEqualityComparer<T> valueComparer) where T : notnull
+  static Wyzely.Functional.Maybe<T> From<T>(T? value) where T : class
+  static Wyzely.Functional.Maybe<T> From<T>(T? value) where T : struct
+  static Wyzely.Functional.Maybe<T> None<T>() where T : notnull
+  static Wyzely.Functional.Maybe<T> NoneIf<T>(bool condition, T value) where T : notnull
+  static Wyzely.Functional.Maybe<T> Some<T>(T value) where T : notnull
+  static Wyzely.Functional.Maybe<T> SomeIf<T>(bool condition, T value) where T : notnull
+static class Wyzely.Functional.MaybeCollectionExtensions
+  [OverloadResolutionPriority(1)] static System.Collections.Generic.IAsyncEnumerable<TResult> Choose<T, TResult>(this System.Collections.Generic.IAsyncEnumerable<T?> source, System.Func<T?, System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>>> selector) where TResult : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> FirstOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, System.Threading.Tasks.Task<bool>> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> LastOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, System.Threading.Tasks.Task<bool>> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> SingleOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, System.Threading.Tasks.Task<bool>> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Collections.Generic.IAsyncEnumerable<T> Choose<T>(this System.Collections.Generic.IAsyncEnumerable<Wyzely.Functional.Maybe<T>> source) where T : notnull
+  static System.Collections.Generic.IAsyncEnumerable<TResult> Choose<T, TResult>(this System.Collections.Generic.IAsyncEnumerable<T?> source, System.Func<T?, System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>>> selector) where TResult : notnull
+  static System.Collections.Generic.IAsyncEnumerable<TResult> Choose<T, TResult>(this System.Collections.Generic.IAsyncEnumerable<T?> source, System.Func<T?, Wyzely.Functional.Maybe<TResult>> selector) where TResult : notnull
+  static System.Collections.Generic.IEnumerable<T> Choose<T>(this System.Collections.Generic.IEnumerable<Wyzely.Functional.Maybe<T>> source) where T : notnull
+  static System.Collections.Generic.IEnumerable<TResult> Choose<T, TResult>(this System.Collections.Generic.IEnumerable<T?> source, System.Func<T?, Wyzely.Functional.Maybe<TResult>> selector) where TResult : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> ElementAtOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, int index, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> FirstOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> FirstOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, bool> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> FirstOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> LastOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> LastOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, bool> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> LastOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> SingleOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> SingleOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Func<T, bool> predicate, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> SingleOrNone<T>(this System.Collections.Generic.IAsyncEnumerable<T> source, System.Threading.CancellationToken cancellationToken = null) where T : notnull
+  static Wyzely.Functional.Maybe<T> ElementAtOrNone<T>(this System.Collections.Generic.IEnumerable<T> source, int index) where T : notnull
+  static Wyzely.Functional.Maybe<T> FirstOrNone<T>(this System.Collections.Generic.IEnumerable<T> source) where T : notnull
+  static Wyzely.Functional.Maybe<T> FirstOrNone<T>(this System.Collections.Generic.IEnumerable<T> source, System.Func<T, bool> predicate) where T : notnull
+  static Wyzely.Functional.Maybe<T> LastOrNone<T>(this System.Collections.Generic.IEnumerable<T> source) where T : notnull
+  static Wyzely.Functional.Maybe<T> LastOrNone<T>(this System.Collections.Generic.IEnumerable<T> source, System.Func<T, bool> predicate) where T : notnull
+  static Wyzely.Functional.Maybe<T> SingleOrNone<T>(this System.Collections.Generic.IEnumerable<T> source) where T : notnull
+  static Wyzely.Functional.Maybe<T> SingleOrNone<T>(this System.Collections.Generic.IEnumerable<T> source, System.Func<T, bool> predicate) where T : notnull
+  static Wyzely.Functional.Maybe<TValue> GetValueOrNone<TKey, TValue>(this System.Collections.Generic.IReadOnlyDictionary<TKey, TValue> source, TKey key) where TKey : notnull where TValue : notnull
+static class Wyzely.Functional.MaybeConfiguration
+  static void Configure(System.Action<Wyzely.Functional.MaybeOptions> configure)
+  static void Reset()
+static class Wyzely.Functional.MaybeExtensions
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.Task<T> ValueOr<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask<T>> fallbackFactory) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Filter<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask<T>> replacementFactory) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>>> alternative) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.Task<bool> All<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.Task<bool> Any<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<T> ValueOr<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask<T>> fallbackFactory) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<T> ValueOr<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.ValueTask<T>> fallbackFactory) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Filter<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Filter<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask<T>> replacementFactory) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>>> alternative) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.ValueTask<T>> replacementFactory) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>>> alternative) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<bool> All<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<bool> All<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<bool> Any<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(-1)] static System.Threading.Tasks.ValueTask<bool> Any<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask<bool>> predicate) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task Switch<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task> onSome, System.Func<System.Threading.Tasks.Task> onNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task Switch<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task> onSome, System.Func<System.Threading.Tasks.Task> onNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<TResult?> Match<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> onSome, System.Func<System.Threading.Tasks.Task<TResult?>> onNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<TResult?> Match<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> onSome, System.Func<System.Threading.Tasks.Task<TResult?>> onNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Tap<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task> tap) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Tap<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task> tap) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> TapNone<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task> tapNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> TapNone<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.Task> tapNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>>> bind) where T : notnull where TResult : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>>> bind) where T : notnull where TResult : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> map) where T : notnull where TResult : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> map) where T : notnull where TResult : struct
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> map) where T : notnull where TResult : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> map) where T : notnull where TResult : struct
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask Switch<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task> onSome, System.Func<System.Threading.Tasks.Task> onNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<TResult?> Match<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> onSome, System.Func<System.Threading.Tasks.Task<TResult?>> onNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Tap<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task> tap) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> TapNone<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task> tapNone) where T : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>>> bind) where T : notnull where TResult : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> map) where T : notnull where TResult : notnull
+  [OverloadResolutionPriority(1)] static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<TResult?>> map) where T : notnull where TResult : struct
+  static System.Threading.Tasks.Task Switch<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Action<T> onSome, System.Action onNone) where T : notnull
+  static System.Threading.Tasks.Task Switch<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask> onSome, System.Func<System.Threading.Tasks.ValueTask> onNone) where T : notnull
+  static System.Threading.Tasks.Task<T> GetValueOrThrow<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe) where T : notnull
+  static System.Threading.Tasks.Task<T> GetValueOrThrow<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Exception> exceptionFactory) where T : notnull
+  static System.Threading.Tasks.Task<T> ValueOr<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task<T>> fallbackFactory) where T : notnull
+  static System.Threading.Tasks.Task<T> ValueOr<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T> fallbackFactory) where T : notnull
+  static System.Threading.Tasks.Task<T> ValueOr<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, T fallback) where T : notnull
+  static System.Threading.Tasks.Task<T> ValueOr<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.Task<T>> fallbackFactory) where T : notnull
+  static System.Threading.Tasks.Task<TResult?> Match<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> onSome, System.Func<System.Threading.Tasks.ValueTask<TResult?>> onNone) where T : notnull
+  static System.Threading.Tasks.Task<TResult?> Match<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, TResult?> onSome, System.Func<TResult?> onNone) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Filter<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Filter<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, bool> predicate) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Filter<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Flatten<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<Wyzely.Functional.Maybe<T>>> maybe) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task<T>> replacementFactory) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>>> alternative) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T> replacementFactory) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<Wyzely.Functional.Maybe<T>> alternative) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.Task<T>> replacementFactory) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> OrElse<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>>> alternative) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Tap<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Action<T> tap) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> Tap<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask> tap) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> TapNone<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Action tapNone) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> TapNone<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask> tapNone) where T : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>>> bind) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, Wyzely.Functional.Maybe<TResult>> bind) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> map) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> map) where T : notnull where TResult : struct
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, TResult?> map) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, TResult?> map) where T : notnull where TResult : struct
+  static System.Threading.Tasks.Task<Wyzely.Functional.Maybe<TResult>> OfType<T, TResult>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.Task<bool> All<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.Task<bool> All<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, bool> predicate) where T : notnull
+  static System.Threading.Tasks.Task<bool> All<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.Task<bool> Any<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.Task<bool> Any<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, bool> predicate) where T : notnull
+  static System.Threading.Tasks.Task<bool> Any<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.Task<bool> Contains<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, T value) where T : notnull
+  static System.Threading.Tasks.Task<bool> Contains<T>(this System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>> maybe, T value, System.Collections.Generic.IEqualityComparer<T> comparer) where T : notnull
+  static System.Threading.Tasks.ValueTask Switch<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Action<T> onSome, System.Action onNone) where T : notnull
+  static System.Threading.Tasks.ValueTask Switch<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask> onSome, System.Func<System.Threading.Tasks.ValueTask> onNone) where T : notnull
+  static System.Threading.Tasks.ValueTask Switch<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask> onSome, System.Func<System.Threading.Tasks.ValueTask> onNone) where T : notnull
+  static System.Threading.Tasks.ValueTask<T> GetValueOrThrow<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe) where T : notnull
+  static System.Threading.Tasks.ValueTask<T> GetValueOrThrow<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Exception> exceptionFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<T> ValueOr<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task<T>> fallbackFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<T> ValueOr<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T> fallbackFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<T> ValueOr<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, T fallback) where T : notnull
+  static System.Threading.Tasks.ValueTask<TResult?> Match<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> onSome, System.Func<System.Threading.Tasks.ValueTask<TResult?>> onNone) where T : notnull
+  static System.Threading.Tasks.ValueTask<TResult?> Match<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, TResult?> onSome, System.Func<TResult?> onNone) where T : notnull
+  static System.Threading.Tasks.ValueTask<TResult?> Match<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> onSome, System.Func<System.Threading.Tasks.ValueTask<TResult?>> onNone) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Filter<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Filter<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, bool> predicate) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Flatten<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<Wyzely.Functional.Maybe<T>>> maybe) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task<T>> replacementFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.Task<Wyzely.Functional.Maybe<T>>> alternative) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T> replacementFactory) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> OrElse<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<Wyzely.Functional.Maybe<T>> alternative) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Tap<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Action<T> tap) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Tap<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask> tap) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> Tap<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask> tap) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> TapNone<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Action tapNone) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> TapNone<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<System.Threading.Tasks.ValueTask> tapNone) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> TapNone<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Threading.Tasks.ValueTask> tapNone) where T : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>>> bind) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, Wyzely.Functional.Maybe<TResult>> bind) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Bind<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>>> bind) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> map) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> map) where T : notnull where TResult : struct
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, TResult?> map) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, TResult?> map) where T : notnull where TResult : struct
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> map) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> Map<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, System.Threading.Tasks.ValueTask<TResult?>> map) where T : notnull where TResult : struct
+  static System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<TResult>> OfType<T, TResult>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe) where T : notnull where TResult : notnull
+  static System.Threading.Tasks.ValueTask<bool> All<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.ValueTask<bool> All<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, bool> predicate) where T : notnull
+  static System.Threading.Tasks.ValueTask<bool> Any<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, System.Threading.Tasks.Task<bool>> predicate) where T : notnull
+  static System.Threading.Tasks.ValueTask<bool> Any<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, System.Func<T, bool> predicate) where T : notnull
+  static System.Threading.Tasks.ValueTask<bool> Contains<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, T value) where T : notnull
+  static System.Threading.Tasks.ValueTask<bool> Contains<T>(this System.Threading.Tasks.ValueTask<Wyzely.Functional.Maybe<T>> maybe, T value, System.Collections.Generic.IEqualityComparer<T> comparer) where T : notnull
+  static T GetValueOrThrow<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<System.Exception> exceptionFactory) where T : notnull
+  static T ValueOr<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T> fallbackFactory) where T : notnull
+  static TResult? Match<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, TResult?> onSome, System.Func<TResult?> onNone) where T : notnull
+  static Wyzely.Functional.Maybe<(T1 First, T2 Second)> Zip<T1, T2>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second) where T1 : notnull where T2 : notnull
+  static Wyzely.Functional.Maybe<(T1 First, T2 Second, T3 Third)> Zip<T1, T2, T3>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third) where T1 : notnull where T2 : notnull where T3 : notnull
+  static Wyzely.Functional.Maybe<(T1 First, T2 Second, T3 Third, T4 Fourth)> Zip<T1, T2, T3, T4>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, Wyzely.Functional.Maybe<T4> fourth) where T1 : notnull where T2 : notnull where T3 : notnull where T4 : notnull
+  static Wyzely.Functional.Maybe<(T1 First, T2 Second, T3 Third, T4 Fourth, T5 Fifth)> Zip<T1, T2, T3, T4, T5>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, Wyzely.Functional.Maybe<T4> fourth, Wyzely.Functional.Maybe<T5> fifth) where T1 : notnull where T2 : notnull where T3 : notnull where T4 : notnull where T5 : notnull
+  static Wyzely.Functional.Maybe<T> Filter<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, bool> predicate) where T : notnull
+  static Wyzely.Functional.Maybe<T> Flatten<T>(this Wyzely.Functional.Maybe<Wyzely.Functional.Maybe<T>> maybe) where T : notnull
+  static Wyzely.Functional.Maybe<T> OrElse<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T> replacementFactory) where T : notnull
+  static Wyzely.Functional.Maybe<T> OrElse<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<Wyzely.Functional.Maybe<T>> alternative) where T : notnull
+  static Wyzely.Functional.Maybe<T> Tap<T>(this Wyzely.Functional.Maybe<T> maybe, System.Action<T> tap) where T : notnull
+  static Wyzely.Functional.Maybe<T> TapNone<T>(this Wyzely.Functional.Maybe<T> maybe, System.Action tapNone) where T : notnull
+  static Wyzely.Functional.Maybe<TResult> Bind<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, Wyzely.Functional.Maybe<TResult>> bind) where T : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> Map<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, TResult?> map) where T : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> Map<T, TResult>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, TResult?> map) where T : notnull where TResult : struct
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, T3, T4, T5, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, Wyzely.Functional.Maybe<T4> fourth, Wyzely.Functional.Maybe<T5> fifth, System.Func<T1, T2, T3, T4, T5, TResult?> selector) where T1 : notnull where T2 : notnull where T3 : notnull where T4 : notnull where T5 : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, T3, T4, T5, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, Wyzely.Functional.Maybe<T4> fourth, Wyzely.Functional.Maybe<T5> fifth, System.Func<T1, T2, T3, T4, T5, TResult?> selector) where T1 : notnull where T2 : notnull where T3 : notnull where T4 : notnull where T5 : notnull where TResult : struct
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, T3, T4, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, Wyzely.Functional.Maybe<T4> fourth, System.Func<T1, T2, T3, T4, TResult?> selector) where T1 : notnull where T2 : notnull where T3 : notnull where T4 : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, T3, T4, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, Wyzely.Functional.Maybe<T4> fourth, System.Func<T1, T2, T3, T4, TResult?> selector) where T1 : notnull where T2 : notnull where T3 : notnull where T4 : notnull where TResult : struct
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, T3, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, System.Func<T1, T2, T3, TResult?> selector) where T1 : notnull where T2 : notnull where T3 : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, T3, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, Wyzely.Functional.Maybe<T3> third, System.Func<T1, T2, T3, TResult?> selector) where T1 : notnull where T2 : notnull where T3 : notnull where TResult : struct
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, System.Func<T1, T2, TResult?> selector) where T1 : notnull where T2 : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> Zip<T1, T2, TResult>(this Wyzely.Functional.Maybe<T1> first, Wyzely.Functional.Maybe<T2> second, System.Func<T1, T2, TResult?> selector) where T1 : notnull where T2 : notnull where TResult : struct
+  static bool All<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, bool> predicate) where T : notnull
+  static bool Any<T>(this Wyzely.Functional.Maybe<T> maybe, System.Func<T, bool> predicate) where T : notnull
+  static bool Contains<T>(this Wyzely.Functional.Maybe<T> maybe, T value) where T : notnull
+  static bool Contains<T>(this Wyzely.Functional.Maybe<T> maybe, T value, System.Collections.Generic.IEqualityComparer<T> comparer) where T : notnull
+  static void Switch<T>(this Wyzely.Functional.Maybe<T> maybe, System.Action<T> onSome, System.Action onNone) where T : notnull
+static class Wyzely.Functional.MaybeLinqExtensions
+  static Wyzely.Functional.Maybe<T> Where<T>(this Wyzely.Functional.Maybe<T> source, System.Func<T, bool> predicate) where T : notnull
+  static Wyzely.Functional.Maybe<TResult> Select<T, TResult>(this Wyzely.Functional.Maybe<T> source, System.Func<T, TResult?> selector) where T : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> Select<T, TResult>(this Wyzely.Functional.Maybe<T> source, System.Func<T, TResult?> selector) where T : notnull where TResult : struct
+  static Wyzely.Functional.Maybe<TResult> SelectMany<T, TCollection, TResult>(this Wyzely.Functional.Maybe<T> source, System.Func<T, Wyzely.Functional.Maybe<TCollection>> collectionSelector, System.Func<T, TCollection, TResult?> resultSelector) where T : notnull where TCollection : notnull where TResult : notnull
+  static Wyzely.Functional.Maybe<TResult> SelectMany<T, TCollection, TResult>(this Wyzely.Functional.Maybe<T> source, System.Func<T, Wyzely.Functional.Maybe<TCollection>> collectionSelector, System.Func<T, TCollection, TResult?> resultSelector) where T : notnull where TCollection : notnull where TResult : struct
+  static Wyzely.Functional.Maybe<TResult> SelectMany<T, TResult>(this Wyzely.Functional.Maybe<T> source, System.Func<T, Wyzely.Functional.Maybe<TResult>> selector) where T : notnull where TResult : notnull
+static class Wyzely.Functional.MaybeNullableExtensions
+  static T? AsNullable<T>(this Wyzely.Functional.Maybe<T> maybe) where T : struct
+sealed class Wyzely.Functional.MaybeOptions
+  ctor()
+  property bool ContinueOnCapturedContext { get; set; }
+  property bool ShowValueInToString { get; set; }
+  property string NoValueMessage { get; set; }
+  property string NoneText { get; set; }
+  property string RedactedValue { get; set; }
+  property string SomeFormat { get; set; }
+[DebuggerDisplay("{ToString(),nq}"), Union] readonly struct Wyzely.Functional.Maybe<T> where T : notnull : System.IComparable<Wyzely.Functional.Maybe<T>>, System.IEquatable<Wyzely.Functional.Maybe<T>>, Wyzely.Functional.Maybe<T>
+  System.Collections.Generic.IEnumerable<T> ToEnumerable()
+  T GetValue()
+  T GetValueOrThrow()
+  T ValueOr(T fallback)
+  Wyzely.Functional.Maybe<TResult> OfType<TResult>() where TResult : notnull
+  bool Equals(Wyzely.Functional.Maybe<T> other)
+  bool Equals(Wyzely.Functional.Maybe<T> other, System.Collections.Generic.IEqualityComparer<T> comparer)
+  bool TryGetValue([MaybeNullWhen(false)] out T value)
+  int CompareTo(Wyzely.Functional.Maybe<T> other)
+  int CompareTo(Wyzely.Functional.Maybe<T> other, System.Collections.Generic.IComparer<T> comparer)
+  int GetHashCode(System.Collections.Generic.IEqualityComparer<T> comparer)
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  property bool IsNone { get; }
+  property bool IsSome { get; }
+  static Wyzely.Functional.Maybe<T> op_Implicit(T? value)
+  static bool op_Equality(Wyzely.Functional.Maybe<T> left, Wyzely.Functional.Maybe<T> right)
+  static bool op_GreaterThan(Wyzely.Functional.Maybe<T> left, Wyzely.Functional.Maybe<T> right)
+  static bool op_GreaterThanOrEqual(Wyzely.Functional.Maybe<T> left, Wyzely.Functional.Maybe<T> right)
+  static bool op_Inequality(Wyzely.Functional.Maybe<T> left, Wyzely.Functional.Maybe<T> right)
+  static bool op_LessThan(Wyzely.Functional.Maybe<T> left, Wyzely.Functional.Maybe<T> right)
+  static bool op_LessThanOrEqual(Wyzely.Functional.Maybe<T> left, Wyzely.Functional.Maybe<T> right)
+interface Wyzely.Functional.Maybe<T> where T : notnull
+  bool TryGetValue(out T value)
+  property bool HasValue { get; }
+  property object? Value { get; }
+  static Wyzely.Functional.Maybe<T> Create(T value)
