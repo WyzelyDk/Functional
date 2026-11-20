@@ -450,37 +450,31 @@ dotnet_diagnostic.IDE0058.severity = silent
 dotnet_diagnostic.IDE0290.severity = suggestion
 # Naming rule violation (naming is enforced by the StyleCop rules, such as SX1309 below)
 dotnet_diagnostic.IDE1006.severity = silent
+# Methods should not have too many parameters (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
+dotnet_diagnostic.S107.severity = warning
+# Inheritance tree of classes should not be too deep (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
+dotnet_diagnostic.S110.severity = warning
 # Unused private types or members should be removed (a suggestion only, because tests and generated code use members the analyzer cannot see)
 dotnet_diagnostic.S1144.severity = suggestion
-# The rules of the Sonar way profile, which SonarCloud applies, that the SonarAnalyzer package leaves off by default because they take
-# parameters. Without these lines a local build misses what the SonarCloud analysis reports.
-# Methods should not have too many parameters
-dotnet_diagnostic.S107.severity = warning
-# Inheritance tree of classes should not be too deep
-dotnet_diagnostic.S110.severity = warning
-# String literals should not be duplicated
+# String literals should not be duplicated (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
 dotnet_diagnostic.S1192.severity = warning
-# Interfaces should not have too many members (and similar size limits)
+# "switch" statements with many "case" clauses should have only one statement (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
 dotnet_diagnostic.S1479.severity = warning
-# Generic type parameters should not be named like others in scope (and similar naming rules)
+# Enumeration types should comply with a naming convention (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
 dotnet_diagnostic.S2342.severity = warning
+# Types and methods should not have too many generic parameters (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
 dotnet_diagnostic.S2436.severity = warning
-# Cognitive Complexity of methods should not be too high
+# Cognitive Complexity of methods should not be too high (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
 dotnet_diagnostic.S3776.severity = warning
+# The code block contains too many logging calls (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
 dotnet_diagnostic.S6664.severity = warning
+# Logger field or property name should comply with a naming convention (a Sonar way rule that SonarCloud applies; off by default in the package because it takes parameters)
 dotnet_diagnostic.S6669.severity = warning
 # Prefix local calls with this (replaced by SX1101, which forbids it)
 dotnet_diagnostic.SA1101.severity = silent
 # Field names should not begin with underscore (replaced by SX1309, which requires it)
 dotnet_diagnostic.SA1309.severity = silent
-# StyleCop settings: which elements must be documented (public, internal and interface members; private members and fields are exempt) and the company name
-stylecop.documentation.companyName = Wyzely
-stylecop.documentation.documentExposedElements = true
-stylecop.documentation.documentInternalElements = true
-stylecop.documentation.documentPrivateElements = false
-stylecop.documentation.documentPrivateFields = false
-stylecop.documentation.documentInterfaces = true
-# Elements should be documented (every public and internal element must be; the settings above exempt private members)
+# Elements should be documented (every public and internal element must be; the stylecop.documentation settings at the end of this group exempt private members)
 dotnet_diagnostic.SA1600.severity = warning
 # Partial elements should be documented (the same rule as above, for partial types and methods)
 dotnet_diagnostic.SA1601.severity = warning
@@ -502,6 +496,18 @@ dotnet_style_qualification_for_method = false:warning
 dotnet_style_qualification_for_property = false:warning
 # Accessibility modifiers required (every member states its accessibility)
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+# StyleCop company name (for the StyleCop rules that need one; the file header rules are silent here, see SA1633)
+stylecop.documentation.companyName = Wyzely
+# Document exposed elements (the public API must be documented, SA1600)
+stylecop.documentation.documentExposedElements = true
+# Document interfaces (interface members must be documented)
+stylecop.documentation.documentInterfaces = true
+# Document internal elements (every internal member has an XML documentation comment, see AGENTS.md)
+stylecop.documentation.documentInternalElements = true
+# Document private elements (private members are exempt)
+stylecop.documentation.documentPrivateElements = false
+# Document private fields (private fields are exempt)
+stylecop.documentation.documentPrivateFields = false
 
 # Generated files
 [**/Generated/**.g.cs]
@@ -510,11 +516,6 @@ generated_code = true
 
 # Test projects, and the test code that several test projects share as source
 [{**/*.Tests/**.cs,test/AnalyzerTesting/**.cs,test/ArgumentTesting/**.cs}]
-# Sonar way rules that SonarCloud applies to main code only, not to tests
-# String literals should not be duplicated
-dotnet_diagnostic.S1192.severity = none
-dotnet_diagnostic.S6664.severity = none
-dotnet_diagnostic.S6669.severity = none
 # Identifiers should not contain underscores (to allow underscores in test method names)
 dotnet_diagnostic.CA1707.severity = none
 # Do not initialize unnecessarily (make assignments in tests more explicit)
@@ -527,6 +528,12 @@ dotnet_diagnostic.CA2012.severity = none
 dotnet_diagnostic.CS1591.severity = none
 # Use expression body for methods (to make test methods more readable)
 dotnet_diagnostic.IDE0022.severity = none
+# String literals should not be duplicated (a Sonar way rule that SonarCloud applies to main code only, not to tests)
+dotnet_diagnostic.S1192.severity = none
+# The code block contains too many logging calls (a Sonar way rule for main code only, like the one above)
+dotnet_diagnostic.S6664.severity = none
+# Logger field or property name should comply with a naming convention (the same reason as above)
+dotnet_diagnostic.S6669.severity = none
 # XML comment analysis is disabled due to project configuration (not required in test projects)
 dotnet_diagnostic.SA0001.severity = none
 # Elements should be documented (tests are not documented: their names are the documentation)
@@ -583,7 +590,7 @@ dotnet_diagnostic.CA2012.severity = none
 dotnet_diagnostic.CS1591.severity = none
 # Populate switch (a switch over a few known values does not need every case spelled out)
 dotnet_diagnostic.IDE0072.severity = none
-# Methods that do not access instance data should be static (BenchmarkDotNet needs instance methods)
+# Methods and properties that don't access instance data should be static (BenchmarkDotNet needs instance methods)
 dotnet_diagnostic.S2325.severity = none
 # Awaitable method should be used (a benchmark may deliberately drop the task it measures)
 dotnet_diagnostic.S6966.severity = none
