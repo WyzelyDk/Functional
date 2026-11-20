@@ -1,0 +1,42 @@
+name: Idea or API proposal
+description: Propose something to add or change. Read the scope of the package first.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        These packages have a written scope and decline most additions on purpose, because a public API can never be taken back.
+        Read the scope of the package you have in mind ([Result](https://github.com/WyzelyDk/Functional/blob/main/docs/result/scope.md),
+        [Maybe](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/scope.md)) and its admission test before you fill this in.
+        Please agree on the idea here before you write code.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - Wyzely.Functional.Result
+        - Wyzely.Functional.Maybe
+        - Wyzely.Functional (the umbrella package)
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem you have
+      description: What you are trying to do, and what you write today instead.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Which question of the admission test does it answer?
+      description: Quote the question from the scope page, and say how your idea answers it.
+    validations:
+      required: true
+  - type: textarea
+    id: call
+    attributes:
+      label: The name and an example call
+      render: csharp
+    validations:
+      required: true
