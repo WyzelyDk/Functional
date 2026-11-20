@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -8,6 +9,7 @@ namespace Wyzely.Functional.Internal;
 /// A <c>null</c> reference is not refused: it is no hazard, and stays <c>null</c>.
 /// Public only so that a source-generated serializer context can reach it from the attribute; it is not meant to be used directly.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class ErrorJsonGuard : JsonConverter<Error>
 {
     /// <inheritdoc />

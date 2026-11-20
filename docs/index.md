@@ -18,4 +18,5 @@ The [README on GitHub](../README.md) is the best place to start: what "functiona
 | `Wyzely.Functional` | Both, plus `ToResult` and `ToMaybe` between them | [Getting started](functional/getting-started.md) |
 
 Every analyzer rule has its own page; the IDs are explained in [Analyzer rule IDs](analyzers.md).
+What a version number promises, and which .NET versions are supported, is in [Stability and support](stability.md).
 The [coverage report](https://wyzelydk.github.io/Functional/coverage/) shows the test coverage of `main`.

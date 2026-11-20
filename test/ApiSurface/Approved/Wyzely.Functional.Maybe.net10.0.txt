@@ -1,4 +1,4 @@
-sealed class Wyzely.Functional.Internal.MaybeJsonGuard : System.Text.Json.Serialization.JsonConverterFactory
+[EditorBrowsable(Never)] sealed class Wyzely.Functional.Internal.MaybeJsonGuard : System.Text.Json.Serialization.JsonConverterFactory
   ctor()
   override System.Text.Json.Serialization.JsonConverter CreateConverter(System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
   override bool CanConvert(System.Type typeToConvert)

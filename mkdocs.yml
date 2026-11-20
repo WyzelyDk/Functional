@@ -119,6 +119,7 @@ nav:
       - Getting started: functional/getting-started.md
       - 'Interop: ToResult and ToMaybe': functional/interop.md
       - Why an umbrella package?: functional/why.md
+  - Stability and support: stability.md
   - Analyzer rule IDs: analyzers.md
   - Contributing:
       - Building Result: result/contributing.md
