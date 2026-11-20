@@ -413,7 +413,7 @@ public sealed class ReadmeExamplesTests
     {
         if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var quantity))
         {
-            return Error.Validation($"'{text}' is not a number.");
+            return Error.Validation("'{Text}' is not a number.").WithDetail("Text", text);
         }
 
         return quantity;

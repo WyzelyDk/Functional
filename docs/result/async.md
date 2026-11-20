@@ -26,7 +26,7 @@ Argument validation happens when you call the method, not when you await the ret
 An already completed `Task`/`ValueTask` takes a synchronous fast path without a state machine; a step that leaves the result as it was (`Ensure` that passes,
 `Tap`, `TapError`, `MapError`, `OrElse`) hands back the task it received instead of allocating a new one;
 and a synchronous receiver with an asynchronous delegate (for `Bind`, `Match` and `OrElse` with an alternative operation) hands back the delegate's own task.
-The 876 methods are generated from one catalog (see [Building from source](contributing.md)), together with a test for every variant.
+The 876 files are generated from one catalog (see [Building from source](contributing.md)), together with a test for every variant.
 
 ## Zip and tasks
 
@@ -38,7 +38,10 @@ Both operations run at the same time, because they are started before the first 
 var customer = FindCustomerAsync(7);    // Task<Result<Customer>>
 var stock = CheckStockAsync(3);         // Task<Result<int>>
 
-var pair = (await customer).Zip(await stock);   // Result<(Customer First, int Second)>, the errors of both when both failed
+var foundCustomer = await customer;
+var foundStock = await stock;
+
+var pair = foundCustomer.Zip(foundStock);   // Result<(Customer First, int Second)>, the errors of both when both failed
 ```
 
 ## A `null` or `default` literal
@@ -60,7 +63,8 @@ An `async` lambda converts to both a `Task` and a `ValueTask` delegate, so a cal
 is ambiguous to the compiler unless something breaks the tie.
 This library marks the `Task` overloads with C# 13's `[OverloadResolutionPriority]`, so **with C# 13 or later `async` lambdas just work**.
 
-On **C# 12 or earlier**, the default language version for projects that target .NET 8 or earlier, the compiler reports `CS0121`. Any of these fixes it:
+On **C# 12 or earlier**, which a supported target (`net10.0` and later) only uses when the project sets an older `LangVersion`,
+the compiler reports `CS0121`. Any of these fixes it:
 
 ```csharp
 // 1. Opt in to a newer language version (the compiler of the .NET 9+ SDK is needed)

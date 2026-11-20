@@ -23,6 +23,7 @@ For the best experience with
 ## Quick start
 
 ```csharp
+using System.Globalization;
 using Wyzely.Functional;
 
 static Result<int> ParseAge(string text) =>
@@ -96,7 +97,7 @@ static Result<int> Quantity(string text)
 {
     if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var quantity))
     {
-        return Error.Validation($"'{text}' is not a number.");   // a failure
+        return Error.Validation("'{Text}' is not a number.").WithDetail("Text", text);   // a failure
     }
 
     return quantity;                                             // a success
@@ -115,10 +116,10 @@ var saved  = await Result.Try(() => file.WriteAsync(bytes));                    
 ```
 
 `Try` turns an exception into a failure (`Error.FromException`, or your own mapping as the second argument) and keeps the exception as the cause.
-By default an `OperationCanceledException` is **not** turned into a result: cancellation is a request from the caller and keeps travelling as an exception.
+By default an `OperationCanceledException` is **not** turned into a result: cancellation is a request from the caller and keeps traveling as an exception.
 Both the default mapping and which exceptions are caught can be changed, see [Configuration](configuration.md).
 
-To catch **one kind of exception** and let every other kind keep travelling, name its type with the parameter of the handler,
+To catch **one kind of exception** and let every other kind keep traveling, name its type with the parameter of the handler,
 and narrow it further with `when` if you need to. Both the type of the value and the type of the exception are inferred:
 
 ```csharp

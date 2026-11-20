@@ -73,7 +73,7 @@ What the library adds is everything around that core, and each item is checked a
 - **Measured size and allocation** (only what `PerformanceTests` checks), **interop with `Result`** in the umbrella package, and **C# 15 union support**.
 
 A library costs something too: a vocabulary your team has to learn, generated code you did not write (142 files), one more package to keep updated,
-and an API that can still change before 1.0. When your use is one corner of one project, with synchronous steps and a handful of call sites,
+and an API that you do not control. When your use is one corner of one project, with synchronous steps and a handful of call sites,
 writing your own is the better choice. [The whole argument, with the cost of a dependency.](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/why.md)
 
 ## Install
@@ -189,6 +189,12 @@ if (missing.IsSome)
 
 [Safety and analyzers](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/safety-and-analyzers.md).
 
+### Do not serialize a maybe
+
+`System.Text.Json` refuses `Maybe<T>` on purpose, because written as it is a maybe loses its value, and what "no value" looks like in JSON is for you to
+decide. Map it to a type of your own at the edge
+([Serialization](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/safety-and-analyzers.md#serialization)).
+
 ### On net11.0: switch exhaustively (C# 15)
 
 ```csharp
@@ -206,7 +212,7 @@ This needs a package built with the .NET 11 SDK, was built and tested with SDK `
 
 [`samples/Maybe.Samples`](https://github.com/WyzelyDk/Functional/tree/main/samples/Maybe.Samples) is a runnable console project with one file per theme (basics,
 the railway, async, collections, LINQ/`Zip`/`Flatten`, nullability, equality and formatting, configuration, and the C# 15 union),
-in a small customer and order domain. Each file says what the scenario is and why, and prints labelled lines; the same lines are checked by tests.
+in a small customer and order domain. Each file says what the scenario is and why, and prints labeled lines; the same lines are checked by tests.
 
 ```shell
 dotnet run --project samples/Maybe.Samples -c Release
@@ -234,7 +240,7 @@ dotnet run --project samples/Maybe.Samples -c Release
 A `Maybe<int>` is 8 bytes, a `Maybe<string>` is two references wide, a synchronous chain allocates nothing, on success and on none, and a `Task` chain
 over a reference type that stays none allocates nothing either, because one completed task per type is cached (checked by tests, on .NET 10 and later). Timings
 are measurements, not claims: benchmarked against five other libraries, for value and reference types, a four-step synchronous chain took 4 to 6 ns
-without allocating, as it did in LanguageExt and CSharpFunctionalExtensions for an `int`; Funcky and Optional took 1.8 to 4.3 times as long and allocated.
+without allocating, as it did in LanguageExt and CSharpFunctionalExtensions for an `int`; Funcky and Optional took 1.9 to 5 times as long and allocated.
 [What is claimed and how to run the benchmarks](https://github.com/WyzelyDk/Functional/blob/main/docs/maybe/performance.md).
 
 ## Contributing

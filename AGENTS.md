@@ -148,7 +148,7 @@ The library is judged by how it feels to use, not only by what it can do.
   class with `Run(TextWriter output)`, and `test/Samples.Tests` runs every one and asserts its output, so a sample cannot rot unnoticed.
   Samples use the public API only and follow the same no-suppression rule as everything else. Every example may change and restore
   process-wide settings, so `Samples.Tests` disables test parallelization for the whole assembly (`AssemblyInfo.cs`) instead of relying on each
-  class to opt in. CI runs on Linux only: the libraries make no operating-system calls and the tests normalise line endings and paths.
+  class to opt in. CI runs on Linux only: the libraries make no operating-system calls and the tests normalize line endings and paths.
 - **The packages must work for a project on the long-term-support .NET, with every SDK it can be built with**
   (today .NET 10, from SDK 10.0.100). The analyzers and code fixes are built against the Roslyn of the oldest such SDK, not the newest.
   A compiler refuses an analyzer that references a newer Roslyn than itself (warning `CS9057`, an error when warnings are errors),

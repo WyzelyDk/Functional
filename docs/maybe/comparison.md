@@ -7,14 +7,15 @@ LanguageExt (`Option<A>`), Funcky (`Option<T>`), Optional (`Option<T>`) and OneO
 FluentResults, ErrorOr and Ardalis.Result have no maybe type; they appear in the [Results comparison](../result/comparison.md), which also lists the version,
 release date, targets and repository activity of every library. Read that table first for the question "is this library alive?".
 
-How the facts were found, on 2026-10-18: the latest stable package of each library was downloaded from nuget.org and its public types and
+How the facts were found, on 2026-10-18 (for this library, `main` before the first release candidate of 1.0.0, and for Funcky, which has a newer
+version, again on 2026-11-20): the latest stable package of each library was downloaded from nuget.org and its public types and
 extension methods listed by loading the assemblies; `default` and `null` handling were checked by running small programs; speed and allocation
 are in [Performance](performance.md). Nothing is read from marketing pages, "none found" means the probe found nothing, and the absence of a
 feature is not a statement about a roadmap. Check the current versions before relying on a cell.
 
 ## The type
 
-| | **Wyzely.Functional.Maybe** | CSharpFunctionalExtensions 3.7.0 | LanguageExt 4.4.9 | Funcky 3.6.1 | Optional 4.0.0 | OneOf 3.0.271 |
+| | **Wyzely.Functional.Maybe** | CSharpFunctionalExtensions 3.7.0 | LanguageExt 4.4.9 | Funcky 3.8.0 | Optional 4.0.0 | OneOf 3.0.271 |
 |---|---|---|---|---|---|---|
 | Type | `Maybe<T>` | `Maybe<T>` | `Option<A>` | `Option<T>` | `Option<T>` | `OneOf<T, None>` |
 | Is a struct | yes | yes | yes | yes | yes | yes |
@@ -45,9 +46,9 @@ A "some" that can hold `null` is the case this type exists to remove, so it is w
 | | **Wyzely.Functional.Maybe** | CSharpFunctionalExtensions | LanguageExt | Funcky | Optional | OneOf |
 |---|---|---|---|---|---|---|
 | Operations on the type (names) | `Map`, `Bind`, `Filter`, `Any`, `All`, `Contains`, `Tap`, `TapNone`, `OrElse`, `ValueOr`, `Match`, `Switch`, `Select`, `SelectMany`, `Where`, `Zip` (2 to 5), `Flatten`, `AsNullable` | `Map`, `Bind`, `Where`, `Tap`, `TapNoValue`, `Or`, `Match`, `Execute`, `ExecuteNoValue`, `Flatten`, `Choose`, `GetValueOrDefault`, `GetValueOrThrow`, `Select`, `SelectMany`, `BindOptional`, `Optional`, `Required` | about 50 as members plus extensions: `Map`, `Bind`, `Filter`, `Match`, `IfNone`, `IfSome`, `Fold`, `Apply`, `Sum`, `Product`, `Traverse`, `Sequence` and many more | `Select`, `SelectMany`, `Where`, `Match`, `Switch`, `GetOrElse`, `OrElse`, `AndThen`, `Inspect`, `InspectNone`, `Flatten`, `WhereSelect`, `Sequence`, `Traverse` | `Map`, `FlatMap`, `Filter`, `Match`, `MatchSome`, `MatchNone`, `Else`, `Or`, `ValueOr`, `Exists`, `Contains`, `NotNull`, `Flatten`, `Select`, `SelectMany`, `Where` | `MapT0`, `MapT1`, `Match`, `Switch`, `TryPickT0`; no `Bind` or `Filter` |
-| Extension methods in the assembly (all types) | 122 | 1,664 | 5,782 | 781 | 47 | 0 |
-| Of those, mentioning `Task` / `ValueTask` | 51 / 51 | 751 / 634 | 840 / 140 | 10 / 139 | 0 / 0 | 0 / 0 |
-| Asynchronous forms of the operations | all nine railway operations, each in nine variants (receiver and delegate each synchronous, `Task` or `ValueTask`), under the same name | many, under the same name, for `Task` and `ValueTask` | `...Async` names on `Task<Option<A>>`, and a separate `OptionAsync<A>` type | awaiters for options; no `Map` or `Bind` for `Task<Option<T>>` found | none | none |
+| Extension methods in the assembly (all types) | 181 | 1,664 | 5,782 | 836 | 47 | 0 |
+| Of those, mentioning `Task` / `ValueTask` | 76 / 86 | 751 / 634 | 840 / 140 | 10 / 173 | 0 / 0 | 0 / 0 |
+| Asynchronous forms of the operations | all eleven railway operations, each in nine variants (receiver and delegate each synchronous, `Task` or `ValueTask`), under the same name | many, under the same name, for `Task` and `ValueTask` | `...Async` names on `Task<Option<A>>`, and a separate `OptionAsync<A>` type | awaiters for options; no `Map` or `Bind` for `Task<Option<T>>` found | none | none |
 | Lookups on a sequence returning it | `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone` (read-only dictionaries) | `TryFirst`, `TryLast`, `TryFind` | `HeadOrNone`, `LastOrNone`, `Find`, `Head` and others, for its own collection types too | `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `MaxOrNone`, `MinOrNone`, `AverageOrNone`, `AggregateOrNone` | `FirstOrNone`, `LastOrNone`, `SingleOrNone`, `ElementAtOrNone`, `GetValueOrNone` | none |
 | Keeping the values of the somes in a sequence | `Choose` | `Choose` | `Somes` | `WhereSelect` | `Values` | none |
 | From a nullable | `Maybe.From` | `AsMaybe` | `Optional` | `Option.FromNullable` | `SomeNotNull`, `ToOption` | none |
@@ -80,9 +81,9 @@ has no asynchronous support, lets a "some" hold `null`, and has no implicit conv
 a `default` is a "some" holding the default value, and the package has had no commit on its default branch since May 2024.
 
 **This library** is deliberately small. It does not have what the table shows others have: arithmetic and `Apply` (`Add`, `Subtract`, `Product`,
-`Divide`, `Sum`, `Apply`), `Sequence`/`Traverse` and folds in LanguageExt, `Execute` and `ExecuteNoValue` in CSharpFunctionalExtensions, and `Contains`,
+`Divide`, `Sum`, `Apply`), `Sequence`/`Traverse` and folds in LanguageExt, `Execute` and `ExecuteNoValue` in CSharpFunctionalExtensions, and
 `Exists` and `NotNull` in Optional. [Scope](scope.md) says why.
-It was also not published yet when this comparison was made (the first release, 0.1.0, followed on 2026-10-19),
+Its first release, 0.1.0, was on 2026-10-19,
 so none of the others' track records applies to it.
 
 ## What was not compared

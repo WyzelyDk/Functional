@@ -53,9 +53,10 @@ src/Result                      the library
 src/Result.Analyzers            the Roslyn analyzers (packed into the library package)
 src/Result.Analyzers.CodeFixes  the code fixes (packed into the library package)
 src/Result.CodeGeneration       the generator for the async variants and their tests
-test/                                                  unit, analyzer, code fix and nullability tests
-benchmarks/                                            BenchmarkDotNet comparisons
-docs/result/                                          the documentation pages and analyzer rule pages
+test/                           unit, analyzer, code fix and nullability tests
+benchmarks/                     BenchmarkDotNet comparisons
+samples/                        runnable examples, run as tests by test/Samples.Tests
+docs/result/                    the documentation pages and analyzer rule pages
 ```
 
 ## Pull requests and releases

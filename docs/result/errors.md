@@ -24,12 +24,12 @@ An `Error` is **immutable**: every `With...` method returns a modified copy.
 | `Details` | structured name/value pairs for logs and telemetry; mark secrets with `isSensitive: true` |
 | `RedactedMessage`, `ToRedactedString()` | the same text with sensitive values replaced by `***` |
 | `Code` | an optional, stable, machine-readable code |
-| `Kind` | an open set: `Validation`, `NotFound`, `Conflict`, `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout`, `Canceled`, `Unexpected`, or your own `new ErrorKind("RateLimited")` |
+| `Kind` | an open set: `Failure` (the default), `Validation`, `NotFound`, `Conflict`, `Unauthorized`, `Forbidden`, `Unavailable`, `Timeout`, `Canceled`, `Unexpected`, or your own `new ErrorKind("RateLimited")` |
 | `IsTransient` | retrying might help; set by `Error.Unavailable` / `Error.Timeout` |
 | `Exception` | the cause, kept by `Error.FromException` and `Result.Try` |
 | `Context`, `WithContext(...)` | frames (`ErrorFrame`) added as the error passes layers; a frame is a template with details of its own; `ToString()` prints them outermost first |
 | `Children`, `Error.Aggregate(errors)` | one error that combines many (see below) |
-| structural equality | two errors are equal when template, code, kind, flag, details, context and children are equal |
+| structural equality | two errors are equal when template, code, kind, flag, details, context and children are equal, and the cause is the same exception instance |
 
 ## Context frames with details
 
@@ -53,8 +53,8 @@ brace. Two frames are equal when their templates and details are equal.
 
 ## One error for many failures
 
-A result carries **one** `Error`. `Error.Aggregate` (used by `Combine`, `Zip`,
-`Partition` and the parallel helpers) combines several into one whose `Children` are the individual errors; nested aggregates are flattened,
+A result carries **one** `Error`. `Error.Aggregate` (used by `Combine`, `Zip`
+and the parallel helpers) combines several into one whose `Children` are the individual errors; nested aggregates are flattened,
 a single error is returned as it is, and `WithContext` on an aggregate adds the frame to every child. `Flatten()` always gives you the individual errors.
 
 ```csharp

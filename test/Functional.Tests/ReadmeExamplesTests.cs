@@ -12,7 +12,9 @@ public sealed class ReadmeExamplesTests
             .Bind(ChargeAsync)
             .Map(receipt => receipt.Number);
 
-        Assert.Equal("R-7", outcome.GetValue());
+        var text = outcome.Match(number => number, error => error.Message);
+
+        Assert.Equal("R-7", text);
     }
 
     [Fact]

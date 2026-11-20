@@ -1,7 +1,8 @@
 # Stability and support
 
 What you can rely on when you take a version of these packages, what can change in a minor release, and what only changes in a major one.
-It applies from **1.0.0**. Until then the packages are 0.x, and any release can change the API (the notes of each release on GitHub list what changed).
+It applies from **1.0.0**. A version before it (0.x, or a release candidate such as `1.0.0-rc.1`) promises nothing,
+and the notes of its release list what changed.
 
 ## Versions
 

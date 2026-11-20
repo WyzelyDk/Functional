@@ -6,7 +6,8 @@ This page compares `Wyzely.Functional.Result` with eight other libraries that ca
 FluentResults, CSharpFunctionalExtensions, ErrorOr, Ardalis.Result, LanguageExt, OneOf, Funcky and Optional.
 Some are result libraries, some are general functional or union libraries that people use as a result type, and the table says which is which.
 
-How the facts were found, on 2026-10-18:
+How the facts were found, on 2026-10-18 (for this library, `main` before the first release candidate of 1.0.0, and for Funcky, which has a newer
+version, again on 2026-11-20, in the same way):
 
 - **Packages:** the latest stable version of each package was downloaded from nuget.org.
   Target frameworks, dependencies and contents come from the package itself, and public types and extension methods from loading the assemblies.
@@ -21,14 +22,14 @@ check the current version before relying on a cell. The `Maybe` types of these l
 
 | Library (version, released) | What it offers as a result | Targets | Repository, on 2026-10-18 |
 |---|---|---|---|
-| **Wyzely.Functional.Result** (this repository; 0.1.0 followed on 2026-10-19) | `Result`, `Result<T>`, one aggregating `Error` | `netstandard2.0`, `net10.0`, `net11.0` (`netstandard2.0` was dropped later) | this repository |
+| **Wyzely.Functional.Result** (this repository, `main` on 2026-11-20) | `Result`, `Result<T>`, one aggregating `Error` | `net10.0`, `net11.0` | this repository |
 | [FluentResults](https://github.com/altmann/FluentResults) 4.0.0 (2025-06-29) | `Result`, `Result<T>`, a list of reasons (errors and successes) | `net8.0`, `net9.0`, `netstandard2.0`, `netstandard2.1` | 2,647 stars; last commit 2025-07-10, the release of 4.0 |
 | [CSharpFunctionalExtensions](https://github.com/vkhorikov/CSharpFunctionalExtensions) 3.7.0 (2026-03-02) | `Result`, `Result<T>`, `Result<T, E>`, `UnitResult<E>`; also `Maybe`, value objects and entities | `net6.0`, `net8.0`, `netstandard2.0` | 2,833 stars; last commit 2026-03-02, the release of 3.7.0; 101 open issues |
 | [ErrorOr](https://github.com/error-or/error-or) 2.1.1 (2026-05-15) | `ErrorOr<T>`, a value or a list of errors | `net8.0`, `net10.0`, `netstandard2.0` | 2,095 stars; last commit 2026-10-08 |
 | [Ardalis.Result](https://github.com/ardalis/result) 10.1.0 (2024-10-28) | `Result`, `Result<T>` with a status that mirrors HTTP outcomes | `net6.0`, `net7.0`, `net8.0`, `netstandard2.0` | 1,045 stars; last commit 2026-07-03, after the last release |
 | [LanguageExt](https://github.com/louthy/language-ext) `LanguageExt.Core` 4.4.9 (2024-06-26) | `Fin<A>`, inside a complete functional base library | `netstandard2.0` | 7,083 stars; last commit 2026-10-09; version 5 is in beta (`5.0.0-beta-78`, 2026-10-09) |
 | [OneOf](https://github.com/mcintyre321/OneOf) 3.0.271 (2024-05-16) | no result type: general unions, `OneOf<T0, T1, ...>`, used here as `OneOf<T, Error<string>>` | `netstandard2.0`, `netstandard1.3`, `net45`, `net35` | 4,058 stars; no commit on the default branch since 2024-05-16 |
-| [Funcky](https://github.com/polyadic/funcky) 3.6.1 (2026-10-16) | `Result<T>` (the error is an `Exception`), `Option<T>`, `Either<L, R>` and more | `net5.0` to `net10.0`, `netcoreapp3.1`, `netstandard2.0`, `netstandard2.1` | 55 stars; last commit 2026-10-16 |
+| [Funcky](https://github.com/polyadic/funcky) 3.8.0 (2026-10-29) | `Result<T>` (the error is an `Exception`), `Option<T>`, `Either<L, R>` and more | `net5.0` to `net10.0`, `netcoreapp3.1`, `netstandard2.0`, `netstandard2.1` | 55 stars; last commit 2026-11-17 (checked on 2026-11-20) |
 | [Optional](https://github.com/nlkl/Optional) 4.0.0 (2018-02-01) | `Option<T, TException>`, next to `Option<T>` | `netstandard2.0`, `netstandard1.0`, `net45`, `net35` | 921 stars; last commit 2018-02-01 |
 
 Things to take from the table:
@@ -86,14 +87,14 @@ Only LanguageExt, Funcky and the class-based libraries make a forgotten assignme
 
 | | Extension methods in the assembly | Of those, mentioning `Task` / `ValueTask` | `Try` wrapper for throwing code | Settings | Analyzers in the package | Dependencies, per nuspec |
 |---|---|---|---|---|---|---|
-| **Wyzely.Functional.Result** | 223 | 117 / 115 | yes (`Result.Try`) | `ResultConfiguration`, 9 settings | yes, 2 rules and 1 code fix | none on `net10.0` and `net11.0` |
+| **Wyzely.Functional.Result** | 920 | 504 / 504 | yes (`Result.Try`) | `ResultConfiguration`, 9 settings | yes, 20 rules with code fixes (some only for simple shapes) | none on `net10.0` and `net11.0` |
 | FluentResults | 30 | 14 / 12 | yes (`Result.Try`) | `Result.Setup`: logger, factories, default `Try` handler | no | `Microsoft.Extensions.Logging.Abstractions`, `System.Threading.Tasks.Extensions` |
 | CSharpFunctionalExtensions | 1,664 | 751 / 634 | yes, several forms | `Result.Configuration`: error separator, default `ConfigureAwait`, default `Try` handler | no | none |
 | ErrorOr | 43 | 39 / 0 | no | none found | no | `Microsoft.Bcl.HashCode`, `System.Memory` (`netstandard2.0` only) |
 | Ardalis.Result | 32 | 15 / 0 | no | none found | no | `System.Text.Json` (`netstandard2.0` only) |
 | LanguageExt | 5,782 | 840 / 140 | yes (the `Try<A>` family) | not examined | no | ten, on its only target (`netstandard2.0`) |
 | OneOf | 0 | 0 / 0 | no | none found | no | none |
-| Funcky | 781 | 10 / 139 | none found | none found | yes (built-in analyzers and code fixes; the number of rules was not counted) | none on `net5.0` and later; `System.Text.Json` and others on `netcoreapp3.1` and the `netstandard` builds |
+| Funcky | 836 | 10 / 173 | none found | none found | yes (built-in analyzers and code fixes; the number of rules was not counted) | none on `net5.0` and later; `System.Text.Json` and others on `netcoreapp3.1` and the `netstandard` builds |
 | Optional | 47 | 0 / 0 | no | none found | no | none |
 
 How to read the numbers: they count public extension methods in the whole assembly, so for LanguageExt,
@@ -132,7 +133,8 @@ and nothing is provided for `Task`. A `default` is a success holding the default
 
 **Funcky** is a broad, active functional library (`Option`, `Either`, `Result`, `Reader`, `Lazy`, and many helpers on `IEnumerable`) with built-in analyzers.
 Its `Result<T>` carries an `Exception`, which suits code that already works with exceptions and is costly for failures that are expected:
-creating a failure measured about 19 μs and 19 KB in the benchmarks, hundreds to thousands of times more than the other libraries (we did not investigate why).
+creating a failure measured about 19 μs and 17 to 18 KB in the benchmarks,
+hundreds to tens of thousands of times more than the other libraries (we did not investigate why).
 A `default` `Result<T>` throws `NotSupportedException` when matched. We found no `Map` or `Bind` for `Task<Result<T>>`.
 
 **Optional** is a small option library whose `Option<T, TException>` is usable as a result.
@@ -141,7 +143,7 @@ It still works, and in the benchmarks a four-step chain allocated 24 B and took 
 
 ## Where this library is the weaker choice
 
-- **It is new.** It was not published yet when this comparison was made (2026-10-18; the first release, 0.1.0, followed on 2026-10-19),
+- **It is new.** Its first release, 0.1.0, was on 2026-10-19,
   so it has no public track record to set beside the others'.
   See the [scope](scope.md) and the [design decisions](design-decisions.md) for what it is and is not.
 - **One error type.** `Result<T, E>` with your own error type, as in CSharpFunctionalExtensions, Optional and OneOf, does not exist here.
@@ -149,7 +151,7 @@ It still works, and in the benchmarks a four-step chain allocated 24 B and took 
 - **A `default` result is a success.** An unassigned field or array slot counts as "it worked",
   as in CSharpFunctionalExtensions, ErrorOr and OneOf; LanguageExt treats it as a failure and Funcky throws.
   Collect results with `Combine`, `Partition` or `SelectInParallel` instead of an array that you fill yourself.
-- **Failures allocate.** An `Error` is an object (96 B for a plain one, 320 B with a detail and a context frame),
+- **Failures allocate.** An `Error` is an object (96 B for a plain one, 368 B with a detail and a context frame),
   where a string literal or a struct error costs nothing to create. The success path allocates nothing; a failure that is created on every call does.
 - **Chaining on a `Task` allocates.** On a `Task<Result<T>>` that is already completed, each step that changes the result makes a new task (160 B for a `Map`,
   `Ensure`, `Bind` chain; steps that leave the result as it was hand back the task they received).

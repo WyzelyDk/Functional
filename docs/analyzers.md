@@ -28,7 +28,8 @@ They are packed into `analyzers/dotnet/roslyn5.0/cs`: the SDK gives them to a co
 the version folder keeps that from happening.)
 
 The version is a promise: it is the property `AnalyzerRoslynVersion` in `Directory.Packages.props`, raised only on purpose and announced in the release notes.
-`.github/scripts/Test-LtsConsumer.ps1` builds a project against the packed packages with every .NET 10 SDK on every CI build and before every release.
+`.github/scripts/Test-LtsConsumer.ps1` builds a project against the packed packages with the oldest .NET 10 SDK (10.0.100),
+the newest one and SDK 11 on every CI build and before every release.
 
 ## Why the ID has to stay put
 
