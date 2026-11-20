@@ -38,6 +38,7 @@ A stream of results does not need a list in between.
 and `Combine` or `Partition` collects a stream (they stop when the cancellation token is canceled):
 
 ```csharp
+var cancellationToken = CancellationToken.None;   // normally the token of the request
 var found = Result.Success<IReadOnlyList<string>>(["a.txt", "bb.txt"]);
 
 var lengths = await found

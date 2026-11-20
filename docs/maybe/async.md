@@ -33,13 +33,13 @@ Awaiting inside the methods does not capture the synchronization context (a sett
 Argument validation happens when you call the method, not when you await the returned task. An already completed `Task`/`ValueTask` receiver is read directly,
 without a state machine, and a step that leaves the maybe as it was (`Filter` that keeps the value,
 `Tap`, `TapNone`, `OrElse`) hands back the task it received instead of allocating a new one.
-The 127 methods (twelve operations times nine variants, the three variants of `Contains`, the five of `GetValueOrThrow`, the two of `ValueOr` with a value,
-and a second form of `Map` for nullable value types) are generated from one catalog (see [Building from source](contributing.md)),
+The 130 methods (eleven operations times nine variants, a second form of `Map` for nullable value types and of `OrElse`, the two further variants of
+`ValueOr` with a value, the six of `Contains` and the five of `GetValueOrThrow`) are generated from one catalog (see [Building from source](contributing.md)),
 together with a test for every variant.
 `Flatten` for a `Maybe<Maybe<T>>` also takes a `Task` or a `ValueTask` receiver (it is `Bind` with the identity function).
 `Zip` combines plain maybes only, see [Zip and tasks](#zip-and-tasks).
 
-A `Task` chain over a **reference type** that ends in none allocates nothing: in the generated fast paths (8 of the generated files use it), a none is
+A `Task` chain over a **reference type** that ends in none allocates nothing: in the generated fast paths (5 of the generated files use it), a none is
 answered with one cached completed task per type instead of a new one. (The runtime already caches the completed task of `default` for value types without
 references, so `Maybe<int>` never needed it.) `PerformanceTests` checks two cases, a chain of `Map`, `Filter` and `Bind` over an already completed none
 of `Maybe<string>`, and a synchronous none bound to a `Task` delegate; other variants use the same cache but have no allocation test of their own. See
@@ -91,7 +91,8 @@ var doubled = await Maybe.Some(21).Bind(async n =>
 });                                                  // Some(42)
 ```
 
-On **C# 12 or earlier**, the default language version for projects that target .NET 8 or earlier, the compiler reports `CS0121`. Any of these fixes it:
+On **C# 12 or earlier**, which a supported target (`net10.0` and later) only uses when the project sets an older `LangVersion`,
+the compiler reports `CS0121`. Any of these fixes it:
 
 ```csharp
 // 1. Opt in to a newer language version (the compiler of the .NET 9+ SDK is needed)

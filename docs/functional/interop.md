@@ -1,9 +1,9 @@
-# Interop: ToResult and ToMaybe
+# Interop: ToResult, ToMaybe, EnsureSome and ToInvertedResult
 
 [Back to the Wyzely.Functional overview](../../src/Functional/README.md)
 
 The umbrella package `Wyzely.Functional` references [`Wyzely.Functional.Result`](../../src/Result/README.md) and
-[`Wyzely.Functional.Maybe`](../../src/Maybe/README.md), and adds the two methods between them. They are the only code in the umbrella package.
+[`Wyzely.Functional.Maybe`](../../src/Maybe/README.md), and adds the four methods between them. They are the only code in the umbrella package.
 Where this code comes from is the same for every package of the repository (see [where this code comes from](../../README.md#where-this-code-comes-from)).
 For a guided tour see [Getting started](getting-started.md), and for the reasoning [Why an umbrella package](why.md).
 Runnable versions of everything on this page are in [`samples/Functional.Samples`](../../samples/Functional.Samples).
@@ -111,7 +111,7 @@ var created = await FindUserAsync(email)                                        
 
 ## Async and `ConfigureAwait`
 
-Both methods exist for a plain receiver, a `Task<...>` and a `ValueTask<...>`, so a chain can move between the two types without an `await` in the middle:
+All four methods exist for a plain receiver, a `Task<...>` and a `ValueTask<...>`, so a chain can move between the two types without an `await` in the middle:
 
 ```csharp
 using Wyzely.Functional;
@@ -127,7 +127,7 @@ var outcome = await FindCustomerAsync(7)
 
 - A receiver that has **already completed successfully** is converted directly, with no state machine.
   Otherwise the conversion waits for it by using the `Match` of the package that owns the receiver.
-- A **faulted** task keeps travelling as it is: its exception surfaces when you await the converted task (tested for a faulted `Task<Maybe<T>>`).
+- A **faulted** task keeps traveling as it is: its exception surfaces when you await the converted task (tested for a faulted `Task<Maybe<T>>`).
   Nothing is turned into a failure or into none.
 - **`ConfigureAwait` follows the settings of the two packages.** Because the waiting is done by the `Match` of the receiver's package, `ToResult` on a task that
   is not yet complete follows `MaybeConfiguration`'s `ContinueOnCapturedContext`, and `ToMaybe` follows `ResultConfiguration`'s. Both default to `false`

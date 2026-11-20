@@ -93,7 +93,7 @@ What this package adds, each point checked against the source or a test:
   the ten `Ensure` forms, the 25 `*If` forms, the 16 `*Try` forms and the conveniences `EnsureNot`, `EnsureNotNull` and `Tap` without a value,
   the tuple steps `BindZip` and `Map`/`Bind` with separate parameters, and `ValueOr`, `GetValueOrThrow` and `ThrowIfFailure` separately),
   each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate (27 for `Ensure` with a factory,
-  where the condition and the factory each choose their own kind): 876 generated methods, covered by generated tests.
+  where the condition and the factory each choose their own kind): 876 generated files, covered by generated tests.
   Writing those by hand, consistently, is the part nobody enjoys.
 - **Analyzers and code fixes in the package:** `WYZ0101` (a discarded result, with a code fix) and `WYZ0102` (`GetError()` / `GetValue()` not guarded,
   with a guard clause as the fix for `GetValue()` in a method that returns a result),
@@ -121,7 +121,7 @@ What this package adds, each point checked against the source or a test:
 - **C# 15 unions:** on a `net11.0` build `Result<T>` is a union of `T` and `Error`, for an exhaustive `switch`.
 - **Interop with Maybe:** the umbrella package `Wyzely.Functional` adds `ToResult` and `ToMaybe` between the two types.
 
-**The cost of the dependency, honestly.** A package to keep updated, an API you do not control (it can change before 1.0), a vocabulary the team has to learn,
+**The cost of the dependency, honestly.** A package to keep updated, an API you do not control, a vocabulary the team has to learn,
 and an opinion (`GetValue()`/`GetError()` are guarded, `default` is a success) that you may not share. **Write your own when** the application is small,
 has few layers, never aggregates errors, and never mixes `Task` and `ValueTask`. **Use a library when** several teams or services share the type,
 when errors must be logged safely and grouped, or when you would otherwise hand-write the async variants.
@@ -231,6 +231,12 @@ result.GetError();                      // WYZ0102: not guarded by an IsFailure 
 
 [Safety and analyzers](https://github.com/WyzelyDk/Functional/blob/main/docs/result/safety-and-analyzers.md).
 
+### Do not serialize a result or an error
+
+`System.Text.Json` refuses `Result`, `Result<T>` and `Error` on purpose, because written as they are a result loses its value and an error writes
+its sensitive details in plain text. Map them to a type of your own at the edge
+([Serialization](https://github.com/WyzelyDk/Functional/blob/main/docs/result/safety-and-analyzers.md#serialization)).
+
 ## Everything else
 
 | Topic | |
@@ -252,7 +258,7 @@ result.GetError();                      // WYZ0102: not guarded by an IsFailure 
 
 A `Result` is exactly one pointer wide, and the success path allocates nothing (checked by tests). Benchmarked against eight other libraries,
 for value and reference types, a four-step synchronous chain took 5 to 6 ns without allocating, as it did in CSharpFunctionalExtensions,
-ErrorOr and OneOf; the others took 2 to 32 times as long and most allocated. Chaining on a completed `Task` allocates in every library,
+ErrorOr and OneOf; the others took 2 to 38 times as long and most allocated. Chaining on a completed `Task` allocates in every library,
 ours included, and awaiting first is cheaper. The differences between the four fastest are inside the run-to-run noise, so we do not rank them.
 [Numbers and caveats](https://github.com/WyzelyDk/Functional/blob/main/docs/result/performance.md).
 

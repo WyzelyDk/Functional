@@ -107,7 +107,8 @@ var flat = nested.Flatten();                             // Some(7)
 **`Zip`** combines two to five independent maybes: the result is a some only when all of them are. Without a selector it is a tuple with the
 named elements `First`, `Second`, ... `Fifth`; with a selector (a `Func` of the values that may return a `null`, which becomes none) the values are
 combined at once. Unlike `Result.Zip` there is no error to aggregate, so the answer is simply "all" or "none". The overloads are generated
-into `MaybeExtensions` (`src/Maybe/Generated/Zip`, 8 files: a tuple and a selector form for each count), and the limit of five is one setting
+into `MaybeExtensions` (`src/Maybe/Generated/Zip`, 12 files: a tuple form, a selector form and a nullable-value selector form for each count),
+and the limit of five is one setting
 of the generator (`GeneratorSettings.MaxZipArity`), not something that can be changed by a consumer. For more than five, nest `Zip`s or use query syntax.
 
 **`Flatten`** turns a `Maybe<Maybe<T>>` into a `Maybe<T>`, for a maybe, a `Task<Maybe<Maybe<T>>>` and a `ValueTask<Maybe<Maybe<T>>>`.
@@ -118,7 +119,7 @@ when you are writing the step yourself, `Bind` instead of `Map` never creates th
 
 ## Samples
 
-`samples/Maybe.Samples` has one file per theme with the examples of this page (`RailwayExample.cs`) and of the others, each printing labelled lines;
+`samples/Maybe.Samples` has one file per theme with the examples of this page (`RailwayExample.cs`) and of the others, each printing labeled lines;
 `dotnet run --project samples/Maybe.Samples -c Release` runs them all.
 
 ## Taking a maybe apart with `switch` (net11.0)

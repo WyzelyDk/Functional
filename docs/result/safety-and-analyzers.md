@@ -18,7 +18,7 @@ are used, and both are nullable to the compiler. Use it when you want both parts
 compiler to see the check.
 
 The package ships analyzers, all enabled by default: `WYZ0101`, `WYZ0102` and `WYZ0111` are warnings,
-and the other rules from `WYZ0103` on are suggestions (info) that point at the method of the library that says what a piece of code does:
+and the other rules are suggestions (info) that point at the method of the library that says what a piece of code does:
 
 | Id | Reports | Fix | Code fix |
 |---|---|---|---|

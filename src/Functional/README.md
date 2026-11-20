@@ -17,7 +17,7 @@ var outcome = await FindCustomerAsync(7)
     .Bind(ChargeAsync)
     .Map(receipt => receipt.Number);
 
-outcome.GetValue();                                    // "R-7"   (for an unknown customer: a NotFound failure)
+var text = outcome.Match(number => number, error => error.Message);   // "R-7"   (for an unknown customer: "No such customer.")
 ```
 
 One chain from "maybe there is a customer" to "the charge went through", with no `await` in the middle.
@@ -32,7 +32,7 @@ One chain from "maybe there is a customer" to "the charge went through", with no
 Install **`Wyzely.Functional`** when you use both `Result` and `Maybe` and move between them (a lookup that may find nothing, then an operation that may fail).
 It references [`Wyzely.Functional.Result`](https://github.com/WyzelyDk/Functional/blob/main/src/Result/README.md) and
 [`Wyzely.Functional.Maybe`](https://github.com/WyzelyDk/Functional/blob/main/src/Maybe/README.md), so both arrive as dependencies, with the analyzers of both,
-and it adds `ToResult` and `ToMaybe`.
+and it adds `ToResult`, `ToMaybe`, `EnsureSome` and `ToInvertedResult`.
 
 Install **only one of the two** when you need only that one: the packages are independent, and neither references the other.
 `Wyzely.Functional` is the only package that connects them, so taking `Result` never makes you take `Maybe`.
@@ -53,7 +53,8 @@ The last versions with a `netstandard2.0` asset (for .NET Framework, Unity, and 
 
 The analyzers of both packages (`WYZ0101` to `WYZ0120` for `Result`, `WYZ0201` to `WYZ0208` for `Maybe`) come with the dependencies;
 there is nothing else to install.
-(CI checks it on every build: it packs the three packages, builds a project that references only `Wyzely.Functional` with every .NET 10 SDK,
+(CI checks it on every build: it packs the three packages,
+builds a project that references only `Wyzely.Functional` with the oldest .NET 10 SDK (10.0.100), the newest one and SDK 11,
 and requires `WYZ0102` and `WYZ0201` to be reported.)
 Use **C# 13 or later** to write `async` lambdas without ambiguity: under `LangVersion` 12 the compiler reports `CS0121` (an ambiguous call) for some of them,
 and under 13 it does not (verified by compiling a scratch project with both language versions).

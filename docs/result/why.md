@@ -56,7 +56,7 @@ What this library adds, point by point (each checked against the source or a tes
 | Size and allocation | probably the same, if you use a struct | tested: `Result` is one reference wide, `Result<T>` is `T` plus one reference, the success path of the main operations allocates 0 bytes with `static` lambdas (`PerformanceTests`) |
 | Language and ecosystem | none | C# 15 union support on `net11.0`; `ToResult` / `ToMaybe` with `Maybe` through the umbrella package `Wyzely.Functional` |
 
-**The honest cost.** A dependency to update; an API that can still change before 1.0;
+**The honest cost.** A dependency to update; an API you do not control;
 a vocabulary and a set of opinions (`GetValue()`/`GetError()` are guarded, a `default` result is a success) that the whole team must accept;
 and a short public track record as a package (first released in October 2026). **Write your own** when the application is small,
 the error is a message, nobody mixes `Task` and `ValueTask`, and one team owns the code. **Use a library** when the type is shared,
@@ -82,7 +82,7 @@ Be clear-eyed: the established libraries have things this one does not.
 
 - **It is a young package.** The code it grew from has been in production use in many codebases, then expanded,
   improved and documented with Claude Code (the [main README](../../README.md#where-this-code-comes-from) explains what that does and does not mean).
-  It was first released in October 2026, so it has little track record *as a package*, and the API can change before 1.0.
+  It was first released in October 2026, so it has little track record *as a package*.
 - **It does less.** `Maybe` is a separate package ([`Wyzely.Functional.Maybe`](../maybe/why.md)) and not part of this one.
   There are no value objects and no JSON, EF Core or ASP.NET Core integrations; those are not part of this package either.
 - **It is one team's opinion.** A `default` result is a success, and `GetValue()`/`GetError()` are guarded by an analyzer.
@@ -97,8 +97,8 @@ Be clear-eyed: the established libraries have things this one does not.
 |---|---|
 | already use one of the libraries above and are happy | **Stay.** There is no reason to switch for its own sake. |
 | need value objects or framework integrations *today* | Use CSharpFunctionalExtensions, which has them. |
-| need a `Maybe` next to the `Result` | [`Wyzely.Functional.Maybe`](../maybe/why.md) exists (it has the same lineage, and is equally unpublished and young); CSharpFunctionalExtensions has a `Maybe` with years of use as a package. Choose by that trade-off. |
-| are starting a new codebase and the table above describes pains you recognise (a result that can silently be a success, `ValueTask` chains that need awaits, analyzers you have to hunt for) | **Try it.** It is small enough to evaluate in an afternoon. |
+| need a `Maybe` next to the `Result` | [`Wyzely.Functional.Maybe`](../maybe/why.md) exists (it has the same lineage, and is equally young); CSharpFunctionalExtensions has a `Maybe` with years of use as a package. Choose by that trade-off. |
+| are starting a new codebase and the table above describes pains you recognize (a result that can silently be a success, `ValueTask` chains that need awaits, analyzers you have to hunt for) | **Try it.** It is small enough to evaluate in an afternoon. |
 | want to understand a design with these trade-offs on purpose | Read [Design decisions](design-decisions.md); every one is written down with its reason. |
 
 ## How we try to keep this honest

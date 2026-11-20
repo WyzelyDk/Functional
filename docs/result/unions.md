@@ -18,8 +18,8 @@ Things to know:
 
 - It needs the **`net11.0` target** (and a C# 15 compiler).
   The package has a `net11.0` asset that carries the union members; a project that targets `net10.0` gets the same library without them.
-- It was built and its tests (`ResultUnionTests`, 8 of them) pass with the final SDK `11.0.100` (earlier with `11.0.100-rc.2`,
-  the release candidate), without a preview opt-in. It follows the documented shape of custom unions
+- It was built and its tests (`ResultUnionTests`, 8 of them) pass with the final SDK `11.0.100`,
+  without a preview opt-in. It follows the documented shape of custom unions
   ([language reference](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/union)). No `LangVersion` setting was needed.
 - A `default` result is a success holding `default(T)`, so a `switch` over it matches the value case.
 - A union gives the language an **implicit conversion from each case type**, and `Result<T>` has the same conversions on **every** target:

@@ -32,7 +32,7 @@ var message = ParseAge("42")                                  // Result<int>: a 
     .Match(text => text, error => $"Rejected: {error}");     // "Welcome, age 42."
 ```
 
-Hello! This is a set of .NET packages for two things that business code keeps needing: an expected failure that is a value instead of an exception (`Result`),
+This is a set of .NET packages for two things that business code keeps needing: an expected failure that is a value instead of an exception (`Result`),
 and an absent value that is not `null` (`Maybe`). You take the pieces you need and nothing else: every package stands on its own,
 has no dependencies it does not need, and says in plain words what it will and will not do.
 
@@ -211,7 +211,7 @@ writing the second `Map` overload for `ValueTask`, the third error-formatting he
 ## Samples
 
 Three runnable console projects, one example file per theme in a small customer and order domain, each with its scenario and the reason in comments.
-Each example prints labelled lines, and `test/Samples.Tests` runs every example and checks the lines that matter,
+Each example prints labeled lines, and `test/Samples.Tests` runs every example and checks the lines that matter,
 so a sample cannot drift from what its comments claim.
 
 | Project | Demonstrates | Run |
@@ -231,8 +231,8 @@ A fourth project, `samples/Aot.Samples`, is published as a Native AOT app and ru
 | [`Wyzely.Functional.Maybe`](src/Maybe/README.md) | A value may be absent, and "absent" should not be `null`. | [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional.Maybe)](https://www.nuget.org/packages/Wyzely.Functional.Maybe) |
 | [`Wyzely.Functional`](src/Functional/README.md) | You use both and want them to work together. It depends on the two packages above and adds the methods between them (`ToResult()` and `ToMaybe()`). | [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional)](https://www.nuget.org/packages/Wyzely.Functional) |
 
-The packages are 0.x: they are released together, and the API can still change before 1.0. The notes of each release on GitHub list what changed.
-[Stability and support](docs/stability.md) says what 1.0 will promise.
+The packages are released together, and [Stability and support](docs/stability.md) says what a version promises.
+The notes of each release on GitHub list what changed.
 
 ### Which one do I install?
 
@@ -266,6 +266,7 @@ dotnet build -c Release
 ```
 
 You need the .NET 11 SDK (`global.json` pins the exact version); it builds all target frameworks, `net11.0` (C# 15 unions) included.
+The tests of `net10.0` also need the .NET 10 runtime.
 
 ```
 src/         the packages (Result, Maybe and the umbrella Functional), their analyzers and code fixes, and their code generators

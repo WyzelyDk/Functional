@@ -60,7 +60,7 @@ We considered an implicit conversion that flattens a `Maybe<Maybe<T>>` into a `M
 - **It would not help chains.** A user-defined conversion does not apply to the receiver of an extension method, so `nested.Map(...)`
   would still be a `Maybe<Maybe<T>>` receiver. What a chain needs is already there: `Bind` flattens as it goes, and `Flatten()` (plain,
   `Task` and `ValueTask` receivers) removes a level that arrived from elsewhere.
-- **It hides a real modelling question.** A `Maybe<Maybe<T>>` usually means that a `Map` delegate returned a maybe and `Bind` was meant.
+- **It hides a real modeling question.** A `Maybe<Maybe<T>>` usually means that a `Map` delegate returned a maybe and `Bind` was meant.
   A conversion would make the compiler accept the mistake silently; with `Flatten()` the flattening is visible at the place where it happens.
 - **A generic type whose operator mentions a deeper instantiation of itself risks generic-expansion cycles for ahead-of-time compilers.**
   We did **not** verify this concern (we did not build an AOT or trimmed application with such a conversion),
@@ -122,8 +122,8 @@ check it; the cost is one static field per instantiated type.
 ## Functional names, no `Async` suffix
 
 `Map`, `Bind`, `Tap`, ... for every receiver and delegate kind, as on `Result`. The price is the async-lambda note in [Async](async.md).
-Twelve operations in nine variants are 108 generated methods, the nullable-value form of `Map` adds 9 and `Contains`,
-which has no delegate and so three variants, adds 3, and `ValueOr` with a value for a `Task` or `ValueTask` adds 2 (122); `Zip` adds 12 (a tuple form,
+Eleven operations in nine variants are 99 generated methods, the second forms of `Map` and `OrElse` add 18, `ValueOr` with a value for a `Task` or
+`ValueTask` adds 2, `Contains` (three variants, and three more with a comparer) adds 6 and `GetValueOrThrow` adds 5 (130); `Zip` adds 12 (a tuple form,
 a selector form and a nullable-value selector form for two to five maybes).
 
 ## Configurable defaults, one global switch

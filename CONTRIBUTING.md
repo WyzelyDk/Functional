@@ -20,7 +20,7 @@ The [security policy](SECURITY.md) has the details.
 
 ## Before you propose a change
 
-Read the scope of the package you have in mind ([Result](docs/result/scope.md)).
+Read the scope of the package you have in mind ([Result](docs/result/scope.md), [Maybe](docs/maybe/scope.md)).
 Every new public member has to pass its admission test, because a public API can never be taken back.
 In the issue, say which question of the scope your change answers, and give the name and an example call.
 
@@ -47,7 +47,7 @@ and the benchmarks.
 4. **Follow the existing style.**
    `.editorconfig` and the analyzers are enforced: Release builds treat warnings as errors, and every public and internal member has XML documentation.
 5. **Do not edit generated files by hand.**
-   Change the catalog in `src/Result.CodeGeneration` and regenerate; a test fails if the generated files are out of date.
+   Change the catalog in `src/Result.CodeGeneration` or `src/Maybe.CodeGeneration` and regenerate; a test fails if the generated files are out of date.
 6. **Measure before you claim speed.** A performance change comes with a benchmark, and a measurement that contradicts the expectation wins.
 7. **Update the documentation.** README examples are tests, so change the test that holds a snippet when you change the snippet.
    The runnable projects in `samples/` (Result, Maybe and Functional) are tests too (`test/Samples.Tests`): if you change behavior that a sample prints,

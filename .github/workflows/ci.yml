@@ -67,7 +67,7 @@ jobs:
   # Always runs and takes well under a minute: a documentation-only change is not built, but its links are checked and the documentation
   # site must build without a warning (a broken anchor, a page missing from the nav), so that publishing it cannot fail after the merge.
   docs:
-    name: Check the Markdown links
+    name: Check the Markdown links and build the site
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -133,7 +133,7 @@ jobs:
     needs: [changes, validate]
     if: needs.changes.outputs.code == 'true'
     # Linux only: the libraries are pure managed code with no operating-system calls, and the generated files and line endings are
-    # normalised by the tests, so a second operating system would repeat the same result at twice the cost.
+    # normalized by the tests, so a second operating system would repeat the same result at twice the cost.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -248,7 +248,7 @@ jobs:
   # SonarCloud analysis: static analysis, code coverage and the quality gate. The scanner wraps a build and the tests (the begin step changes
   # the build, so this is a job of its own and the warnings-as-errors build above stays untouched). `sonar.qualitygate.wait` makes the `end`
   # step fail when the quality gate fails, so this job, and with it the required check `CI`, is red then.
-  # The token is not available to pull requests from forks, which cannot be analysed; a missing token anywhere else is an error. For pull
+  # The token is not available to pull requests from forks, which cannot be analyzed; a missing token anywhere else is an error. For pull
   # requests of Dependabot, add SONAR_TOKEN as a Dependabot secret as well (Settings -> Secrets and variables -> Dependabot).
   sonarcloud:
     name: SonarCloud analysis

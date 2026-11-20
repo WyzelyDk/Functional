@@ -12,7 +12,7 @@ A new public member goes in only if the answer to every question is yes:
    Not about collections in general, HTTP, logging, validation, serialization or dependency injection, even if a `Maybe` happens to flow through them.
    (The collection extensions are the exception that proves the rule: each one exists to answer "maybe there is one" and nothing else.)
 2. **Is the name self-explanatory, and is it the only name for what it does?**
-   A developer who knows other languages or libraries should recognise what it does from the name alone.
+   A developer who knows other languages or libraries should recognize what it does from the name alone.
    It is not a second name for something the library already has, and the same concept has the same name in `Result` and `Maybe`.
    Convenience is welcome when its name makes clear what it is for.
    An operation that belongs to a family is added for the whole family (every receiver, delegate kind and result form), never for part of it.
@@ -22,7 +22,7 @@ A new public member goes in only if the answer to every question is yes:
    What stays expensive is what every developer who uses the library pays for as long as the operation exists:
    one more entry to find or ignore in IntelliSense and in the documentation,
    and a contract that cannot be changed or removed after 1.0 without a breaking change.
-   Ask whether enough developers will recognise the operation and reach for it to justify that.
+   Ask whether enough developers will recognize the operation and reach for it to justify that.
 4. **Does it need a dependency, or does it only matter to some applications?** Then it belongs in a separate package, never in this one.
    This package stays free of dependencies outside the BCL.
 5. **Can it be misused in a way an analyzer cannot catch?**

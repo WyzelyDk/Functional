@@ -37,8 +37,8 @@ var price = Result.Success(100)
 ```
 
 A delegate that may throw does not need a `try`/`catch` in the chain. `MapTry`, `BindTry` and `TapTry` turn the exception into a failure,
-as `Result.Try` does, so a cancellation keeps travelling unless `ShouldCatch` says otherwise.
-Name the exception type with the parameter of the handler to catch only that type; any other exception keeps travelling:
+as `Result.Try` does, so a cancellation keeps traveling unless `ShouldCatch` says otherwise.
+Name the exception type with the parameter of the handler to catch only that type; any other exception keeps traveling:
 
 ```csharp
 var address = Result.Success("not a web address")
@@ -130,7 +130,7 @@ var total = from price in Result.Success(40)
             from tax in Result.Success(2)
             select price + tax;                          // Result<int> with 42; stops at the first failure
 
-var pair = Result.Success(1).Zip(Result.Failure<string>("x"));   // reports the errors of both when both failed
+var pair = Result.Success(1).Zip(Result.Failure<string>("x"));   // reports the failure
 
 var triple = Result.Success(1).Zip(Result.Success("a"), Result.Success(true));   // Result<(int First, string Second, bool Third)>
 

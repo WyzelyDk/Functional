@@ -3,10 +3,11 @@ name: Benchmarks
 # Runs the benchmarks of Result and Maybe against the other libraries (benchmarks/Result.Benchmarks and benchmarks/Maybe.Benchmarks) and shows the tables
 # in the summary of the run. The raw results (CSV, HTML and Markdown of every scenario) are kept as an artifact.
 #
-# It is NOT part of the CI gate, and it does not run for a pull request or for every push to main. Timings from a shared virtual machine move by tens of percent
-# from one run to the next, so a run after every change could not tell a regression from noise, and a full run takes the better part of an hour. It runs
-# when someone asks for it, once a week, and for every release tag, so that there is a record that belongs to each release. What does not move
-# is the allocation: that is checked by tests on every pull request (PerformanceTests, CompletedTaskReuseTests). See docs/releasing.md.
+# It is NOT part of the CI gate, and it does not run for a pull request or for every push to main. Timings from a shared virtual machine move by tens
+# of percent from one run to the next, so a run after every change could not tell a regression from noise, and a full run takes about fifteen minutes
+# on a developer machine, longer on a hosted runner. It runs when someone asks for it, once a week, and for every release tag, so that there is a
+# record that belongs to each release. What does not move is the allocation: that is checked by tests on every pull request (PerformanceTests,
+# CompletedTaskReuseTests). See docs/releasing.md.
 #
 # Read a table within one run, as every row of it was measured on the same machine at the same time. Do not compare a number with the number of another run.
 on:

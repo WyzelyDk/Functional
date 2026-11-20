@@ -18,7 +18,8 @@ Use C# 13 or later to write `async` lambdas without ambiguity.
 
 A lookup may find nothing, and that is a `Maybe`. An operation may fail, and that is a `Result`. Real workflows contain both, in order: *find the
 customer, then charge them*. The two types do not know about each other, because the packages are independent, so the umbrella package adds the
-only two methods that connect them: `ToResult` (absent becomes failed, with the error you choose) and `ToMaybe` (failed becomes absent, error dropped).
+only four methods that connect them: `ToResult` (absent becomes failed, with the error you choose), `ToMaybe` (failed becomes absent, error dropped),
+`EnsureSome` (a `Result<Maybe<T>>` becomes a `Result<T>`) and `ToInvertedResult` (a value becomes the failure); [Interop](interop.md) has all four.
 
 ## Step 1: from absent to failed
 
@@ -63,7 +64,7 @@ var outcome = await FindCustomerAsync(7)
     .Map(receipt => receipt.Number);
 ```
 
-Both methods exist for plain, `Task` and `ValueTask` receivers, and the railway steps on either side accept every mix, so the chain keeps its shape.
+All four methods exist for plain, `Task` and `ValueTask` receivers, and the railway steps on either side accept every mix, so the chain keeps its shape.
 The first failure skips the remaining steps. [`AsyncWorkflowExample`](../../samples/Functional.Samples/AsyncWorkflowExample.cs) extends this with `Filter`,
 a synchronous rule and a failing gateway, and prints each outcome.
 
