@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Wyzely.Functional.Internal;
@@ -79,6 +81,19 @@ public sealed class JsonGuardTests
         var exception = Assert.Throws<NotSupportedException>(() => guard.CreateConverter(typeof(int*), new JsonSerializerOptions()));
 
         Assert.Contains("is not meant to be serialized", exception.Message);
+    }
+
+    [Fact]
+    internal void The_guards_are_hidden_from_IntelliSense_because_they_are_public_only_for_the_source_generator()
+    {
+        Type[] guards =
+        [
+            typeof(MaybeJsonGuard),
+        ];
+
+        var visible = guards.Where(static guard => guard.GetCustomAttribute<EditorBrowsableAttribute>()?.State != EditorBrowsableState.Never);
+
+        Assert.Empty(visible);
     }
 
     private sealed record Customer(Maybe<string> Nickname);

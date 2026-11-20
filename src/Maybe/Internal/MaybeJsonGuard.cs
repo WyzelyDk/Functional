@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -7,6 +8,7 @@ namespace Wyzely.Functional.Internal;
 /// Refuses to write or read a maybe as JSON, with a message that says why and what to do instead (see <see cref="JsonRefusal"/>).
 /// Public only so that a source-generated serializer context can reach it from the attribute; it is not meant to be used directly.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class MaybeJsonGuard : JsonConverterFactory
 {
     /// <inheritdoc />

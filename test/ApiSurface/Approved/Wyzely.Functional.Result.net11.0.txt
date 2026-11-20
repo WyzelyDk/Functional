@@ -78,30 +78,30 @@
   static property Wyzely.Functional.ErrorKind Unavailable { get; }
   static property Wyzely.Functional.ErrorKind Unexpected { get; }
   static property Wyzely.Functional.ErrorKind Validation { get; }
-sealed class Wyzely.Functional.Internal.ErrorDetailJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorDetail>
+[EditorBrowsable(Never)] sealed class Wyzely.Functional.Internal.ErrorDetailJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorDetail>
   ctor()
   override Wyzely.Functional.ErrorDetail Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
   override property bool HandleNull { get; }
   override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.ErrorDetail value, System.Text.Json.JsonSerializerOptions options)
-sealed class Wyzely.Functional.Internal.ErrorFrameJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorFrame>
+[EditorBrowsable(Never)] sealed class Wyzely.Functional.Internal.ErrorFrameJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorFrame>
   ctor()
   override Wyzely.Functional.ErrorFrame? Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
   override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.ErrorFrame? value, System.Text.Json.JsonSerializerOptions options)
-sealed class Wyzely.Functional.Internal.ErrorJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.Error>
+[EditorBrowsable(Never)] sealed class Wyzely.Functional.Internal.ErrorJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.Error>
   ctor()
   override Wyzely.Functional.Error? Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
   override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.Error? value, System.Text.Json.JsonSerializerOptions options)
-sealed class Wyzely.Functional.Internal.ErrorKindJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorKind>
+[EditorBrowsable(Never)] sealed class Wyzely.Functional.Internal.ErrorKindJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorKind>
   ctor()
   override Wyzely.Functional.ErrorKind Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
   override property bool HandleNull { get; }
   override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.ErrorKind value, System.Text.Json.JsonSerializerOptions options)
-sealed class Wyzely.Functional.Internal.ResultJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.Result>
+[EditorBrowsable(Never)] sealed class Wyzely.Functional.Internal.ResultJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.Result>
   ctor()
   override Wyzely.Functional.Result Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
   override property bool HandleNull { get; }
   override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.Result value, System.Text.Json.JsonSerializerOptions options)
-sealed class Wyzely.Functional.Internal.ResultOfTJsonGuard : System.Text.Json.Serialization.JsonConverterFactory
+[EditorBrowsable(Never)] sealed class Wyzely.Functional.Internal.ResultOfTJsonGuard : System.Text.Json.Serialization.JsonConverterFactory
   ctor()
   override System.Text.Json.Serialization.JsonConverter CreateConverter(System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
   override bool CanConvert(System.Type typeToConvert)

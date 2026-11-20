@@ -205,7 +205,7 @@ Two checks keep the public API from changing by accident.
 **After the release of 1.0.0**, set `PackageValidationBaselineVersion` in `Directory.Build.props` to that version, and to the version of each release after it.
 Pack then fails on a public member that the last release had and this one does not (`CP0002`), and on an asset that was dropped (`PKV006`).
 Run against 0.3.1 it already reports the dropped `netstandard2.0` asset, and the removal of a public method (checked by making one internal).
-A break that is intended (it needs a new major version, see the support policy) is accepted with the suppression file:
+A break that is intended (it needs a new major version, see [Stability and support](stability.md)) is accepted with the suppression file:
 rebuild once with `-p:ApiCompatGenerateSuppressionFile=true` and commit the file. The baseline package is restored from nuget.org, so the first restore after
 a release needs the network and the version must already be published.
 

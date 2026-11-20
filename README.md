@@ -232,6 +232,7 @@ A fourth project, `samples/Aot.Samples`, is published as a Native AOT app and ru
 | [`Wyzely.Functional`](src/Functional/README.md) | You use both and want them to work together. It depends on the two packages above and adds the methods between them (`ToResult()` and `ToMaybe()`). | [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional)](https://www.nuget.org/packages/Wyzely.Functional) |
 
 The packages are 0.x: they are released together, and the API can still change before 1.0. The notes of each release on GitHub list what changed.
+[Stability and support](docs/stability.md) says what 1.0 will promise.
 
 ### Which one do I install?
 
