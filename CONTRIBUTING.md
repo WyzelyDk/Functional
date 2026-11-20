@@ -16,6 +16,7 @@ By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Security problems should not be reported in a public issue.
 Use the repository's **Security** tab (private vulnerability reporting) so that a fix can be released before the details are public.
+The [security policy](SECURITY.md) has the details.
 
 ## Before you propose a change
 

@@ -1,0 +1,55 @@
+name: Bug report
+description: Something does not work the way the documentation says it does.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. A failing test is the best bug report there is; the smallest code that shows the problem is the next best.
+        A question or an idea is not a bug: please use [Discussions](https://github.com/WyzelyDk/Functional/discussions) or the idea form.
+        A security problem must not be reported here: see the [security policy](https://github.com/WyzelyDk/Functional/blob/main/SECURITY.md).
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - Wyzely.Functional.Result
+        - Wyzely.Functional.Maybe
+        - Wyzely.Functional (the umbrella package)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: .NET SDK and target framework
+      description: The output of `dotnet --version` and the target framework of your project.
+      placeholder: 10.0.100, net10.0
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: The smallest code that shows the problem
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: The exception with its stack trace, the compiler or analyzer message, or the wrong output.
+    validations:
+      required: true
