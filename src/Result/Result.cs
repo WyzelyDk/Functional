@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Wyzely.Functional;
 
@@ -20,6 +21,7 @@ namespace Wyzely.Functional;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]
+[JsonConverter(typeof(ResultJsonGuard))]
 public readonly partial struct Result : IEquatable<Result>
 {
     /// <summary>The error of a failure, or <see langword="null"/> for a success, which is also what a <see langword="default"/> result holds.</summary>

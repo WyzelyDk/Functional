@@ -1,4 +1,4 @@
-[DebuggerDisplay("{ToString(),nq}")] sealed class Wyzely.Functional.Error : System.IEquatable<Wyzely.Functional.Error>
+[DebuggerDisplay("{ToString(),nq}"), JsonConverter(typeof(Wyzely.Functional.Internal.ErrorJsonGuard))] sealed class Wyzely.Functional.Error : System.IEquatable<Wyzely.Functional.Error>
   System.Collections.Generic.IReadOnlyList<Wyzely.Functional.Error> Flatten()
   Wyzely.Functional.Error WithCode(string code)
   Wyzely.Functional.Error WithContext(string context)
@@ -39,7 +39,7 @@
   static bool op_Equality(Wyzely.Functional.Error? left, Wyzely.Functional.Error? right)
   static bool op_Inequality(Wyzely.Functional.Error? left, Wyzely.Functional.Error? right)
   string ToRedactedString()
-[DebuggerDisplay("{ToString(),nq}")] readonly struct Wyzely.Functional.ErrorDetail : System.IEquatable<Wyzely.Functional.ErrorDetail>
+[DebuggerDisplay("{ToString(),nq}"), JsonConverter(typeof(Wyzely.Functional.Internal.ErrorDetailJsonGuard))] readonly struct Wyzely.Functional.ErrorDetail : System.IEquatable<Wyzely.Functional.ErrorDetail>
   bool Equals(Wyzely.Functional.ErrorDetail other)
   ctor(string name, object? value, bool isSensitive = false)
   override bool Equals(object? obj)
@@ -50,7 +50,7 @@
   property string Name { get; }
   static bool op_Equality(Wyzely.Functional.ErrorDetail left, Wyzely.Functional.ErrorDetail right)
   static bool op_Inequality(Wyzely.Functional.ErrorDetail left, Wyzely.Functional.ErrorDetail right)
-[DebuggerDisplay("{ToString(),nq}")] sealed class Wyzely.Functional.ErrorFrame : System.IEquatable<Wyzely.Functional.ErrorFrame>
+[DebuggerDisplay("{ToString(),nq}"), JsonConverter(typeof(Wyzely.Functional.Internal.ErrorFrameJsonGuard))] sealed class Wyzely.Functional.ErrorFrame : System.IEquatable<Wyzely.Functional.ErrorFrame>
   bool Equals(Wyzely.Functional.ErrorFrame? other)
   override bool Equals(object? obj)
   override int GetHashCode()
@@ -59,7 +59,7 @@
   property string Message { get; }
   property string RedactedMessage { get; }
   property string Template { get; }
-[DebuggerDisplay("{Name}")] readonly struct Wyzely.Functional.ErrorKind : System.IEquatable<Wyzely.Functional.ErrorKind>
+[DebuggerDisplay("{Name}"), JsonConverter(typeof(Wyzely.Functional.Internal.ErrorKindJsonGuard))] readonly struct Wyzely.Functional.ErrorKind : System.IEquatable<Wyzely.Functional.ErrorKind>
   bool Equals(Wyzely.Functional.ErrorKind other)
   ctor(string name)
   override bool Equals(object? obj)
@@ -78,7 +78,34 @@
   static property Wyzely.Functional.ErrorKind Unavailable { get; }
   static property Wyzely.Functional.ErrorKind Unexpected { get; }
   static property Wyzely.Functional.ErrorKind Validation { get; }
-[DebuggerDisplay("{ToString(),nq}")] readonly struct Wyzely.Functional.Result : System.IEquatable<Wyzely.Functional.Result>
+sealed class Wyzely.Functional.Internal.ErrorDetailJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorDetail>
+  ctor()
+  override Wyzely.Functional.ErrorDetail Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+  override property bool HandleNull { get; }
+  override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.ErrorDetail value, System.Text.Json.JsonSerializerOptions options)
+sealed class Wyzely.Functional.Internal.ErrorFrameJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorFrame>
+  ctor()
+  override Wyzely.Functional.ErrorFrame? Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+  override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.ErrorFrame? value, System.Text.Json.JsonSerializerOptions options)
+sealed class Wyzely.Functional.Internal.ErrorJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.Error>
+  ctor()
+  override Wyzely.Functional.Error? Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+  override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.Error? value, System.Text.Json.JsonSerializerOptions options)
+sealed class Wyzely.Functional.Internal.ErrorKindJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.ErrorKind>
+  ctor()
+  override Wyzely.Functional.ErrorKind Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+  override property bool HandleNull { get; }
+  override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.ErrorKind value, System.Text.Json.JsonSerializerOptions options)
+sealed class Wyzely.Functional.Internal.ResultJsonGuard : System.Text.Json.Serialization.JsonConverter<Wyzely.Functional.Result>
+  ctor()
+  override Wyzely.Functional.Result Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+  override property bool HandleNull { get; }
+  override void Write(System.Text.Json.Utf8JsonWriter writer, Wyzely.Functional.Result value, System.Text.Json.JsonSerializerOptions options)
+sealed class Wyzely.Functional.Internal.ResultOfTJsonGuard : System.Text.Json.Serialization.JsonConverterFactory
+  ctor()
+  override System.Text.Json.Serialization.JsonConverter CreateConverter(System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+  override bool CanConvert(System.Type typeToConvert)
+[DebuggerDisplay("{ToString(),nq}"), JsonConverter(typeof(Wyzely.Functional.Internal.ResultJsonGuard))] readonly struct Wyzely.Functional.Result : System.IEquatable<Wyzely.Functional.Result>
   Wyzely.Functional.Error GetError()
   Wyzely.Functional.Result<TOther> ConvertFailure<TOther>()
   [OverloadResolutionPriority(1)] static System.Threading.Tasks.Task<Wyzely.Functional.Result<T>> SuccessIfNotNull<T>(System.Threading.Tasks.Task<T?> value, System.Func<Wyzely.Functional.Error> errorFactory) where T : class
@@ -1126,7 +1153,7 @@ static class Wyzely.Functional.ResultParallelExtensions
   static System.Threading.Tasks.Task<Wyzely.Functional.Result<System.Collections.Generic.IReadOnlyList<TResult>>> SelectInParallel<TSource, TResult>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<Wyzely.Functional.Result<TResult>>> operation, int? maxDegreeOfParallelism = null, System.Threading.CancellationToken cancellationToken = null)
   static System.Threading.Tasks.Task<Wyzely.Functional.Result> ForEachInParallel<TSource>(this System.Collections.Generic.IAsyncEnumerable<TSource?> source, System.Func<TSource?, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<Wyzely.Functional.Result>> operation, int? maxDegreeOfParallelism = null, System.Threading.CancellationToken cancellationToken = null)
   static System.Threading.Tasks.Task<Wyzely.Functional.Result> ForEachInParallel<TSource>(this System.Collections.Generic.IEnumerable<TSource?> source, System.Func<TSource?, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<Wyzely.Functional.Result>> operation, int? maxDegreeOfParallelism = null, System.Threading.CancellationToken cancellationToken = null)
-[DebuggerDisplay("{ToString(),nq}")] readonly struct Wyzely.Functional.Result<T> : System.IEquatable<Wyzely.Functional.Result<T>>
+[DebuggerDisplay("{ToString(),nq}"), JsonConverter(typeof(Wyzely.Functional.Internal.ResultOfTJsonGuard))] readonly struct Wyzely.Functional.Result<T> : System.IEquatable<Wyzely.Functional.Result<T>>
   T? GetValue()
   T? GetValueOrThrow()
   T? ValueOr(T? fallback)

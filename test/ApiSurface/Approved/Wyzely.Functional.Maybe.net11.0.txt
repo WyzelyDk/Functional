@@ -1,3 +1,7 @@
+sealed class Wyzely.Functional.Internal.MaybeJsonGuard : System.Text.Json.Serialization.JsonConverterFactory
+  ctor()
+  override System.Text.Json.Serialization.JsonConverter CreateConverter(System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+  override bool CanConvert(System.Type typeToConvert)
 static class Wyzely.Functional.Maybe
   static System.Collections.Generic.IComparer<Wyzely.Functional.Maybe<T>> CreateComparer<T>(System.Collections.Generic.IComparer<T> valueComparer) where T : notnull
   static System.Collections.Generic.IEqualityComparer<Wyzely.Functional.Maybe<T>> CreateEqualityComparer<T>(System.Collections.Generic.IEqualityComparer<T> valueComparer) where T : notnull
@@ -203,7 +207,7 @@ sealed class Wyzely.Functional.MaybeOptions
   property string NoneText { get; set; }
   property string RedactedValue { get; set; }
   property string SomeFormat { get; set; }
-[DebuggerDisplay("{ToString(),nq}"), Union] readonly struct Wyzely.Functional.Maybe<T> where T : notnull : System.IComparable<Wyzely.Functional.Maybe<T>>, System.IEquatable<Wyzely.Functional.Maybe<T>>, Wyzely.Functional.Maybe<T>
+[DebuggerDisplay("{ToString(),nq}"), JsonConverter(typeof(Wyzely.Functional.Internal.MaybeJsonGuard)), Union] readonly struct Wyzely.Functional.Maybe<T> where T : notnull : System.IComparable<Wyzely.Functional.Maybe<T>>, System.IEquatable<Wyzely.Functional.Maybe<T>>, Wyzely.Functional.Maybe<T>
   System.Collections.Generic.IEnumerable<T> ToEnumerable()
   T GetValue()
   T GetValueOrThrow()

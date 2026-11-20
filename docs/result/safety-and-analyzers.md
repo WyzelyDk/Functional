@@ -60,3 +60,35 @@ Change a severity in `.editorconfig`:
 dotnet_diagnostic.WYZ0101.severity = error
 ```
 
+## Serialization
+
+`System.Text.Json` refuses `Result`, `Result<T>`, `Error`, `ErrorDetail`, `ErrorFrame` and `ErrorKind`: serializing or deserializing one throws a
+`NotSupportedException` that points here. It is deliberate, because a serializer that is not told about these types does harm without saying so:
+
+- A result is written without its value, and a result that is read back is a **success** (`default` is a success), also when it was a failure.
+- An `Error` carries the values of its details, and the details marked sensitive are meant never to leave the process. A serializer would write
+  them, together with the message and the context, in plain text.
+
+Map the result to a type of your own at the edge instead (an HTTP response, a message, a ProblemDetails of your own making), and decide what is written:
+
+```csharp
+using System.Text.Json;
+using Wyzely.Functional;
+
+Result<int> created = Result.Success(42);
+
+var response = created.Match(
+    static id => new OrderResponse(id, null),
+    static error => new OrderResponse(null, error.Message));
+
+var json = JsonSerializer.Serialize(response);      // {"OrderId":42,"Problem":null}
+
+public sealed record OrderResponse(int? OrderId, string? Problem);
+```
+
+A converter that you register in the `JsonSerializerOptions` takes the place of the guard, so a form that you have chosen is still possible.
+The guard also holds with a source-generated `JsonSerializerContext` and in a Native AOT app (the sample `samples/Aot.Samples` publishes and runs it).
+The converters are public classes in the namespace `Wyzely.Functional.Internal` only so that the source generator can reach them; do not use them yourself.
+The guard covers `System.Text.Json` only. Newtonsoft.Json is not guarded, because that would need a dependency, and it writes these types silently
+and loses the value.
+

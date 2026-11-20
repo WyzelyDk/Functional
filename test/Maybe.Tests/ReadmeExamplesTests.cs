@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Text.Json;
 
 namespace Wyzely.Functional.MaybeTests;
 
@@ -491,6 +492,17 @@ public sealed class ReadmeExamplesTests : IDisposable
             () => Assert.True(notLarger.IsNone));
     }
 
+    [Fact]
+    internal void The_serialization_example_maps_a_maybe_to_a_nullable_property_before_it_is_serialized()
+    {
+        var withNickname = Maybe.Some("Ada").Match(static nickname => new CustomerResponse(nickname), static () => new CustomerResponse(null));
+        var without = Maybe.None<string>().Match(static nickname => new CustomerResponse(nickname), static () => new CustomerResponse(null));
+
+        Assert.Multiple(
+            () => Assert.Equal("{\"Nickname\":\"Ada\"}", JsonSerializer.Serialize(withNickname)),
+            () => Assert.Equal("{\"Nickname\":null}", JsonSerializer.Serialize(without)));
+    }
+
     private static Maybe<int> ParseAge(string text) =>
         int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var age)
             ? Maybe.Some(age)
@@ -513,4 +525,6 @@ public sealed class ReadmeExamplesTests : IDisposable
     private sealed record NamedPerson(string Name, string? Nickname);
 
     private sealed record AgedPerson(string Name, int? Age);
+
+    private sealed record CustomerResponse(string? Nickname);
 }

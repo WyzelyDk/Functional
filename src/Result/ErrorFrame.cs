@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace Wyzely.Functional;
 
@@ -19,6 +20,7 @@ namespace Wyzely.Functional;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]
+[JsonConverter(typeof(ErrorFrameJsonGuard))]
 public sealed class ErrorFrame : IEquatable<ErrorFrame>
 {
     [SuppressMessage("Style", "IDE0032", Justification = "The message is rendered lazily on first use, so it cannot be an auto-property.")]

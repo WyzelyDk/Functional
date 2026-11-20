@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Wyzely.Functional;
 
@@ -20,6 +21,7 @@ namespace Wyzely.Functional;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{ToString(),nq}")]
+[JsonConverter(typeof(MaybeJsonGuard))]
 public readonly partial struct Maybe<T> : IEquatable<Maybe<T>>, IComparable<Maybe<T>>
     where T : notnull
 {

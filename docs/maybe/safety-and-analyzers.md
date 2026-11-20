@@ -67,3 +67,31 @@ The analyzer ships inside the NuGet package. A project that references the libra
 which is why the samples show the unguarded `GetValue()` on a none throwing without a warning; in a project that installs the package, that call is reported.
 
 The union support on `net11.0` is checked by the compiler rather than by an analyzer: [C# 15 unions](unions.md).
+
+## Serialization
+
+`System.Text.Json` refuses `Maybe<T>`: serializing or deserializing one throws a `NotSupportedException` that points here. Written as it is, a maybe
+loses its value, and what "no value" looks like in JSON (`null`, a missing property, an empty array) is for the application to decide, not for this library.
+
+Map the maybe to a type of your own at the edge instead, here with `null` for none:
+
+```csharp
+using System.Text.Json;
+using Wyzely.Functional;
+
+Maybe<string> nickname = Maybe.Some("Ada");
+
+var response = nickname.Match(
+    static value => new CustomerResponse(value),
+    static () => new CustomerResponse(null));
+
+var json = JsonSerializer.Serialize(response);      // {"Nickname":"Ada"}
+
+public sealed record CustomerResponse(string? Nickname);
+```
+
+A converter that you register in the `JsonSerializerOptions` takes the place of the guard, so a form that you have chosen is still possible.
+The guard also holds with a source-generated `JsonSerializerContext` and in a Native AOT app (the sample `samples/Aot.Samples` publishes and runs it).
+The converters are public classes in the namespace `Wyzely.Functional.Internal` only so that the source generator can reach them; do not use them yourself.
+The guard covers `System.Text.Json` only. Newtonsoft.Json is not guarded, because that would need a dependency, and it writes a maybe silently
+and loses the value.

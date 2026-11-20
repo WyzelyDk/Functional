@@ -52,7 +52,8 @@ A new public member goes in only if the answer to every question is yes:
 - **`Fold`, `Iter` and other collection-style members on a maybe.** `Match`, `Switch` and `ToEnumerable()` cover them.
 - **`Maybe.Try` (turning an exception into none).** It would throw the cause away; `Result.Try` keeps it,
   and `ToMaybe()` in the umbrella package drops the error on purpose when only the absence matters. See [Design decisions](design-decisions.md).
-- **JSON, EF Core and ASP.NET Core integrations, serialization attributes.** Adapter packages.
+- **JSON, EF Core and ASP.NET Core integrations.** Adapter packages. `System.Text.Json` refuses `Maybe<T>` on purpose
+  ([Serialization](safety-and-analyzers.md#serialization)).
 - **`Maybe.Cast`.** A failed cast has no sensible meaning as none, and `OfType` already says what is meant: a value of another type is none.
 - **Logging and telemetry.** The library does not log.
 

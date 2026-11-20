@@ -151,6 +151,14 @@ catch (InvalidOperationException)
 
 Check("default result is a success", default(Result<int>).IsSuccess);
 
+// The JSON guard: the converter is created for a closed generic type at run time, which Native AOT must have compiled.
+var refusesResult = AotJson.Refuses(successOne, static () => AotJsonContext.Default.ResultInt32);
+var refusesMaybe = AotJson.Refuses(someOne, static () => AotJsonContext.Default.MaybeInt32);
+var refusesError = AotJson.Refuses(conflict, static () => AotJsonContext.Default.Error);
+Check("json refuses a result", refusesResult);
+Check("json refuses a maybe", refusesMaybe);
+Check("json refuses an error", refusesError);
+
 var summary = Summarize(failures);
 await Console.Out.WriteLineAsync(summary);
 
