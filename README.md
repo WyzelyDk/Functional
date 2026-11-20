@@ -78,8 +78,9 @@ You should know that, and what it does and does not mean:
 
 - **The design decisions are the maintainers'**: what goes in, what is declined, how the API reads.
   Claude Code did a large share of the implementation, the test writing and the documentation.
-- **The production history belongs to the code these packages grew from.** The packages as they stand now are reworked and expanded,
-  and have not previously been published or run in production *as packages*, so do not read the lineage as a guarantee.
+- **The production history belongs to the code these packages grew from.** The packages as they stand now are reworked and expanded.
+  They have been published since October 2026 (0.1.0) and are used in the maintainers' own codebases, but they have no public track record yet,
+  so do not read the lineage as a guarantee.
 - **What backs the claims is not who wrote the code but what you can check:** the tests (including generated ones for every variant),
   the benchmarks with their limits written next to them, and the written scope. Where a measurement contradicted our expectation we
   changed the code and wrote it down ([examples](docs/result/design-decisions.md#things-we-measured-and-changed)).
@@ -158,8 +159,8 @@ Every number is counted from the source or pinned by a test.
   Every operation exists for a plain, a `Task` and a `ValueTask` receiver, each with a plain, `Task` or `ValueTask` delegate:
   nine variants (27 for `Ensure` with an error or message factory, where the condition and the factory each choose their own kind).
   They are generated, not hand-written: `src/Result/Generated` holds 950 files (876 for the 23 operation names of the railway,
-  66 for the `SuccessIf`, `FailureIf` and `SuccessIfNotNull` factories, 8 for `Zip`) and `src/Maybe/Generated` holds 139 (127 for 15 operations,
-  where `Map` has a second form for nullable value types, `Contains` has three variants and `GetValueOrThrow` five, and 12 for `Zip`).
+  66 for the `SuccessIf`, `FailureIf` and `SuccessIfNotNull` factories, 8 for `Zip`) and `src/Maybe/Generated` holds 142 (130 for the operations,
+  where `Map` and `OrElse` have a second form, `Contains` has three variants with and three without a comparer and `GetValueOrThrow` five, and 12 for `Zip`).
   `GeneratedFilesTests` fails if they are out of date. Writing that matrix by hand is the part that is no longer "easy" ([async](docs/result/async.md)).
 - **Analyzers and code fixes in the package.**
   `WYZ0101` (a `Result` is not used, with a code fix), `WYZ0102` (check the state of a `Result` before `GetError()` or `GetValue()`,
@@ -179,6 +180,10 @@ Every number is counted from the source or pinned by a test.
   tests that compile snippets and assert which warnings appear (`ConsumerNullabilityTests` in both analyzer test projects).
 - **Settings instead of constants.** Separators, messages, the redaction text, which exceptions `Result.Try` catches,
   and whether awaits continue on the captured context are options with defaults (`ResultConfiguration`, `MaybeConfiguration`), one per package.
+- **Your own comparers.** `Equals` and `GetHashCode` on both types and `CompareTo` on `Maybe` take a comparer for the values,
+  `Maybe.Contains(value, comparer)` exists for all three receivers, and `Maybe.CreateEqualityComparer`, `Maybe.CreateComparer` and
+  `Result.CreateEqualityComparer` give one for a `HashSet`, a `Dictionary` or sorting. A none and a failure are never given to the comparer
+  ([Maybe](docs/maybe/getting-started.md), [Result](docs/result/getting-started.md)).
 - **Measured size and allocation.** `PerformanceTests` pins that a `Result` is one reference wide and a `Result<string>` two; that a `Maybe<int>` is
   8 bytes and a `Maybe<string>` a reference plus a flag; that a successful synchronous chain allocates 0 bytes for both types; that a chain ending
   in none allocates nothing, also as a `Task` chain over a reference type (one cached completed task per type). Timings are in the
@@ -216,6 +221,7 @@ so a sample cannot drift from what its comments claim.
 | [`samples/Functional.Samples`](samples/Functional.Samples) | the two together: `ToResult` and `ToMaybe`, a full async workflow in one chain, collections and `Combine`/`Zip`, settings across the packages, analyzers, an order checkout | `dotnet run --project samples/Functional.Samples` |
 
 The samples reference the source projects, not the packages, so the analyzers do not run in them.
+A fourth project, `samples/Aot.Samples`, is published as a Native AOT app and run in CI, to show that the libraries need no reflection.
 
 ## The packages
 
@@ -224,6 +230,8 @@ The samples reference the source projects, not the packages, so the analyzers do
 | [`Wyzely.Functional.Result`](src/Result/README.md) | An operation can fail in ways you expect, and the failure should be visible, described and hard to ignore. | [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional.Result)](https://www.nuget.org/packages/Wyzely.Functional.Result) |
 | [`Wyzely.Functional.Maybe`](src/Maybe/README.md) | A value may be absent, and "absent" should not be `null`. | [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional.Maybe)](https://www.nuget.org/packages/Wyzely.Functional.Maybe) |
 | [`Wyzely.Functional`](src/Functional/README.md) | You use both and want them to work together. It depends on the two packages above and adds the methods between them (`ToResult()` and `ToMaybe()`). | [![NuGet](https://img.shields.io/nuget/v/Wyzely.Functional)](https://www.nuget.org/packages/Wyzely.Functional) |
+
+The packages are 0.x: they are released together, and the API can still change before 1.0. The notes of each release on GitHub list what changed.
 
 ### Which one do I install?
 

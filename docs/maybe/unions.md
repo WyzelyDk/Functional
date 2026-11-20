@@ -32,8 +32,8 @@ The `null` arm is how the language spells "the union has no case value", and the
 ## Things to know
 
 - It needs the **`net11.0` target** (and a C# 15 compiler). The package has a `net11.0` asset that carries the union members;
-  a project that targets `net10.0` or older gets the same library without them and cannot use the form above.
-- It was built, and its tests (`MaybeUnionTests`, 7 of them) pass, with the final SDK `11.0.100` (earlier with `11.0.100-rc.2`, the release candidate),
+  a project that targets `net10.0` gets the same library without them and cannot use the form above.
+- It was built, and its tests (`MaybeUnionTests`, 8 of them) pass, with the final SDK `11.0.100` (earlier with `11.0.100-rc.2`, the release candidate),
   without a `LangVersion` setting or a preview opt-in.
   The implementation follows the documented shape of custom unions
   ([language reference](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/union)),

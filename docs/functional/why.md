@@ -37,4 +37,4 @@ and tests for how it behaves with faulted tasks and with the two `ContinueOnCapt
 ## What it costs
 
 A dependency on two packages, and the opinions that come with them (see the [main README](../../README.md#the-opinions)). The conversion from a
-result to a maybe is lossy by design, and a success whose value is `null` becomes none. Nothing is published on NuGet yet, and the API can change before 1.0.
+result to a maybe is lossy by design, and a success whose value is `null` becomes none. The packages are 0.x, and the API can change before 1.0.

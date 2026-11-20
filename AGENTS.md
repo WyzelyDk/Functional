@@ -120,7 +120,7 @@ The library is judged by how it feels to use, not only by what it can do.
   `MaybeCodeGeneration`, `MaybeAnalyzers`, `MaybeBenchmarks`). The same holds for the type `Wyzely.Functional.Result`: its projects keep `Result.*`
   folder and assembly names and use `ResultTests`, `ResultCodeGeneration`, `ResultAnalyzers`, `ResultAnalyzersTests`, `ResultBenchmarks` and `ResultSamples`.
 - **Shared code is shared as source, never as an assembly.** `src/Shared/Internal` (argument guards, hash combining,
-  the nullable-attribute polyfills, the settings holder) is compiled into every library project as `internal` code by `Directory.Build.props`,
+  the settings holder) is compiled into every library project as `internal` code by `Directory.Build.props`,
   and `src/Shared/CodeGeneration` (the generator engine) into both generator projects.
   A separate assembly would have to ship in the package or expose its types, which would let a consumer reach them.
   What differs between `Result` and `Maybe` in the generator is one `GeneratorProfile`; the number of values `Zip` combines is `GeneratorSettings.MaxZipArity`,
@@ -133,8 +133,7 @@ The library is judged by how it feels to use, not only by what it can do.
   for the IDE and for `test/Shared.Tests`; nothing references it and it is not packable (`Directory.Build.props` treats the name `Shared` as a tool project).
 - **The internal helpers have a namespace that matches their folder.** The types in the `Internal` folders (`src/Shared/Internal`,
   `src/Result/Internal`, `src/Maybe/Internal`) are in `Wyzely.Functional.Internal`, which `Directory.Build.props` imports into every library
-  (and `Shared.csproj` and `Shared.Tests` import it themselves) with a global using. The polyfills of BCL attributes are the exception: the
-  compiler finds them by the namespace of the type they replace, so `.editorconfig` relaxes IDE0130 for `src/Shared/Internal/*Attribute.cs`.
+  (and `Shared.csproj` and `Shared.Tests` import it themselves) with a global using.
 - **Nullable value types and nullable references behave the same.** Wherever a delegate produces the value of a maybe (`Map` in all nine variants, `Select`,
   the `SelectMany` result selector, the `Zip` selectors), there is a second overload constrained to `where TResult : struct` whose delegate returns `TResult?`,
   so an `int?` lambda gives a `Maybe<int>` and `null` becomes none, like a `string?` lambda gives a `Maybe<string>`. Add the pair, with tests for both,

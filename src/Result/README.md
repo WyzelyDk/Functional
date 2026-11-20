@@ -49,8 +49,8 @@ This one exists because we wanted a specific combination that we could not find 
 - **Analyzers and code fixes in the package**, for the mistakes that matter.
 - **No dependencies** outside the BCL, and **performance that is measured**: nothing allocated on the success path.
 
-It also gives something up: it has not been published to NuGet yet and has no track record *as a package* (the code it grew from has production history;
-see the lineage note above),
+It also gives something up: it is young as a package (first released in October 2026) and has no public track record *as a package*
+(the code it grew from has production history; see the lineage note above),
 it does not include a `Maybe` (that is the separate package [`Wyzely.Functional.Maybe`](https://github.com/WyzelyDk/Functional/blob/main/src/Maybe/README.md)),
 and it is opinionated. If you already use one of the libraries above and are happy, there is little reason to switch.
 [The honest long version, including when to use something else.](https://github.com/WyzelyDk/Functional/blob/main/docs/result/why.md)
@@ -90,7 +90,7 @@ What this package adds, each point checked against the source or a test:
   `Match`, `ValueOr` and `Switch`, plus the conditional `MapIf`, `BindIf`, `TapIf`, `EnsureIf` and `TapErrorIf`
   and the exception-catching `MapTry`, `BindTry` and `TapTry`, are 101 operations in `src/Result/Generated`
   (counting the `Result` and `Result<T>` forms,
-  the ten `Ensure` forms, the 25 `*If` forms the 16 `*Try` forms and the conveniences `EnsureNot`, `EnsureNotNull` and `Tap` without a value,
+  the ten `Ensure` forms, the 25 `*If` forms, the 16 `*Try` forms and the conveniences `EnsureNot`, `EnsureNotNull` and `Tap` without a value,
   the tuple steps `BindZip` and `Map`/`Bind` with separate parameters, and `ValueOr`, `GetValueOrThrow` and `ThrowIfFailure` separately),
   each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate (27 for `Ensure` with a factory,
   where the condition and the factory each choose their own kind): 876 generated methods, covered by generated tests.
@@ -99,9 +99,10 @@ What this package adds, each point checked against the source or a test:
   with a guard clause as the fix for `GetValue()` in a method that returns a result),
   and seventeen suggestions (`WYZ0103` to `WYZ0110` and `WYZ0112` to `WYZ0120`, info severity, each with a code fix) that point at `BindIf`,
   `MapIf`, `EnsureNot`, `EnsureNotNull`, `BindZip`, `ConvertFailure`, `SuccessIf`/`FailureIf` and `MapTry`,
-  and at code that does more than it has to (`Map` instead of a `Bind` that only wraps, `Tap`, `ValueOr` instead of a conditional or with a function
-  for a fallback that does work, `MapError` instead of an `OrElse` that only returns an error, `Flatten`, a step that does nothing,
-  `Failure` with a message). `WYZ0111` warns about an interpolated error message (the values belong in details, and the code fix moves them). For example:
+  and at code that does more than it has to (`Map` instead of a `Bind` that only wraps, `Tap`, `ValueOr` instead of a `Match`,
+  instead of a conditional or with a function for a fallback that does work, `MapError` instead of an `OrElse` that only returns an error,
+  `Flatten`, a step that does nothing, `Failure` with a message). `WYZ0111` warns about an interpolated error message
+  (the values belong in details, and the code fix moves them). For example:
 
   ```csharp
   Save(order);                       // WYZ0101: a failure would go unnoticed.  Code fix: _ = Save(order);
@@ -112,6 +113,8 @@ What this package adds, each point checked against the source or a test:
 - **Combining:** `Combine`, `Partition`, `Zip` (2 to 5 values, every failure reported), `Flatten`, LINQ query syntax,
   and the bounded-parallelism `SelectInParallel` / `ForEachInParallel`, which never expose an unfilled slot.
 - **Configuration:** nine settings with defaults (separators, messages, which exceptions `Try` catches, ...) instead of constants buried in your own type.
+- **Equality with your own comparer:** `Equals(other, comparer)` and `GetHashCode(comparer)` compare the values of two successes with it,
+  and `Result.CreateEqualityComparer` gives one for a `HashSet` or a `Dictionary`; a failure is compared by its error, as always.
 - **Size and allocation, only what a test checks:** an untyped `Result` is one reference wide, a `Result<T>` is `T` plus one reference,
   and the success path of `Map`, `Bind`, `Ensure`, `Tap`, `MapError` and `Match` allocates 0 bytes with `static` lambdas (`PerformanceTests`).
   Your own sketch can reach similar numbers; this is not a claim that it cannot.

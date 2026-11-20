@@ -34,7 +34,7 @@ Release builds treat warnings as errors, and every public and internal member ha
 - **README examples are tests.** If you change a snippet in the README or a page,
   change the test that holds it (`test/Maybe.Tests/ReadmeExamplesTests.cs`, and `test/Functional.Tests/ReadmeExamplesTests.cs` for the umbrella package).
   The samples in `samples/Maybe.Samples` are covered by `test/Samples.Tests/MaybeSamplesTests.cs`.
-- **Code shared with the other packages** (guards, the hash helper, nullable-attribute polyfills,
+- **Code shared with the other packages** (guards, the hash helper,
   the options holder) lives in `src/Shared/Internal` and is compiled into each library as internal source;
   the generator engine in `src/Shared/CodeGeneration` is shared the same way. The largest `Zip` arity is `GeneratorSettings.MaxZipArity` there.
 - **No namespace beginning with `Wyzely.Functional.Maybe.`.**
