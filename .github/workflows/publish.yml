@@ -161,11 +161,19 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Release notes list the pull requests since the previous release.
+      # Release notes list the pull requests since the previous release. For a stable release that is the previous stable release, so that the
+      # notes of 1.0.0 cover everything since 0.3.1 and not only what came after its release candidates.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Find the previous release
+        id: previous
+        shell: pwsh
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+        run: ./.github/scripts/Resolve-PreviousTag.ps1 -Tag $env:TAG
 
       - uses: actions/download-artifact@v8
         with:
@@ -178,8 +186,9 @@ jobs:
           TAG: ${{ needs.build.outputs.tag }}
           VERSION: ${{ needs.build.outputs.version }}
           PRERELEASE: ${{ needs.build.outputs.prerelease }}
+          PREVIOUS: ${{ steps.previous.outputs.previous }}
         run: |
-          previous=$(git tag --list 'v[0-9]*' --sort=-v:refname | grep -vx "$TAG" | head -n 1 || true)
+          previous="$PREVIOUS"
           args=(--title "Wyzely.Functional $VERSION" --generate-notes --verify-tag)
           if [ -n "$previous" ]; then args+=(--notes-start-tag "$previous"); fi
           if [ "$PRERELEASE" = "true" ]; then args+=(--prerelease); fi

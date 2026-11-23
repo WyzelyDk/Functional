@@ -151,7 +151,9 @@ A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org a
 
 3. In GitHub, open the *Publish* run and **approve the deployment** to the `nuget` environment.
 4. The workflow builds, tests and packs all packages, publishes them and their symbols one after the other (a package after the packages it references),
-   and creates one GitHub release whose notes list the pull requests since the previous release. nuget.org takes a few minutes to index the new versions.
+   and creates one GitHub release whose notes list the pull requests since the previous release (for a stable release the previous stable release,
+   so that the notes of 1.0.0 cover everything since 0.3.1, and for a prerelease the tag before it; `Resolve-PreviousTag.ps1` chooses it).
+   A summary that you write goes above that list, in the release on GitHub. nuget.org takes a few minutes to index the new versions.
 
 The workflow refuses to publish when the tag is not a well-formed release tag (`v` and a version), when the tagged commit is not on `main`, when the tests fail,
 or when a package that MinVer produced does not carry the version in the tag.
