@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\CodeGeneration\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="$(ProductPrefix).Result.Tests" />
   </ItemGroup>
 

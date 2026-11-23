@@ -8,15 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Shared as source, not as an assembly (see src/Shared/Shared.csproj). -->
-    <Compile Include="..\Shared\Analyzers\Rewrite*.cs" LinkBase="Shared" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="$(AnalyzerRoslynVersion)" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shared as source, not as an assembly (see src/Shared/Shared.csproj). -->
+    <Compile Include="..\Shared\Analyzers\Rewrite*.cs" LinkBase="Shared" />
   </ItemGroup>
 
 </Project>

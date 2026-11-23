@@ -18,18 +18,16 @@
   <ItemGroup>
     <Compile Include="Internal\*.cs" />
 
-    <!-- The libraries get the same global using from Directory.Build.props. -->
-    <Using Include="$(ProductPrefix).Internal" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- Compiled into the analyzer and code fix projects, which have the Roslyn references; listed here for the IDE only. -->
     <None Include="Analyzers\*.cs" />
+
+    <!-- The generator engine, for the IDE and for the tests (the generator projects link its source themselves). -->
+    <Compile Include="CodeGeneration\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The generator engine, for the IDE and for the tests (the generator projects link its source themselves). -->
-    <Compile Include="CodeGeneration\*.cs" />
+    <!-- The libraries get the same global using from Directory.Build.props. -->
+    <Using Include="$(ProductPrefix).Internal" />
   </ItemGroup>
 
   <ItemGroup>

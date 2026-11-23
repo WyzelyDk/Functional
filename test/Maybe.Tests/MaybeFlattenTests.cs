@@ -26,8 +26,8 @@ public sealed class MaybeFlattenTests
     [Fact]
     internal async Task Flatten_on_a_task_that_completes_later_removes_one_level()
     {
-        var some = await Pending.Of(Maybe.Some(Maybe.Some(1))).Flatten();
-        var none = await Pending.Of(Maybe.None<Maybe<int>>()).Flatten();
+        var some = await Pending.Completing(Maybe.Some(Maybe.Some(1)), receiver => receiver.Flatten());
+        var none = await Pending.Completing(Maybe.None<Maybe<int>>(), receiver => receiver.Flatten());
 
         Assert.Multiple(
             () => Assert.Equal(1, some.GetValue()),
@@ -38,7 +38,7 @@ public sealed class MaybeFlattenTests
     internal async Task Flatten_on_a_value_task_removes_one_level()
     {
         var some = await new ValueTask<Maybe<Maybe<int>>>(Maybe.Some(Maybe.Some(1))).Flatten();
-        var later = await new ValueTask<Maybe<Maybe<int>>>(Pending.Of(Maybe.Some(Maybe.None<int>()))).Flatten();
+        var later = await Pending.CompletingValue(Maybe.Some(Maybe.None<int>()), receiver => receiver.Flatten());
 
         Assert.Multiple(
             () => Assert.Equal(1, some.GetValue()),

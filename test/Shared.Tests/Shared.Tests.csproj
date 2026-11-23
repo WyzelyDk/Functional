@@ -11,13 +11,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Shared\Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- The public API dump that the tests of the packages use; its own tests are here. -->
     <Compile Include="..\ApiSurface\*.cs" Link="ApiSurface\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Shared\Shared.csproj" />
-
     <!-- The shared helpers are internal and live in this namespace. -->
     <Using Include="$(ProductPrefix).Internal" />
   </ItemGroup>

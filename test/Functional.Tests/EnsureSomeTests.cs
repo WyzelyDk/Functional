@@ -58,8 +58,8 @@ public sealed class EnsureSomeTests
     internal async Task EnsureSome_accepts_a_task_receiver_that_is_already_completed_or_completes_later()
     {
         var completed = await Task.FromResult(Result.Success(Maybe.Some(2))).EnsureSome(Missing);
-        var later = await Pending.Of(Result.Success(Maybe.None<int>())).EnsureSome(Missing);
-        var failed = await Pending.Of(Result.Failure<Maybe<int>>(Failed)).EnsureSome(Missing);
+        var later = await Pending.Completing(Result.Success(Maybe.None<int>()), receiver => receiver.EnsureSome(Missing));
+        var failed = await Pending.Completing(Result.Failure<Maybe<int>>(Failed), receiver => receiver.EnsureSome(Missing));
 
         Assert.Multiple(
             () => Assert.Equal(2, completed.GetValue()),
@@ -71,7 +71,7 @@ public sealed class EnsureSomeTests
     internal async Task EnsureSome_accepts_a_value_task_receiver_that_is_already_completed_or_completes_later()
     {
         var completed = await new ValueTask<Result<Maybe<int>>>(Result.Success(Maybe.Some(2))).EnsureSome(Missing);
-        var later = await new ValueTask<Result<Maybe<int>>>(Pending.Of(Result.Success(Maybe.None<int>()))).EnsureSome(Missing);
+        var later = await Pending.CompletingValue(Result.Success(Maybe.None<int>()), receiver => receiver.EnsureSome(Missing));
 
         Assert.Multiple(
             () => Assert.Equal(2, completed.GetValue()),
@@ -81,7 +81,7 @@ public sealed class EnsureSomeTests
     [Fact]
     internal async Task EnsureSome_with_a_factory_accepts_a_task_and_a_value_task_receiver()
     {
-        var task = await Pending.Of(Result.Success(Maybe.None<int>())).EnsureSome(static () => Missing);
+        var task = await Pending.Completing(Result.Success(Maybe.None<int>()), receiver => receiver.EnsureSome(static () => Missing));
         var valueTask = await new ValueTask<Result<Maybe<int>>>(Result.Success(Maybe.None<int>())).EnsureSome(static () => Missing);
 
         Assert.Multiple(
