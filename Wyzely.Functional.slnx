@@ -41,6 +41,8 @@
     <File Path=".github/scripts/Merge-SharedCoverage.Tests.ps1" />
     <File Path=".github/scripts/Resolve-Package.ps1" />
     <File Path=".github/scripts/Resolve-Package.Tests.ps1" />
+    <File Path=".github/scripts/Resolve-PreviousTag.ps1" />
+    <File Path=".github/scripts/Resolve-PreviousTag.Tests.ps1" />
     <File Path=".github/scripts/Test-LtsConsumer.ps1" />
     <File Path=".github/scripts/Test-PackageContents.ps1" />
     <File Path=".github/scripts/Test-CodeChanged.ps1" />

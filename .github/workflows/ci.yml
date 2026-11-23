@@ -115,6 +115,11 @@ jobs:
         shell: pwsh
         run: ./.github/scripts/Resolve-Package.Tests.ps1
 
+      # The release notes start from the previous release, which depends on how Git orders release candidates, so the choice is tested.
+      - name: Test the choice of the previous release
+        shell: pwsh
+        run: ./.github/scripts/Resolve-PreviousTag.Tests.ps1
+
       # The change detection decides what is verified at all, so it is tested.
       - name: Test the change detection
         shell: pwsh
