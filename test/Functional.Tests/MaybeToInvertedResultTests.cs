@@ -73,11 +73,15 @@ public sealed class MaybeToInvertedResultTests
         var found = await Pending.Completing(Maybe.Some(1), receiver => receiver.ToInvertedResult(static id => Error.Conflict($"{id} exists.")));
         var foundWithError = await Pending.Completing(Maybe.Some(1), receiver => receiver.ToInvertedResult(Taken));
         var missing = await Pending.Completing(Maybe.None<int>(), receiver => receiver.ToInvertedResult(Taken));
+        var missingWithFactory = await Pending.Completing(
+            Maybe.None<int>(),
+            receiver => receiver.ToInvertedResult(static id => Error.Conflict($"{id} exists.")));
 
         Assert.Multiple(
             () => Assert.Equal("1 exists.", found.GetError().Message),
             () => Assert.Same(Taken, foundWithError.GetError()),
-            () => Assert.True(missing.IsSuccess));
+            () => Assert.True(missing.IsSuccess),
+            () => Assert.True(missingWithFactory.IsSuccess));
     }
 
     [Fact]

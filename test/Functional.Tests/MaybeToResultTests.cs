@@ -85,10 +85,14 @@ public sealed class MaybeToResultTests
     internal async Task ToResult_on_a_task_that_completes_later_converts_the_maybe()
     {
         var some = await Pending.Completing(Maybe.Some(5), receiver => receiver.ToResult(Missing));
+        var someWithFactory = await Pending.Completing(Maybe.Some(6), receiver => receiver.ToResult(() => Missing));
+        var noneWithError = await Pending.Completing(Maybe.None<int>(), receiver => receiver.ToResult(Missing));
         var none = await Pending.Completing(Maybe.None<int>(), receiver => receiver.ToResult(() => Missing));
 
         Assert.Multiple(
             () => Assert.Equal(5, some.GetValue()),
+            () => Assert.Equal(6, someWithFactory.GetValue()),
+            () => Assert.Same(Missing, noneWithError.GetError()),
             () => Assert.Same(Missing, none.GetError()));
     }
 
@@ -96,10 +100,12 @@ public sealed class MaybeToResultTests
     internal async Task ToResult_on_a_value_task_converts_the_maybe()
     {
         var some = await new ValueTask<Maybe<int>>(Maybe.Some(5)).ToResult(Missing);
+        var someWithFactory = await Pending.CompletingValue(Maybe.Some(6), receiver => receiver.ToResult(() => Missing));
         var none = await Pending.CompletingValue(Maybe.None<int>(), receiver => receiver.ToResult(() => Missing));
 
         Assert.Multiple(
             () => Assert.Equal(5, some.GetValue()),
+            () => Assert.Equal(6, someWithFactory.GetValue()),
             () => Assert.Same(Missing, none.GetError()));
     }
 
