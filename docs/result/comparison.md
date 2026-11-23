@@ -6,7 +6,7 @@ This page compares `Wyzely.Functional.Result` with eight other libraries that ca
 FluentResults, CSharpFunctionalExtensions, ErrorOr, Ardalis.Result, LanguageExt, OneOf, Funcky and Optional.
 Some are result libraries, some are general functional or union libraries that people use as a result type, and the table says which is which.
 
-How the facts were found, on 2026-10-18 (for this library, `main` before the first release candidate of 1.0.0, and for Funcky, which has a newer
+How the facts were found, on 2026-10-18 (for this library, version 1.0.0, and for Funcky, which has a newer
 version, again on 2026-11-20, in the same way):
 
 - **Packages:** the latest stable version of each package was downloaded from nuget.org.
@@ -22,7 +22,7 @@ check the current version before relying on a cell. The `Maybe` types of these l
 
 | Library (version, released) | What it offers as a result | Targets | Repository, on 2026-10-18 |
 |---|---|---|---|
-| **Wyzely.Functional.Result** (this repository, `main` on 2026-11-20) | `Result`, `Result<T>`, one aggregating `Error` | `net10.0`, `net11.0` | this repository |
+| **Wyzely.Functional.Result** (this repository, 1.0.0) | `Result`, `Result<T>`, one aggregating `Error` | `net10.0`, `net11.0` | this repository |
 | [FluentResults](https://github.com/altmann/FluentResults) 4.0.0 (2025-06-29) | `Result`, `Result<T>`, a list of reasons (errors and successes) | `net8.0`, `net9.0`, `netstandard2.0`, `netstandard2.1` | 2,647 stars; last commit 2025-07-10, the release of 4.0 |
 | [CSharpFunctionalExtensions](https://github.com/vkhorikov/CSharpFunctionalExtensions) 3.7.0 (2026-03-02) | `Result`, `Result<T>`, `Result<T, E>`, `UnitResult<E>`; also `Maybe`, value objects and entities | `net6.0`, `net8.0`, `netstandard2.0` | 2,833 stars; last commit 2026-03-02, the release of 3.7.0; 101 open issues |
 | [ErrorOr](https://github.com/error-or/error-or) 2.1.1 (2026-05-15) | `ErrorOr<T>`, a value or a list of errors | `net8.0`, `net10.0`, `netstandard2.0` | 2,095 stars; last commit 2026-10-08 |

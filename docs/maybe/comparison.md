@@ -7,7 +7,7 @@ LanguageExt (`Option<A>`), Funcky (`Option<T>`), Optional (`Option<T>`) and OneO
 FluentResults, ErrorOr and Ardalis.Result have no maybe type; they appear in the [Results comparison](../result/comparison.md), which also lists the version,
 release date, targets and repository activity of every library. Read that table first for the question "is this library alive?".
 
-How the facts were found, on 2026-10-18 (for this library, `main` before the first release candidate of 1.0.0, and for Funcky, which has a newer
+How the facts were found, on 2026-10-18 (for this library, version 1.0.0, and for Funcky, which has a newer
 version, again on 2026-11-20): the latest stable package of each library was downloaded from nuget.org and its public types and
 extension methods listed by loading the assemblies; `default` and `null` handling were checked by running small programs; speed and allocation
 are in [Performance](performance.md). Nothing is read from marketing pages, "none found" means the probe found nothing, and the absence of a
