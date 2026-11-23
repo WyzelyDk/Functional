@@ -228,8 +228,8 @@ The library is judged by how it feels to use, not only by what it can do.
   `test/ApiSurface/Approved`, one file per assembly and target framework. A change of the public API is therefore a change of those files, which a reviewer
   reads. When it is intended, run the tests once with `UPDATE_PUBLIC_API=1` for `net10.0` and for `net11.0`, read the diff, and commit it; a rename of a
   parameter counts, because a caller may pass it by name. `PublicApiDumpTests` (in `Shared.Tests`) tests what the dump shows. Pack also validates the
-  package (`EnablePackageValidation`); after a release, `PackageValidationBaselineVersion` makes it fail on a member that the last release had and this one
-  does not (`docs/releasing.md`).
+  package (`EnablePackageValidation`) against the last release (`PackageValidationBaselineVersion`, raised after every release): it fails on a member that
+  the last release had and this one does not (`docs/releasing.md`).
 - **System.Text.Json refuses the types on purpose.** `Result`, `Result<T>`, `Maybe<T>`, `Error`, `ErrorDetail`, `ErrorFrame` and `ErrorKind` carry a
   `[JsonConverter]` guard (`*JsonGuard`, in the `Internal` folders; the shared part is `JsonRefusal`) that throws `NotSupportedException` on both directions;
   `JsonGuardTests` pin it. The guards are public because a source-generated serializer context cannot use an internal converter, and `Aot.Samples` runs

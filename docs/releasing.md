@@ -154,6 +154,8 @@ A tag with a hyphen in the version (`-preview.1`) is a prerelease on nuget.org a
    and creates one GitHub release whose notes list the pull requests since the previous release (for a stable release the previous stable release,
    so that the notes of 1.0.0 cover everything since 0.3.1, and for a prerelease the tag before it; `Resolve-PreviousTag.ps1` chooses it).
    A summary that you write goes above that list, in the release on GitHub. nuget.org takes a few minutes to index the new versions.
+5. When the packages are on nuget.org, raise `PackageValidationBaselineVersion` to the new version in a pull request
+   ([package validation](#the-public-api-and-package-validation)).
 
 The workflow refuses to publish when the tag is not a well-formed release tag (`v` and a version), when the tagged commit is not on `main`, when the tests fail,
 or when a package that MinVer produced does not carry the version in the tag.
@@ -202,14 +204,14 @@ Two checks keep the public API from changing by accident.
   is in the diff, with the names of the parameters, the nullable annotations and the generic constraints. To accept an intended change, run the tests of the
   package once with the environment variable `UPDATE_PUBLIC_API` set to `1`, for `net10.0` and for `net11.0`, read the diff and commit it.
 - **Package validation.** `EnablePackageValidation` makes `dotnet pack` check that the assets of a package fit together (what the `net10.0` asset offers,
-  the `net11.0` asset offers too). It also compares with the last release when `PackageValidationBaselineVersion` is set.
+  the `net11.0` asset offers too). `PackageValidationBaselineVersion` in `Directory.Build.props` is the last release, and pack compares with it.
 
-**After the release of 1.0.0**, set `PackageValidationBaselineVersion` in `Directory.Build.props` to that version, and to the version of each release after it.
-Pack then fails on a public member that the last release had and this one does not (`CP0002`), and on an asset that was dropped (`PKV006`).
-Run against 0.3.1 it already reports the dropped `netstandard2.0` asset, and the removal of a public method (checked by making one internal).
+**The baseline is the last release, and it is raised after every release** (it was set to 1.0.0 after that release): once the new version is on nuget.org,
+a pull request sets `PackageValidationBaselineVersion` to it. Pack then fails on a public member that the last release had and this one does not (`CP0002`),
+and on an asset that was dropped (`PKV006`); making a public method internal is a way to see it.
 A break that is intended (it needs a new major version, see [Stability and support](stability.md)) is accepted with the suppression file:
-rebuild once with `-p:ApiCompatGenerateSuppressionFile=true` and commit the file. The baseline package is restored from nuget.org, so the first restore after
-a release needs the network and the version must already be published.
+rebuild once with `-p:ApiCompatGenerateSuppressionFile=true` and commit the file. The baseline package is restored from nuget.org with the other packages
+(`dotnet restore` of the solution, which the workflows run before the build), so a restore needs the network, and the version must already be published.
 
 ### Several packages
 

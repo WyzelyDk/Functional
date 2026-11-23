@@ -50,6 +50,7 @@
     <RepositoryUrl>https://github.com/WyzelyDk/Functional</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
