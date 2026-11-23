@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    How an Error becomes an HTTP response in ASP.NET Core. The library has no dependency on ASP.NET Core and no HTTP mapping on purpose; this project
+    is the code of the recipe in docs/result/aspnet-core.md, and test/Samples.Tests runs it, with a real request to an app on a loopback port.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>$(SupportedTargetFrameworks)</TargetFrameworks>
+    <RootNamespace>$(ProductPrefix).AspNetCoreSamples</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Result\Result.csproj" />
+  </ItemGroup>
+
+</Project>

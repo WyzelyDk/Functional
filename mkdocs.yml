@@ -66,6 +66,8 @@ nav:
       - Many results: result/many-results.md
       - Configuration: result/configuration.md
       - Safety and analyzers: result/safety-and-analyzers.md
+      - Testing code that returns a Result: result/testing.md
+      - Mapping errors in ASP.NET Core: result/aspnet-core.md
       - C# 15 unions: result/unions.md
       - Why another Result library?: result/why.md
       - How it compares: result/comparison.md

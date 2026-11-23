@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\samples\Result.Samples\Result.Samples.csproj" />
     <ProjectReference Include="..\..\samples\Maybe.Samples\Maybe.Samples.csproj" />
     <ProjectReference Include="..\..\samples\Functional.Samples\Functional.Samples.csproj" />
+    <ProjectReference Include="..\..\samples\AspNetCore.Samples\AspNetCore.Samples.csproj" />
   </ItemGroup>
 
 </Project>

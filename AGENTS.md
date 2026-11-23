@@ -148,7 +148,8 @@ The library is judged by how it feels to use, not only by what it can do.
   without a trim or AOT warning and runs the binary (job `aot`). Do not use reflection, `dynamic` or runtime code generation in a library.
 - **Samples are teaching code, and they are tested.** `samples/<Package>.Samples` are console projects (a name ending in `Samples` makes
   a project a tool project: not a library, not packable, documentation rules relaxed in `.editorconfig`). Each example is a public static
-  class with `Run(TextWriter output)`, and `test/Samples.Tests` runs every one and asserts its output, so a sample cannot rot unnoticed.
+  class with `Run(TextWriter output)` (`AspNetCore.Samples`, a web project, has an asynchronous `Run`), and `test/Samples.Tests` runs every one and
+  asserts its output, so a sample cannot rot unnoticed.
   Samples use the public API only and follow the same no-suppression rule as everything else. Every example may change and restore
   process-wide settings, so `Samples.Tests` disables test parallelization for the whole assembly (`AssemblyInfo.cs`) instead of relying on each
   class to opt in. CI runs on Linux only: the libraries make no operating-system calls and the tests normalize line endings and paths.
