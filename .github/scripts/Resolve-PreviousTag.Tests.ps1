@@ -30,14 +30,19 @@ try {
     # Runs the script in its own process and returns the exit code and the value that it wrote to GITHUB_OUTPUT.
     function Invoke-Resolve([string] $tag) {
         $outputFile = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N') + '.out')
+        $outerOutput = $env:GITHUB_OUTPUT
         $env:GITHUB_OUTPUT = $outputFile
 
         try {
             & pwsh -NoProfile -File $script -Tag $tag *> $null
             $code = $LASTEXITCODE
+
+            # Some tags are meant to be rejected. A step of GitHub Actions ends with the exit code of the last native command, so the exit code of a
+            # run that was meant to fail must not become the exit code of this script.
+            $global:LASTEXITCODE = 0
         }
         finally {
-            Remove-Item Env:GITHUB_OUTPUT
+            $env:GITHUB_OUTPUT = $outerOutput
         }
 
         $previous = $null
@@ -89,8 +94,6 @@ try {
 
     Test-Rejected 'a tag that is not a release tag is rejected' 'nightly'
     Test-Rejected 'a release tag that does not exist is rejected' 'v9.9.9'
-
-    Remove-Item Env:GITHUB_OUTPUT -ErrorAction SilentlyContinue
 }
 finally {
     Pop-Location
