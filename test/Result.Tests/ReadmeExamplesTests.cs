@@ -409,6 +409,62 @@ public sealed class ReadmeExamplesTests
             () => Assert.Equal("{\"OrderId\":null,\"Problem\":\"No such order.\"}", JsonSerializer.Serialize(rejected)));
     }
 
+    // The snippets of docs/result/testing.md: the code under test is Prices, at the end of this class.
+    [Fact]
+    internal void The_testing_recipe_asserts_the_state_and_the_value_of_a_success()
+    {
+        var result = Prices.Find("apple");
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(2.5m, result.GetValue());
+    }
+
+    [Fact]
+    internal void The_testing_recipe_asserts_the_kind_the_code_and_the_message_of_an_error()
+    {
+        var result = Prices.Find("pear");
+
+        Assert.True(result.IsFailure);
+        var error = result.GetError();
+        Assert.Equal(ErrorKind.NotFound, error.Kind);
+        Assert.Equal("NO_PRICE", error.Code);
+        Assert.Equal("No price for pear.", error.Message);
+    }
+
+    [Fact]
+    internal void The_testing_recipe_compares_a_whole_result()
+    {
+        Assert.Equal(Result.Success(2.5m), Prices.Find("apple"));
+        Assert.Equal(Result.Failure<decimal>(Prices.NoPrice("pear")), Prices.Find("pear"));
+    }
+
+    [Fact]
+    internal async Task The_testing_recipe_awaits_a_method_that_returns_a_task_of_a_result()
+    {
+        var result = await Prices.FindAsync("apple");
+
+        Assert.Equal(Result.Success(2.5m), result);
+    }
+
+    [Fact]
+    internal void The_testing_recipe_shows_that_a_chain_stops_at_the_first_failure()
+    {
+        var calls = 0;
+
+        var result = Prices.Find("pear")
+            .Map(static price => price * 2)
+            .Tap(_ => calls++);
+
+        Assert.Equal(0, calls);
+        Assert.Equal(ErrorKind.NotFound, result.GetError().Kind);
+    }
+
+    [Fact]
+    internal void The_testing_recipe_shows_a_failure_as_text_when_an_assertion_prints_it()
+    {
+        Assert.Equal("Failure: No price for pear.", Prices.Find("pear").ToString());
+    }
+
     private static Result<int> Quantity(string text)
     {
         if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var quantity))
@@ -452,4 +508,15 @@ public sealed class ReadmeExamplesTests
     private sealed record Receipt(string Number);
 
     private sealed record OrderResponse(int? OrderId, string? Problem);
+
+    private static class Prices
+    {
+        internal static Result<decimal> Find(string product) =>
+            product == "apple" ? Result.Success(2.5m) : Result.Failure<decimal>(NoPrice(product));
+
+        internal static Task<Result<decimal>> FindAsync(string product) => Task.FromResult(Find(product));
+
+        internal static Error NoPrice(string product) =>
+            Error.NotFound("No price for {Product}.").WithCode("NO_PRICE").WithDetail("Product", product);
+    }
 }

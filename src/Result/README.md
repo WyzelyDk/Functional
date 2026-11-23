@@ -247,6 +247,8 @@ its sensitive details in plain text. Map them to a type of your own at the edge
 | [Errors](https://github.com/WyzelyDk/Functional/blob/main/docs/result/errors.md) | the `Error` type in depth |
 | [Many results](https://github.com/WyzelyDk/Functional/blob/main/docs/result/many-results.md) | `Combine`, `Partition`, parallel helpers |
 | [Safety and analyzers](https://github.com/WyzelyDk/Functional/blob/main/docs/result/safety-and-analyzers.md) | `default`, the two rules, the code fix |
+| [Testing](https://github.com/WyzelyDk/Functional/blob/main/docs/result/testing.md) | asserting on a result, an error, a chain and an async method |
+| [ASP.NET Core](https://github.com/WyzelyDk/Functional/blob/main/docs/result/aspnet-core.md) | an error becomes a problem response, a result becomes a response (a recipe, tested) |
 | [Configuration](https://github.com/WyzelyDk/Functional/blob/main/docs/result/configuration.md) | what you can change, and the defaults |
 | [Performance](https://github.com/WyzelyDk/Functional/blob/main/docs/result/performance.md) | what is guaranteed and what was measured, with the caveats |
 | [How it compares](https://github.com/WyzelyDk/Functional/blob/main/docs/result/comparison.md) | a factual comparison with eight other libraries: type design, behavior of `default` and `null`, API surface, activity |

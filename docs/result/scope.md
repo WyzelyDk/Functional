@@ -33,7 +33,7 @@ A new public member goes in only if the answer to every question is yes:
 - **`Maybe` / `Option` / `Unit` and other functional types.** They are different concepts.
   `Maybe` has its own package, [`Wyzely.Functional.Maybe`](../maybe/scope.md), and conversions between the two live in the umbrella package `Wyzely.Functional`,
   which references both, not in either.
-- **HTTP, ASP.NET Core, `ProblemDetails`, gRPC mapping.** An adapter package.
+- **HTTP, ASP.NET Core, `ProblemDetails`, gRPC mapping.** An adapter package. A recipe shows the mapping as code of your own: [ASP.NET Core](aspnet-core.md).
 - **Logging and telemetry.** An adapter package; the library does not log.
 - **`Zip` for a `Task` or a `ValueTask` of a result.**
   Every argument could be plain, a `Task` or a `ValueTask`, so a complete family has 3 to the power of the number of results overloads per form,

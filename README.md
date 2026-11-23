@@ -221,7 +221,8 @@ so a sample cannot drift from what its comments claim.
 | [`samples/Functional.Samples`](samples/Functional.Samples) | the two together: `ToResult` and `ToMaybe`, a full async workflow in one chain, collections and `Combine`/`Zip`, settings across the packages, analyzers, an order checkout | `dotnet run --project samples/Functional.Samples` |
 
 The samples reference the source projects, not the packages, so the analyzers do not run in them.
-A fourth project, `samples/Aot.Samples`, is published as a Native AOT app and run in CI, to show that the libraries need no reflection.
+Two more projects: `samples/AspNetCore.Samples` is the code of the [ASP.NET Core recipe](docs/result/aspnet-core.md), a web project that makes a real
+request to an app on a loopback port, and `samples/Aot.Samples` is published as a Native AOT app and run in CI, to show that the libraries need no reflection.
 
 ## The packages
 

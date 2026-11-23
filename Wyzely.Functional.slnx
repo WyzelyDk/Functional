@@ -99,6 +99,7 @@
   </Folder>
   <Folder Name="/docs/result/">
     <File Path="docs/result/async.md" />
+    <File Path="docs/result/aspnet-core.md" />
     <File Path="docs/result/comparison.md" />
     <File Path="docs/result/configuration.md" />
     <File Path="docs/result/contributing.md" />
@@ -109,6 +110,7 @@
     <File Path="docs/result/performance.md" />
     <File Path="docs/result/safety-and-analyzers.md" />
     <File Path="docs/result/scope.md" />
+    <File Path="docs/result/testing.md" />
     <File Path="docs/result/the-railway.md" />
     <File Path="docs/result/unions.md" />
     <File Path="docs/result/why.md" />
@@ -137,6 +139,7 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Aot.Samples/Aot.Samples.csproj" />
+    <Project Path="samples/AspNetCore.Samples/AspNetCore.Samples.csproj" />
     <Project Path="samples/Functional.Samples/Functional.Samples.csproj" />
     <Project Path="samples/Maybe.Samples/Maybe.Samples.csproj" />
     <Project Path="samples/Result.Samples/Result.Samples.csproj" />
