@@ -84,8 +84,8 @@ public sealed class MaybeToResultTests
     [Fact]
     internal async Task ToResult_on_a_task_that_completes_later_converts_the_maybe()
     {
-        var some = await Pending.Of(Maybe.Some(5)).ToResult(Missing);
-        var none = await Pending.Of(Maybe.None<int>()).ToResult(() => Missing);
+        var some = await Pending.Completing(Maybe.Some(5), receiver => receiver.ToResult(Missing));
+        var none = await Pending.Completing(Maybe.None<int>(), receiver => receiver.ToResult(() => Missing));
 
         Assert.Multiple(
             () => Assert.Equal(5, some.GetValue()),
@@ -96,7 +96,7 @@ public sealed class MaybeToResultTests
     internal async Task ToResult_on_a_value_task_converts_the_maybe()
     {
         var some = await new ValueTask<Maybe<int>>(Maybe.Some(5)).ToResult(Missing);
-        var none = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>())).ToResult(() => Missing);
+        var none = await Pending.CompletingValue(Maybe.None<int>(), receiver => receiver.ToResult(() => Missing));
 
         Assert.Multiple(
             () => Assert.Equal(5, some.GetValue()),
@@ -124,8 +124,8 @@ public sealed class MaybeToResultTests
     [Fact]
     internal async Task ToResult_with_an_error_on_a_value_task_waits_for_a_maybe_that_is_not_completed()
     {
-        var some = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(5))).ToResult(Missing);
-        var none = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>())).ToResult(Missing);
+        var some = await Pending.CompletingValue(Maybe.Some(5), receiver => receiver.ToResult(Missing));
+        var none = await Pending.CompletingValue(Maybe.None<int>(), receiver => receiver.ToResult(Missing));
 
         Assert.Multiple(
             () => Assert.Equal(5, some.GetValue()),

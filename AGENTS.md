@@ -106,6 +106,9 @@ The library is judged by how it feels to use, not only by what it can do.
   `Directory.Build.props` adds `ProductPrefix` (`Wyzely.Functional`) to `AssemblyName` and `RootNamespace`. Names follow `Wyzely.{Product}.{...}`:
   the root namespace is `Wyzely.Functional` for every package (the `Result` project sets its `RootNamespace` to the prefix itself),
   and the package ID adds the capability (`Wyzely.Functional.Result`).
+- **Every project file has the same layout:** a `PropertyGroup`, then an `ItemGroup` of `PackageReference`, one of `ProjectReference`,
+  one of `Compile`, `None` and `AdditionalFiles`, one of `Using`, and one of `InternalsVisibleTo`.
+  A group that would be empty is left out, and a comment stays next to the item that it explains.
 - **The solution file lists every file.**
   `Wyzely.Functional.slnx` contains the projects and also all files under `.github/`, all files under `docs/` and the other files in the repository root.
   When you add, rename, move or delete such a file, update the solution file in the same change.
@@ -209,7 +212,10 @@ The library is judged by how it feels to use, not only by what it can do.
   line, so a choice that the two libraries make differently (a profile option, `IsMaybe ? ... : ...`) needs a test in `Shared.Tests` that takes both.
   Two things leave a branch that no test can take: a method group passed to a LINQ method (the compiler caches the delegate in a field that all call
   sites share), and `+` between a string and an object (call `ToString()`). A pending asynchronous path is tested with a `TaskCompletionSource` and an
-  assertion that it was pending, not with `Task.Yield()`, which has completed by the time of the check under instrumentation. An entry point that only
+  assertion that it was pending, not with `Task.Yield()` or `Task.Delay`, which have completed by the time of the check under instrumentation
+  (and a test that only claims the path passes without it, so the coverage of that path is lost without a failure). `test/PendingTesting/Pending.cs` does it:
+  `Pending.Completing` and `Pending.CompletingValue` hand the call a pending receiver, fail when the call was not pending and then complete it
+  (the file is shared as source by `Result.Tests`, `Maybe.Tests` and `Functional.Tests`). An entry point that only
   calls tested code carries `[ExcludeFromCodeCoverage(Justification = "...")]`.
 - **Argument validation is probed by reflection.** `NullArgumentTests` (in `Result.Tests`, `Maybe.Tests` and `Functional.Tests`, using the shared
   `test/ArgumentTesting/NullArgumentProbe.cs`) calls every public static method, instance method, constructor, property setter and conversion operator

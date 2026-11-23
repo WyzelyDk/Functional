@@ -70,9 +70,9 @@ public sealed class MaybeToInvertedResultTests
     [Fact]
     internal async Task ToInvertedResult_on_a_task_that_completes_later_inverts_the_maybe()
     {
-        var found = await Pending.Of(Maybe.Some(1)).ToInvertedResult(static id => Error.Conflict($"{id} exists."));
-        var foundWithError = await Pending.Of(Maybe.Some(1)).ToInvertedResult(Taken);
-        var missing = await Pending.Of(Maybe.None<int>()).ToInvertedResult(Taken);
+        var found = await Pending.Completing(Maybe.Some(1), receiver => receiver.ToInvertedResult(static id => Error.Conflict($"{id} exists.")));
+        var foundWithError = await Pending.Completing(Maybe.Some(1), receiver => receiver.ToInvertedResult(Taken));
+        var missing = await Pending.Completing(Maybe.None<int>(), receiver => receiver.ToInvertedResult(Taken));
 
         Assert.Multiple(
             () => Assert.Equal("1 exists.", found.GetError().Message),
@@ -84,7 +84,7 @@ public sealed class MaybeToInvertedResultTests
     internal async Task ToInvertedResult_on_a_value_task_inverts_the_maybe()
     {
         var found = await new ValueTask<Maybe<int>>(Maybe.Some(1)).ToInvertedResult(Taken);
-        var missing = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>())).ToInvertedResult(static id => Error.Conflict($"{id} exists."));
+        var missing = await Pending.CompletingValue(Maybe.None<int>(), receiver => receiver.ToInvertedResult(static id => Error.Conflict($"{id} exists.")));
 
         Assert.Multiple(
             () => Assert.Same(Taken, found.GetError()),
@@ -128,8 +128,8 @@ public sealed class MaybeToInvertedResultTests
     [Fact]
     internal async Task ToInvertedResult_with_an_error_on_a_value_task_waits_for_a_maybe_that_is_not_completed()
     {
-        var found = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(1))).ToInvertedResult(Taken);
-        var missing = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>())).ToInvertedResult(Taken);
+        var found = await Pending.CompletingValue(Maybe.Some(1), receiver => receiver.ToInvertedResult(Taken));
+        var missing = await Pending.CompletingValue(Maybe.None<int>(), receiver => receiver.ToInvertedResult(Taken));
 
         Assert.Multiple(
             () => Assert.Same(Taken, found.GetError()),
@@ -139,8 +139,8 @@ public sealed class MaybeToInvertedResultTests
     [Fact]
     internal async Task ToInvertedResult_with_an_error_factory_on_a_value_task_waits_for_a_maybe_that_is_not_completed()
     {
-        var found = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.Some(1))).ToInvertedResult(static id => Error.Conflict($"{id} exists."));
-        var missing = await new ValueTask<Maybe<int>>(Pending.Of(Maybe.None<int>())).ToInvertedResult(static id => Error.Conflict($"{id} exists."));
+        var found = await Pending.CompletingValue(Maybe.Some(1), receiver => receiver.ToInvertedResult(static id => Error.Conflict($"{id} exists.")));
+        var missing = await Pending.CompletingValue(Maybe.None<int>(), receiver => receiver.ToInvertedResult(static id => Error.Conflict($"{id} exists.")));
 
         Assert.Multiple(
             () => Assert.Equal("1 exists.", found.GetError().Message),

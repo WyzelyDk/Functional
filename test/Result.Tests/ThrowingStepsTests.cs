@@ -118,7 +118,7 @@ public sealed class ThrowingStepsTests
     [Fact]
     internal async Task GetValueOrThrow_awaits_a_receiver_that_completes_later()
     {
-        var value = await Pending.Of(Result.Success(2)).GetValueOrThrow();
+        var value = await Pending.Completing(Result.Success(2), receiver => receiver.GetValueOrThrow());
 
         Assert.Equal(2, value);
     }

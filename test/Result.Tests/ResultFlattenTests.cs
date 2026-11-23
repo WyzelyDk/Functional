@@ -51,7 +51,7 @@ public sealed class ResultFlattenTests
     [Fact]
     internal async Task Flatten_on_a_task_that_completes_later_removes_one_level()
     {
-        var flat = await Pending.Of(Result.Success(Result.Failure<int>(Inner))).Flatten();
+        var flat = await Pending.Completing(Result.Success(Result.Failure<int>(Inner)), receiver => receiver.Flatten());
 
         Assert.Same(Inner, flat.GetError());
     }
@@ -60,7 +60,7 @@ public sealed class ResultFlattenTests
     internal async Task Flatten_on_a_value_task_removes_one_level()
     {
         var success = await new ValueTask<Result<Result<int>>>(Result.Success(Result.Success(7))).Flatten();
-        var later = await new ValueTask<Result<Result<int>>>(Pending.Of(Result.Success(Result.Failure<int>(Inner)))).Flatten();
+        var later = await Pending.CompletingValue(Result.Success(Result.Failure<int>(Inner)), receiver => receiver.Flatten());
 
         Assert.Multiple(
             () => Assert.Equal(7, success.GetValue()),

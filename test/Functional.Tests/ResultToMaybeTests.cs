@@ -46,8 +46,8 @@ public sealed class ResultToMaybeTests
     [Fact]
     internal async Task ToMaybe_on_a_task_that_completes_later_converts_the_result()
     {
-        var some = await Pending.Of(Result.Success(5)).ToMaybe();
-        var none = await Pending.Of(Result.Failure<int>("Boom.")).ToMaybe();
+        var some = await Pending.Completing(Result.Success(5), receiver => receiver.ToMaybe());
+        var none = await Pending.Completing(Result.Failure<int>("Boom."), receiver => receiver.ToMaybe());
 
         Assert.Multiple(
             () => Assert.Equal(5, some.GetValue()),
@@ -58,7 +58,7 @@ public sealed class ResultToMaybeTests
     internal async Task ToMaybe_on_a_value_task_converts_the_result()
     {
         var some = await new ValueTask<Result<int>>(Result.Success(5)).ToMaybe();
-        var none = await new ValueTask<Result<int>>(Pending.Of(Result.Failure<int>("Boom."))).ToMaybe();
+        var none = await Pending.CompletingValue(Result.Failure<int>("Boom."), receiver => receiver.ToMaybe());
 
         Assert.Multiple(
             () => Assert.Equal(5, some.GetValue()),

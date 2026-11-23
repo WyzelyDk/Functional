@@ -7,13 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\ArgumentTesting\*.cs" Link="ArgumentTesting\%(Filename)%(Extension)" />
-    <Compile Include="..\ApiSurface\*.cs" Link="ApiSurface\%(Filename)%(Extension)" />
+    <ProjectReference Include="..\..\src\Result\Result.csproj" />
+    <ProjectReference Include="..\..\src\Result.CodeGeneration\Result.CodeGeneration.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Result\Result.csproj" />
-    <ProjectReference Include="..\..\src\Result.CodeGeneration\Result.CodeGeneration.csproj" />
+    <Compile Include="..\ArgumentTesting\*.cs" Link="ArgumentTesting\%(Filename)%(Extension)" />
+    <Compile Include="..\ApiSurface\*.cs" Link="ApiSurface\%(Filename)%(Extension)" />
+    <Compile Include="..\PendingTesting\*.cs" Link="PendingTesting\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="$(ProductPrefix).PendingTesting" />
   </ItemGroup>
 
 </Project>
