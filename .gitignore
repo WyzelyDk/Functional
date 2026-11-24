@@ -435,3 +435,7 @@ site/
 # Test results and coverage reports (dotnet test), and the working folder of the SonarCloud scanner
 TestResults/
 .sonarqube/
+
+# Visual Studio adds a launch profile with random ports to the web sample whenever it opens it. The sample chooses its own port (OrdersExample), and
+# nothing depends on the profile.
+samples/AspNetCore.Samples/Properties/launchSettings.json
