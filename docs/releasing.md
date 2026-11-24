@@ -206,7 +206,7 @@ Two checks keep the public API from changing by accident.
 - **Package validation.** `EnablePackageValidation` makes `dotnet pack` check that the assets of a package fit together (what the `net10.0` asset offers,
   the `net11.0` asset offers too). `PackageValidationBaselineVersion` in `Directory.Build.props` is the last release, and pack compares with it.
 
-**The baseline is the last release, and it is raised after every release** (it was set to 1.0.0 after that release): once the new version is on nuget.org,
+**The baseline is the last release, and it is raised after every release** (it was set to 1.1.0 after that release): once the new version is on nuget.org,
 a pull request sets `PackageValidationBaselineVersion` to it. Pack then fails on a public member that the last release had and this one does not (`CP0002`),
 and on an asset that was dropped (`PKV006`); making a public method internal is a way to see it.
 A break that is intended (it needs a new major version, see [Stability and support](stability.md)) is accepted with the suppression file:
