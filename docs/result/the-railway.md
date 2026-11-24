@@ -12,7 +12,7 @@ The operations are extension methods. Each exists for `Result<T>` and, where it 
 | `TapError(f)` | failure | runs a side effect with the error |
 | `MapError(f)` | failure | replaces the error, for example to add context |
 | `Ensure(predicate, error)` | success | turns the success into a failure when the predicate is false; the error can also be a plain message, or a function of the value that creates the error (or the message) only when the predicate is false; on an untyped result the condition takes no value |
-| `EnsureNot(predicate, error)` | success | the mirror of `Ensure`: turns the success into a failure when the predicate is true |
+| `EnsureNot(predicate, error)` | success | the mirror of `Ensure`: turns the success into a failure when the predicate is true; also with a function that creates the error or its message from the value |
 | `EnsureNotNull(error)` | success | fails when the value is `null`, and turns a `Result<T?>` into a `Result<T>` (for a reference type and for a nullable value type) |
 | `Ensure(f)` | success | validates with an operation that returns a `Result` (or a typed result, whose value is ignored), keeping the original value; the operation may also take no parameter |
 | `MapIf(condition, f)`, `BindIf`, `TapIf`, `EnsureIf` | success | the same step, run only when the condition holds; the condition is a `bool`, a function, or a function of the value, and `MapIf` and `BindIf` keep the type of the value |

@@ -157,8 +157,8 @@ Every number is counted from the source or pinned by a test.
   a detail marked sensitive is shown by `Message` and hidden by `RedactedMessage` and `ToRedactedString()` ([errors](docs/result/errors.md)).
 - **A railway that needs no `await` in the middle.**
   Every operation exists for a plain, a `Task` and a `ValueTask` receiver, each with a plain, `Task` or `ValueTask` delegate:
-  nine variants (27 for `Ensure` with an error or message factory, where the condition and the factory each choose their own kind).
-  They are generated, not hand-written: `src/Result/Generated` holds 950 files (876 for the 23 operation names of the railway,
+  nine variants (27 for `Ensure` and for `EnsureNot` with an error or message factory, where the condition and the factory each choose their own kind).
+  They are generated, not hand-written: `src/Result/Generated` holds 1004 files (930 for the 23 operation names of the railway,
   66 for the `SuccessIf`, `FailureIf` and `SuccessIfNotNull` factories, 8 for `Zip`) and `src/Maybe/Generated` holds 142 (130 for the operations,
   where `Map` and `OrElse` have a second form, `Contains` has three variants with and three without a comparer and `GetValueOrThrow` five, and 12 for `Zip`).
   `GeneratedFilesTests` fails if they are out of date. Writing that matrix by hand is the part that is no longer "easy" ([async](docs/result/async.md)).

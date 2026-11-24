@@ -25,6 +25,8 @@ public sealed class SuggestionsCodeFixTests
     [InlineData("WYZ0104", "Result<int> M(Result<int> r) => r.Map(x => x > 5 ? x + 1 : x);", "r.MapIf(x => x > 5, x => x + 1)")]
     [InlineData("WYZ0105", "Result<int> M(Result<int> r) => r.Ensure(x => !Big(x), Rejected);", "r.EnsureNot(x => Big(x), Rejected)")]
     [InlineData("WYZ0105", "Result<int> M(Result<int> r) => r.Ensure(x => !(x > 5), \"Too big.\");", "r.EnsureNot(x => x > 5, \"Too big.\")")]
+    [InlineData("WYZ0105", "Result<int> M(Result<int> r) => r.Ensure(x => !Big(x), x => Rejected);", "r.EnsureNot(x => Big(x), x => Rejected)")]
+    [InlineData("WYZ0105", "Result<int> M(Result<int> r) => r.Ensure(x => !(x > 5), x => \"Too big.\");", "r.EnsureNot(x => x > 5, x => \"Too big.\")")]
     [InlineData(
         "WYZ0106",
         "Result<string> M(Result<string?> r) => r.Bind(x => x is null ? Result.Failure<string>(Rejected) : Result.Success(x));",

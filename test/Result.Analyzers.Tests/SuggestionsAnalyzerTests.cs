@@ -43,6 +43,9 @@ public sealed class SuggestionsAnalyzerTests
     [InlineData("Result<int> M(Result<int> r) => r.Ensure(x => !Big(x), Rejected);")]
     [InlineData("Result<int> M(Result<int> r) => r.Ensure(x => !(x > 5), \"Too big.\");")]
     [InlineData("Task<Result<int>> M(Task<Result<int>> r) => r.Ensure(x => !Big(x), Rejected);")]
+    [InlineData("Result<int> M(Result<int> r) => r.Ensure(x => !Big(x), x => Rejected);")]
+    [InlineData("Result<int> M(Result<int> r) => r.Ensure(x => !Big(x), x => \"Too big.\");")]
+    [InlineData("Task<Result<int>> M(Task<Result<int>> r) => r.Ensure(x => !Big(x), x => Rejected);")]
     internal async Task Ensure_with_a_negated_condition_is_EnsureNot(string method)
     {
         var ids = await AnalyzerTestHost.AnalyzeAsync(Sources + "\n" + method, Analyzer);
@@ -114,7 +117,6 @@ public sealed class SuggestionsAnalyzerTests
     [InlineData("Result<double> M(Result<int> r) => r.Map(x => Ready() ? 1.5 : x);")]
     [InlineData("Result<int> M(Result<int> r) => r.Map(x => x * 2);")]
     [InlineData("Result<int> M(Result<int> r) => r.Ensure(x => Big(x), Rejected);")]
-    [InlineData("Result<int> M(Result<int> r) => r.Ensure(x => !Big(x), x => Failed());")]
     [InlineData("Result<int> M(Result<int> r) => r.Ensure(x => !Big(x) && Ready(), Rejected);")]
     [InlineData("Result<string> M(Result<string?> r) => r.Bind(x => x is null ? Result.Failure<string>(Rejected) : Result.Success(x.Trim()));")]
     [InlineData("Result<string> M(Result<string?> r) => r.Bind(x => x?.Length > 3 ? Result.Success(x) : Result.Failure<string>(Rejected));")]

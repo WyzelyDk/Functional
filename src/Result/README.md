@@ -92,8 +92,8 @@ What this package adds, each point checked against the source or a test:
   (counting the `Result` and `Result<T>` forms,
   the ten `Ensure` forms, the 25 `*If` forms, the 16 `*Try` forms and the conveniences `EnsureNot`, `EnsureNotNull` and `Tap` without a value,
   the tuple steps `BindZip` and `Map`/`Bind` with separate parameters, and `ValueOr`, `GetValueOrThrow` and `ThrowIfFailure` separately),
-  each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate (27 for `Ensure` with a factory,
-  where the condition and the factory each choose their own kind): 876 generated files, covered by generated tests.
+  each in the nine combinations of a plain, `Task` or `ValueTask` receiver and delegate (27 for `Ensure` and for `EnsureNot` with a factory,
+  where the condition and the factory each choose their own kind): 930 generated files, covered by generated tests.
   Writing those by hand, consistently, is the part nobody enjoys.
 - **Analyzers and code fixes in the package:** `WYZ0101` (a discarded result, with a code fix) and `WYZ0102` (`GetError()` / `GetValue()` not guarded,
   with a guard clause as the fix for `GetValue()` in a method that returns a result),
