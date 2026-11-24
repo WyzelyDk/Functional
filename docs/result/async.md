@@ -26,7 +26,7 @@ Argument validation happens when you call the method, not when you await the ret
 An already completed `Task`/`ValueTask` takes a synchronous fast path without a state machine; a step that leaves the result as it was (`Ensure` that passes,
 `Tap`, `TapError`, `MapError`, `OrElse`) hands back the task it received instead of allocating a new one;
 and a synchronous receiver with an asynchronous delegate (for `Bind`, `Match` and `OrElse` with an alternative operation) hands back the delegate's own task.
-The 876 files are generated from one catalog (see [Building from source](contributing.md)), together with a test for every variant.
+The 930 files are generated from one catalog (see [Building from source](contributing.md)), together with a test for every variant.
 
 ## Zip and tasks
 

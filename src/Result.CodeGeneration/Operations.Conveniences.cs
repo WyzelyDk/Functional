@@ -42,6 +42,8 @@ internal static partial class Operations
         yield return TapWithoutValueFromResultOfT();
         yield return EnsureNotSpec(message: false);
         yield return EnsureNotSpec(message: true);
+        yield return EnsureNotWithFactorySpec(message: false);
+        yield return EnsureNotWithFactorySpec(message: true);
 
         foreach (var kind in new[] { NullKind.Class, NullKind.Struct })
         {
@@ -163,6 +165,108 @@ internal static partial class Operations
                 [argument],
                 [AssertSameOtherOutcomeGetError, "Assert.Equal(0, predicateCalls);"],
                 [OtherErrorSetup]),
+        ];
+    }
+
+    // The mirror of Ensure with a factory: the condition and the factory that builds the error are asynchronous independently of each other, so this
+    // family has 27 variants, and the factory is called only when the predicate holds.
+    private static OperationSpec EnsureNotWithFactorySpec(bool message)
+    {
+        var factoryName = message ? MessageFactoryName : ErrorFactoryName;
+        var factoryReturns = message ? StringType : ErrorType;
+        var factoryDoc = message
+            ? "Creates the message of the error from the value. It is called only when the condition holds."
+            : "Creates the error from the value. It is called only when the condition holds.";
+
+        return new OperationSpec
+        {
+            Stem = message ? "EnsureNotWithMessageFactoryFromResultOfT" : "EnsureNotWithErrorFactoryFromResultOfT",
+            KeepsValue = true,
+            Name = "EnsureNot",
+            ReceiverType = ResultOfT,
+            ReceiverTestType = ResultOfInt,
+            ReceiverDescription = ResultOfTReceiverDescription,
+            TypeParameters = ["T"],
+            TypeParameterDocs = [new("T", TDoc)],
+            Summary = message
+                ? "Turns a successful result into a failure when its value satisfies a condition that must not hold. " +
+                    "The message of the error is created from the value, and only when the condition holds. " +
+                    "A failed result passes through with its own error and neither delegate is called."
+                : "Turns a successful result into a failure when its value satisfies a condition that must not hold. " +
+                    "The error is created from the value, and only when the condition holds. " +
+                    "A failed result passes through with its own error and neither delegate is called.",
+            Delegates =
+            [
+                new(PredicateName, ["T"], "bool", "The condition the value must not satisfy."),
+                new(factoryName, ["T"], factoryReturns, factoryDoc, Independent: true),
+            ],
+            ReturnType = ResultOfT,
+            ReturnDescription = message
+                ? "The receiver when it failed or its value does not satisfy the condition, otherwise a failed result whose error was created from the " +
+                    $"message of <paramref name=\"{factoryName}\"/>."
+                : "The receiver when it failed or its value does not satisfy the condition, otherwise a failed result with the error of " +
+                    $"<paramref name=\"{factoryName}\"/>.",
+            Body = ctx => EnsureNotWithFactoryBody(ctx, message, factoryName),
+            Tests = EnsureNotWithFactoryTests(message, factoryName, factoryReturns),
+        };
+    }
+
+    /// <summary>Gets the body of <c>EnsureNot</c> with a factory that creates the error or its message.</summary>
+    private static string[] EnsureNotWithFactoryBody(BodyContext ctx, bool message, string factoryName)
+    {
+        var variable = message ? "message" : ErrorName;
+
+        return
+        [
+            Unpack(ctx),
+            string.Empty,
+            IfFailureIsNotNull,
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var holds = {ctx.Call(PredicateName, InputName)};",
+            string.Empty,
+            "if (!holds)",
+            "{",
+            $"    return {ctx.R};",
+            "}",
+            string.Empty,
+            $"var {variable} = {ctx.CallSecond(factoryName, InputName)};",
+            $"return Result.Failure<T>({variable});",
+        ];
+    }
+
+    /// <summary>Gets the generated tests of <c>EnsureNot</c> with a factory that creates the error or its message.</summary>
+    private static TestCaseSpec[] EnsureNotWithFactoryTests(bool message, string factoryName, string factoryReturns)
+    {
+        var factoryResult = message ? TooSmallMessage : ErrorName;
+        var factoryCalls = $"{factoryName}Calls";
+
+        return
+        [
+            Case(
+                "returns_the_receiver_without_creating_an_error_when_the_value_does_not_satisfy_the_condition",
+                SuccessOfTwo,
+                [Returns(PredicateName, ["x"], "x > 5", "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
+                [AssertTrueOutcomeIsSuccess, AssertEqual2OutcomeGetValue, AssertEqual1PredicateCalls, $"Assert.Equal(0, {factoryCalls});"]),
+            Case(
+                "returns_the_failure_the_factory_creates_from_the_value_when_the_value_satisfies_the_condition",
+                SuccessOfTwo,
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns, "seen = x;")],
+                [
+                    message ? "Assert.Equal(\"Too small.\", outcome.GetError().Message);" : AssertSameErrorOutcomeGetError,
+                    AssertEqual1PredicateCalls,
+                    $"Assert.Equal(1, {factoryCalls});",
+                    "Assert.Equal(2, seen);",
+                ],
+                setup: ["var seen = 0;"]),
+            Case(
+                "keeps_the_error_of_the_receiver_without_running_a_delegate_when_the_receiver_failed",
+                "Result.Failure<int>(other)",
+                [Returns(PredicateName, ["x"], GreaterThanOne, "bool"), Returns(factoryName, ["x"], factoryResult, factoryReturns)],
+                [AssertSameOtherOutcomeGetError, "Assert.Equal(0, predicateCalls);", $"Assert.Equal(0, {factoryCalls});"],
+                setup: [OtherErrorSetup]),
         ];
     }
 

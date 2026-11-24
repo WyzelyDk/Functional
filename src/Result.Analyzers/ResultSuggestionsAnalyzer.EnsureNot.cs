@@ -9,10 +9,13 @@ namespace Wyzely.Functional.ResultAnalyzers;
 /// </content>
 public sealed partial class ResultSuggestionsAnalyzer
 {
-    // WYZ0105: Ensure(x => !condition, error) is EnsureNot(x => condition, error). Only the forms with an error or a message exist for EnsureNot.
+    // WYZ0105: Ensure(x => !condition, error) is EnsureNot(x => condition, error), also with a factory for the error or its message.
     private static void CheckEnsureNot(OperationAnalysisContext context, IInvocationOperation invocation)
     {
-        var hasError = OperationHelpers.ArgumentOf(invocation, "error") is not null || OperationHelpers.ArgumentOf(invocation, "message") is not null;
+        var hasError = OperationHelpers.ArgumentOf(invocation, "error") is not null
+            || OperationHelpers.ArgumentOf(invocation, "message") is not null
+            || OperationHelpers.ArgumentOf(invocation, "errorFactory") is not null
+            || OperationHelpers.ArgumentOf(invocation, "messageFactory") is not null;
 
         if (hasError
             && OperationHelpers.TryGetLambda(OperationHelpers.ArgumentOf(invocation, "predicate"), 1, out var lambda, out var returned)
